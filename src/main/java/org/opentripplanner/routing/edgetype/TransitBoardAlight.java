@@ -342,12 +342,25 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
                 s0.getLastNextArrivalDelta() > -1) {
                 // it is re-reversed by optimize, so this still yields a forward tree
                 State optimized = s1.makeState().optimizeOrReverse(true, true);
+
                 if (optimized == null) LOG.error("Null optimized state. This shouldn't happen.");
+                optimized.stateData.setCurrentTraverseMode(TraverseMode.BUS);
+
                 return optimized;
             }
 
             /* If we didn't return an optimized path, return an unoptimized one. */
-            return s1.makeState();
+
+            State res = s1.makeState();
+            res.stateData.setCurrentTraverseMode(TraverseMode.BUS);
+
+            return  res;
+//            return s1.makeState();
+
+
+
+
+
         }
     }
 

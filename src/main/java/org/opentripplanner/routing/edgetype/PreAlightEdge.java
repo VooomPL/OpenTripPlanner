@@ -93,7 +93,14 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
             s1.alightTransit();
             s1.incrementTimeInSeconds(options.alightSlack);
             s1.setBackMode(getMode());
-            return s1.makeState();
+
+
+
+            State res = s1.makeState();
+            res.stateData.setCurrentTraverseMode(TraverseMode.WALK);
+
+            return  res;
+
         }
     }
 
