@@ -111,13 +111,13 @@ public abstract class GraphUpdaterConfigurator {
 
 //        TODO(mszewczyk) Now Updater is configured mannualy
 //        One fixed car in Bydgoszcz
-//        GraphUpdater updater = new SharedVehiclesUpdater(new VehiclePositionsGetter());
+        GraphUpdater updater = new SharedVehiclesUpdater(new VehiclePositionsGetter());
 
 //        Random cars in Bydgoszcz
 //        GraphUpdater updater = new SharedVehiclesUpdater(new RandomVehiclePositionsGetter(3000, 17.79352611652339D, 18.253462294124365D, 52.96911056940485D, 53.25500226408037D));
 
 //      Random cars in Warsaw
-        GraphUpdater updater = new SharedVehiclesUpdater(new RandomVehiclePositionsGetter(3000, 20.45D, 21.46D,  51.91D,  52.48D));
+//        GraphUpdater updater = new SharedVehiclesUpdater(new RandomVehiclePositionsGetter(3000, 20.45D, 21.46D,  51.91D,  52.48D));
 
         try {
             updater.setGraphUpdaterManager(updaterManager);

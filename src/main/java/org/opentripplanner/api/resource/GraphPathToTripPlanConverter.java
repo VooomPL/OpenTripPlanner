@@ -338,8 +338,9 @@ public abstract class GraphPathToTripPlanConverter {
         addModeAndAlerts(graph, leg, states, disableAlertFiltering, requestedLocale);
         if (leg.isTransitLeg()) addRealTimeData(leg, states);
 
-
-        leg.vehicleDescription = states[0].getCurrentVehicle();
+        for (State state : states)
+            if (state.getCurrentVehicle() != null)
+                leg.vehicleDescription = states[0].getCurrentVehicle();
 
         return leg;
     }

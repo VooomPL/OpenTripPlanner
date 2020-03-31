@@ -520,7 +520,6 @@ public class StreetEdge extends Edge implements Cloneable {
 //        if (traverseMode == null) {
 //            return Double.NaN;
 //        } else if (traverseMode.isDriving()) {
-//             NOTE: Automobiles have variable speeds depending on the edge type
 //            return calculateCarSpeed(options);
 //        }
 //        return options.getSpeed(traverseMode);
