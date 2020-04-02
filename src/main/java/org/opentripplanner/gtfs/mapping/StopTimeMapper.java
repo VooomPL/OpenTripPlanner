@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Responsible for mapping GTFS StopTime into the OTP model. */
+/**
+ * Responsible for mapping GTFS StopTime into the OTP model.
+ */
 class StopTimeMapper {
     private final StopMapper stopMapper;
 
@@ -24,7 +26,9 @@ class StopTimeMapper {
         return MapUtils.mapToList(times, this::map);
     }
 
-    /** Map from GTFS to OTP model, {@code null} safe.  */
+    /**
+     * Map from GTFS to OTP model, {@code null} safe.
+     */
     StopTime map(org.onebusaway.gtfs.model.StopTime orginal) {
         return orginal == null ? null : mappedStopTimes.computeIfAbsent(orginal, this::doMap);
     }

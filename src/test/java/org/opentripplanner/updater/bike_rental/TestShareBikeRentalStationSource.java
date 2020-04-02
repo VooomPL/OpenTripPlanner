@@ -20,9 +20,9 @@ public class TestShareBikeRentalStationSource extends TestCase {
             System.out.println(rentalStation);
         }
         BikeRentalStation prinsen = rentalStations.get(0);
-        
+
         assertTrue(prinsen.networks.contains("dummyid"));
-        
+
         assertEquals("01", prinsen.name.toString());
         assertEquals("dummyid_1", prinsen.id);
         assertEquals(10.392981, prinsen.x);
@@ -38,7 +38,7 @@ public class TestShareBikeRentalStationSource extends TestCase {
         assertTrue(shareBikeSource.update());
         List<BikeRentalStation> rentalStations = shareBikeSource.getStations();
         BikeRentalStation prinsen = rentalStations.get(0);
-        
+
         //  Should be random value
         assertFalse(prinsen.networks.contains("dummyid"));
     }

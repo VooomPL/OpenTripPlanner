@@ -11,7 +11,7 @@ import java.util.Map;
  * keyed on a combination of the x and y coordinates.
  * Does not implement the collection interface for simplicity and speed.
  * Not thread-safe!
- * 
+ *
  * @author laurent
  */
 public class SparseMatrix<T> implements Iterable<T> {
@@ -32,8 +32,8 @@ public class SparseMatrix<T> implements Iterable<T> {
 
     /**
      * @param chunkSize Must be a power of two so chunk indexes can be determined by shifting off low order bits.
-     *        Keep it small (8, 16, 32...). Chunks are square, with this many elements in each of two dimensions,
-     *        so the number of elements in each chunk will be the square of this value.
+     *                  Keep it small (8, 16, 32...). Chunks are square, with this many elements in each of two dimensions,
+     *                  so the number of elements in each chunk will be the square of this value.
      * @param totalSize Estimated total number of elements to be stored in the matrix (actual use, not capacity).
      */
     public SparseMatrix(int chunkSize, int totalSize) {
@@ -217,15 +217,20 @@ public class SparseMatrix<T> implements Iterable<T> {
      */
     static class Key {
         int x, y;
+
         public Key(int x, int y, int shift) {
             this.x = x >>> shift; // shift off low order bits (index within chunk) retaining only the chunk number
             this.y = y >>> shift; // same for y coordinate
         }
-        @Override public int hashCode() {
+
+        @Override
+        public int hashCode() {
             return x ^ y;
         }
-        @Override public boolean equals(Object other) {
-            return other instanceof Key && ((Key)other).x == x && ((Key)other).y == y;
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Key && ((Key) other).x == x && ((Key) other).y == y;
         }
     }
 

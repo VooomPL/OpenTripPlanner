@@ -46,7 +46,7 @@ public class DynamicStreetNotesSource implements StreetNotesSource {
     /*
      * Update the NotesSource with a new set of notes.
      */
-    public void setNotes(SetMultimap<Edge, MatcherAndAlert> notes){
+    public void setNotes(SetMultimap<Edge, MatcherAndAlert> notes) {
         this.notesForEdge = notes;
     }
 }

@@ -1,12 +1,12 @@
 package org.opentripplanner.geocoder;
 
-import java.util.Collection;
-
 import org.locationtech.jts.geom.Envelope;
+
+import java.util.Collection;
 
 
 public class GeocoderMultipleResultsStubImpl implements Geocoder {
-    
+
     private Collection<GeocoderResult> results;
 
     public GeocoderMultipleResultsStubImpl(Collection<GeocoderResult> results) {

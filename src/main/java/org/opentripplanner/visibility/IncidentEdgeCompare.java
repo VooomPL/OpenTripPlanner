@@ -4,13 +4,13 @@ import java.util.Comparator;
 
 /**
  * Ported by David Turner from Visilibity, by Karl J. Obermeyer
- *
- *
+ * <p>
+ * <p>
  * This port undoubtedly introduced a number of bugs (and removed some features).
- *
+ * <p>
  * Bug reports should be directed to the OpenTripPlanner project, unless they
  * can be reproduced in the original VisiLibity.
- *
+ * <p>
  * This is *reversed* from the original since Java PQs are min-heaps while STL PQs are max-heaps
  */
 class IncidentEdgeCompare implements Comparator<PolarEdge> {
@@ -21,7 +21,7 @@ class IncidentEdgeCompare implements Comparator<PolarEdge> {
     double epsilon;
 
     public IncidentEdgeCompare(VLPoint observer, PolarPointWithEdgeInfo current_vertex,
-            double epsilon_temp) {
+                               double epsilon_temp) {
 
         observer_pointer = observer;
         current_vertex_pointer = current_vertex;

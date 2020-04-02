@@ -4,11 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -51,7 +47,7 @@ public class LuceneIndex {
     private IndexSearcher searcher; // Will be null until index is built.
 
     /**
-     * @param basePath the filesystem location under which to save indexes
+     * @param basePath   the filesystem location under which to save indexes
      * @param background if true, perform the initial indexing in a background thread, if false block to index
      */
     public LuceneIndex(final GraphIndex graphIndex, File basePath, boolean background) {
@@ -145,17 +141,18 @@ public class LuceneIndex {
         }
     }
 
-    /** Fetch results for the geocoder using the OTP graph for stops, clusters and street names
+    /**
+     * Fetch results for the geocoder using the OTP graph for stops, clusters and street names
      *
      * @param queryString
      * @param autocomplete Whether we should use the query string to do a prefix match
-     * @param stops Search for stops, either by name or stop code
-     * @param clusters Search for clusters by their name
-     * @param corners Search for street corners using at least one of the street names
+     * @param stops        Search for stops, either by name or stop code
+     * @param clusters     Search for clusters by their name
+     * @param corners      Search for street corners using at least one of the street names
      * @return list of results in in the format expected by GeocoderBuiltin.js in the OTP Leaflet client
      */
-    public List<LuceneResult> query (String queryString, boolean autocomplete,
-                                     boolean stops, boolean clusters, boolean corners) {
+    public List<LuceneResult> query(String queryString, boolean autocomplete,
+                                    boolean stops, boolean clusters, boolean corners) {
         /* Turn the query string into a Lucene query.*/
         BooleanQuery query = new BooleanQuery();
         BooleanQuery termQuery = new BooleanQuery();
@@ -211,7 +208,7 @@ public class LuceneIndex {
                 lr.lng = doc.getField("lon").numericValue().doubleValue();
                 String category = doc.getField("category").stringValue().toLowerCase();
                 String code;
-                if (doc.getField("code") != null){
+                if (doc.getField("code") != null) {
                     code = "(" + doc.getField("code").stringValue() + ")";
                 } else {
                     code = "";
@@ -231,7 +228,9 @@ public class LuceneIndex {
         }
     }
 
-    /** This class matches the structure of the Geocoder responses expected by the OTP client. */
+    /**
+     * This class matches the structure of the Geocoder responses expected by the OTP client.
+     */
     public static class LuceneResult {
         public double lat;
         public double lng;
@@ -239,6 +238,6 @@ public class LuceneIndex {
         public String id;
     }
 
-    public static enum Category { STOP, CORNER, CLUSTER; }
+    public static enum Category {STOP, CORNER, CLUSTER;}
 }
 

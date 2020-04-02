@@ -28,7 +28,7 @@ public class Option {
     // The fares are outside the transit segments because a fare can apply to multiple segments so there is no one-to-one
     // correspondance. For example, when you transfer from one subway to another and pay one fare for the two segments.
 
-    public Option (Ride tail, Collection<StopAtDistance> accessPaths, Collection<StopAtDistance> egressPaths) {
+    public Option(Ride tail, Collection<StopAtDistance> accessPaths, Collection<StopAtDistance> egressPaths) {
         access = StreetSegment.list(accessPaths);
         egress = StreetSegment.list(egressPaths);
         // Include access and egress times across all modes in the overall travel time statistics for this option.
@@ -40,7 +40,7 @@ public class Option {
         for (Ride ride = tail; ride != null; ride = ride.previous) {
             rides.add(ride);
         }
-        if ( ! rides.isEmpty()) {
+        if (!rides.isEmpty()) {
             Collections.reverse(rides);
             // The access times have already been calculated separately, avoid double-inclusion by zeroing them out here
             rides.get(0).accessStats = new Stats();
@@ -51,7 +51,7 @@ public class Option {
                 Segment segment = new Segment(ride);
                 transit.add(segment);
                 stats.add(segment.walkTime);
-                if(segment.waitStats != null) stats.add(segment.waitStats);
+                if (segment.waitStats != null) stats.add(segment.waitStats);
                 stats.add(segment.rideStats);
             }
         }
@@ -60,7 +60,9 @@ public class Option {
         summary = generateSummary();
     }
 
-    /** Make a human readable text summary of this option. */
+    /**
+     * Make a human readable text summary of this option.
+     */
     public String generateSummary() {
         if (transit == null || transit.isEmpty()) {
             return "Non-transit options";

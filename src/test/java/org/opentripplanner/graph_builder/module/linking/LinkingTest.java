@@ -3,14 +3,14 @@ package org.opentripplanner.graph_builder.module.linking;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import jersey.repackaged.com.google.common.collect.Maps;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.P2;
@@ -36,24 +36,26 @@ import static org.junit.Assert.*;
 import static org.opentripplanner.graph_builder.module.FakeGraph.*;
 
 public class LinkingTest {
-    /** maximum difference in walk distance, in meters, that is acceptable between the graphs */
+    /**
+     * maximum difference in walk distance, in meters, that is acceptable between the graphs
+     */
     public static final int EPSILON = 1;
 
     /**
      * Ensure that splitting edges yields edges that are identical in length for forward and back edges.
      * StreetEdges have lengths expressed internally in mm, and we want to be sure that not only do they
-     * sum to the same values but also that they 
+     * sum to the same values but also that they
      */
     @Test
-    public void testSplitting () {
-        GeometryFactory gf= GeometryUtils.getGeometryFactory();
+    public void testSplitting() {
+        GeometryFactory gf = GeometryUtils.getGeometryFactory();
         double x = -122.123;
-        double y = 37.363; 
+        double y = 37.363;
         for (double delta = 0; delta <= 2; delta += 0.005) {
 
             StreetVertex v0 = new IntersectionVertex(null, "zero", x, y);
             StreetVertex v1 = new IntersectionVertex(null, "one", x + delta, y + delta);
-            LineString geom = gf.createLineString(new Coordinate[] { v0.getCoordinate(), v1.getCoordinate() });
+            LineString geom = gf.createLineString(new Coordinate[]{v0.getCoordinate(), v1.getCoordinate()});
             double dist = SphericalDistanceLibrary.distance(v0.getCoordinate(), v1.getCoordinate());
             StreetEdge s0 = new StreetEdge(v0, v1, geom, "test", dist, StreetTraversalPermission.ALL, false);
             StreetEdge s1 = new StreetEdge(v1, v0, (LineString) geom.reverse(), "back", dist, StreetTraversalPermission.ALL, true);
@@ -82,11 +84,11 @@ public class LinkingTest {
      * Test that all the stops are linked identically
      * to the street network on two builds of similar graphs
      * with additional stops in one.
-     * 
+     * <p>
      * We do this by building the graphs and then comparing the stop tree caches.
      */
     @Test
-    public void testStopsLinkedIdentically () throws UnsupportedEncodingException {
+    public void testStopsLinkedIdentically() throws UnsupportedEncodingException {
         // build the graph without the added stops
         Graph g1 = buildGraphNoTransit();
         addRegularStopGrid(g1);
@@ -99,7 +101,7 @@ public class LinkingTest {
 
         // compare the linkages
         for (TransitStop ts : Iterables.filter(g1.getVertices(), TransitStop.class)) {
-            Collection<Edge> stls = stls(ts.getOutgoing());			
+            Collection<Edge> stls = stls(ts.getOutgoing());
             assertTrue(stls.size() >= 1);
 
             StreetTransitLink exemplar = (StreetTransitLink) stls.iterator().next();
@@ -138,14 +140,14 @@ public class LinkingTest {
             TObjectIntMap<String> g1t = jaggedArrayToVertexMap(e.getValue(), g1);
             TObjectIntMap<String> g2t = jaggedArrayToVertexMap(l2.get(e.getKey()), g2);
 
-            for (TObjectIntIterator<String> it = g1t.iterator(); it.hasNext();) {
+            for (TObjectIntIterator<String> it = g1t.iterator(); it.hasNext(); ) {
                 it.advance();
 
                 assertTrue(g2t.containsKey(it.key()));
 
                 int newv = g2t.get(it.key());
 
-                assertTrue("At " + it.key() + " from stop " + g1.getVertex(e.getKey()) + ", difference in walk distances: " + it.value() + "m without extra stops,"  + newv + "m with",
+                assertTrue("At " + it.key() + " from stop " + g1.getVertex(e.getKey()) + ", difference in walk distances: " + it.value() + "m without extra stops," + newv + "m with",
                         Math.abs(it.value() - newv) <= EPSILON);
             }
         }
@@ -166,7 +168,7 @@ public class LinkingTest {
         return ret;
     }
 
-    private static Collection<Edge> stls (Collection<Edge> edges) {
+    private static Collection<Edge> stls(Collection<Edge> edges) {
         return Collections2.filter(edges, new Predicate<Edge>() {
 
             @Override
@@ -176,8 +178,10 @@ public class LinkingTest {
         });
     }
 
-    /** get the stop tree cache indexed by label */
-    public static Map<String, int[]> cacheByLabel (StopTreeCache c) {
+    /**
+     * get the stop tree cache indexed by label
+     */
+    public static Map<String, int[]> cacheByLabel(StopTreeCache c) {
         Map<String, int[]> ret = Maps.newHashMap();
 
         for (Entry<TransitStop, int[]> e : c.distancesForStop.entrySet()) {

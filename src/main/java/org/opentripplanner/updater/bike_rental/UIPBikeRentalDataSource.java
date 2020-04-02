@@ -17,11 +17,9 @@ public class UIPBikeRentalDataSource extends GenericJsonBikeRentalDataSource {
     }
 
     /**
-     *
      * Bike-rental station data source for: http://urbaninfrastructure.no/
-     *
+     * <p>
      * API description: https://developer.oslobysykkel.no/api
-     *
      */
     @Override
     public BikeRentalStation makeStation(JsonNode rentalStationNode) {
@@ -41,18 +39,18 @@ public class UIPBikeRentalDataSource extends GenericJsonBikeRentalDataSource {
     public boolean update() {
 
         // get stations
-        if(!super.update()){
+        if (!super.update()) {
             return false;
         }
         List<BikeRentalStation> stations = super.getStations();
 
         // update stations with availability info
         super.stations = new ArrayList<>();
-        if(baseURL == null){
+        if (baseURL == null) {
             baseURL = getUrl();
         }
         setUrl(baseURL + "/availability");
-        if(!super.update()){
+        if (!super.update()) {
             return false;
         }
 
@@ -63,11 +61,11 @@ public class UIPBikeRentalDataSource extends GenericJsonBikeRentalDataSource {
     }
 
     private List<BikeRentalStation> mergeStationInfo(List<BikeRentalStation> stations,
-                                                     List<BikeRentalStation> availabilityStations){
+                                                     List<BikeRentalStation> availabilityStations) {
         List<BikeRentalStation> merged = new ArrayList<>();
-        for(BikeRentalStation station : stations){
-            for(BikeRentalStation availability : availabilityStations){
-                if(station.id.equals(availability.id)){
+        for (BikeRentalStation station : stations) {
+            for (BikeRentalStation availability : availabilityStations) {
+                if (station.id.equals(availability.id)) {
                     station.bikesAvailable = availability.bikesAvailable;
                     station.spacesAvailable = availability.spacesAvailable;
                     merged.add(station);

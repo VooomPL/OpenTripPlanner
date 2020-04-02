@@ -1,13 +1,13 @@
 package org.opentripplanner.routing.bike_rental;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.util.Locale;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.ResourceBundleSingleton;
+
+import java.io.Serializable;
+import java.util.Locale;
+import java.util.Set;
 
 public class BikeRentalStation implements Serializable, Cloneable {
     private static final long serialVersionUID = 8311460609708089384L;
@@ -35,7 +35,7 @@ public class BikeRentalStation implements Serializable, Cloneable {
      */
     @JsonSerialize
     public Set<String> networks = null;
-    
+
     /**
      * Whether this station is static (usually coming from OSM data) or a real-time source. If no real-time data, users should take
      * bikesAvailable/spacesAvailable with a pinch of salt, as they are always the total capacity divided by two. Only the total is meaningful.
@@ -47,13 +47,12 @@ public class BikeRentalStation implements Serializable, Cloneable {
      * This is used for localization. Currently "bike rental station" isn't part of the name.
      * It can be added on the client. But since it is used as Station: name, and Recommended Pick Up: name.
      * It isn't used.
-     *
+     * <p>
      * Names can be different in different languages if name tags in OSM have language tags.
-     *
+     * <p>
      * It is set in {@link org.opentripplanner.api.resource.BikeRental} from URL parameter.
-     *
+     * <p>
      * Sets default locale on start
-     *
      */
     @JsonIgnore
     public Locale locale = ResourceBundleSingleton.INSTANCE.getLocale(null);
@@ -69,13 +68,13 @@ public class BikeRentalStation implements Serializable, Cloneable {
         BikeRentalStation other = (BikeRentalStation) o;
         return other.id.equals(id);
     }
-    
+
     public int hashCode() {
         return id.hashCode() + 1;
     }
-    
-    public String toString () {
-        return String.format(Locale.US, "Bike rental station %s at %.6f, %.6f", name, y, x); 
+
+    public String toString() {
+        return String.format(Locale.US, "Bike rental station %s at %.6f, %.6f", name, y, x);
     }
 
     @Override

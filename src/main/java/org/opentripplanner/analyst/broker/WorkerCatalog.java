@@ -27,7 +27,7 @@ public class WorkerCatalog {
 
     // and function to update target counts based on jobs queue.
 
-    public synchronized void catalog (String workerId, String graphAffinity) {
+    public synchronized void catalog(String workerId, String graphAffinity) {
         WorkerObservation observation = new WorkerObservation(workerId, graphAffinity);
         WorkerObservation oldObservation = observationsByWorkerId.put(workerId, observation);
         if (oldObservation != null) {
@@ -36,7 +36,7 @@ public class WorkerCatalog {
         workersByGraph.put(graphAffinity, workerId);
     }
 
-    public synchronized void purgeDeadWorkers () {
+    public synchronized void purgeDeadWorkers() {
         long now = System.currentTimeMillis();
         long oldestAcceptable = now - 2 * 60 * 1000;
         List<WorkerObservation> ancientObservations = observationsByWorkerId.values().stream()
@@ -47,7 +47,7 @@ public class WorkerCatalog {
         });
     }
 
-    public synchronized void updateTargetWorkerCounts (Multimap<String, String> activeJobsPerGraph) {
+    public synchronized void updateTargetWorkerCounts(Multimap<String, String> activeJobsPerGraph) {
 
         final int activeWorkerCount = observationsByWorkerId.size(); // (plus outstanding instance requests)
         final int activeJobsCount = activeJobsPerGraph.size();
@@ -59,13 +59,17 @@ public class WorkerCatalog {
 
     }
 
-    /** Returns true if it is OK to steal a worker toward this graphId. */
-    boolean notEnoughWorkers (String graphId) {
+    /**
+     * Returns true if it is OK to steal a worker toward this graphId.
+     */
+    boolean notEnoughWorkers(String graphId) {
         return targetWorkerCountPerGraph.get(graphId) > workersByGraph.get(graphId).size();
     }
 
-    /** Returns true if it is OK to steal a worker _away_ from this graphId. */
-    boolean tooManyWorkers (String graphId) {
+    /**
+     * Returns true if it is OK to steal a worker _away_ from this graphId.
+     */
+    boolean tooManyWorkers(String graphId) {
         return targetWorkerCountPerGraph.get(graphId) < workersByGraph.get(graphId).size();
     }
 
@@ -77,7 +81,7 @@ public class WorkerCatalog {
         return null;
     }
 
-    public int size () {
+    public int size() {
         return workersByGraph.size();
     }
 

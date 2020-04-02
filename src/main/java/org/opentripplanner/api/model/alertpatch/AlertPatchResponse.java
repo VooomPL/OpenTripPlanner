@@ -1,9 +1,9 @@
 package org.opentripplanner.api.model.alertpatch;
 
+import org.opentripplanner.routing.alertpatch.AlertPatch;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opentripplanner.routing.alertpatch.AlertPatch;
 
 public class AlertPatchResponse {
     public List<AlertPatch> alertPatches;

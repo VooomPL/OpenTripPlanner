@@ -12,7 +12,7 @@ import org.opentripplanner.routing.graph.Vertex;
  * To allow transitions on and off a bike, it has RentABike* loop edges.
  *
  * @author laurent
- *
+ * <p>
  * TODO if we continue using this for car rental and flex systems, change name to VehicleRentalStationVertex
  */
 public class BikeRentalStationVertex extends Vertex {
@@ -25,7 +25,9 @@ public class BikeRentalStationVertex extends Vertex {
 
     private String id;
 
-    /** Some car rental systems and flex transit systems work exactly like bike rental, but with cars. */
+    /**
+     * Some car rental systems and flex transit systems work exactly like bike rental, but with cars.
+     */
     private boolean isCarStation;
 
     public BikeRentalStationVertex(Graph g, BikeRentalStation station) {
@@ -66,8 +68,8 @@ public class BikeRentalStationVertex extends Vertex {
      * Some car rental systems and flex transit systems work exactly like bike rental, but with cars.
      * We can model them as bike rental systems by changing only this one detail.
      */
-    public TraverseMode getVehicleMode () {
-         return isCarStation ? TraverseMode.CAR : TraverseMode.BICYCLE;
+    public TraverseMode getVehicleMode() {
+        return isCarStation ? TraverseMode.CAR : TraverseMode.BICYCLE;
     }
 
 }

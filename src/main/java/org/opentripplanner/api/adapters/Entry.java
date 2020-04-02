@@ -1,9 +1,9 @@
 package org.opentripplanner.api.adapters;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @XmlType
 public class Entry {

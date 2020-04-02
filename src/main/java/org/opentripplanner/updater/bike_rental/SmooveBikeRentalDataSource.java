@@ -13,15 +13,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 package org.opentripplanner.updater.bike_rental;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 /**
  * Implementation of a BikeRentalDataSource for the Smoove GIR SabiWeb used in Helsinki.
+ *
  * @see BikeRentalDataSource
  */
 public class SmooveBikeRentalDataSource extends GenericJsonBikeRentalDataSource {

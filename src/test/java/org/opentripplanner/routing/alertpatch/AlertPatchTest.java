@@ -1,17 +1,11 @@
 package org.opentripplanner.routing.alertpatch;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-
 import junit.framework.TestCase;
-
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -23,6 +17,11 @@ import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.util.TestUtils;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 

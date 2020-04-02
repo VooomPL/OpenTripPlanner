@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 
 public class ReflectionLibrary {
 
-    /** Concatenate all fields and values of a Java object. */
-    public static String dumpFields (Object object) {
+    /**
+     * Concatenate all fields and values of a Java object.
+     */
+    public static String dumpFields(Object object) {
         StringBuilder sb = new StringBuilder();
         Class<?> clazz = object.getClass();
         sb.append("Summarizing ");

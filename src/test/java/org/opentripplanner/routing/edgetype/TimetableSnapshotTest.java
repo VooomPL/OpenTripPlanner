@@ -1,12 +1,22 @@
 package org.opentripplanner.routing.edgetype;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
+import com.google.common.collect.Iterables;
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.gtfs.GtfsContext;
+import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Trip;
+import org.opentripplanner.model.calendar.CalendarServiceData;
+import org.opentripplanner.model.calendar.ServiceDate;
+import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.TripTimes;
+import org.opentripplanner.routing.vertextype.TransitStopDepart;
 
 import java.io.File;
 import java.util.ConcurrentModificationException;
@@ -14,25 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.google.common.collect.Iterables;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.ConstantsForTests;
-import org.opentripplanner.gtfs.GtfsContext;
-import org.opentripplanner.gtfs.GtfsLibrary;
-import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.trippattern.TripTimes;
-import org.opentripplanner.routing.vertextype.TransitStopDepart;
-
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
+import static org.junit.Assert.*;
+import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
 public class TimetableSnapshotTest {
     private static Graph graph;
@@ -70,7 +63,7 @@ public class TimetableSnapshotTest {
         Timetable b = new Timetable(orig, new ServiceDate());
         assertEquals(-1, (new TimetableSnapshot.SortedTimetableComparator()).compare(a, b));
     }
-    
+
     private boolean updateResolver(TimetableSnapshot resolver, TripPattern pattern, TripUpdate tripUpdate, String feedId, ServiceDate serviceDate) {
         TripTimes updatedTripTimes = pattern.scheduledTimetable.createUpdatedTripTimes(tripUpdate,
                 timeZone, serviceDate);
@@ -116,7 +109,7 @@ public class TimetableSnapshotTest {
         assertEquals(scheduled, resolver.resolve(pattern, null));
     }
 
-    @Test(expected=ConcurrentModificationException.class)
+    @Test(expected = ConcurrentModificationException.class)
     public void testUpdate() {
         ServiceDate today = new ServiceDate();
         ServiceDate yesterday = today.previous();
@@ -155,7 +148,7 @@ public class TimetableSnapshotTest {
         updateResolver(snapshot, pattern, tripUpdate, "agency", yesterday);
     }
 
-    @Test(expected=ConcurrentModificationException.class)
+    @Test(expected = ConcurrentModificationException.class)
     public void testCommit() {
         ServiceDate today = new ServiceDate();
         ServiceDate yesterday = today.previous();

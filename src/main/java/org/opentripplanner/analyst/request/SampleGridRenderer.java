@@ -1,18 +1,10 @@
 package org.opentripplanner.analyst.request;
 
-import static org.apache.commons.math3.util.FastMath.toRadians;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.math3.util.FastMath;
-import org.opentripplanner.common.geometry.AccumulativeGridSampler;
+import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.common.geometry.*;
 import org.opentripplanner.common.geometry.AccumulativeGridSampler.AccumulativeMetric;
 import org.opentripplanner.common.geometry.ZSampleGrid.ZSamplePoint;
-import org.opentripplanner.common.geometry.IsolineBuilder;
-import org.opentripplanner.common.geometry.SparseMatrixZSampleGrid;
-import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
-import org.opentripplanner.common.geometry.ZSampleGrid;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -25,19 +17,21 @@ import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.commons.math3.util.FastMath.toRadians;
 
 /**
  * Compute a sample grid from a SPT request.
- * 
+ * <p>
  * First compute a shortest-path-tree from the given routing request. It then build the sample grid
  * (a regular grid of samples covering the whole SPT area) using an accumulative grid sampling
  * process.
- * 
+ *
+ * @author laurent
  * @see ZSampleGrid
  * @see AccumulativeGridSampler
- * 
- * @author laurent
  */
 public class SampleGridRenderer {
 
@@ -96,8 +90,8 @@ public class SampleGridRenderer {
      * Sample a SPT using a SPTWalker and an AccumulativeGridSampler.
      */
     public static void sampleSPT(final ShortestPathTree spt, ZSampleGrid<WTWD> sampleGrid,
-            final double gridSizeMeters, final double offRoadDistanceMeters, final double offRoadWalkSpeedMps,
-            final double maxWalkDistance, final int maxTimeSec, final double cosLat) {
+                                 final double gridSizeMeters, final double offRoadDistanceMeters, final double offRoadWalkSpeedMps,
+                                 final double maxWalkDistance, final int maxTimeSec, final double cosLat) {
 
         AccumulativeMetric<WTWD> accMetric = new WTWDAccumulativeMetric(cosLat, offRoadDistanceMeters, offRoadWalkSpeedMps, gridSizeMeters);
         final AccumulativeGridSampler<WTWD> gridSampler = new AccumulativeGridSampler<WTWD>(sampleGrid, accMetric);
@@ -145,12 +139,12 @@ public class SampleGridRenderer {
 
     /**
      * The default TZ data we keep for each sample: Weighted Time and Walk Distance
-     * 
+     * <p>
      * For now we keep all possible values in the vector; we may want to remove the values that will
      * not be used in the process (for example # of boardings). Currently the filtering is done
      * afterwards, it may be faster and surely less memory-intensive to do the filtering when
      * processing.
-     * 
+     *
      * @author laurent
      */
     public static class WTWD {
@@ -218,7 +212,7 @@ public class SampleGridRenderer {
 
         private double cosLat, offRoadDistanceMeters, offRoadSpeed, gridSizeMeters;
 
-        public WTWDAccumulativeMetric (double cosLat, double offRoadDistanceMeters, double offRoadSpeed, double gridSizeMeters) {
+        public WTWDAccumulativeMetric(double cosLat, double offRoadDistanceMeters, double offRoadSpeed, double gridSizeMeters) {
             this.cosLat = cosLat;
             this.offRoadDistanceMeters = offRoadDistanceMeters;
             this.offRoadSpeed = offRoadSpeed;
@@ -257,12 +251,12 @@ public class SampleGridRenderer {
          * distance of all enclosing samples, plus the grid size, and 2) as time the minimum
          * time of all enclosing samples plus the grid size * off-road walk speed as additional
          * time. All this are approximations.
-         *
+         * <p>
          * TODO Is there a better way of computing this? Here the computation will be different
          * based on the order where we close the samples.
          */
         @Override
-        public boolean closeSample(ZSamplePoint<WTWD> point){
+        public boolean closeSample(ZSamplePoint<WTWD> point) {
             double dMin = Double.MAX_VALUE;
             double tMin = Double.MAX_VALUE;
             double bMin = Double.MAX_VALUE;
@@ -291,10 +285,10 @@ public class SampleGridRenderer {
             }
             WTWD z = new WTWD();
             z.w = 1.0;
-                /*
-                 * The computations below are approximation, but we are on the edge anyway and the
-                 * current sample does not correspond to any computed value.
-                 */
+            /*
+             * The computations below are approximation, but we are on the edge anyway and the
+             * current sample does not correspond to any computed value.
+             */
             z.wTime = tMin + gridSizeMeters / offRoadSpeed;
             z.wBoardings = bMin;
             z.wWalkDist = wdMin + gridSizeMeters;

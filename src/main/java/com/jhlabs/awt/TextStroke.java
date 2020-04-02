@@ -4,27 +4,20 @@
 */
 package com.jhlabs.awt;
 
-import java.awt.Font;
-import java.awt.Shape;
-import java.awt.Stroke;
+import org.apache.commons.math3.util.FastMath;
+
+import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.FlatteningPathIterator;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-
-import org.apache.commons.math3.util.FastMath;
+import java.awt.geom.*;
 
 /**
  * Stroke that paint a text.
- * 
+ * <p>
  * Slightly adapted to OTP from original source.
- * 
+ *
  * @see <a
- *      href="http://www.jhlabs.com/java/java2d/strokes/">http://www.jhlabs.com/java/java2d/strokes/</a>
- * 
+ * href="http://www.jhlabs.com/java/java2d/strokes/">http://www.jhlabs.com/java/java2d/strokes/</a>
  */
 public class TextStroke implements Stroke {
     private String text;
@@ -76,52 +69,52 @@ public class TextStroke implements Stroke {
         while (currentChar < length && !it.isDone()) {
             type = it.currentSegment(points);
             switch (type) {
-            case PathIterator.SEG_MOVETO:
-                moveX = lastX = points[0];
-                moveY = lastY = points[1];
-                result.moveTo(moveX, moveY);
-                nextAdvance = glyphVector.getGlyphMetrics(currentChar).getAdvance() * 0.5f;
-                next = nextAdvance;
-                break;
+                case PathIterator.SEG_MOVETO:
+                    moveX = lastX = points[0];
+                    moveY = lastY = points[1];
+                    result.moveTo(moveX, moveY);
+                    nextAdvance = glyphVector.getGlyphMetrics(currentChar).getAdvance() * 0.5f;
+                    next = nextAdvance;
+                    break;
 
-            case PathIterator.SEG_CLOSE:
-                points[0] = moveX;
-                points[1] = moveY;
-                // Fall into....
+                case PathIterator.SEG_CLOSE:
+                    points[0] = moveX;
+                    points[1] = moveY;
+                    // Fall into....
 
-            case PathIterator.SEG_LINETO:
-                thisX = points[0];
-                thisY = points[1];
-                float dx = thisX - lastX;
-                float dy = thisY - lastY;
-                float distance = (float) FastMath.sqrt(dx * dx + dy * dy);
-                if (distance >= next) {
-                    float r = 1.0f / distance;
-                    float angle = (float) FastMath.atan2(dy, dx);
-                    while (currentChar < length && distance >= next) {
-                        Shape glyph = glyphVector.getGlyphOutline(currentChar);
-                        Point2D p = glyphVector.getGlyphPosition(currentChar);
-                        float px = (float) p.getX();
-                        float py = (float) p.getY();
-                        float x = lastX + next * dx * r;
-                        float y = lastY + next * dy * r;
-                        float advance = nextAdvance;
-                        nextAdvance = currentChar < length - 1 ? glyphVector.getGlyphMetrics(
-                                currentChar + 1).getAdvance() * 0.5f : 0;
-                        t.setToTranslation(x, y);
-                        t.rotate(angle);
-                        t.translate(-px - advance, -py + height * factor / 2.0f);
-                        result.append(t.createTransformedShape(glyph), false);
-                        next += (advance + nextAdvance) * factor;
-                        currentChar++;
-                        if (repeat)
-                            currentChar %= length;
+                case PathIterator.SEG_LINETO:
+                    thisX = points[0];
+                    thisY = points[1];
+                    float dx = thisX - lastX;
+                    float dy = thisY - lastY;
+                    float distance = (float) FastMath.sqrt(dx * dx + dy * dy);
+                    if (distance >= next) {
+                        float r = 1.0f / distance;
+                        float angle = (float) FastMath.atan2(dy, dx);
+                        while (currentChar < length && distance >= next) {
+                            Shape glyph = glyphVector.getGlyphOutline(currentChar);
+                            Point2D p = glyphVector.getGlyphPosition(currentChar);
+                            float px = (float) p.getX();
+                            float py = (float) p.getY();
+                            float x = lastX + next * dx * r;
+                            float y = lastY + next * dy * r;
+                            float advance = nextAdvance;
+                            nextAdvance = currentChar < length - 1 ? glyphVector.getGlyphMetrics(
+                                    currentChar + 1).getAdvance() * 0.5f : 0;
+                            t.setToTranslation(x, y);
+                            t.rotate(angle);
+                            t.translate(-px - advance, -py + height * factor / 2.0f);
+                            result.append(t.createTransformedShape(glyph), false);
+                            next += (advance + nextAdvance) * factor;
+                            currentChar++;
+                            if (repeat)
+                                currentChar %= length;
+                        }
                     }
-                }
-                next -= distance;
-                lastX = thisX;
-                lastY = thisY;
-                break;
+                    next -= distance;
+                    lastX = thisX;
+                    lastY = thisY;
+                    break;
             }
             it.next();
         }
@@ -141,25 +134,25 @@ public class TextStroke implements Stroke {
         while (!it.isDone()) {
             type = it.currentSegment(points);
             switch (type) {
-            case PathIterator.SEG_MOVETO:
-                moveX = lastX = points[0];
-                moveY = lastY = points[1];
-                break;
+                case PathIterator.SEG_MOVETO:
+                    moveX = lastX = points[0];
+                    moveY = lastY = points[1];
+                    break;
 
-            case PathIterator.SEG_CLOSE:
-                points[0] = moveX;
-                points[1] = moveY;
-                // Fall into....
+                case PathIterator.SEG_CLOSE:
+                    points[0] = moveX;
+                    points[1] = moveY;
+                    // Fall into....
 
-            case PathIterator.SEG_LINETO:
-                thisX = points[0];
-                thisY = points[1];
-                float dx = thisX - lastX;
-                float dy = thisY - lastY;
-                total += (float) Math.sqrt(dx * dx + dy * dy);
-                lastX = thisX;
-                lastY = thisY;
-                break;
+                case PathIterator.SEG_LINETO:
+                    thisX = points[0];
+                    thisY = points[1];
+                    float dx = thisX - lastX;
+                    float dy = thisY - lastY;
+                    total += (float) Math.sqrt(dx * dx + dy * dy);
+                    lastX = thisX;
+                    lastY = thisY;
+                    break;
             }
             it.next();
         }

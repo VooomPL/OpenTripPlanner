@@ -1,13 +1,12 @@
 package org.opentripplanner.routing.edgetype;
 
-import org.opentripplanner.model.Stop;
-
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.model.Stop;
 
 /**
  * FrequencyHops and PatternHops have start/stop Stops
- * @author novalis
  *
+ * @author novalis
  */
 public interface HopEdge {
 

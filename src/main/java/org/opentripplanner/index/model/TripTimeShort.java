@@ -1,7 +1,6 @@
 package org.opentripplanner.index.model;
 
-import java.util.List;
-
+import com.beust.jcommander.internal.Lists;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
@@ -10,7 +9,7 @@ import org.opentripplanner.routing.edgetype.Timetable;
 import org.opentripplanner.routing.trippattern.RealTimeState;
 import org.opentripplanner.routing.trippattern.TripTimes;
 
-import com.beust.jcommander.internal.Lists;
+import java.util.List;
 
 public class TripTimeShort {
 
@@ -18,15 +17,15 @@ public class TripTimeShort {
     public FeedScopedId stopId;
     public int stopIndex;
     public int stopCount;
-    public int scheduledArrival = UNDEFINED ;
-    public int scheduledDeparture = UNDEFINED ;
-    public int realtimeArrival = UNDEFINED ;
-    public int realtimeDeparture = UNDEFINED ;
-    public int arrivalDelay = UNDEFINED ;
-    public int departureDelay = UNDEFINED ;
+    public int scheduledArrival = UNDEFINED;
+    public int scheduledDeparture = UNDEFINED;
+    public int realtimeArrival = UNDEFINED;
+    public int realtimeDeparture = UNDEFINED;
+    public int arrivalDelay = UNDEFINED;
+    public int departureDelay = UNDEFINED;
     public boolean timepoint = false;
     public boolean realtime = false;
-    public RealTimeState realtimeState = RealTimeState.SCHEDULED ;
+    public RealTimeState realtimeState = RealTimeState.SCHEDULED;
     public long serviceDay;
     public FeedScopedId tripId;
     public String blockId;
@@ -41,23 +40,23 @@ public class TripTimeShort {
      */
     public TripTimeShort(TripTimes tt, int i, Stop stop) {
         stopId = stop.getId();
-        stopIndex          = i;
-        stopCount          = tt.getNumStops();
-        scheduledArrival   = tt.getScheduledArrivalTime(i);
-        realtimeArrival    = tt.getArrivalTime(i);
-        arrivalDelay       = tt.getArrivalDelay(i);
+        stopIndex = i;
+        stopCount = tt.getNumStops();
+        scheduledArrival = tt.getScheduledArrivalTime(i);
+        realtimeArrival = tt.getArrivalTime(i);
+        arrivalDelay = tt.getArrivalDelay(i);
         scheduledDeparture = tt.getScheduledDepartureTime(i);
-        realtimeDeparture  = tt.getDepartureTime(i);
-        departureDelay     = tt.getDepartureDelay(i);
-        timepoint          = tt.isTimepoint(i);
-        realtime           = !tt.isScheduled();
-        realtimeState      = tt.getRealTimeState();
-        blockId            = tt.trip.getBlockId();
-        headsign           = tt.getHeadsign(i);
-        continuousPickup   = tt.getContinuousPickup(i);
-        continuousDropOff  = tt.getContinuousDropOff(i);
-        serviceAreaRadius  = tt.getServiceAreaRadius(i);
-        serviceArea        = tt.getServiceArea(i);
+        realtimeDeparture = tt.getDepartureTime(i);
+        departureDelay = tt.getDepartureDelay(i);
+        timepoint = tt.isTimepoint(i);
+        realtime = !tt.isScheduled();
+        realtimeState = tt.getRealTimeState();
+        blockId = tt.trip.getBlockId();
+        headsign = tt.getHeadsign(i);
+        continuousPickup = tt.getContinuousPickup(i);
+        continuousDropOff = tt.getContinuousDropOff(i);
+        serviceAreaRadius = tt.getServiceAreaRadius(i);
+        serviceArea = tt.getServiceArea(i);
     }
 
     public TripTimeShort(TripTimes tt, int i, Stop stop, ServiceDay sd) {
@@ -69,8 +68,8 @@ public class TripTimeShort {
     /**
      * must pass in both table and trip, because tripTimes do not have stops.
      */
-    public static List<TripTimeShort> fromTripTimes (Timetable table, Trip trip) {
-        TripTimes times = table.getTripTimes(table.getTripIndex(trip.getId()));        
+    public static List<TripTimeShort> fromTripTimes(Timetable table, Trip trip) {
+        TripTimes times = table.getTripTimes(table.getTripIndex(trip.getId()));
         List<TripTimeShort> out = Lists.newArrayList();
         // one per stop, not one per hop, thus the <= operator
         for (int i = 0; i < times.getNumStops(); ++i) {
@@ -78,5 +77,5 @@ public class TripTimeShort {
         }
         return out;
     }
-    
+
 }

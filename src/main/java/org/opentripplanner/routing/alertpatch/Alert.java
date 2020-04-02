@@ -75,7 +75,7 @@ public class Alert implements Serializable {
     public String toString() {
         return "Alert('"
                 + (alertHeaderText != null ? alertHeaderText.toString()
-                        : alertDescriptionText != null ? alertDescriptionText.toString()
-                                : "?") + "')";
+                : alertDescriptionText != null ? alertDescriptionText.toString()
+                : "?") + "')";
     }
 }

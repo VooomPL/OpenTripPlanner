@@ -50,9 +50,9 @@ public class DrtTravelTimeTest extends TestCase {
     public void testBadSpec() {
         try {
             DrtTravelTime.fromSpec("not to spec");
-            fail( "Missing exception");
-        } catch(IllegalArgumentException e) {
-            assertEquals( e.getMessage(), DrtTravelTime.ERROR_MSG);
+            fail("Missing exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), DrtTravelTime.ERROR_MSG);
         }
     }
 

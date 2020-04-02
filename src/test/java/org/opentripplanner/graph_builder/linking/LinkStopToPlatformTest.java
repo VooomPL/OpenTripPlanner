@@ -1,17 +1,19 @@
 package org.opentripplanner.graph_builder.linking;
 
 
+import org.junit.Before;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.junit.Before;
-import org.junit.Test;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
-import org.opentripplanner.routing.edgetype.*;
+import org.opentripplanner.routing.edgetype.AreaEdge;
+import org.opentripplanner.routing.edgetype.AreaEdgeList;
+import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
@@ -88,12 +90,12 @@ public class LinkStopToPlatformTest {
     }
 
     private AreaEdge createAreaEdge(IntersectionVertex v1, IntersectionVertex v2, AreaEdgeList area, String nameString) {
-        LineString line = geometryFactory.createLineString(new Coordinate[] { v1.getCoordinate(), v2.getCoordinate()});
+        LineString line = geometryFactory.createLineString(new Coordinate[]{v1.getCoordinate(), v2.getCoordinate()});
         double length = SphericalDistanceLibrary.distance(v1.getCoordinate(),
                 v2.getCoordinate());
         I18NString name = new LocalizedString(nameString, new OSMWithTags());
 
-        AreaEdge areaEdge = new AreaEdge(v1, v2, line, name, line.getLength(), StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, false, area );
+        AreaEdge areaEdge = new AreaEdge(v1, v2, line, name, line.getLength(), StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, false, area);
 
         return areaEdge;
     }

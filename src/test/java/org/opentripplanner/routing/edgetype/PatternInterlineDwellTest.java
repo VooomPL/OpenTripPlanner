@@ -10,7 +10,9 @@ import java.util.TimeZone;
 public class PatternInterlineDwellTest extends GtfsTest {
 
     @Override
-    public boolean isLongDistance() { return true; } // retrying wrecks the tests
+    public boolean isLongDistance() {
+        return true;
+    } // retrying wrecks the tests
 
     @Override
     public String getFeedName() {

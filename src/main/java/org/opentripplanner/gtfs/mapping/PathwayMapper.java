@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Responsible for mapping GTFS Pathway into the OTP model. */
+/**
+ * Responsible for mapping GTFS Pathway into the OTP model.
+ */
 class PathwayMapper {
 
     private final StopMapper stopMapper;
@@ -22,7 +24,9 @@ class PathwayMapper {
         return MapUtils.mapToList(allPathways, this::map);
     }
 
-    /** Map from GTFS to OTP model, {@code null} safe.  */
+    /**
+     * Map from GTFS to OTP model, {@code null} safe.
+     */
     Pathway map(org.onebusaway.gtfs.model.Pathway orginal) {
         return orginal == null ? null : mappedPathways.computeIfAbsent(orginal, this::doMap);
     }

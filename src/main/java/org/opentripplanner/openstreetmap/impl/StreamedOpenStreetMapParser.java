@@ -1,13 +1,7 @@
 package org.opentripplanner.openstreetmap.impl;
 
-import org.opentripplanner.openstreetmap.services.OpenStreetMapContentHandler;
 import org.opentripplanner.openstreetmap.model.*;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.opentripplanner.openstreetmap.services.OpenStreetMapContentHandler;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -16,6 +10,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.*;
 
 /**
  * @author Vincent Privat
@@ -23,19 +18,19 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class StreamedOpenStreetMapParser {
 
-    private static final QName qNode     = new QName("node");
-    private static final QName qWay      = new QName("way");
+    private static final QName qNode = new QName("node");
+    private static final QName qWay = new QName("way");
     private static final QName qRelation = new QName("relation");
-    private static final QName qNd       = new QName("nd");
-    private static final QName qMember   = new QName("member");
-    private static final QName qTag      = new QName("tag");
+    private static final QName qNd = new QName("nd");
+    private static final QName qMember = new QName("member");
+    private static final QName qTag = new QName("tag");
 
-    private static final QName qId   = new QName("id");
-    private static final QName qLat  = new QName("lat");
-    private static final QName qLon  = new QName("lon");
-    private static final QName qRef  = new QName("ref");
-    private static final QName qKey  = new QName("k");
-    private static final QName qVal  = new QName("v");
+    private static final QName qId = new QName("id");
+    private static final QName qLat = new QName("lat");
+    private static final QName qLon = new QName("lon");
+    private static final QName qRef = new QName("ref");
+    private static final QName qKey = new QName("k");
+    private static final QName qVal = new QName("v");
     private static final QName qType = new QName("type");
     private static final QName qRole = new QName("role");
 
@@ -62,8 +57,8 @@ public class StreamedOpenStreetMapParser {
         XMLEventReader xmlEventReader = inputFactory.createXMLEventReader(in);
 
         OSMRelation osmRelation = null;
-        OSMNode     osmNode     = null;
-        OSMWay      osmWay      = null;
+        OSMNode osmNode = null;
+        OSMWay osmWay = null;
 
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
@@ -118,10 +113,10 @@ public class StreamedOpenStreetMapParser {
                 if (osmNode != null && element.getName().equals(qNode)) {
                     map.addNode(osmNode);
                     osmNode = null;
-                }  else if (osmWay != null && element.getName().equals(qWay)) {
+                } else if (osmWay != null && element.getName().equals(qWay)) {
                     map.addWay(osmWay);
                     osmWay = null;
-                }  else if (osmRelation != null && element.getName().equals(qRelation)) {
+                } else if (osmRelation != null && element.getName().equals(qRelation)) {
                     map.addRelation(osmRelation);
                     osmRelation = null;
                 }

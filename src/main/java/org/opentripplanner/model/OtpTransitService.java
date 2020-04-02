@@ -18,7 +18,9 @@ public interface OtpTransitService {
 
     List<ServiceCalendarDate> getCalendarDatesForServiceId(FeedScopedId serviceId);
 
-    /** @return all ids for both Calendars and CalendarDates merged into on list without duplicates */
+    /**
+     * @return all ids for both Calendars and CalendarDates merged into on list without duplicates
+     */
     List<FeedScopedId> getAllServiceIds();
 
     Collection<FareAttribute> getAllFareAttributes();

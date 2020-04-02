@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class QualifiedMode implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     public final TraverseMode mode;
     public final Set<Qualifier> qualifiers = Sets.newHashSet();
 
@@ -29,7 +29,7 @@ public class QualifiedMode implements Serializable {
             }
         }
     }
-    
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(mode);
@@ -40,7 +40,7 @@ public class QualifiedMode implements Serializable {
         return sb.toString();
     }
 
-    public void applyToRoutingRequest (RoutingRequest req, boolean usingTransit) {
+    public void applyToRoutingRequest(RoutingRequest req, boolean usingTransit) {
         req.modes.setMode(this.mode, true);
         if (this.mode == TraverseMode.BICYCLE) {
             if (this.qualifiers.contains(Qualifier.RENT)) {

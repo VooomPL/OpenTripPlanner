@@ -1,22 +1,6 @@
 package org.opentripplanner.model.impl;
 
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FlexArea;
-import org.opentripplanner.model.FareAttribute;
-import org.opentripplanner.model.FareRule;
-import org.opentripplanner.model.FeedInfo;
-import org.opentripplanner.model.Frequency;
-import org.opentripplanner.model.IdentityBean;
-import org.opentripplanner.model.Pathway;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.ServiceCalendar;
-import org.opentripplanner.model.ServiceCalendarDate;
-import org.opentripplanner.model.ShapePoint;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Transfer;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.OtpTransitService;
+import org.opentripplanner.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,19 +146,20 @@ public class OtpTransitServiceBuilder {
 
         for (T it : entities) {
             try {
-                if(it.getId() != null) {
+                if (it.getId() != null) {
                     maxId = Math.max(maxId, Integer.parseInt(it.getId()));
                 }
-            } catch (NumberFormatException ignore) {}
+            } catch (NumberFormatException ignore) {
+            }
         }
 
         for (T it : entities) {
             try {
-                if(it.getId() == null || Integer.parseInt(it.getId()) == 0) {
+                if (it.getId() == null || Integer.parseInt(it.getId()) == 0) {
                     it.setId(Integer.toString(++maxId));
                 }
+            } catch (NumberFormatException ignore) {
             }
-            catch (NumberFormatException ignore) { }
         }
     }
 }

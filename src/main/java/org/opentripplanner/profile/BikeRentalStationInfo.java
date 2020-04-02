@@ -11,7 +11,7 @@ public class BikeRentalStationInfo {
     public String id;
     public String name;
     public Double lat, lon;
-    
+
     public BikeRentalStationInfo(BikeRentalStationVertex vertex) {
         id = vertex.getId();
         name = vertex.getName();

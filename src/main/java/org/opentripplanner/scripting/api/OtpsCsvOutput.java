@@ -1,16 +1,16 @@
 package org.opentripplanner.scripting.api;
 
+import com.csvreader.CsvWriter;
+import com.google.common.base.Charsets;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.csvreader.CsvWriter;
-import com.google.common.base.Charsets;
-
 /**
  * This class allow one to generate easily tabular data and save it as a CSV file.
- * 
+ * <p>
  * For example, in python:
  * <pre>
  *   csv = otp.createCSVOutput()
@@ -19,9 +19,9 @@ import com.google.common.base.Charsets;
  *   csv.addRow( [ 45.124, 5.792, 34 ] )
  *   csv.save('mydata.csv')
  * </pre>
- * 
+ * <p>
  * TODO Rename this class to "TabularOutput" and allow for saving in various format.
- * 
+ *
  * @author laurent
  */
 public class OtpsCsvOutput {
@@ -35,9 +35,9 @@ public class OtpsCsvOutput {
 
     /**
      * Set the (optional) column header names. If this is not set, no header will be generated.
-     * 
+     *
      * @param headers An array of string, each entry is the name of the corresponding column header,
-     *        in order.
+     *                in order.
      */
     public void setHeader(Object[] headers) {
         this.headers = new String[headers.length];
@@ -48,10 +48,10 @@ public class OtpsCsvOutput {
 
     /**
      * Add a new row to the data.
-     * 
+     *
      * @param row An array of objects. The order and size of the array should correspond to the
-     *        header. The default toString method of each object will be called to get the actual
-     *        data to output; so any type of object can be provided (string, numbers...)
+     *            header. The default toString method of each object will be called to get the actual
+     *            data to output; so any type of object can be provided (string, numbers...)
      */
     public void addRow(Object[] row) {
         List<String> strs = new ArrayList<>(row.length);
@@ -63,6 +63,7 @@ public class OtpsCsvOutput {
 
     /**
      * Save the data to a file.
+     *
      * @param file The name of the file to save the data to.
      * @throws IOException In case something bad happens (IO exception)
      */
@@ -78,8 +79,8 @@ public class OtpsCsvOutput {
 
     /**
      * @return The CSV data as a string. It can be used for example as the script return value.
-     * @see OtpsEntryPoint.setRetval()
      * @throws IOException
+     * @see OtpsEntryPoint.setRetval()
      */
     public String asText() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

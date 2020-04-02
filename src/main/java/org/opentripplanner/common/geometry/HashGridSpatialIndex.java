@@ -4,6 +4,13 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.procedure.TLongProcedure;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.index.ItemVisitor;
+import org.locationtech.jts.index.SpatialIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,30 +19,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.opengis.referencing.cs.CoordinateSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.index.ItemVisitor;
-import org.locationtech.jts.index.SpatialIndex;
-
 /**
  * A spatial index using a 2D fast long hashtable (Trove lib).
- * 
+ * <p>
  * Objects to index are placed in all grid bins touching the bounding envelope. We *do not store*
  * any bouding envelope for each object, so this imply that we will return false positive when
  * querying, and it's up to the client to filter them out (with whatever knowledge it has on the
  * location of the object).
- * 
+ * <p>
  * Note: For performance reasons, write operation are not synchronized, it must be taken care by the
  * client. Read-only operation are multi-thread-safe though.
- * 
- * @author laurent
- * 
+ *
  * @param <T> Type of objects to be spatial indexed.
+ * @author laurent
  */
 public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
 
@@ -73,7 +69,9 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
         bins = new TLongObjectHashMap<>();
     }
 
-    /** Create a HashGrid with the default grid dimensions. */
+    /**
+     * Create a HashGrid with the default grid dimensions.
+     */
     public HashGridSpatialIndex() {
         this(DEFAULT_X_BIN_SIZE, DEFAULT_Y_BIN_SIZE);
     }
@@ -175,15 +173,17 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
 
         /**
          * Bin visitor callback.
-         * 
+         *
          * @param bin
          * @return true if something has been removed from the bin.
          */
         abstract boolean visit(List<T> bin, long mapKey);
     }
 
-    /** Clamp a coordinate to allowable lat/lon values */
-    private static Coordinate clamp (Coordinate coord) {
+    /**
+     * Clamp a coordinate to allowable lat/lon values
+     */
+    private static Coordinate clamp(Coordinate coord) {
         if (Math.abs(coord.x) > 180 || Math.abs(coord.y) > 90) {
             LOG.warn("Corner of envelope {} was invalid, clamping to valid range. Perhaps you're buffering something near a pole?", coord);
 
@@ -201,10 +201,10 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
 
     /**
      * Visit each bin touching the envelope.
-     * 
-     * @param envelope Self-descripting.
+     *
+     * @param envelope      Self-descripting.
      * @param createIfEmpty Create a new bin if not existing.
-     * @param binVisitor The callback to call for each visited bin.
+     * @param binVisitor    The callback to call for each visited bin.
      */
     private void visit(Envelope envelope, boolean createIfEmpty, final BinVisitor<T> binVisitor) {
         Coordinate min = new Coordinate(envelope.getMinX(), envelope.getMinY());

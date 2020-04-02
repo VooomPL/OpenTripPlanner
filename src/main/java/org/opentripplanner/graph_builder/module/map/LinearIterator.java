@@ -1,13 +1,16 @@
 package org.opentripplanner.graph_builder.module.map;
 
-import java.util.Iterator;
-
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.linearref.LinearLocation;
+
+import java.util.Iterator;
 
 /**
  * I copied this class from JTS but made a few changes.
- * 
+ * <p>
  * The JTS version of this class has several design decisions that don't work for me. In particular,
  * hasNext() in the original should be "isValid", and if we start mid-segment, we should continue at
  * the end of this segment rather than the end of the next segment.
@@ -20,7 +23,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Invariant: currentLine <> null if the iterator is pointing at a valid coordinate
-     * 
+     *
      * @throws IllegalArgumentException if linearGeom is not lineal
      */
     private LineString currentLine;
@@ -33,7 +36,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Creates an iterator initialized to the start of a linear {@link Geometry}
-     * 
+     *
      * @param linear the linear geometry to iterate over
      * @throws IllegalArgumentException if linearGeom is not lineal
      */
@@ -43,9 +46,9 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Creates an iterator starting at a {@link LinearLocation} on a linear {@link Geometry}
-     * 
+     *
      * @param linear the linear geometry to iterate over
-     * @param start the location to start at
+     * @param start  the location to start at
      * @throws IllegalArgumentException if linearGeom is not lineal
      */
     public LinearIterator(Geometry linear, LinearLocation start) {
@@ -55,10 +58,10 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Creates an iterator starting at a specified component and vertex in a linear {@link Geometry}
-     * 
-     * @param linearGeom the linear geometry to iterate over
+     *
+     * @param linearGeom     the linear geometry to iterate over
      * @param componentIndex the component to start at
-     * @param vertexIndex the vertex to start at
+     * @param vertexIndex    the vertex to start at
      * @throws IllegalArgumentException if linearGeom is not lineal
      */
     public LinearIterator(Geometry linearGeom, int componentIndex, int vertexIndex) {
@@ -81,7 +84,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Tests whether there are any vertices left to iterator over.
-     * 
+     *
      * @return <code>true</code> if there are more vertices to scan
      */
     public boolean hasNext() {
@@ -91,7 +94,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
             return false;
         return true;
     }
-    
+
     public boolean isValidIndex() {
         if (componentIndex >= numLines)
             return false;
@@ -119,7 +122,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Checks whether the iterator cursor is pointing to the endpoint of a linestring.
-     * 
+     *
      * @return <code>true</true> if the iterator is at an endpoint
      */
     public boolean isEndOfLine() {
@@ -133,7 +136,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * The component index of the vertex the iterator is currently at.
-     * 
+     *
      * @return the current component index
      */
     public int getComponentIndex() {
@@ -142,7 +145,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * The vertex index of the vertex the iterator is currently at.
-     * 
+     *
      * @return the current vertex index
      */
     public int getVertexIndex() {
@@ -151,7 +154,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     /**
      * Gets the {@link LineString} component the iterator is current at.
-     * 
+     *
      * @return a linestring
      */
     public LineString getLine() {
@@ -161,7 +164,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
     /**
      * Gets the first {@link Coordinate} of the current segment. (the coordinate of the current
      * vertex).
-     * 
+     *
      * @return a {@link Coordinate}
      */
     public Coordinate getSegmentStart() {
@@ -171,7 +174,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
     /**
      * Gets the second {@link Coordinate} of the current segment. (the coordinate of the next
      * vertex). If the iterator is at the end of a line, <code>null</code> is returned.
-     * 
+     *
      * @return a {@link Coordinate} or <code>null</code>
      */
     public Coordinate getSegmentEnd() {
@@ -202,8 +205,9 @@ public class LinearIterator implements Iterable<LinearLocation> {
         public void remove() {
             throw new UnsupportedOperationException();
         }
-        
+
     }
+
     @Override
     public Iterator<LinearLocation> iterator() {
         return new LinearIteratorIterator();
@@ -211,7 +215,7 @@ public class LinearIterator implements Iterable<LinearLocation> {
 
     public static LinearLocation getEndLocation(Geometry linear) {
         //the version in LinearLocation is broken
-        
+
         int lastComponentIndex = linear.getNumGeometries() - 1;
         LineString lastLine = (LineString) linear.getGeometryN(lastComponentIndex);
         int lastSegmentIndex = lastLine.getNumPoints() - 1;

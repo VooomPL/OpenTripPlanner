@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-
- This port undoubtedly introduced a number of bugs (and removed some features).
-
- Bug reports should be directed to the OpenTripPlanner project, unless they
- can be reproduced in the original VisiLibity.
- \brief environment represented by simple polygonal outer boundary with simple polygonal holes
-
- \remarks For methods to work correctly, the outer boundary vertices must be listed ccw and the
- hole vertices cw
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity.
+ * \brief environment represented by simple polygonal outer boundary with simple polygonal holes
+ * <p>
+ * \remarks For methods to work correctly, the outer boundary vertices must be listed ccw and the
+ * hole vertices cw
  */
 public class Environment {
 
@@ -194,7 +194,7 @@ public class Environment {
         return pts_in_environment;
     }
 
-    
+
     BoundingBox bbox() {
         return outer_boundary.bbox();
     }

@@ -15,11 +15,11 @@ public class TemplateTile extends Tile {
 
     private static final Logger LOG = LoggerFactory.getLogger(TemplateTile.class);
     Sample[] samples;
-    
+
     public TemplateTile(TileRequest req, Graph graph) {
         super(req);
         this.samples = new Sample[width * height];
-        CoordinateReferenceSystem crs = gg.getCoordinateReferenceSystem2D(); 
+        CoordinateReferenceSystem crs = gg.getCoordinateReferenceSystem2D();
         int i = 0;
         try {
             MathTransform tr = CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84);
@@ -49,7 +49,7 @@ public class TemplateTile extends Tile {
             LOG.error("Could not create template tile", e);
         }
     }
-    
+
     public Sample[] getSamples() {
         return this.samples;
     }

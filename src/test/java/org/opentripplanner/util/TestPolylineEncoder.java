@@ -1,13 +1,11 @@
 package org.opentripplanner.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.TestCase;
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
-import org.locationtech.jts.geom.Coordinate;
-
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestPolylineEncoder extends TestCase {
 

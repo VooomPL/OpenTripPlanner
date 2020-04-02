@@ -1,28 +1,24 @@
 package org.opentripplanner.routing.edgetype;
 
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.Trip;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.gtfs.GtfsLibrary;
-import org.opentripplanner.routing.core.RoutingRequest;
-import org.opentripplanner.routing.core.ServiceDay;
-import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.StateEditor;
-import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.model.Stop;
+import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.OnboardDepartVertex;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * A transit vehicle's journey (temporary vertex) between departure while onboard a trip and arrival
  * at the next. This version represents a set of such journeys specified by a TripPattern.
- * 
+ *
  * @author laurent
  */
 public class OnBoardDepartPatternHop extends Edge implements OnboardEdge, TemporaryEdge {
@@ -43,16 +39,16 @@ public class OnBoardDepartPatternHop extends Edge implements OnboardEdge, Tempor
     private LineString geometry = null;
 
     /**
-     * @param from Originating vertex.
-     * @param to Destination vertex: a PatternStopVertex for the next stop of the current hop.
-     * @param tripTimes Resolved trip times for the trip with updated real-time info if available.
-     * @param serviceDay Service day on which trip is running.
-     * @param stopIndex Index of the current stop.
+     * @param from          Originating vertex.
+     * @param to            Destination vertex: a PatternStopVertex for the next stop of the current hop.
+     * @param tripTimes     Resolved trip times for the trip with updated real-time info if available.
+     * @param serviceDay    Service day on which trip is running.
+     * @param stopIndex     Index of the current stop.
      * @param positionInHop Between 0 to 1, an estimation of the covered distance in this hop so
-     *        far.
+     *                      far.
      */
     public OnBoardDepartPatternHop(OnboardDepartVertex from, PatternStopVertex to,
-            TripTimes tripTimes, ServiceDay serviceDay, int stopIndex, double positionInHop) {
+                                   TripTimes tripTimes, ServiceDay serviceDay, int stopIndex, double positionInHop) {
         super(from, to);
         this.stopIndex = stopIndex;
         this.serviceDay = serviceDay;
@@ -95,7 +91,7 @@ public class OnBoardDepartPatternHop extends Edge implements OnboardEdge, Tempor
             throw new UnsupportedOperationException(
                     "Cannot (yet) reverse-optimize depart-on-board mode.");
         }
-        
+
         /* Can't be traversed backwards. */
         if (options.arriveBy)
             return null;
@@ -130,7 +126,7 @@ public class OnBoardDepartPatternHop extends Edge implements OnboardEdge, Tempor
             Coordinate c1 = new Coordinate(getFromVertex().getX(), getFromVertex().getY());
             Coordinate c2 = new Coordinate(endStop.getLon(), endStop.getLat());
             geometry = GeometryUtils.getGeometryFactory().createLineString(
-                    new Coordinate[] { c1, c2 });
+                    new Coordinate[]{c1, c2});
         }
         return geometry;
     }

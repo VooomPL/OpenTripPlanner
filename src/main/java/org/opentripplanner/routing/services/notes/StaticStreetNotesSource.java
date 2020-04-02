@@ -1,10 +1,7 @@
 package org.opentripplanner.routing.services.notes;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.opentripplanner.common.model.T2;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.edgetype.TemporaryPartialStreetEdge;
@@ -12,13 +9,15 @@ import org.opentripplanner.routing.graph.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A notes source of static notes, usually created at graph building stage and not modified
  * thereafter.
- * 
+ *
  * @author laurent
  */
 public class StaticStreetNotesSource implements StreetNotesSource, Serializable {
@@ -32,7 +31,7 @@ public class StaticStreetNotesSource implements StreetNotesSource, Serializable 
      * concurrent write access (no notes for temporary edges, we use notes from parent).
      */
     private final SetMultimap<Edge, MatcherAndAlert> notesForEdge = HashMultimap
-            .<Edge, MatcherAndAlert> create();
+            .<Edge, MatcherAndAlert>create();
 
     /**
      * Set of unique matchers, kept during building phase, used for interning (lots of note/matchers
@@ -51,6 +50,7 @@ public class StaticStreetNotesSource implements StreetNotesSource, Serializable 
 
     /**
      * Return the set of notes applicable for this state / backedge pair.
+     *
      * @return The set of notes or null if empty.
      */
     @Override
@@ -69,7 +69,7 @@ public class StaticStreetNotesSource implements StreetNotesSource, Serializable 
     /**
      * Remove all notes attached to this edge. NOTE: this should only be called within a graph
      * building context (or unit testing).
-     * 
+     *
      * @param edge
      */
     void removeNotes(Edge edge) {
@@ -82,7 +82,7 @@ public class StaticStreetNotesSource implements StreetNotesSource, Serializable 
      * Create a MatcherAndAlert, interning it if the note and matcher pair is already created. Note:
      * we use the default Object.equals() for matchers, as they are mostly already singleton
      * instances.
-     * 
+     *
      * @param noteMatcher
      * @param note
      * @return

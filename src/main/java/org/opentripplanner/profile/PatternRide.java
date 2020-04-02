@@ -11,53 +11,57 @@ import org.opentripplanner.routing.edgetype.TripPattern;
  * exploration in the next round) its toIndex is -1 and its stats field is null.
  */
 class PatternRide {
-    
+
     final TripPattern pattern; // TripPatterns use identity equality
     final int fromIndex;       // Always set, even on unfinished PatternRides
     final int toIndex;  // set when PatternRide is finished by extending it to a specific stop
     final Stats stats;  // set when PatternRide is finished by extending it to a specific stop
-    
+
     @Override
-    public boolean equals(Object o){
-    	if(o==this) return true;
-    	if (!(o instanceof PatternRide)) return false;
-    	PatternRide other = (PatternRide) o;
-    	if(!other.pattern.equals(this.pattern)) return false;
-    	if(other.fromIndex != fromIndex) return false;
-    	if(other.toIndex != toIndex) return false;
-    	if(!other.stats.equals(this.stats)) return false;
-    	return true;
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof PatternRide)) return false;
+        PatternRide other = (PatternRide) o;
+        if (!other.pattern.equals(this.pattern)) return false;
+        if (other.fromIndex != fromIndex) return false;
+        if (other.toIndex != toIndex) return false;
+        if (!other.stats.equals(this.stats)) return false;
+        return true;
     }
 
-    /** Construct an unfinished PatternRide, lacking a toIndex and stats. */
-    public PatternRide (TripPattern pattern, int fromIndex) {
-        this.pattern   = pattern;
+    /**
+     * Construct an unfinished PatternRide, lacking a toIndex and stats.
+     */
+    public PatternRide(TripPattern pattern, int fromIndex) {
+        this.pattern = pattern;
         this.fromIndex = fromIndex;
         this.toIndex = -1;
         this.stats = null;
     }
 
-    /** Construct an unfinished PatternRide (lacking toIndex and stats) from another PatternRide. */
-    public PatternRide (PatternRide other, int toIndex, Stats stats) {
-        this.pattern   = other.pattern;
+    /**
+     * Construct an unfinished PatternRide (lacking toIndex and stats) from another PatternRide.
+     */
+    public PatternRide(PatternRide other, int toIndex, Stats stats) {
+        this.pattern = other.pattern;
         this.fromIndex = other.fromIndex;
         this.toIndex = toIndex;
         this.stats = stats;
     }
-    
+
     public Stop getFromStop() {
         return pattern.getStops().get(fromIndex);
     }
-    
+
     public Stop getToStop() {
-        return pattern.getStops().get(toIndex);            
+        return pattern.getStops().get(toIndex);
     }
-    
-    public boolean finished () {
+
+    public boolean finished() {
         return toIndex >= 0 && stats != null;
     }
-    
-    public String toString () {
+
+    public String toString() {
         return String.format("%s %d to %d", pattern.code, fromIndex, toIndex);
     }
 
@@ -70,8 +74,8 @@ class PatternRide {
      * min and max ride times rather than looser lower and upper bounds on travel time.
      */
     public PatternRide extendToIndex(int toIndex, TimeWindow window) {
-        Stats stats = Stats.create (pattern, fromIndex, toIndex, window);
-        /* There might not be any trips within the time window. */ 
+        Stats stats = Stats.create(pattern, fromIndex, toIndex, window);
+        /* There might not be any trips within the time window. */
         if (stats == null) return null;
         /* Copy most fields from this unfinished ride, setting the other fields to complete the ride. */
         PatternRide ret = new PatternRide(this, toIndex, stats);

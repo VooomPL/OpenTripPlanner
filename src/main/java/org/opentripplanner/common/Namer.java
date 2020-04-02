@@ -3,14 +3,7 @@ package org.opentripplanner.common;
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Sets;
 import com.csvreader.CsvReader;
-import com.google.common.collect.Collections2;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +16,7 @@ public class Namer {
     public static final String vowels = "aeiou";
     public static final List<String> syllables = Lists.newArrayList();
     public static final List<String> words = Lists.newArrayList();
+
     static {
         for (int c = 0; c < consonants.length(); c++) {
             for (int v = 0; v < vowels.length(); v++) {
@@ -30,6 +24,7 @@ public class Namer {
             }
         }
     }
+
     static {
         try {
             CsvReader reader = new CsvReader("/usr/share/dict/british-english", '\'', Charset.forName("UTF8"));
@@ -64,7 +59,7 @@ public class Namer {
         return words.get(n++);
     }
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         Namer namer = new Namer();
         for (int i = 0; i < 1000; i++) {
             System.out.println(namer.generateUniqueName());

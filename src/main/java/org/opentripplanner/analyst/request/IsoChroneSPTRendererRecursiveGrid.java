@@ -1,8 +1,6 @@
 package org.opentripplanner.analyst.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.core.Sample;
 import org.opentripplanner.analyst.core.SampleSource;
@@ -19,11 +17,12 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Compute isochrones out of a shortest path tree request (RecursiveGrid isoline algorithm).
- * 
+ *
  * @author laurent
  */
 public class IsoChroneSPTRendererRecursiveGrid implements IsoChroneSPTRenderer {
@@ -46,7 +45,7 @@ public class IsoChroneSPTRendererRecursiveGrid implements IsoChroneSPTRenderer {
      */
     @Override
     public List<IsochroneData> getIsochrones(IsoChroneRequest isoChroneRequest,
-            RoutingRequest sptRequest) {
+                                             RoutingRequest sptRequest) {
 
         if (sptRequest.routerId != null && !sptRequest.routerId.isEmpty())
             throw new IllegalArgumentException(
@@ -105,7 +104,7 @@ public class IsoChroneSPTRendererRecursiveGrid implements IsoChroneSPTRenderer {
 
     /**
      * Compute a set of initial coordinates for the given SPT
-     * 
+     *
      * @param spt
      * @return
      */

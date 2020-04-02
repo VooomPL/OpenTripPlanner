@@ -1,19 +1,18 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * An edge that costs nothing to traverse. Used for connecting intersection vertices to the main
  * edge-based graph.
- * 
+ *
  * @author novalis
- * 
  */
 public class FreeEdge extends Edge {
 

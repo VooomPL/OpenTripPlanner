@@ -26,10 +26,12 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
 
     private String networkName;
 
-    /** Some car rental systems and flex transit systems work exactly like bike rental, but with cars. */
+    /**
+     * Some car rental systems and flex transit systems work exactly like bike rental, but with cars.
+     */
     private boolean routeAsCar;
 
-    public GbfsBikeRentalDataSource (String networkName) {
+    public GbfsBikeRentalDataSource(String networkName) {
         stationInformationSource = new GbfsStationDataSource();
         stationStatusSource = new GbfsStationStatusDataSource();
         floatingBikeSource = new GbfsFloatingBikeDataSource();
@@ -40,7 +42,7 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
         }
     }
 
-    public void setBaseUrl (String url) {
+    public void setBaseUrl(String url) {
         baseUrl = url;
         if (!baseUrl.endsWith("/")) baseUrl += "/";
         stationInformationSource.setUrl(baseUrl + "station_information.json");
@@ -92,7 +94,7 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
      * from the JSON coming in from the update source.
      */
     @Override
-    public void configure (Graph graph, JsonNode jsonNode) {
+    public void configure(Graph graph, JsonNode jsonNode) {
         // path() returns MissingNode not null, allowing chained function calls.
         String url = jsonNode.path("url").asText();
         if (url == null) {
@@ -107,7 +109,7 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
 
     class GbfsStationDataSource extends GenericJsonBikeRentalDataSource {
 
-        public GbfsStationDataSource () {
+        public GbfsStationDataSource() {
             super("data/stations");
         }
 
@@ -117,7 +119,7 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
             brstation.id = stationNode.path("station_id").toString();
             brstation.x = stationNode.path("lon").asDouble();
             brstation.y = stationNode.path("lat").asDouble();
-            brstation.name =  new NonLocalizedString(stationNode.path("name").asText());
+            brstation.name = new NonLocalizedString(stationNode.path("name").asText());
             brstation.isCarStation = routeAsCar;
             return brstation;
         }
@@ -125,7 +127,7 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
 
     class GbfsStationStatusDataSource extends GenericJsonBikeRentalDataSource {
 
-        public GbfsStationStatusDataSource () {
+        public GbfsStationStatusDataSource() {
             super("data/stations");
         }
 
@@ -142,7 +144,7 @@ public class GbfsBikeRentalDataSource implements BikeRentalDataSource, JsonConfi
 
     class GbfsFloatingBikeDataSource extends GenericJsonBikeRentalDataSource {
 
-        public GbfsFloatingBikeDataSource () {
+        public GbfsFloatingBikeDataSource() {
             super("data/bikes");
         }
 

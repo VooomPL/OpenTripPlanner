@@ -1,22 +1,22 @@
 package org.opentripplanner.routing.edgetype.factory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
+import org.opentripplanner.common.model.T2;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
-import org.opentripplanner.common.model.T2;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TransitStationStop;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 /**
- *  Retains graph-wide information between PatternHopFactory runs on different feeds.
- *  FIXME is there any legitimate reason to even do that? Wouldn't it be better to keep each GTFS completely isolated?
+ * Retains graph-wide information between PatternHopFactory runs on different feeds.
+ * FIXME is there any legitimate reason to even do that? Wouldn't it be better to keep each GTFS completely isolated?
  */
 public class GtfsStopContext {
 

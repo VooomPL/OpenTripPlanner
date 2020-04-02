@@ -1,45 +1,43 @@
 package org.opentripplanner.api.model;
 
-import java.util.Calendar;
-
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.util.Constants;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
-/** 
-* A Place is where a journey starts or ends, or a transit stop along the way.
-*/ 
+import java.util.Calendar;
+
+/**
+ * A Place is where a journey starts or ends, or a transit stop along the way.
+ */
 public class Place {
 
-    /** 
+    /**
      * For transit stops, the name of the stop.  For points of interest, the name of the POI.
      */
     public String name = null;
 
-    /** 
+    /**
      * The ID of the stop. This is often something that users don't care about.
      */
     public FeedScopedId stopId = null;
 
-    /** 
+    /**
      * The "code" of the stop. Depending on the transit agency, this is often
      * something that users care about.
      */
     public String stopCode = null;
 
     /**
-      * The code or name identifying the quay/platform the vehicle will arrive at or depart from
-      *
-    */
+     * The code or name identifying the quay/platform the vehicle will arrive at or depart from
+     */
     public String platformCode = null;
 
     /**
      * The longitude of the place.
      */
     public Double lon = null;
-    
+
     /**
      * The latitude of the place.
      */
@@ -100,6 +98,7 @@ public class Place {
 
     /**
      * Returns the geometry in GeoJSON format
+     *
      * @return
      */
     String getGeometry() {
@@ -113,7 +112,7 @@ public class Place {
         this.lon = lon;
         this.lat = lat;
         this.name = name;
-	    this.vertexType = VertexType.NORMAL;
+        this.vertexType = VertexType.NORMAL;
     }
 
     public Place(Double lon, Double lat, String name, Calendar arrival, Calendar departure) {

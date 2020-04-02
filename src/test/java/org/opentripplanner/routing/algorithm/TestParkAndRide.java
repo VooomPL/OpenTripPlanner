@@ -21,13 +21,13 @@ import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * Test P+R (both car P+R and bike P+R).
- * 
+ *
  * @author laurent
  */
 public class TestParkAndRide extends TestCase {
 
     private Graph graph;
-    private StreetVertex A,B,C,D;
+    private StreetVertex A, B, C, D;
 
     @Override
     protected void setUp() throws Exception {
@@ -50,8 +50,10 @@ public class TestParkAndRide extends TestCase {
         @SuppressWarnings("unused")
         Edge walkOnly = new StreetEdge(C, D, GeometryUtils.makeLineString(0.002, 45, 0.003,
                 45), "CD street", 87, StreetTraversalPermission.PEDESTRIAN, false);
-    };
-    
+    }
+
+    ;
+
     public void testCar() throws Exception {
 
         AStar aStar = new AStar();
@@ -86,7 +88,7 @@ public class TestParkAndRide extends TestCase {
         tree = aStar.getShortestPathTree(options);
         path = tree.getPath(C, false);
         assertNull(path);
-        
+
         // Or CAR only (BC is WALK only).
         options = new RoutingRequest("CAR");
         options.freezeTraverseMode();

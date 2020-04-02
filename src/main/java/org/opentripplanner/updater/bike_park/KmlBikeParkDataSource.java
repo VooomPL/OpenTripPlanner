@@ -1,10 +1,5 @@
 package org.opentripplanner.updater.bike_park;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.prefs.Preferences;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.routing.bike_park.BikePark;
 import org.opentripplanner.routing.graph.Graph;
@@ -13,13 +8,17 @@ import org.opentripplanner.util.xml.XmlDataListDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  * Load bike park from a KML placemarks. Use name as bike park name and point coordinates. Rely on:
  * 1) bike park to be KML Placemarks, 2) geometry to be Point.
- * 
+ * <p>
  * Bike park-and-ride and "OV-fiets mode" development has been funded by GoAbout
  * (https://goabout.com/).
- * 
+ *
  * @author laurent
  * @author GoAbout
  */
@@ -69,7 +68,7 @@ public class KmlBikeParkDataSource implements BikeParkDataSource, JsonConfigurab
 
     /**
      * Update the data from the source;
-     * 
+     *
      * @return true if there might have been changes
      */
     @Override
@@ -96,7 +95,7 @@ public class KmlBikeParkDataSource implements BikeParkDataSource, JsonConfigurab
     }
 
     @Override
-    public void configure (Graph graph, JsonNode config) {
+    public void configure(Graph graph, JsonNode config) {
         String url = config.path("url").asText();
         if (url == null) {
             throw new IllegalArgumentException("Missing mandatory 'url' configuration.");
@@ -106,5 +105,7 @@ public class KmlBikeParkDataSource implements BikeParkDataSource, JsonConfigurab
         this.zip = "true".equals(config.path("zip").asText());
     }
 
-    public void setUrl (String url) {this.url = url;}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

@@ -1,15 +1,14 @@
 package org.opentripplanner.util;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.opentripplanner.util.model.EncodedPolylineBean;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
+import org.opentripplanner.util.model.EncodedPolylineBean;
+
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PolylineEncoder {
 
@@ -22,7 +21,7 @@ public class PolylineEncoder {
     }
 
     public static EncodedPolylineBean createEncodings(double[] lat, double[] lon, int offset,
-            int length, int level) {
+                                                      int length, int level) {
         return createEncodings(new PointAdapterList(lat, lon, offset, length), level);
     }
 
@@ -46,7 +45,7 @@ public class PolylineEncoder {
 
     /**
      * If level < 0, then {@link EncodedPolylineBean#getLevels()} will be null.
-     * 
+     *
      * @param points
      * @param level
      * @return
@@ -175,7 +174,7 @@ public class PolylineEncoder {
             shift += 5;
         } while (v >= 0x20);
 
-        return new int[] { num, index };
+        return new int[]{num, index};
     }
 
     private static class PointAdapterList extends AbstractList<Coordinate> {

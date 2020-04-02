@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 /**
  * CTX parser for receiving Dutch realtime updates
- * 
+ *
  * @author skywave
  */
 public class CTX {

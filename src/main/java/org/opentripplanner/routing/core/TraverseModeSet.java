@@ -9,8 +9,8 @@ import java.util.List;
  * A set of traverse modes -- typically, one non-transit mode (walking, biking, car) and zero or
  * more transit modes (bus, tram, etc).  This class allows efficiently adding or removing modes
  * from a set.
- * @author novalis
  *
+ * @author novalis
  */
 public class TraverseModeSet implements Cloneable, Serializable {
 
@@ -42,7 +42,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
 
     private static final int MODE_TRANSIT = MODE_TRAM | MODE_RAIL | MODE_SUBWAY | MODE_FUNICULAR
             | MODE_GONDOLA | MODE_CABLE_CAR | MODE_BUS | MODE_FERRY | MODE_AIRPLANE;
- 
+
     private static final int MODE_ALL = MODE_TRANSIT | MODE_WALK | MODE_BICYCLE;
 
     private int modes = 0;
@@ -63,46 +63,46 @@ public class TraverseModeSet implements Cloneable, Serializable {
             this.modes |= getMaskForMode(mode);
         }
     }
-    
+
     /**
      * Returns a mode set containing all modes.
-     * 
+     *
      * @return
      */
     public static TraverseModeSet allModes() {
-    	TraverseModeSet modes = new TraverseModeSet();
-    	modes.modes = MODE_ALL;
-    	return modes;
+        TraverseModeSet modes = new TraverseModeSet();
+        modes.modes = MODE_ALL;
+        return modes;
     }
 
     private final int getMaskForMode(TraverseMode mode) {
         switch (mode) {
-        case BICYCLE:
-            return MODE_BICYCLE;
-        case WALK:
-            return MODE_WALK;
-        case CAR:
-            return MODE_CAR;
-        case BUS:
-            return MODE_BUS;
-        case TRAM:
-            return MODE_TRAM;
-        case CABLE_CAR:
-            return MODE_CABLE_CAR;
-        case GONDOLA:
-            return MODE_GONDOLA;
-        case FERRY:
-            return MODE_FERRY;
-        case FUNICULAR:
-            return MODE_FUNICULAR;
-        case SUBWAY:
-            return MODE_SUBWAY;
-        case RAIL:
-            return MODE_RAIL;
-        case AIRPLANE:
-            return MODE_AIRPLANE;
-        case TRANSIT:
-            return MODE_TRANSIT;
+            case BICYCLE:
+                return MODE_BICYCLE;
+            case WALK:
+                return MODE_WALK;
+            case CAR:
+                return MODE_CAR;
+            case BUS:
+                return MODE_BUS;
+            case TRAM:
+                return MODE_TRAM;
+            case CABLE_CAR:
+                return MODE_CABLE_CAR;
+            case GONDOLA:
+                return MODE_GONDOLA;
+            case FERRY:
+                return MODE_FERRY;
+            case FUNICULAR:
+                return MODE_FUNICULAR;
+            case SUBWAY:
+                return MODE_SUBWAY;
+            case RAIL:
+                return MODE_RAIL;
+            case AIRPLANE:
+                return MODE_AIRPLANE;
+            case TRANSIT:
+                return MODE_TRANSIT;
         }
         return 0;
     }
@@ -110,7 +110,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
     public TraverseModeSet(Collection<TraverseMode> modeList) {
         this(modeList.toArray(new TraverseMode[0]));
     }
-    
+
     public int getMask() {
         return modes;
     }
@@ -135,23 +135,23 @@ public class TraverseModeSet implements Cloneable, Serializable {
     public boolean getCar() {
         return (modes & MODE_CAR) != 0;
     }
-    
+
     public boolean getTram() {
         return (modes & MODE_TRAM) != 0;
     }
-    
+
     public boolean getBus() {
         return (modes & MODE_BUS) != 0;
     }
-    
+
     public boolean getGondola() {
         return (modes & MODE_GONDOLA) != 0;
     }
-    
+
     public boolean getFerry() {
         return (modes & MODE_FERRY) != 0;
     }
-    
+
     public boolean getCableCar() {
         return (modes & MODE_CABLE_CAR) != 0;
     }
@@ -159,11 +159,11 @@ public class TraverseModeSet implements Cloneable, Serializable {
     public boolean getFunicular() {
         return (modes & MODE_FUNICULAR) != 0;
     }
-    
+
     public boolean getRail() {
         return (modes & MODE_RAIL) != 0;
     }
-    
+
     public boolean getSubway() {
         return (modes & MODE_SUBWAY) != 0;
     }
@@ -195,7 +195,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
             modes &= ~MODE_CAR;
         }
     }
-    
+
     public void setTram(boolean tram) {
         if (tram) {
             modes |= MODE_TRAM;
@@ -203,7 +203,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
             modes &= ~MODE_TRAM;
         }
     }
-    
+
     public void setBus(boolean bus) {
         if (bus) {
             modes |= MODE_BUS;
@@ -211,7 +211,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
             modes &= ~MODE_BUS;
         }
     }
-   
+
     public void setFerry(boolean ferry) {
         if (ferry) {
             modes |= MODE_FERRY;
@@ -252,7 +252,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
             modes &= ~MODE_SUBWAY;
         }
     }
-    
+
     public void setRail(boolean rail) {
         if (rail) {
             modes |= MODE_RAIL;
@@ -270,7 +270,9 @@ public class TraverseModeSet implements Cloneable, Serializable {
 
     }
 
-    /** Returns true if the trip may use some transit mode */
+    /**
+     * Returns true if the trip may use some transit mode
+     */
     public boolean isTransit() {
         return (modes & (MODE_TRANSIT)) != 0;
     }
@@ -283,7 +285,9 @@ public class TraverseModeSet implements Cloneable, Serializable {
         }
     }
 
-    /** Returns a TraverseModeSet containing only the non-transit modes set. */
+    /**
+     * Returns a TraverseModeSet containing only the non-transit modes set.
+     */
     public TraverseModeSet getNonTransitSet() {
         TraverseModeSet retval = new TraverseModeSet();
         retval.modes = modes;
@@ -327,7 +331,9 @@ public class TraverseModeSet implements Cloneable, Serializable {
         return "TraverseMode (" + out + ")";
     }
 
-    /** get this traverse mode as a string that can be fed back into the constructor */
+    /**
+     * get this traverse mode as a string that can be fed back into the constructor
+     */
     public String getAsStr() {
         String retVal = null;
         for (TraverseMode m : getModes()) {
@@ -349,12 +355,12 @@ public class TraverseModeSet implements Cloneable, Serializable {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Clear the mode set so that no modes are included.
      */
     public void clear() {
-    	modes = 0;
+        modes = 0;
     }
 
     public int hashCode() {
@@ -363,7 +369,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
 
     public boolean equals(Object other) {
         if (other instanceof TraverseModeSet) {
-            return modes == ((TraverseModeSet)other).modes;
+            return modes == ((TraverseModeSet) other).modes;
         }
         return false;
     }

@@ -4,25 +4,24 @@ package org.opentripplanner.util;
  * A compact bit set utility class. It rely on the client to store the bit set himself (either as a
  * byte, short, int or long, depending on the amount of bits needed), to prevent having to store a
  * reference and create another heavy object instance such as with the BitSet class.
- * 
+ * <p>
  * Usage is rather simple:
- * 
+ *
  * <pre>
- * 
+ *
  * short flags; // or int, long, byte
- * 
+ *
  * public boolean isFooBar() {
  *     return BitSetUtils.get(flags, FOOBAR_INDEX);
  * }
- * 
+ *
  * public void setFooBar(boolean foobar) {
  *     flags = BitSetUtils.set(flags, FOOBAR_INDEX, foobar);
  * }
- * 
+ *
  * </pre>
- * 
+ *
  * @author laurent
- * 
  */
 public final class BitSetUtils {
 

@@ -20,21 +20,23 @@ import java.util.regex.Pattern;
 
 /**
  * A GraphService maps RouterIds to Graphs.
- * 
+ * <p>
  * This graph service allows us to decouple the deserialization, loading, and management of the
  * underlying graph objects from the classes that need access to the objects. This indirection
  * allows us to provide multiple graphs distringuished by routerIds or to dynamically swap in new
  * graphs if underlying data changes.
- * 
+ * <p>
  * Delegate the graph creation/loading details to the GraphSource implementations.
- * 
+ *
  * @see GraphSource
  */
 public class GraphService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphService.class);
 
-    /** Poll period for auto-reload scan. */
+    /**
+     * Poll period for auto-reload scan.
+     */
     private static final int AUTORELOAD_PERIOD_SEC = 10;
 
     /**
@@ -69,7 +71,9 @@ public class GraphService {
         }
     }
 
-    /** @param defaultRouterId The ID of the default router to return when no one is specified */
+    /**
+     * @param defaultRouterId The ID of the default router to return when no one is specified
+     */
     public void setDefaultRouterId(String defaultRouterId) {
         this.defaultRouterId = defaultRouterId;
     }
@@ -121,6 +125,7 @@ public class GraphService {
 
     /**
      * Reload all registered graphs from wherever they came from. See reloadGraph().
+     *
      * @return whether the operation completed successfully (all reloads are successful).
      */
     public boolean reloadGraphs(boolean preEvict, boolean force) {
@@ -136,13 +141,13 @@ public class GraphService {
 
     /**
      * Reload a registered graph. If the reload fails, evict (remove) the graph.
-     * 
+     *
      * @param routerId ID of the router
      * @param preEvict When true, release the existing graph (if any) before loading. This will
-     *        halve the amount of memory needed for the operation, but routing will be unavailable
-     *        for that graph during the load process
-     * @param force When true, force a reload. If false, only check if the source has been modified,
-     *        and reload if so.
+     *                 halve the amount of memory needed for the operation, but routing will be unavailable
+     *                 for that graph during the load process
+     * @param force    When true, force a reload. If false, only check if the source has been modified,
+     *                 and reload if so.
      * @return True if the reload is successful, false otherwise.
      */
     public boolean reloadGraph(String routerId, boolean preEvict, boolean force) {
@@ -159,7 +164,9 @@ public class GraphService {
         }
     }
 
-    /** @return a collection of all valid router IDs for this server */
+    /**
+     * @return a collection of all valid router IDs for this server
+     */
     public Collection<String> getRouterIds() {
         return new ArrayList<String>(graphSources.keySet());
     }
@@ -169,7 +176,7 @@ public class GraphService {
      * load it from appropriate source (serialized file, memory...), and enable its use in routing.
      * The relationship between router IDs and paths in the filesystem is determined by the
      * GraphSource implementation.
-     * 
+     *
      * @return whether the operation completed successfully
      */
     public boolean registerGraph(String routerId, GraphSource graphSource) {
@@ -199,7 +206,7 @@ public class GraphService {
     /**
      * Dissociate a router ID from the corresponding graph/services object, and disable that router ID for
      * use in routing.
-     * 
+     *
      * @return whether a router was associated with this router ID and was evicted.
      */
     public boolean evictRouter(String routerId) {
@@ -219,7 +226,7 @@ public class GraphService {
     /**
      * Dissocate all graphs from their router IDs and release references to the graphs to allow
      * garbage collection. Routing will not be possible until new graphs are registered.
-     * 
+     * <p>
      * This is equivalent to calling evictGraph on every registered router ID.
      */
     public int evictAll() {
@@ -238,7 +245,7 @@ public class GraphService {
 
     /**
      * @return The default GraphSource factory. Needed in case someone want to register or save a
-     *         new router with a router ID only (namely, via the web-service API).
+     * new router with a router ID only (namely, via the web-service API).
      */
     public GraphSource.Factory getGraphSourceFactory() {
         return graphSourceFactory;
@@ -256,7 +263,7 @@ public class GraphService {
 
     /**
      * Check whether a router ID is legal or not.
-     * 
+     * <p>
      * Router IDs may contain alphanumeric characters, underscores, and dashes only. This prevents
      * any confusion caused by the presence of special characters that might have a meaning for the
      * filesystem.

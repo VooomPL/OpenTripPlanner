@@ -10,7 +10,6 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStop;
 
 public class FlexTransitBoardAlight extends TransitBoardAlight implements TemporaryEdge {
 
@@ -20,13 +19,13 @@ public class FlexTransitBoardAlight extends TransitBoardAlight implements Tempor
     private PartialPatternHop hop;
 
     public FlexTransitBoardAlight(TransitStopDepart fromStopVertex, PatternStopVertex toPatternVertex,
-                                       int stopIndex, PartialPatternHop hop) {
+                                  int stopIndex, PartialPatternHop hop) {
         super(fromStopVertex, toPatternVertex, stopIndex, hop.getMode());
         setIndices(hop);
     }
 
     public FlexTransitBoardAlight(PatternStopVertex fromPatternStop, TransitStopArrive toStationVertex,
-                                       int stopIndex, PartialPatternHop hop) {
+                                  int stopIndex, PartialPatternHop hop) {
         super(fromPatternStop, toStationVertex, stopIndex, hop.getMode());
         setIndices(hop);
     }
@@ -47,12 +46,12 @@ public class FlexTransitBoardAlight extends TransitBoardAlight implements Tempor
     public State traverse(State s0) {
         // do not board call-n-ride if it is not a temporary stop and we aren't doing a fixed route-C&R transfer
         if (!s0.getOptions().arriveBy && boarding && hop.isDeviatedRouteBoard()
-            && !((TransitStopDepart) getFromVertex()).getStopVertex().checkCallAndRideBoardAlightOk(s0)) {
+                && !((TransitStopDepart) getFromVertex()).getStopVertex().checkCallAndRideBoardAlightOk(s0)) {
             return null;
         }
 
         if (s0.getOptions().arriveBy && !boarding && hop.isDeviatedRouteAlight()
-            && !(((TransitStopArrive) getToVertex()).getStopVertex().checkCallAndRideBoardAlightOk(s0))) {
+                && !(((TransitStopArrive) getToVertex()).getStopVertex().checkCallAndRideBoardAlightOk(s0))) {
             return null;
         }
 
@@ -95,15 +94,14 @@ public class FlexTransitBoardAlight extends TransitBoardAlight implements Tempor
                 startVehicleTime = tripTimes.getDemandResponseMaxTime(startVehicleTime);
             }
             int offset = (int) Math.round(startIndex * (tripTimes.getRunningTime(stopIndex)));
-            return  (int)(sd.time(tripTimes.getDepartureTime(stopIndex) + offset - startVehicleTime) - s0.getTimeSeconds());
-        }
-        else {
+            return (int) (sd.time(tripTimes.getDepartureTime(stopIndex) + offset - startVehicleTime) - s0.getTimeSeconds());
+        } else {
             int endVehicleTime = hop.getEndVehicleTime();
             if (endVehicleTime != 0) {
                 endVehicleTime = tripTimes.getDemandResponseMaxTime(endVehicleTime);
             }
-            int offset = (int) Math.round((1-endIndex) * (tripTimes.getRunningTime(stopIndex - 1)));
-            return (int)(s0.getTimeSeconds() - sd.time(tripTimes.getArrivalTime(stopIndex) - offset + endVehicleTime));
+            int offset = (int) Math.round((1 - endIndex) * (tripTimes.getRunningTime(stopIndex - 1)));
+            return (int) (s0.getTimeSeconds() - sd.time(tripTimes.getArrivalTime(stopIndex) - offset + endVehicleTime));
         }
     }
 

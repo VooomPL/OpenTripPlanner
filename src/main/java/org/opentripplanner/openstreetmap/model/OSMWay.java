@@ -29,7 +29,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if bicycle dismounts are forced.
-     * 
+     *
      * @return
      */
     public boolean isBicycleDismountForced() {
@@ -39,7 +39,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if these are steps.
-     * 
+     *
      * @return
      */
     public boolean isSteps() {
@@ -48,7 +48,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Is this way a roundabout?
-     * 
+     *
      * @return
      */
     public boolean isRoundabout() {
@@ -57,7 +57,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if this is a one-way street for driving.
-     * 
+     *
      * @return
      */
     public boolean isOneWayForwardDriving() {
@@ -66,7 +66,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if this way is one-way in the opposite direction of its definition.
-     * 
+     *
      * @return
      */
     public boolean isOneWayReverseDriving() {
@@ -75,7 +75,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if bikes can only go forward.
-     * 
+     *
      * @return
      */
     public boolean isOneWayForwardBicycle() {
@@ -85,7 +85,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if bikes can only go in the reverse direction.
-     * 
+     *
      * @return
      */
     public boolean isOneWayReverseBicycle() {
@@ -94,8 +94,8 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if bikes must use sidepath in forward direction
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean isForwardDirectionSidepath() {
         return "use_sidepath".equals(getTag("bicycle:forward"));
@@ -103,8 +103,8 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Returns true if bikes must use sidepath in reverse direction
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean isReverseDirectionSidepath() {
         return "use_sidepath".equals(getTag("bicycle:backward"));
@@ -112,7 +112,7 @@ public class OSMWay extends OSMWithTags {
 
     /**
      * Some cycleways allow contraflow biking.
-     * 
+     *
      * @return
      */
     public boolean isOpposableCycleway() {

@@ -1,9 +1,9 @@
 package org.opentripplanner.openstreetmap.impl;
 
-import java.io.File;
-
 import org.opentripplanner.openstreetmap.services.OpenStreetMapContentHandler;
 import org.opentripplanner.openstreetmap.services.OpenStreetMapProvider;
+
+import java.io.File;
 
 public class AnyFileBasedOpenStreetMapProviderImpl implements OpenStreetMapProvider {
 
@@ -13,11 +13,14 @@ public class AnyFileBasedOpenStreetMapProviderImpl implements OpenStreetMapProvi
         this.path = path;
     }
 
-    public AnyFileBasedOpenStreetMapProviderImpl (File file) {
+    public AnyFileBasedOpenStreetMapProviderImpl(File file) {
         this.setPath(file);
     }
-    
-    public AnyFileBasedOpenStreetMapProviderImpl() { };
+
+    public AnyFileBasedOpenStreetMapProviderImpl() {
+    }
+
+    ;
 
     @Override
     public void readOSM(OpenStreetMapContentHandler handler) {

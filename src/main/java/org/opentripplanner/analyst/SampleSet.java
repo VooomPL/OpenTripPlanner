@@ -19,7 +19,7 @@ public class SampleSet {
     public float[] d0s;
     public float[] d1s;
 
-    public SampleSet (PointSet pset, SampleFactory sfac) {
+    public SampleSet(PointSet pset, SampleFactory sfac) {
         this.pset = pset;
         v0s = new Vertex[pset.capacity];
         v1s = new Vertex[pset.capacity];
@@ -39,7 +39,7 @@ public class SampleSet {
         }
     }
 
-    public int[] eval (TimeSurface surf) {
+    public int[] eval(TimeSurface surf) {
         final float WALK_SPEED = 1.3f;
         int[] ret = new int[pset.capacity];
         for (int i = 0; i < pset.capacity; i++) {
@@ -61,8 +61,10 @@ public class SampleSet {
         }
         return ret;
     }
-    
-    /** Evaluate an array of times where indices are keyed to vertex indices, with Integer.MAX_VALUE indicating unreachability both in the inputs and the outputs */
+
+    /**
+     * Evaluate an array of times where indices are keyed to vertex indices, with Integer.MAX_VALUE indicating unreachability both in the inputs and the outputs
+     */
     public int[] eval(int[] times) {
         final float WALK_SPEED = 1.3f;
         int[] ret = new int[pset.capacity];

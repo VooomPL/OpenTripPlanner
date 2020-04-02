@@ -1,11 +1,10 @@
 package org.opentripplanner.routing.bike_park;
 
-import java.io.Serializable;
-import java.util.Locale;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAttribute;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+import java.util.Locale;
 
 public class BikePark implements Serializable {
     private static final long serialVersionUID = 8311460609708089384L;
@@ -22,7 +21,9 @@ public class BikePark implements Serializable {
     @JsonSerialize
     public String name;
 
-    /** Note: x = Longitude, y = Latitude */
+    /**
+     * Note: x = Longitude, y = Latitude
+     */
     @XmlAttribute
     @JsonSerialize
     public double x, y;
@@ -51,7 +52,7 @@ public class BikePark implements Serializable {
         return id.hashCode() + 1;
     }
 
-    public String toString () {
+    public String toString() {
         return String.format(Locale.US, "Bike park %s at %.6f, %.6f", name, y, x);
     }
 }

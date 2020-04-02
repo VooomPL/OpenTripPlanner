@@ -17,7 +17,7 @@ public class Scenario implements Serializable {
 
     public List<Modification> modifications = Lists.newArrayList();
 
-    public Scenario (@JsonProperty("id") int id) {
+    public Scenario(@JsonProperty("id") int id) {
         this.id = id;
     }
 }

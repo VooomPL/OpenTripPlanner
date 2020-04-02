@@ -3,15 +3,6 @@ package org.opentripplanner.graph_builder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.logging.Level;
-
 import org.apache.commons.io.FileUtils;
 import org.opentripplanner.graph_builder.annotation.GraphBuilderAnnotation;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
@@ -19,15 +10,20 @@ import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+
 /**
- * This class generates nice HTML graph annotations reports 
- * 
+ * This class generates nice HTML graph annotations reports
+ * <p>
  * They are created with the help of getHTMLMessage function in {@link GraphBuilderAnnotation} derived classes.
+ *
  * @author mabu
  */
 public class AnnotationsToHTML implements GraphBuilderModule {
 
-    private static Logger LOG = LoggerFactory.getLogger(AnnotationsToHTML.class); 
+    private static Logger LOG = LoggerFactory.getLogger(AnnotationsToHTML.class);
 
     //Path to output folder
     private File outPath;
@@ -48,8 +44,8 @@ public class AnnotationsToHTML implements GraphBuilderModule {
     //Key is classname, value is annotation message
     //Multimap because there are multiple annotations for each classname
     private Multimap<String, String> annotations;
-  
-    public AnnotationsToHTML (File outpath, int maxNumberOfAnnotationsPerFile) {
+
+    public AnnotationsToHTML(File outpath, int maxNumberOfAnnotationsPerFile) {
         this.outPath = outpath;
         annotations = ArrayListMultimap.create();
         this.maxNumberOfAnnotationsPerFile = maxNumberOfAnnotationsPerFile;
@@ -87,7 +83,6 @@ public class AnnotationsToHTML implements GraphBuilderModule {
         }
 
 
-
         //Groups annotations in multimap according to annotation class
         for (GraphBuilderAnnotation annotation : graph.getBuilderAnnotations()) {
             //writer.println("<p>" + annotation.getHTMLMessage() + "</p>");
@@ -101,7 +96,7 @@ public class AnnotationsToHTML implements GraphBuilderModule {
         //Creates list of HTML writers. Each writer has whole class of HTML annotations
         //Or multiple HTML writers can have parts of one class of HTML annotations if number
         // of annotations is larger than maxNumberOfAnnotationsPerFile
-        for (Map.Entry<String, Collection<String>> entry: annotations.asMap().entrySet()) {
+        for (Map.Entry<String, Collection<String>> entry : annotations.asMap().entrySet()) {
             List<String> annotationsList;
             if (entry.getValue() instanceof List) {
                 annotationsList = (List<String>) entry.getValue();
@@ -118,7 +113,7 @@ public class AnnotationsToHTML implements GraphBuilderModule {
         }
 
         try {
-            HTMLWriter indexFileWriter = new HTMLWriter("index", (Multimap<String, String>)null);
+            HTMLWriter indexFileWriter = new HTMLWriter("index", (Multimap<String, String>) null);
             indexFileWriter.writeFile(annotationClassOccurences, true);
         } catch (FileNotFoundException e) {
             LOG.error("Index file coudn't be created:{}", e);
@@ -131,23 +126,23 @@ public class AnnotationsToHTML implements GraphBuilderModule {
 
     /**
      * Creates file with given class of annotations
-     *
+     * <p>
      * If number of annotations is larger then maxNumberOfAnnotationsPerFile multiple files are generated.
      * And named annotationClassName1,2,3 etc.
      *
      * @param annotationClassName name of annotation class and then also filename
-     * @param annotations list of all annotations with that class
+     * @param annotations         list of all annotations with that class
      */
     private void addAnnotations(String annotationClassName, List<String> annotations) {
         try {
             HTMLWriter file_writer;
-            if (annotations.size() > 1.2*maxNumberOfAnnotationsPerFile) {
+            if (annotations.size() > 1.2 * maxNumberOfAnnotationsPerFile) {
                 LOG.debug("Number of annotations is very large. Splitting: {}", annotationClassName);
                 List<List<String>> partitions = Lists.partition(annotations, maxNumberOfAnnotationsPerFile);
-                for (List<String> partition: partitions) {
+                for (List<String> partition : partitions) {
                     annotationClassOccurences.add(annotationClassName);
                     int labelCount = annotationClassOccurences.count(annotationClassName);
-                    file_writer =new HTMLWriter(annotationClassName+Integer.toString(labelCount), partition);
+                    file_writer = new HTMLWriter(annotationClassName + Integer.toString(labelCount), partition);
                     writers.add(file_writer);
                 }
 
@@ -155,7 +150,7 @@ public class AnnotationsToHTML implements GraphBuilderModule {
                 annotationClassOccurences.add(annotationClassName);
                 int labelCount = annotationClassOccurences.count(annotationClassName);
                 file_writer = new HTMLWriter(annotationClassName + Integer.toString(labelCount),
-                    annotations);
+                        annotations);
                 writers.add(file_writer);
             }
         } catch (FileNotFoundException ex) {
@@ -170,9 +165,10 @@ public class AnnotationsToHTML implements GraphBuilderModule {
 
     /**
      * Groups annotations according to annotation class name
-     *
+     * <p>
      * All annotations are saved together in multimap where key is annotation classname
      * and values are list of annotations with that class
+     *
      * @param annotation
      */
     private void addAnnotation(GraphBuilderAnnotation annotation) {
@@ -190,7 +186,7 @@ public class AnnotationsToHTML implements GraphBuilderModule {
 
         public HTMLWriter(String key, Collection<String> annotations) throws FileNotFoundException {
             LOG.debug("Making file: {}", key);
-            File newFile = new File(outPath, key +".html");
+            File newFile = new File(outPath, key + ".html");
             FileOutputStream fileOutputStream = new FileOutputStream(newFile);
             this.out = new PrintStream(fileOutputStream);
             writerAnnotations = ArrayListMultimap.create();
@@ -199,9 +195,9 @@ public class AnnotationsToHTML implements GraphBuilderModule {
         }
 
         public HTMLWriter(String filename, Multimap<String, String> curMap)
-            throws FileNotFoundException {
+                throws FileNotFoundException {
             LOG.debug("Making file: {}", filename);
-            File newFile = new File(outPath, filename +".html");
+            File newFile = new File(outPath, filename + ".html");
             FileOutputStream fileOutputStream = new FileOutputStream(newFile);
             this.out = new PrintStream(fileOutputStream);
             writerAnnotations = curMap;
@@ -210,48 +206,48 @@ public class AnnotationsToHTML implements GraphBuilderModule {
 
         private void writeFile(Multiset<String> classes, boolean isIndexFile) {
             println("<html><head><title>Graph report for " + outPath.getParentFile()
-                + "Graph.obj</title>");
+                    + "Graph.obj</title>");
             println("\t<meta charset=\"utf-8\">");
             println("<meta name='viewport' content='width=device-width, initial-scale=1'>");
             println("<script src='http://code.jquery.com/jquery-1.11.1.js'></script>");
             println(
-                "<link rel='stylesheet' href='http://yui.yahooapis.com/pure/0.5.0/pure-min.css'>");
+                    "<link rel='stylesheet' href='http://yui.yahooapis.com/pure/0.5.0/pure-min.css'>");
             String css = "\t\t<style>\n"
-                + "\n"
-                + "\t\t\tbutton.pure-button {\n"
-                + "\t\t\t\tmargin:5px;\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t\tspan.pure-button {\n"
-                + "\t\t\t\tcursor:default;\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t\t.button-graphwide,\n"
-                + "\t\t\t.button-parkandrideunlinked,\n"
-                + "\t\t\t.button-graphconnectivity,\n"
-                + "\t\t\t.button-turnrestrictionbad\t{\n"
-                + "\t\t\t\tcolor:white;\n"
-                + "\t\t\t\ttext-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t\t.button-graphwide {\n"
-                + "\t\t\t\tbackground: rgb(28, 184, 65); /* this is a green */\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t\t.button-parkandrideunlinked {\n"
-                + "\t\t\t\tbackground: rgb(202, 60, 60); /* this is a maroon */\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t\t.button-graphconnectivity{\n"
-                + "\t\t\t\tbackground: rgb(223, 117, 20); /* this is an orange */\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t\t.button-turnrestrictionbad {\n"
-                + "\t\t\t\tbackground: rgb(66, 184, 221); /* this is a light blue */\n"
-                + "\t\t\t}\n"
-                + "\n"
-                + "\t\t</style>\n"
-                + "";
+                    + "\n"
+                    + "\t\t\tbutton.pure-button {\n"
+                    + "\t\t\t\tmargin:5px;\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t\tspan.pure-button {\n"
+                    + "\t\t\t\tcursor:default;\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t\t.button-graphwide,\n"
+                    + "\t\t\t.button-parkandrideunlinked,\n"
+                    + "\t\t\t.button-graphconnectivity,\n"
+                    + "\t\t\t.button-turnrestrictionbad\t{\n"
+                    + "\t\t\t\tcolor:white;\n"
+                    + "\t\t\t\ttext-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t\t.button-graphwide {\n"
+                    + "\t\t\t\tbackground: rgb(28, 184, 65); /* this is a green */\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t\t.button-parkandrideunlinked {\n"
+                    + "\t\t\t\tbackground: rgb(202, 60, 60); /* this is a maroon */\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t\t.button-graphconnectivity{\n"
+                    + "\t\t\t\tbackground: rgb(223, 117, 20); /* this is an orange */\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t\t.button-turnrestrictionbad {\n"
+                    + "\t\t\t\tbackground: rgb(66, 184, 221); /* this is a light blue */\n"
+                    + "\t\t\t}\n"
+                    + "\n"
+                    + "\t\t</style>\n"
+                    + "";
             println(css);
             println("</head><body>");
             println(String.format("<h1>OpenTripPlanner annotations log for %s</h1>", annotationClassName));
@@ -267,10 +263,10 @@ public class AnnotationsToHTML implements GraphBuilderModule {
                     label = label_name + currentCount;
                     if (label.equals(annotationClassName)) {
                         println(String.format("<button class='pure-button pure-button-disabled button-%s'>%s</button>",
-                            label_name.toLowerCase(), label));
+                                label_name.toLowerCase(), label));
                     } else {
                         println(String.format("<a class='pure-button button-%s' href=\"%s.html\">%s</a>",
-                            label_name.toLowerCase(), label, label));
+                                label_name.toLowerCase(), label, label));
                     }
                     currentCount++;
                 }
@@ -292,7 +288,7 @@ public class AnnotationsToHTML implements GraphBuilderModule {
          */
         private void writeAnnotations() {
             String annotationFMT = "<li>%s</li>";
-            for (Map.Entry<String, String> annotation: writerAnnotations.entries()) {
+            for (Map.Entry<String, String> annotation : writerAnnotations.entries()) {
                 print(String.format(annotationFMT, annotation.getValue()));
             }
         }
@@ -310,18 +306,17 @@ public class AnnotationsToHTML implements GraphBuilderModule {
         }
 
 
-        
         /**
          * Generates JSON from annotations variable which is used by Javascript
          * to display HTML report
          */
         private void writeJson() {
             try {
- 
+
                 out.print("\tvar data=");
                 ObjectMapper mapper = new ObjectMapper();
                 JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(out);
-                
+
                 mapper.writeValue(jsonGenerator, writerAnnotations.asMap());
                 out.println(";");
 

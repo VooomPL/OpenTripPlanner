@@ -1,8 +1,8 @@
 package org.opentripplanner.geocoder;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GeocoderNullImplTest {
 

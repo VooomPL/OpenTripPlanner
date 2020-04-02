@@ -1,13 +1,13 @@
 package org.opentripplanner.visibility;
 
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-   
- 
- This port undoubtedly introduced a number of bugs (and removed some features).
- 
- Bug reports should be directed to the OpenTripPlanner project, unless they 
- can be reproduced in the original VisiLibity
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity
  */
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class VLPolygon {
             for (int i = 0; i <= n() - 1; i++)
                 if ((get(i + 1).x - get(i).x) * (get(i + 2).y - get(i).y)
 
-                - (get(i + 1).y - get(i).y) * (get(i + 2).x - get(i).x) < 0)
+                        - (get(i + 1).y - get(i).y) * (get(i + 2).x - get(i).x) < 0)
                     r_count++;
             if (area() < 0) {
                 r_count = n() - r_count;
@@ -86,7 +86,7 @@ public class VLPolygon {
             for (int j = i + 2; j <= n() - 1; j++)
                 if (0 != (j + 1) % vertices.size()
                         && new LineSegment(get(i), get(i + 1)).distance(new LineSegment(get(j),
-                                get(j + 1))) <= epsilon)
+                        get(j + 1))) <= epsilon)
                     return false;
 
         return true;
@@ -260,7 +260,7 @@ public class VLPolygon {
         int n = n();
         if (n > 2) {
             // reverse, leaving the first point in its place
-            for (int i = 1; i < (n+1) / 2; ++i) {
+            for (int i = 1; i < (n + 1) / 2; ++i) {
                 VLPoint temp = vertices.get(i);
                 vertices.set(i, vertices.get((n - i)));
                 vertices.set((n - i), temp);

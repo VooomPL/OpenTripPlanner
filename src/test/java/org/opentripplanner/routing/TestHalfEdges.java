@@ -1,18 +1,18 @@
 package org.opentripplanner.routing;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.linearref.LinearLocation;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Stop;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.graph_builder.module.StreetLinkerModule;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -32,17 +32,16 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
+import org.opentripplanner.util.NonLocalizedString;
 import org.opentripplanner.util.TestUtils;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.collect.Iterables.filter;
 import static org.junit.Assert.*;
-
-import org.opentripplanner.util.NonLocalizedString;
 
 public class TestHalfEdges {
 
@@ -90,7 +89,7 @@ public class TestHalfEdges {
         right = new StreetEdge(br, tr,
                 GeometryUtils.makeLineString(-74.0, 40.0, -74.0, 40.01), "right", 1500,
                 StreetTraversalPermission.PEDESTRIAN, false);
-        
+
         @SuppressWarnings("unused")
         StreetEdge topBack = new StreetEdge(tr, tl, (LineString) top.getGeometry()
                 .reverse(), "topBack", 1500, StreetTraversalPermission.ALL, true);
@@ -118,7 +117,7 @@ public class TestHalfEdges {
         station2 = new TransitStop(graph, s2);
         station1.addMode(TraverseMode.RAIL);
         station2.addMode(TraverseMode.RAIL);
-        
+
         graph.rebuildVertexAndEdgeIndices();
 
         //Linkers aren't run otherwise in testNetworkLinker
@@ -291,7 +290,7 @@ public class TestHalfEdges {
         ShortestPathTree spt = aStar.getShortestPathTree(options);
 
         GraphPath path = spt.getPath(end, false);
-        assertNotNull("There must be a path from start to end", path);        
+        assertNotNull("There must be a path from start to end", path);
         assertEquals(1, path.edges.size());
         options.cleanup();
     }
@@ -312,7 +311,7 @@ public class TestHalfEdges {
                 filter(turns, StreetEdge.class),
                 new LinearLocation(0, 0.4).getCoordinate(left.getGeometry()), true);
 
-        assertEquals(start.getX(), end.getX(),0.001);
+        assertEquals(start.getX(), end.getX(), 0.001);
         assertTrue(start.getY() > end.getY());
 
         Collection<Edge> edges = end.getIncoming();
@@ -325,7 +324,7 @@ public class TestHalfEdges {
         ShortestPathTree spt = aStar.getShortestPathTree(options);
 
         GraphPath path = spt.getPath(end, false);
-        assertNotNull("There must be a path from start to end", path);        
+        assertNotNull("There must be a path from start to end", path);
         assertTrue(path.edges.size() > 1);
         options.cleanup();
     }

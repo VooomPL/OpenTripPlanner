@@ -1,19 +1,18 @@
 package org.opentripplanner.graph_builder.module.shapefile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.opengis.feature.simple.SimpleFeature;
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.services.shapefile.SimpleFeatureConverter;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * A converter which is a composite of other converters. It can combine them with an "and" or "or"
  * strategy. The orPermissions variable controls that.
- * 
+ *
  * @author rob
- * 
  */
 public class CompositeStreetTraversalPermissionConverter implements SimpleFeatureConverter<P2<StreetTraversalPermission>> {
 
@@ -26,7 +25,7 @@ public class CompositeStreetTraversalPermissionConverter implements SimpleFeatur
 
     /**
      * Is the or combination strategy being used?
-     * 
+     *
      * @return whether the or combination strategy is used
      */
     public boolean isOrPermissions() {
@@ -39,9 +38,8 @@ public class CompositeStreetTraversalPermissionConverter implements SimpleFeatur
 
     /**
      * set the list of converters used to the passed in parameter
-     * 
-     * @param converters
-     *            list of converters to use
+     *
+     * @param converters list of converters to use
      */
     public void setConverters(
             Collection<SimpleFeatureConverter<P2<StreetTraversalPermission>>> converters) {
@@ -76,6 +74,7 @@ public class CompositeStreetTraversalPermissionConverter implements SimpleFeatur
 
     /**
      * add a converter to the list to be applied
+     *
      * @param converter the new converter
      */
     public void add(SimpleFeatureConverter<P2<StreetTraversalPermission>> converter) {

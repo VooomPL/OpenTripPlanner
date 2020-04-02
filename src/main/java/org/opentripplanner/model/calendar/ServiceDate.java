@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
  * is a particular date when a particular GTFS service id is active.
  *
  * @author bdferris
- *
  */
 public class ServiceDate implements Serializable, Comparable<ServiceDate> {
 
@@ -45,9 +44,9 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     /**
      * Construct a new ServiceDate by specifying the numeric year, month, and day
      *
-     * @param year - numeric year (ex. 2010)
+     * @param year  - numeric year (ex. 2010)
      * @param month - numeric month of the year, where Jan = 1, Feb = 2, etc
-     * @param day - numeric day of month
+     * @param day   - numeric day of month
      */
     public ServiceDate(int year, int month, int day) {
         this.year = year;
@@ -112,7 +111,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
 
     /**
      * @return calls {@link #getAsDate(TimeZone)} with the default timezone for
-     *         this VM
+     * this VM
      */
     public Date getAsDate() {
         return getAsDate(TimeZone.getDefault());
@@ -131,7 +130,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      *
      * @param timeZone the target timezone to localize the service date to
      * @return a localized date at "midnight" at the start of this service date in
-     *         the specified timezone
+     * the specified timezone
      */
     public Calendar getAsCalendar(TimeZone timeZone) {
         Calendar c = Calendar.getInstance();
@@ -150,7 +149,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      *
      * @param timeZone the target timezone to localize the service date to
      * @return a localized date at "midnight" at the start of this service date in
-     *         the specified timezone
+     * the specified timezone
      */
     public Date getAsDate(TimeZone timeZone) {
         Calendar c = getAsCalendar(timeZone);
@@ -168,7 +167,6 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     }
 
     /**
-     *
      * @return the service date following the current service date
      */
     public ServiceDate next() {
@@ -176,7 +174,6 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     }
 
     /**
-     *
      * @return the service date preceding the current service date
      */
     public ServiceDate previous() {
@@ -184,11 +181,10 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     }
 
     /**
-     *
      * @param numberOfDays
      * @return the service date following the current service date by the
-     *         specified number of days, or preceding if a negative number of days
-     *         is specified
+     * specified number of days, or preceding if a negative number of days
+     * is specified
      */
     public ServiceDate shift(int numberOfDays) {
         Calendar c = getAsCalendar(UTC_TIME_ZONE);
@@ -199,7 +195,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     /**
      * @param serviceDate
      * @return the number of days between this service date and the specified
-     *         argument service date
+     * argument service date
      */
     public long difference(ServiceDate serviceDate) {
         return (serviceDate.getAsDate(UTC_TIME_ZONE).getTime() - getAsDate(UTC_TIME_ZONE).getTime())

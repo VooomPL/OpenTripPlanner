@@ -1,5 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -10,16 +12,14 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.BikeParkVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * This represents the connection between a street vertex and a bike park vertex.
- * 
+ * <p>
  * Bike park-and-ride and "OV-fiets mode" development has been funded by GoAbout
  * (https://goabout.com/).
- * 
+ *
  * @author laurent
  * @author GoAbout
  */
@@ -49,8 +49,8 @@ public class StreetBikeParkLink extends Edge {
 
     public LineString getGeometry() {
         // Return straight line beetween the bike park and the street
-        Coordinate[] coordinates = new Coordinate[] { getFromVertex().getCoordinate(),
-                getToVertex().getCoordinate() };
+        Coordinate[] coordinates = new Coordinate[]{getFromVertex().getCoordinate(),
+                getToVertex().getCoordinate()};
         return GeometryUtils.getGeometryFactory().createLineString(coordinates);
     }
 

@@ -12,16 +12,24 @@ public class S3BucketConfig {
 
     private static Logger LOG = LoggerFactory.getLogger(S3BucketConfig.class);
 
-    /** Credentials: the Amazon Web Services access key */
+    /**
+     * Credentials: the Amazon Web Services access key
+     */
     public String accessKey;
 
-    /** Credentials: the Amazon Web Services secret key corresponding to the access key. */
+    /**
+     * Credentials: the Amazon Web Services secret key corresponding to the access key.
+     */
     public String secretKey;
 
-    /** The bucket from which you want to download. */
+    /**
+     * The bucket from which you want to download.
+     */
     public String bucketName;
 
-    /** Create a BucketConfig from a JSON configuration node. */
+    /**
+     * Create a BucketConfig from a JSON configuration node.
+     */
     public static S3BucketConfig fromConfig(JsonNode config) {
         if (config == null || config.isMissingNode()) {
             /* No configuration was specified, nothing should be downloaded from S3. */

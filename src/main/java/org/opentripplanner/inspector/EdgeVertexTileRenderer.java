@@ -1,41 +1,29 @@
 package org.opentripplanner.inspector;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.image.BufferedImage;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.opentripplanner.common.geometry.GeometryUtils;
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Vertex;
-
 import com.jhlabs.awt.ShapeStroke;
 import com.jhlabs.awt.TextStroke;
 import org.locationtech.jts.awt.IdentityPointTransformation;
 import org.locationtech.jts.awt.PointShapeFactory;
 import org.locationtech.jts.awt.ShapeWriter;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.locationtech.jts.operation.buffer.OffsetCurveBuilder;
+import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Vertex;
+
+import java.awt.Polygon;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A TileRenderer implementation which get all edges/vertex in the bounding box of the tile, and
  * call a EdgeVertexRenderer for getting rendering attributes of each (color, string label...).
- * 
+ *
  * @author laurent
  */
 public class EdgeVertexTileRenderer implements TileRenderer {
@@ -57,14 +45,14 @@ public class EdgeVertexTileRenderer implements TileRenderer {
     public interface EdgeVertexRenderer {
 
         /**
-         * @param e The edge being rendered.
+         * @param e     The edge being rendered.
          * @param attrs The edge visual attributes to fill-in.
          * @return True to render this edge, false otherwise.
          */
         public abstract boolean renderEdge(Edge e, EdgeVisualAttributes attrs);
 
         /**
-         * @param v The vertex being rendered.
+         * @param v     The vertex being rendered.
          * @param attrs The vertex visual attributes to fill-in.
          * @return True to render this vertex, false otherwise.
          */
@@ -128,10 +116,10 @@ public class EdgeVertexTileRenderer implements TileRenderer {
         Stroke halfStroke = new BasicStroke(lineWidth * 0.6f + 1.0f, BasicStroke.CAP_ROUND,
                 BasicStroke.JOIN_BEVEL);
         Stroke halfDashedStroke = new BasicStroke(lineWidth * 0.6f + 1.0f, BasicStroke.CAP_BUTT,
-                BasicStroke.JOIN_BEVEL, 1.0f, new float[] { 4 * lineWidth, lineWidth },
+                BasicStroke.JOIN_BEVEL, 1.0f, new float[]{4 * lineWidth, lineWidth},
                 2 * lineWidth);
-        Stroke arrowStroke = new ShapeStroke(new Polygon(new int[] { 0, 0, 30 }, new int[] { 0, 20,
-                10 }, 3), lineWidth / 2, 5.0f * lineWidth, 2.5f * lineWidth);
+        Stroke arrowStroke = new ShapeStroke(new Polygon(new int[]{0, 0, 30}, new int[]{0, 20,
+                10}, 3), lineWidth / 2, 5.0f * lineWidth, 2.5f * lineWidth);
         BasicStroke thinStroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND,
                 BasicStroke.JOIN_BEVEL);
 
@@ -156,8 +144,8 @@ public class EdgeVertexTileRenderer implements TileRenderer {
             Geometry edgeGeom = edge.getGeometry();
             boolean hasGeom = true;
             if (edgeGeom == null) {
-                Coordinate[] coordinates = new Coordinate[] { edge.getFromVertex().getCoordinate(),
-                        edge.getToVertex().getCoordinate() };
+                Coordinate[] coordinates = new Coordinate[]{edge.getFromVertex().getCoordinate(),
+                        edge.getToVertex().getCoordinate()};
                 edgeGeom = GeometryUtils.getGeometryFactory().createLineString(coordinates);
                 hasGeom = false;
             }

@@ -7,11 +7,7 @@ import org.onebusaway.gtfs.model.ShapePoint;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ShapePointMapperTest {
     private static final AgencyAndId AGENCY_AND_ID = new AgencyAndId("A", "1");
@@ -68,7 +64,9 @@ public class ShapePointMapperTest {
         assertNull(result.getShapeId());
     }
 
-    /** Mapping the same object twice, should return the the same instance. */
+    /**
+     * Mapping the same object twice, should return the the same instance.
+     */
     @Test
     public void testMapCache() throws Exception {
         org.opentripplanner.model.ShapePoint result1 = subject.map(SHAPE_POINT);

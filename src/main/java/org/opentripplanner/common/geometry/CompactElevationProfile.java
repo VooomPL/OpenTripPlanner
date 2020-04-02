@@ -1,9 +1,9 @@
 package org.opentripplanner.common.geometry;
 
-import java.io.Serializable;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
+
+import java.io.Serializable;
 
 /**
  * Compact elevation profile. To optimize storage, we use the following tricks:
@@ -12,10 +12,10 @@ import org.locationtech.jts.geom.CoordinateSequence;
  * from the previous point, and variable length coding (most of the delta coordinates will thus fits
  * in 1 or 2 bytes).</li>
  * </ul>
- * 
+ * <p>
  * Performance hit should be low as we do not need the elevation profile itself during a path
  * search.
- * 
+ *
  * @author laurent
  */
 public final class CompactElevationProfile implements Serializable {
@@ -30,7 +30,7 @@ public final class CompactElevationProfile implements Serializable {
 
     /**
      * Compact an elevation profile onto a var-len int packed form (Dlugosz coding).
-     * 
+     *
      * @param profile The elevation profile to compact
      * @return The compacted format
      */
@@ -60,9 +60,9 @@ public final class CompactElevationProfile implements Serializable {
 
     /**
      * Uncompact an ElevationProfile from a var-len int packed form (Dlugosz coding).
-     * 
+     * <p>
      * TODO relax the returned type to CoordinateSequence
-     * 
+     *
      * @param packedCoords Compacted coordinates
      * @return The elevation profile
      */

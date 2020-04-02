@@ -1,10 +1,10 @@
 package org.opentripplanner.common.geometry;
 
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 public class SparseMatrixTest extends TestCase {
 
@@ -20,7 +20,7 @@ public class SparseMatrixTest extends TestCase {
         for (String e : m) {
             throw new AssertionError("Should not iterate over empty matrix");
         }
-        
+
         m.put(0, 0, "A");
         assertEquals(1, m.size());
         assertEquals("A", m.get(0, 0));

@@ -13,8 +13,9 @@ import java.util.BitSet;
  */
 public class BitSetSerializer extends JsonSerializer<BitSet> {
 
-    @Override public void serialize(BitSet bitSet, JsonGenerator jsonGenerator,
-            SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+    @Override
+    public void serialize(BitSet bitSet, JsonGenerator jsonGenerator,
+                          SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
 
         jsonGenerator.writeStartArray();
 

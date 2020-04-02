@@ -1,5 +1,6 @@
 package org.opentripplanner.openstreetmap.impl;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.opentripplanner.openstreetmap.services.OpenStreetMapContentHandler;
 import org.opentripplanner.openstreetmap.services.OpenStreetMapProvider;
 
@@ -7,7 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 /**
  * @author Vincent Privat

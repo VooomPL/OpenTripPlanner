@@ -1,13 +1,13 @@
 package org.opentripplanner.routing.graph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EdgeTest {
     @Test
@@ -58,6 +58,6 @@ public class EdgeTest {
         vb.removeOutgoing(ebc);
         assertEquals(vb.getDegreeIn(), 0);
         assertEquals(vb.getDegreeOut(), 0);
-        
+
     }
 }

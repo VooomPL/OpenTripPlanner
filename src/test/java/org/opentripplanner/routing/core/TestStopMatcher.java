@@ -1,7 +1,6 @@
 package org.opentripplanner.routing.core;
 
 import junit.framework.TestCase;
-
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 
@@ -63,22 +62,22 @@ public class TestStopMatcher extends TestCase {
         Stop s2 = new Stop();
         s2.setId(new FeedScopedId("A1", "43"));
         s2.setParentStation("10");
-        
+
         StopMatcher matcherParent = StopMatcher.parse("A1:10");
         assertTrue(matcherParent.matches(parent));
         assertTrue(matcherParent.matches(s1));
         assertTrue(matcherParent.matches(s2));
-        
+
         StopMatcher matcherS1 = StopMatcher.parse("A1:42");
         assertFalse(matcherS1.matches(parent));
         assertTrue(matcherS1.matches(s1));
         assertFalse(matcherS1.matches(s2));
-        
+
         StopMatcher matcherS2 = StopMatcher.parse("A1:43");
         assertFalse(matcherS2.matches(parent));
         assertFalse(matcherS2.matches(s1));
         assertTrue(matcherS2.matches(s2));
-        
+
         StopMatcher matcherS1S2 = StopMatcher.parse("A1:42,A1:43");
         assertFalse(matcherS1S2.matches(parent));
         assertTrue(matcherS1S2.matches(s1));

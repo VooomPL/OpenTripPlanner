@@ -9,17 +9,12 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import org.locationtech.jts.geom.LineString;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopPattern;
-import org.opentripplanner.model.StopPatternFlexFields;
-import org.opentripplanner.model.Trip;
 import org.opentripplanner.api.resource.CoordinateArrayListSequence;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.*;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.ServiceDay;
 import org.opentripplanner.routing.core.State;
@@ -44,7 +39,7 @@ import java.util.*;
  * times, dwell times, and wheelchair accessibility information (one of each of these per trip per
  * stop).
  * Trips are assumed to be non-overtaking, so that an earlier trip never arrives after a later trip.
- *
+ * <p>
  * This is called a JOURNEY_PATTERN in the Transmodel vocabulary. However, GTFS calls a Transmodel JOURNEY a "trip",
  * thus TripPattern.
  */
@@ -55,9 +50,9 @@ public class TripPattern implements Cloneable, Serializable {
     private static final long serialVersionUID = MavenVersion.VERSION.getUID();
 
     public static final int FLAG_WHEELCHAIR_ACCESSIBLE = 1;
-    public static final int MASK_PICKUP = 2|4;
+    public static final int MASK_PICKUP = 2 | 4;
     public static final int SHIFT_PICKUP = 1;
-    public static final int MASK_DROPOFF = 8|16;
+    public static final int MASK_DROPOFF = 8 | 16;
     public static final int SHIFT_DROPOFF = 3;
     public static final int NO_PICKUP = 1;
     public static final int FLAG_BIKES_ALLOWED = 32;
@@ -91,7 +86,9 @@ public class TripPattern implements Cloneable, Serializable {
      */
     public final Timetable scheduledTimetable = new Timetable(this);
 
-    /** The human-readable, unique name for this trip pattern. */
+    /**
+     * The human-readable, unique name for this trip pattern.
+     */
     public String name;
 
     /**
@@ -106,10 +103,10 @@ public class TripPattern implements Cloneable, Serializable {
     public final PatternArriveVertex[] arriveVertices;
 
     /* The Edges in the graph that correspond to each Stop in this pattern. */
-    public final TransitBoardAlight[]  boardEdges;
-    public final TransitBoardAlight[]  alightEdges;
-    public final PatternHop[]          hopEdges;
-    public final PatternDwell[]        dwellEdges;
+    public final TransitBoardAlight[] boardEdges;
+    public final TransitBoardAlight[] alightEdges;
+    public final PatternHop[] hopEdges;
+    public final PatternDwell[] dwellEdges;
 
     // redundant since tripTimes have a trip
     // however it's nice to have for order reference, since all timetables must have tripTimes
@@ -124,7 +121,9 @@ public class TripPattern implements Cloneable, Serializable {
      */
     final ArrayList<Trip> trips = new ArrayList<Trip>();
 
-    /** Used by the MapBuilder (and should be exposed by the Index API). */
+    /**
+     * Used by the MapBuilder (and should be exposed by the Index API).
+     */
     public LineString geometry = null;
 
     /**
@@ -132,13 +131,15 @@ public class TripPattern implements Cloneable, Serializable {
      * the same stops and a PatternHop apply to all those trips, so this array apply to every trip
      * in every timetable in this pattern. Please note that the array size is the number of stops
      * minus 1. This also allow to access the ordered list of stops.
-     *
+     * <p>
      * This appears to only be used for on-board departure. TODO: stops can now be grabbed from
      * stopPattern.
      */
     private PatternHop[] patternHops; // TODO rename/merge with hopEdges
 
-    /** Holds stop-specific information such as wheelchair accessibility and pickup/dropoff roles. */
+    /**
+     * Holds stop-specific information such as wheelchair accessibility and pickup/dropoff roles.
+     */
     // TODO: is this necessary? Can we just look at the Stop and StopPattern objects directly?
     int[] perStopFlags;
 
@@ -157,14 +158,14 @@ public class TripPattern implements Cloneable, Serializable {
         setStopsFromStopPattern(stopPattern);
 
         /* Create properly dimensioned arrays for all the vertices/edges associated with this pattern. */
-        stopVertices   = new TransitStop[size];
+        stopVertices = new TransitStop[size];
         departVertices = new PatternDepartVertex[size];
         arriveVertices = new PatternArriveVertex[size];
-        boardEdges     = new TransitBoardAlight[size];
-        alightEdges    = new TransitBoardAlight[size];
+        boardEdges = new TransitBoardAlight[size];
+        alightEdges = new TransitBoardAlight[size];
         // one less hop than stops
-        hopEdges       = new PatternHop[size - 1];
-        dwellEdges     = new PatternDwell[size];
+        hopEdges = new PatternHop[size - 1];
+        dwellEdges = new PatternDwell[size];
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -225,22 +226,30 @@ public class TripPattern implements Cloneable, Serializable {
         return trips.indexOf(trip);
     }
 
-    /** Returns whether passengers can alight at a given stop */
+    /**
+     * Returns whether passengers can alight at a given stop
+     */
     public boolean canAlight(int stopIndex) {
         return getAlightType(stopIndex) != NO_PICKUP;
     }
 
-    /** Returns whether passengers can board at a given stop */
+    /**
+     * Returns whether passengers can board at a given stop
+     */
     public boolean canBoard(int stopIndex) {
         return getBoardType(stopIndex) != NO_PICKUP;
     }
 
-    /** Returns whether a given stop is wheelchair-accessible. */
+    /**
+     * Returns whether a given stop is wheelchair-accessible.
+     */
     public boolean wheelchairAccessible(int stopIndex) {
         return (perStopFlags[stopIndex] & FLAG_WHEELCHAIR_ACCESSIBLE) != 0;
     }
 
-    /** Returns the zone of a given stop */
+    /**
+     * Returns the zone of a given stop
+     */
     public String getZone(int stopIndex) {
         return getStop(stopIndex).getZoneId();
     }
@@ -259,7 +268,7 @@ public class TripPattern implements Cloneable, Serializable {
      * of trips. However, all trips with indexes from 0 through getNumTrips()-1 will always
      * correspond to the scheduled trips.
      */
-    public int getNumScheduledTrips () {
+    public int getNumScheduledTrips() {
         return trips.size();
     }
 
@@ -315,14 +324,14 @@ public class TripPattern implements Cloneable, Serializable {
      * Rather than the scheduled timetable, get the one that has been updated with real-time updates.
      * The view is consistent across a single request, and depends on the routing context in the request.
      */
-    public Timetable getUpdatedTimetable (RoutingRequest req, ServiceDay sd) {
+    public Timetable getUpdatedTimetable(RoutingRequest req, ServiceDay sd) {
         if (req != null && req.rctx != null && req.rctx.timetableSnapshot != null && sd != null) {
             return req.rctx.timetableSnapshot.resolve(this, sd.getServiceDate());
         }
         return scheduledTimetable;
     }
 
-    private static String stopNameAndId (Stop stop) {
+    private static String stopNameAndId(Stop stop) {
         return stop.getName() + " (" + GtfsLibrary.convertIdToString(stop.getId()) + ")";
     }
 
@@ -331,9 +340,9 @@ public class TripPattern implements Cloneable, Serializable {
      * Perhaps this should be in TripPattern, and apply to Frequency patterns as well. TODO: resolve
      * this question: can a frequency and table pattern have the same stoppattern? If so should they
      * have the same "unique" name?
-     *
+     * <p>
      * The names should be dataset unique, not just route-unique?
-     *
+     * <p>
      * A TripPattern groups all trips visiting a particular pattern of stops on a particular route.
      * GFTS Route names are intended for very general customer information, but sometimes there is a
      * need to know where a particular trip actually goes. For example, the New York City N train
@@ -341,7 +350,7 @@ public class TripPattern implements Cloneable, Serializable {
      * lower Manhattan and the tunnel), in two directions (to Astoria or to Coney Island). During
      * construction, a fifth variant sometimes appears: trains use the D line to Coney Island after
      * 59th St (or from Coney Island to 59th in the opposite direction).
-     *
+     * <p>
      * TripPattern names are machine-generated on a best-effort basis. They are guaranteed to be
      * unique (among TripPatterns for a single Route) but not stable across graph builds, especially
      * when different versions of GTFS inputs are used. For instance, if a variant is the only
@@ -362,7 +371,7 @@ public class TripPattern implements Cloneable, Serializable {
      * combination will create unique names). from, to, via, express. Then concatenate all necessary
      * fields. Express should really be determined from number of stops and/or run time of trips.
      */
-    public static void generateUniqueNames (Collection<TripPattern> tableTripPatterns) {
+    public static void generateUniqueNames(Collection<TripPattern> tableTripPatterns) {
         LOG.info("Generating unique names for stop patterns on each route.");
         Set<String> usedRouteNames = Sets.newHashSet();
         Map<Route, String> uniqueRouteNames = Maps.newHashMap();
@@ -389,7 +398,8 @@ public class TripPattern implements Cloneable, Serializable {
         }
 
         /* Iterate over all routes, giving the patterns within each route unique names. */
-        ROUTE : for (Route route : patternsByRoute.keySet()) {
+        ROUTE:
+        for (Route route : patternsByRoute.keySet()) {
             Collection<TripPattern> routeTripPatterns = patternsByRoute.get(route);
             String routeName = uniqueRouteNames.get(route);
 
@@ -400,19 +410,20 @@ public class TripPattern implements Cloneable, Serializable {
             }
 
             /* Do the patterns within this Route have a unique start, end, or via Stop? */
-            Multimap<String, TripPattern> signs   = ArrayListMultimap.create(); // prefer headsigns
-            Multimap<Stop, TripPattern> starts  = ArrayListMultimap.create();
-            Multimap<Stop, TripPattern> ends    = ArrayListMultimap.create();
-            Multimap<Stop, TripPattern> vias    = ArrayListMultimap.create();
+            Multimap<String, TripPattern> signs = ArrayListMultimap.create(); // prefer headsigns
+            Multimap<Stop, TripPattern> starts = ArrayListMultimap.create();
+            Multimap<Stop, TripPattern> ends = ArrayListMultimap.create();
+            Multimap<Stop, TripPattern> vias = ArrayListMultimap.create();
             for (TripPattern pattern : routeTripPatterns) {
                 List<Stop> stops = pattern.getStops();
                 Stop start = stops.get(0);
-                Stop end   = stops.get(stops.size() - 1);
+                Stop end = stops.get(stops.size() - 1);
                 starts.put(start, pattern);
                 ends.put(end, pattern);
                 for (Stop stop : stops) vias.put(stop, pattern);
             }
-            PATTERN : for (TripPattern pattern : routeTripPatterns) {
+            PATTERN:
+            for (TripPattern pattern : routeTripPatterns) {
                 List<Stop> stops = pattern.getStops();
                 StringBuilder sb = new StringBuilder(routeName);
 
@@ -486,9 +497,9 @@ public class TripPattern implements Cloneable, Serializable {
      * StopPattern/TripPattern. StopTimes are passed in instead of Stops only because they are
      * needed for shape distances (actually, stop sequence numbers?).
      *
-     * @param graph graph to create vertices and edges in
+     * @param graph        graph to create vertices and edges in
      * @param transitStops map of transit stops given the stop; it is assumed all stops of this trip
-     *        pattern are included in this map and refer to TransitStops
+     *                     pattern are included in this map and refer to TransitStops
      */
     public void makePatternVerticesAndEdges(Graph graph, Map<Stop, ? extends TransitStationStop> transitStops) {
 
@@ -561,21 +572,21 @@ public class TripPattern implements Cloneable, Serializable {
      * but we need a reference to the Graph or at least the codes map. This could also be
      * placed in the hop factory itself.
      */
-    public void setServiceCodes (Map<FeedScopedId, Integer> serviceCodes) {
+    public void setServiceCodes(Map<FeedScopedId, Integer> serviceCodes) {
         services = new BitSet();
         for (Trip trip : trips) {
             services.set(serviceCodes.get(trip.getServiceId()));
         }
-        scheduledTimetable.setServiceCodes (serviceCodes);
+        scheduledTimetable.setServiceCodes(serviceCodes);
     }
-    
+
     /**
      * @return bitset of service codes
      */
     public BitSet getServices() {
         return services;
     }
-    
+
     /**
      * @param services bitset of service codes
      */
@@ -605,7 +616,7 @@ public class TripPattern implements Cloneable, Serializable {
         }
     }
 
-    public String toString () {
+    public String toString() {
         return String.format("<TripPattern %s>", this.code);
     }
 
@@ -638,12 +649,12 @@ public class TripPattern implements Cloneable, Serializable {
     }
 
 
-	public Trip getExemplar() {
-		if(this.trips.isEmpty()){
-			return null;
-		}
-		return this.trips.get(0);
-	}
+    public Trip getExemplar() {
+        if (this.trips.isEmpty()) {
+            return null;
+        }
+        return this.trips.get(0);
+    }
 
     /**
      * In most cases we want to use identity equality for Trips.
@@ -656,7 +667,7 @@ public class TripPattern implements Cloneable, Serializable {
      *
      * @param trip a trip object within this pattern, or null to hash the pattern itself independent any specific trip.
      * @return the semantic hash of a Trip in this pattern as a printable String.
-     *
+     * <p>
      * TODO deal with frequency-based trips
      */
     public String semanticHashString(Trip trip) {
@@ -673,11 +684,13 @@ public class TripPattern implements Cloneable, Serializable {
         return sb.toString();
     }
 
-    /** This method can be used in very specific circumstances, where each TripPattern has only one FrequencyEntry. */
+    /**
+     * This method can be used in very specific circumstances, where each TripPattern has only one FrequencyEntry.
+     */
     public FrequencyEntry getSingleFrequencyEntry() {
         Timetable table = this.scheduledTimetable;
         List<FrequencyEntry> freqs = this.scheduledTimetable.frequencyEntries;
-        if ( ! table.tripTimes.isEmpty()) {
+        if (!table.tripTimes.isEmpty()) {
             LOG.debug("Timetable has {} non-frequency entries and {} frequency entries.", table.tripTimes.size(),
                     table.frequencyEntries.size());
             return null;
@@ -691,7 +704,7 @@ public class TripPattern implements Cloneable, Serializable {
         return freqs.get(0);
     }
 
-    public TripPattern clone () {
+    public TripPattern clone() {
         try {
             return (TripPattern) super.clone();
         } catch (CloneNotSupportedException e) {

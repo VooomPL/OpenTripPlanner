@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Responsible for mapping GTFS TripMapper into the OTP model. */
+/**
+ * Responsible for mapping GTFS TripMapper into the OTP model.
+ */
 class TripMapper {
 
     private final RouteMapper routeMapper;

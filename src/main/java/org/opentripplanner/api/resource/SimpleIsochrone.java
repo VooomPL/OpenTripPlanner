@@ -1,28 +1,9 @@
 package org.opentripplanner.api.resource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
+import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.io.Files;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureStore;
@@ -34,6 +15,7 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.*;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -52,79 +34,94 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.internal.Maps;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.io.Files;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * This class provides a vector isochrone generator for places without good OSM street connectivity,
  * or for graphs that are too large-scale to bother with modeling streets (e.g. all of China). It
  * assumes constant speed through both streets and "free space" around vertices, yielding isochrones
  * that are the union of many circles.
- * 
+ * <p>
  * The origin snapping option used here (connect to all stations within M meters of a lat/lon)
  * should be made into a standard query option in OTP. Instead of specifying an origin station
  * search radius, it could be more coherent to use all stations within (maxIsochroneTime * speed)
  * meters, and apply a travel time to reach them.
- * 
+ * <p>
  * The GET methods both use makeContours which in turn uses makePoints (where range checking
  * occurs). Putting "@Setter" on all the parameters would allow resource classes to be used outside
  * Jersey.
  */
 @Path("/routers/{routerId}/simpleIsochrone")
 public class SimpleIsochrone extends RoutingResource {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(SimpleIsochrone.class);
 
     private static final EarliestArrivalSearch sptService = new EarliestArrivalSearch();
 
     /* Parameters shared between all methods. */
-    @QueryParam("requestSpacingMinutes") @DefaultValue("30") 
-    int requestSpacingMinutes; 
-    @QueryParam("requestTimespanHours") @DefaultValue("20") 
+    @QueryParam("requestSpacingMinutes")
+    @DefaultValue("30")
+    int requestSpacingMinutes;
+    @QueryParam("requestTimespanHours")
+    @DefaultValue("20")
     int requestTimespanHours;
-    @QueryParam("stopsOnly") @DefaultValue("true") 
+    @QueryParam("stopsOnly")
+    @DefaultValue("true")
     boolean stopsOnly;
-    @QueryParam("radiusMeters") @DefaultValue("5000") 
-    double radiusMeters; 
-    @QueryParam("nContours") @DefaultValue("4") 
+    @QueryParam("radiusMeters")
+    @DefaultValue("5000")
+    double radiusMeters;
+    @QueryParam("nContours")
+    @DefaultValue("4")
     int nContours;
-    @QueryParam("contourSpacingMinutes") @DefaultValue("30") 
+    @QueryParam("contourSpacingMinutes")
+    @DefaultValue("30")
     int contourSpacingMinutes;
-    
-    /** Whether the results should be left in the indicated CRS or de-projected back to WGS84. */
-    @QueryParam("resultsProjected") @DefaultValue("false") boolean resultsProjected;
 
-    /** The coordinate reference system in which buffering should be performed. 
-        Defaults to the Hong Kong 1980 Grid System. */
+    /**
+     * Whether the results should be left in the indicated CRS or de-projected back to WGS84.
+     */
+    @QueryParam("resultsProjected")
+    @DefaultValue("false")
+    boolean resultsProjected;
+
+    /**
+     * The coordinate reference system in which buffering should be performed.
+     * Defaults to the Hong Kong 1980 Grid System.
+     */
     // We are not using CoordinateReferenceSystem StringReaderProvider here because 
     // Enunciate chokes on it (see #1319).
-    @QueryParam("crs") @DefaultValue("EPSG:2326") String crsCode;
+    @QueryParam("crs")
+    @DefaultValue("EPSG:2326")
+    String crsCode;
 
-    /** What to name the output file. */
-    @QueryParam("shpName") String shpName;
+    /**
+     * What to name the output file.
+     */
+    @QueryParam("shpName")
+    String shpName;
 
     private RoutingRequest request;
 
-    
+
     /* Static feature schemas */
-    
+
     private static final SimpleFeatureType pointSchema = makePointSchema();
-    
+
     private static final SimpleFeatureType contourSchema = makeContourSchema();
-    
+
     static SimpleFeatureType makePointSchema() {
         SimpleFeatureTypeBuilder tbuilder = new SimpleFeatureTypeBuilder();
         tbuilder.setName("points");
         tbuilder.setCRS(DefaultGeographicCRS.WGS84);
         tbuilder.add("Geometry", Point.class);
-        tbuilder.add("Time", Integer.class); 
+        tbuilder.add("Time", Integer.class);
         return tbuilder.buildFeatureType();
     }
 
@@ -134,16 +131,18 @@ public class SimpleIsochrone extends RoutingResource {
         tbuilder.setName("contours");
         tbuilder.setCRS(DefaultGeographicCRS.WGS84);
         tbuilder.add("Geometry", MultiPolygon.class);
-        tbuilder.add("Time", Integer.class); 
+        tbuilder.add("Time", Integer.class);
         return tbuilder.buildFeatureType();
     }
 
-    private void rangeCheckParameters () {
-        
+    private void rangeCheckParameters() {
+
     }
-    
-    /** @return a map from each vertex to minimum travel time over the course of the day. */
-    private Map<Vertex, Double> makePoints () throws Exception {
+
+    /**
+     * @return a map from each vertex to minimum travel time over the course of the day.
+     */
+    private Map<Vertex, Double> makePoints() throws Exception {
         rangeCheckParameters();
         request = buildRequest();
         Router router = otpServer.getRouter(routerId);
@@ -157,14 +156,14 @@ public class SimpleIsochrone extends RoutingResource {
             return null;
         }
         if (shpName == null)
-            shpName = stops.get(0).getName().split(" ")[0];   
+            shpName = stops.get(0).getName().split(" ")[0];
         StreetVertex origin = new IntersectionVertex(graph, "iso_temp", originCoord.x, originCoord.y);
         for (TransitStop stop : stops) {
             new StreetTransitLink(origin, stop, false);
             LOG.debug("linked to stop {}", stop.getName());
         }
         request.setRoutingContext(graph, origin, null);
-        
+
         /* Make one request every M minutes over H hours */
         int nRequests = (requestTimespanHours * 60) / requestSpacingMinutes;
         request.clampInitialWait = (requestSpacingMinutes * 60);
@@ -176,31 +175,33 @@ public class SimpleIsochrone extends RoutingResource {
             ShortestPathTree spt = sptService.getShortestPathTree(request, 10);
             /* This could even be a good use for a generic SPT merging function */
             for (State s : spt.getAllStates()) {
-                if ( stopsOnly && ! (s.getVertex() instanceof TransitStop)) continue;
-                points.putMin(s.getVertex(), (double)(s.getActiveTime()));
+                if (stopsOnly && !(s.getVertex() instanceof TransitStop)) continue;
+                points.putMin(s.getVertex(), (double) (s.getActiveTime()));
             }
         }
         graph.removeVertexAndEdges(origin);
         return points;
     }
-    
-    /** @return a map from contour (isochrone) thresholds in seconds to geometries. */
-    private Map<Integer, Geometry> makeContours() throws Exception { 
-        
+
+    /**
+     * @return a map from contour (isochrone) thresholds in seconds to geometries.
+     */
+    private Map<Integer, Geometry> makeContours() throws Exception {
+
         Map<Vertex, Double> points = makePoints();
         if (points == null || points.isEmpty()) {
             LOG.error("No destinations were reachable.");
             return null;
         }
-        
+
         /* Set up transforms into projected coordinates (necessary for buffering in meters) */
         /* We could avoid projection by equirectangular approximation */
         CoordinateReferenceSystem wgs = DefaultGeographicCRS.WGS84;
         CoordinateReferenceSystem crs = CRS.decode(crsCode);
-        MathTransform toMeters   = CRS.findMathTransform(wgs, crs, false);
-        MathTransform fromMeters = CRS.findMathTransform(crs, wgs, false); 
+        MathTransform toMeters = CRS.findMathTransform(wgs, crs, false);
+        MathTransform fromMeters = CRS.findMathTransform(crs, wgs, false);
         GeometryFactory geomf = JTSFactoryFinder.getGeometryFactory();
-                
+
         /* One list of geometries for each contour */
         Multimap<Integer, Geometry> bufferLists = ArrayListMultimap.create();
         for (int c = 0; c < nContours; ++c) {
@@ -223,7 +224,7 @@ public class SimpleIsochrone extends RoutingResource {
             Collection<Geometry> buffers = bufferLists.get(threshold);
             Geometry geom = geomf.buildGeometry(buffers); // make geometry collection
             geom = geom.union(); // combine all individual buffers in this contour into one
-            if ( ! resultsProjected) geom = JTS.transform(geom, fromMeters);
+            if (!resultsProjected) geom = JTS.transform(geom, fromMeters);
             contours.put(threshold, geom);
         }
         return contours;
@@ -248,7 +249,7 @@ public class SimpleIsochrone extends RoutingResource {
     private SimpleFeatureCollection makeContourFeatures() throws Exception {
         Map<Integer, Geometry> contours = makeContours();
         /* Stage the features in memory, in order from bottom to top, biggest to smallest */
-        DefaultFeatureCollection featureCollection = 
+        DefaultFeatureCollection featureCollection =
                 new DefaultFeatureCollection(null, contourSchema);
         SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(contourSchema);
         List<Integer> thresholds = new ArrayList<Integer>(contours.keySet());
@@ -263,9 +264,12 @@ public class SimpleIsochrone extends RoutingResource {
         return featureCollection;
     }
 
-    /** @return Evenly spaced travel time contours (isochrones) as GeoJSON. */
-    @GET @Produces("application/json")
-    public Response geoJsonGet() throws Exception { 
+    /**
+     * @return Evenly spaced travel time contours (isochrones) as GeoJSON.
+     */
+    @GET
+    @Produces("application/json")
+    public Response geoJsonGet() throws Exception {
         /* QGIS seems to want multi-features rather than multi-geometries. */
         SimpleFeatureCollection contourFeatures = makeContourFeatures();
         /* Output the staged features to JSON */
@@ -274,21 +278,24 @@ public class SimpleIsochrone extends RoutingResource {
         fj.writeFeatureCollection(contourFeatures, writer);
         return Response.ok().entity(writer.toString()).build();
     }
-        
-    /** @return Evenly spaced travel time contours (isochrones) as a zipped shapefile. */
-    @GET @Produces("application/x-zip-compressed")
+
+    /**
+     * @return Evenly spaced travel time contours (isochrones) as a zipped shapefile.
+     */
+    @GET
+    @Produces("application/x-zip-compressed")
     public Response zippedShapefileGet(
-            @QueryParam("stream") @DefaultValue("true") boolean stream) 
+            @QueryParam("stream") @DefaultValue("true") boolean stream)
             throws Exception {
-        SimpleFeatureCollection contourFeatures = makeContourFeatures(); 
+        SimpleFeatureCollection contourFeatures = makeContourFeatures();
         /* Output the staged features to Shapefile */
         final File shapeDir = Files.createTempDir();
         File shapeFile = new File(shapeDir, shpName + ".shp");
         LOG.debug("writing out shapefile {}", shapeFile);
         ShapefileDataStore outStore = new ShapefileDataStore(shapeFile.toURI().toURL());
         outStore.createSchema(contourSchema);
-        /* "FeatureSource is used to read features, the subclass FeatureStore is used for 
-         * read/write access. The way to tell if a File can be written to in GeoTools is to use an 
+        /* "FeatureSource is used to read features, the subclass FeatureStore is used for
+         * read/write access. The way to tell if a File can be written to in GeoTools is to use an
          * instanceof check. */
         SimpleFeatureStore featureStore = (SimpleFeatureStore) outStore.getFeatureSource();
         featureStore.addFeatures(contourFeatures);
@@ -296,7 +303,7 @@ public class SimpleIsochrone extends RoutingResource {
         shapeDir.deleteOnExit(); // Note: the order is important
         for (File f : shapeDir.listFiles())
             f.deleteOnExit();
-        /* Zip up the shapefile components */  
+        /* Zip up the shapefile components */
         StreamingOutput output = new DirectoryZipper(shapeDir);
         if (stream) {
             return Response.ok().entity(output).build();
@@ -307,15 +314,15 @@ public class SimpleIsochrone extends RoutingResource {
             zipFile.deleteOnExit();
             return Response.ok().entity(zipFile).build();
         }
-    }   
-    
+    }
+
     private static class DirectoryZipper implements StreamingOutput {
         private File directory;
-        
-        DirectoryZipper(File directory){
-        	this.directory = directory;
+
+        DirectoryZipper(File directory) {
+            this.directory = directory;
         }
-        
+
         @Override
         public void write(OutputStream outStream) throws IOException {
             ZipOutputStream zip = new ZipOutputStream(outStream);
@@ -337,9 +344,10 @@ public class SimpleIsochrone extends RoutingResource {
     public static class MinMap<K, V extends Comparable<V>> extends HashMap<K, V> {
         private static final long serialVersionUID = -23L;
 
-        /** 
+        /**
          * Put the given key-value pair in the map if the map does not yet contain the key, or if
-         * the value is less than the existing value for the same key. 
+         * the value is less than the existing value for the same key.
+         *
          * @return whether the key-value pair was inserted in the map.
          */
         public boolean putMin(K key, V value) {
@@ -350,10 +358,11 @@ public class SimpleIsochrone extends RoutingResource {
             }
             return false;
         }
-        
-        /** 
+
+        /**
          * Put the given key-value pair in the map if the map does not yet contain the key, or if
-         * the value is greater than the existing value for the same key. 
+         * the value is greater than the existing value for the same key.
+         *
          * @return whether the key-value pair was inserted in the map.
          */
         public boolean putMax(K key, V value) {
@@ -364,7 +373,7 @@ public class SimpleIsochrone extends RoutingResource {
             }
             return false;
         }
-        
+
     }
 
 }

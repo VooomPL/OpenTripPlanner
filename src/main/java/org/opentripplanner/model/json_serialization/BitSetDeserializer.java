@@ -13,8 +13,9 @@ import java.util.BitSet;
  * Deserialize an array [true, false, true . . .] to a bitset
  */
 public class BitSetDeserializer extends JsonDeserializer<BitSet> {
-    @Override public BitSet deserialize(JsonParser jsonParser,
-            DeserializationContext deserializationContext)
+    @Override
+    public BitSet deserialize(JsonParser jsonParser,
+                              DeserializationContext deserializationContext)
             throws IOException, JsonProcessingException {
         BitSet ret = new BitSet();
 

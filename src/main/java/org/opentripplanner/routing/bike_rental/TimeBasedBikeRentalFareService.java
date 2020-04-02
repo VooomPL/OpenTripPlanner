@@ -1,9 +1,5 @@
 package org.opentripplanner.routing.bike_rental;
 
-import java.io.Serializable;
-import java.util.Currency;
-import java.util.List;
-
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.Fare.FareType;
@@ -14,6 +10,10 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.Currency;
+import java.util.List;
 
 public class TimeBasedBikeRentalFareService implements FareService, Serializable {
 

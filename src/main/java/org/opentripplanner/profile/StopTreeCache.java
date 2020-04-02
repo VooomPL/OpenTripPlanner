@@ -1,7 +1,6 @@
 package org.opentripplanner.profile;
 
 import com.beust.jcommander.internal.Maps;
-
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -29,7 +28,7 @@ public class StopTreeCache {
     // Flattened 2D array of (streetVertexIndex, distanceFromStop) for each TransitStop
     public final Map<TransitStop, int[]> distancesForStop = Maps.newHashMap();
 
-    public StopTreeCache (Graph graph, int maxWalkMeters) {
+    public StopTreeCache(Graph graph, int maxWalkMeters) {
         this.maxWalkMeters = maxWalkMeters;
         LOG.info("Caching distances to nearby street intersections from each transit stop...");
         graph.index.stopVertexForStop.values().parallelStream().forEach(tstop -> {
@@ -54,10 +53,10 @@ public class StopTreeCache {
             int i = 0;
             for (Vertex vertex : spt.getVertices()) {
                 State state = spt.getState(vertex);
-                
+
                 if (state == null)
                     continue;
-                
+
                 distances[i++] = vertex.getIndex();
                 distances[i++] = (int) state.getTraverseDistanceInMeters();
             }

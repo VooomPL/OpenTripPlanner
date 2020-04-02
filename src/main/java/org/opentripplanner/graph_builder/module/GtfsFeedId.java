@@ -23,7 +23,7 @@ public class GtfsFeedId {
 
     /**
      * Constructs a new feed id.
-     *
+     * <p>
      * If the passed id is null or an empty string a unique feed id will be generated.
      *
      * @param id The feed id
@@ -63,12 +63,12 @@ public class GtfsFeedId {
                 if (source.hasResource("feed_info.txt")) {
                     InputStream feedInfoInputStream = source.getResource("feed_info.txt");
                     try {
-	                    CsvReader result = new CsvReader(feedInfoInputStream, StandardCharsets.UTF_8);
-	                    result.readHeaders();
-	                    result.readRecord();
-	                    this.id = result.get("feed_id");
+                        CsvReader result = new CsvReader(feedInfoInputStream, StandardCharsets.UTF_8);
+                        result.readHeaders();
+                        result.readRecord();
+                        this.id = result.get("feed_id");
                     } finally {
-                    	feedInfoInputStream.close();
+                        feedInfoInputStream.close();
                     }
                 }
             } catch (IOException e) {

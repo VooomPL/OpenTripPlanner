@@ -49,12 +49,14 @@ public class Job {
     /* The IDs of all tasks that have been marked completed. */
     TIntSet completedTasks = new TIntHashSet();
 
-    public Job (String jobId) {
+    public Job(String jobId) {
         this.jobId = jobId;
     }
 
-    /** Adds a task to this Job, assigning it a task ID number. */
-    public void addTask (AnalystClusterRequest task) {
+    /**
+     * Adds a task to this Job, assigning it a task ID number.
+     */
+    public void addTask(AnalystClusterRequest task) {
         tasksById.put(task.taskId, task);
         tasksAwaitingDelivery.add(task);
     }
@@ -72,7 +74,7 @@ public class Job {
      * completed, and make all these tasks visible again for delivery.
      * TODO maybe this should only be triggered when the awaiting delivery queue is empty to reduce double-delivery.
      */
-    public int redeliver () {
+    public int redeliver() {
         long now = System.currentTimeMillis();
         TIntLongIterator invisibleIterator = invisibleUntil.iterator();
         int nRedelivered = 0;
@@ -90,7 +92,7 @@ public class Job {
         return nRedelivered;
     }
 
-    public void markTaskCompleted (int taskId) {
+    public void markTaskCompleted(int taskId) {
         if (tasksById.get(taskId) == null) {
             LOG.error("Tried to mark task {} completed, but it was not in job {}.", taskId, jobId);
             return;
@@ -120,7 +122,7 @@ public class Job {
         return completedTasks.size() == tasksById.size();
     }
 
-    public boolean containsTask (int taskId) {
+    public boolean containsTask(int taskId) {
         AnalystClusterRequest req = tasksById.get(taskId);
         if (req != null) {
             if (!req.jobId.equals(this.jobId)) {

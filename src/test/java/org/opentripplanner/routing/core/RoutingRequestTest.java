@@ -1,15 +1,13 @@
 package org.opentripplanner.routing.core;
 
 import org.junit.Test;
+import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Trip;
-import org.opentripplanner.common.model.GenericLocation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.opentripplanner.routing.core.TraverseMode.CAR;
 
 public class RoutingRequestTest {
@@ -43,7 +41,7 @@ public class RoutingRequestTest {
 
         req.addIntermediatePlace(randomLocation());
         assertTrue(req.hasIntermediatePlaces());
-        
+
         req.clearIntermediatePlaces();
         assertFalse(req.hasIntermediatePlaces());
 

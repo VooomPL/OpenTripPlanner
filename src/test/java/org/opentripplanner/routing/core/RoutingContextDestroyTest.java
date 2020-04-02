@@ -1,10 +1,10 @@
 package org.opentripplanner.routing.core;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.junit.Before;
-import org.junit.Test;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.GenericLocation;
@@ -24,9 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RoutingContextDestroyTest {
     private final GeometryFactory gf = GeometryUtils.getGeometryFactory();
@@ -51,14 +49,16 @@ public class RoutingContextDestroyTest {
     private final GenericLocation to = new GenericLocation(0.701, 1.001);
 
     // - and some roads
-    @Before public void setup() {
+    @Before
+    public void setup() {
         createStreetEdge(a, b, "a -> b");
         createStreetEdge(b, a, "b -> a");
         createStreetEdge(a, c, "a -> c");
         g.index(new DefaultStreetVertexIndexFactory());
     }
 
-    @Test public void temporaryChangesRemovedOnContextDestroy() {
+    @Test
+    public void temporaryChangesRemovedOnContextDestroy() {
         // Given - A request
         RoutingRequest request = new RoutingRequest();
         request.from = from;
@@ -117,13 +117,13 @@ public class RoutingContextDestroyTest {
 
     private void createStreetEdge(StreetVertex v0, StreetVertex v1, String name) {
         LineString geom = gf
-                .createLineString(new Coordinate[] { v0.getCoordinate(), v1.getCoordinate() });
+                .createLineString(new Coordinate[]{v0.getCoordinate(), v1.getCoordinate()});
         double dist = SphericalDistanceLibrary.distance(v0.getCoordinate(), v1.getCoordinate());
         new StreetEdge(v0, v1, geom, name, dist, StreetTraversalPermission.ALL, false);
     }
 
     private static <T extends Collection<String>> T findAllReachableVertexes(Vertex vertex,
-            boolean forward, T list) {
+                                                                             boolean forward, T list) {
         if (list.contains(vertex.getName()))
             return list;
 

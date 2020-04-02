@@ -37,154 +37,158 @@ import java.util.List;
  */
 public class BicimadBikeRentalDataSource implements BikeRentalDataSource, JsonConfigurable {
 
-        private static final Logger log = LoggerFactory
-                .getLogger(GenericJsonBikeRentalDataSource.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(GenericJsonBikeRentalDataSource.class);
 
-        private static final String jsonExternalParsePath = "data";
+    private static final String jsonExternalParsePath = "data";
 
-        private static final String jsonInternalParsePath = "stations";
+    private static final String jsonInternalParsePath = "stations";
 
-        private String url;
+    private String url;
 
-        List<BikeRentalStation> stations = new ArrayList<>();
+    List<BikeRentalStation> stations = new ArrayList<>();
 
-        public BicimadBikeRentalDataSource() {
+    public BicimadBikeRentalDataSource() {
+    }
+
+    @Override
+    public boolean update() {
+        try {
+            InputStream data;
+
+            URL url2 = new URL(url);
+
+            String proto = url2.getProtocol();
+            if (proto.equals("http") || proto.equals("https")) {
+                data = HttpUtils.getData(url);
+            } else {
+                // Local file probably, try standard java
+                data = url2.openStream();
+            }
+
+            if (data == null) {
+                log.warn("Failed to get data from url " + url);
+                return false;
+            }
+            parseJSON(data);
+            data.close();
+        } catch (IllegalArgumentException e) {
+            log.warn("Error parsing bike rental feed from " + url, e);
+            return false;
+        } catch (JsonProcessingException e) {
+            log.warn("Error parsing bike rental feed from " + url
+                    + "(bad JSON of some sort)", e);
+            return false;
+        } catch (IOException e) {
+            log.warn("Error reading bike rental feed from " + url, e);
+            return false;
         }
+        return true;
+    }
 
-        @Override public boolean update() {
-                try {
-                        InputStream data;
+    private void parseJSON(InputStream dataStream)
+            throws IllegalArgumentException, IOException {
 
-                        URL url2 = new URL(url);
+        ArrayList<BikeRentalStation> out = new ArrayList<>();
 
-                        String proto = url2.getProtocol();
-                        if (proto.equals("http") || proto.equals("https")) {
-                                data = HttpUtils.getData(url);
-                        } else {
-                                // Local file probably, try standard java
-                                data = url2.openStream();
-                        }
+        String rentalString = convertStreamToString(dataStream);
 
-                        if (data == null) {
-                                log.warn("Failed to get data from url " + url);
-                                return false;
-                        }
-                        parseJSON(data);
-                        data.close();
-                } catch (IllegalArgumentException e) {
-                        log.warn("Error parsing bike rental feed from " + url, e);
-                        return false;
-                } catch (JsonProcessingException e) {
-                        log.warn("Error parsing bike rental feed from " + url
-                                + "(bad JSON of some sort)", e);
-                        return false;
-                } catch (IOException e) {
-                        log.warn("Error reading bike rental feed from " + url, e);
-                        return false;
-                }
-                return true;
+        JsonNode rootNode = getJsonNode(rentalString, jsonExternalParsePath);
+        rootNode = getJsonNode(rootNode.asText(), jsonInternalParsePath);
+        for (int i = 0; i < rootNode.size(); i++) {
+            JsonNode node = rootNode.get(i);
+            if (node == null) {
+                continue;
+            }
+            BikeRentalStation brstation = makeStation(node);
+            if (brstation != null)
+                out.add(brstation);
         }
-
-        private void parseJSON(InputStream dataStream)
-                throws IllegalArgumentException, IOException {
-
-                ArrayList<BikeRentalStation> out = new ArrayList<>();
-
-                String rentalString = convertStreamToString(dataStream);
-
-                JsonNode rootNode = getJsonNode(rentalString, jsonExternalParsePath);
-                rootNode = getJsonNode(rootNode.asText(), jsonInternalParsePath);
-                for (int i = 0; i < rootNode.size(); i++) {
-                        JsonNode node = rootNode.get(i);
-                        if (node == null) {
-                                continue;
-                        }
-                        BikeRentalStation brstation = makeStation(node);
-                        if (brstation != null)
-                                out.add(brstation);
-                }
-                synchronized (this) {
-                        stations = out;
-                }
+        synchronized (this) {
+            stations = out;
         }
+    }
 
-        private JsonNode getJsonNode(String rentalString, String jsonParsePath) throws IOException {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode rootNode = mapper.readTree(rentalString);
+    private JsonNode getJsonNode(String rentalString, String jsonParsePath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootNode = mapper.readTree(rentalString);
 
-                if (!jsonParsePath.equals("")) {
-                        String delimiter = "/";
-                        String[] parseElement = jsonParsePath.split(delimiter);
-                        for (int i = 0; i < parseElement.length; i++) {
-                                rootNode = rootNode.path(parseElement[i]);
-                        }
+        if (!jsonParsePath.equals("")) {
+            String delimiter = "/";
+            String[] parseElement = jsonParsePath.split(delimiter);
+            for (int i = 0; i < parseElement.length; i++) {
+                rootNode = rootNode.path(parseElement[i]);
+            }
 
-                        if (rootNode.isMissingNode()) {
-                                throw new IllegalArgumentException(
-                                        "Could not find jSON elements " + jsonParsePath);
-                        }
-                }
-                return rootNode;
+            if (rootNode.isMissingNode()) {
+                throw new IllegalArgumentException(
+                        "Could not find jSON elements " + jsonParsePath);
+            }
         }
+        return rootNode;
+    }
 
-        private String convertStreamToString(java.io.InputStream is) {
-                java.util.Scanner scanner = null;
-                String result = "";
-                try {
+    private String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner scanner = null;
+        String result = "";
+        try {
 
-                        scanner = new java.util.Scanner(is).useDelimiter("\\A");
-                        result = scanner.hasNext() ? scanner.next() : "";
-                        scanner.close();
-                } finally {
-                        if (scanner != null)
-                                scanner.close();
-                }
-                return result;
-
+            scanner = new java.util.Scanner(is).useDelimiter("\\A");
+            result = scanner.hasNext() ? scanner.next() : "";
+            scanner.close();
+        } finally {
+            if (scanner != null)
+                scanner.close();
         }
+        return result;
 
-        @Override public synchronized List<BikeRentalStation> getStations() {
-                return stations;
+    }
+
+    @Override
+    public synchronized List<BikeRentalStation> getStations() {
+        return stations;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public BikeRentalStation makeStation(JsonNode node) {
+
+        if (!node.path("activate").asText().equals("1")) {
+            return null;
         }
+        BikeRentalStation station = new BikeRentalStation();
+        station.id = String.format("%d", node.path("id").asInt());
+        station.x = node.path("longitude").asDouble();
+        station.y = node.path("latitude").asDouble();
+        station.name = new NonLocalizedString(node.path("name").asText());
+        station.bikesAvailable = node.path("dock_bikes").asInt();
+        station.spacesAvailable = node.path("free_bases").asInt();
+        return station;
+    }
 
-        public String getUrl() {
-                return url;
+    @Override
+    public String toString() {
+        return getClass().getName() + "(" + url + ")";
+    }
+
+    /**
+     * Note that the JSON being passed in here is for configuration of the OTP component, it's completely separate
+     * from the JSON coming in from the update source.
+     */
+    @Override
+    public void configure(Graph graph, JsonNode jsonNode) {
+        String url = jsonNode.path("url").asText(); // path() returns MissingNode not null.
+        if (url == null) {
+            throw new IllegalArgumentException(
+                    "Missing mandatory 'url' configuration.");
         }
-
-        public void setUrl(String url) {
-                this.url = url;
-        }
-
-        public BikeRentalStation makeStation(JsonNode node) {
-
-                if (!node.path("activate").asText().equals("1")) {
-                        return null;
-                }
-                BikeRentalStation station = new BikeRentalStation();
-                station.id = String.format("%d", node.path("id").asInt());
-                station.x = node.path("longitude").asDouble();
-                station.y = node.path("latitude").asDouble();
-                station.name = new NonLocalizedString(node.path("name").asText());
-                station.bikesAvailable = node.path("dock_bikes").asInt();
-                station.spacesAvailable = node.path("free_bases").asInt();
-                return station;
-        }
-
-        @Override public String toString() {
-                return getClass().getName() + "(" + url + ")";
-        }
-
-        /**
-         * Note that the JSON being passed in here is for configuration of the OTP component, it's completely separate
-         * from the JSON coming in from the update source.
-         */
-        @Override public void configure(Graph graph, JsonNode jsonNode) {
-                String url = jsonNode.path("url").asText(); // path() returns MissingNode not null.
-                if (url == null) {
-                        throw new IllegalArgumentException(
-                                "Missing mandatory 'url' configuration.");
-                }
-                this.url = url;
-        }
+        this.url = url;
+    }
 
 }

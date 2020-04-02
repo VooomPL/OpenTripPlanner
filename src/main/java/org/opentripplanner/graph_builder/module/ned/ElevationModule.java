@@ -1,10 +1,10 @@
 package org.opentripplanner.graph_builder.module.ned;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.Interpolator2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.coverage.Coverage;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
@@ -23,12 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.InterpolationBilinear;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * {@link org.opentripplanner.graph_builder.services.GraphBuilderModule} plugin that applies elevation data to street data that has already
@@ -66,8 +61,10 @@ public class ElevationModule implements GraphBuilderModule {
      */
     private double elevationUnitMultiplier = 1;
 
-    public ElevationModule() { /* This makes me a "bean" */ };
-    
+    public ElevationModule() { /* This makes me a "bean" */ }
+
+    ;
+
     public ElevationModule(ElevationGridCoverageFactory factory, double elevationUnitMultiplier) {
         this.setGridCoverageFactory(factory);
         this.elevationUnitMultiplier = elevationUnitMultiplier;
@@ -80,7 +77,7 @@ public class ElevationModule implements GraphBuilderModule {
     public List<String> getPrerequisites() {
         return Arrays.asList("streets");
     }
-    
+
     public void setGridCoverageFactory(ElevationGridCoverageFactory factory) {
         gridCoverageFactory = factory;
     }
@@ -144,7 +141,7 @@ public class ElevationModule implements GraphBuilderModule {
         public double initialElevation;
 
         public ElevationRepairState(StreetEdge backEdge, ElevationRepairState backState,
-                Vertex vertex, double distance, double initialElevation) {
+                                    Vertex vertex, double distance, double initialElevation) {
             this.backEdge = backEdge;
             this.backState = backState;
             this.vertex = vertex;
@@ -166,7 +163,7 @@ public class ElevationModule implements GraphBuilderModule {
         // elevation for each vertex (known or interpolated)
         // knownElevations will be null if there are no ElevationPoints in the data
         // for instance, with the Shapefile loader.)
-        HashMap<Vertex, Double> elevations; 
+        HashMap<Vertex, Double> elevations;
         if (knownElevations != null)
             elevations = (HashMap<Vertex, Double>) knownElevations.clone();
         else
@@ -278,8 +275,8 @@ public class ElevationModule implements GraphBuilderModule {
                     if (totalDistance == 0)
                         elevations.put(state.vertex, bestElevation);
                     else {
-                        double elevation = (bestElevation * state.distance + 
-                               state.initialElevation * bestDistance) / totalDistance;
+                        double elevation = (bestElevation * state.distance +
+                                state.initialElevation * bestDistance) / totalDistance;
                         elevations.put(state.vertex, elevation);
                     }
                     if (state.backState == null)
@@ -328,8 +325,8 @@ public class ElevationModule implements GraphBuilderModule {
 
     /**
      * Processes a single street edge, creating and assigning the elevation profile.
-     * 
-     * @param ee the street edge
+     *
+     * @param ee    the street edge
      * @param graph the graph (used only for error handling)
      */
     private void processEdge(Graph graph, StreetWithElevationEdge ee) {
@@ -370,7 +367,7 @@ public class ElevationModule implements GraphBuilderModule {
         PackedCoordinateSequence elevPCS = new PackedCoordinateSequence.Double(
                 coordList.toArray(coordArr));
 
-        if(ee.setElevationProfile(elevPCS, false)) {
+        if (ee.setElevationProfile(elevPCS, false)) {
             log.trace(graph.addBuilderAnnotation(new ElevationFlattened(ee)));
         }
     }
@@ -378,10 +375,10 @@ public class ElevationModule implements GraphBuilderModule {
     /**
      * Returns a coordinate along a path located at a specific point indicated by the percentage of
      * distance covered from start to end.
-     * 
+     *
      * @param coords the list of (x,y) coordinates that form the path
      * @param length the total length of the path
-     * @param t the percentage (ranges from 0 to 1)
+     * @param t      the percentage (ranges from 0 to 1)
      * @return the (x,y) coordinate at t
      */
     public Coordinate getPointAlongEdge(Coordinate[] coords, double length, double t) {
@@ -422,7 +419,7 @@ public class ElevationModule implements GraphBuilderModule {
 
     /**
      * Method for retrieving the elevation at a given Coordinate.
-     * 
+     *
      * @param c the coordinate (NAD83)
      * @return elevation in meters
      */
@@ -432,7 +429,7 @@ public class ElevationModule implements GraphBuilderModule {
 
     /**
      * Method for retrieving the elevation at a given (x, y) pair.
-     * 
+     *
      * @param x the query longitude (NAD83)
      * @param y the query latitude (NAD83)
      * @return elevation in meters

@@ -1,21 +1,13 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.net.URLDecoder;
-
 import junit.framework.TestCase;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.model.P2;
+import org.opentripplanner.openstreetmap.impl.FileBasedOpenStreetMapProviderImpl;
 import org.opentripplanner.openstreetmap.model.OSMWay;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
-import org.opentripplanner.openstreetmap.impl.FileBasedOpenStreetMapProviderImpl;
 import org.opentripplanner.routing.core.RoutingRequest;
-import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Edge;
@@ -32,10 +24,15 @@ import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 import org.opentripplanner.util.LocalizedString;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.*;
+
 public class TestOpenStreetMapGraphBuilder extends TestCase {
 
     private HashMap<Class<?>, Object> extra;
-    
+
     @Before
     public void setUp() {
         extra = new HashMap<Class<?>, Object>();
@@ -75,7 +72,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         assertNotNull(v4);
 
         Edge e1 = null, e2 = null, e3 = null;
-        for (Edge e: v2.getOutgoing()) {
+        for (Edge e : v2.getOutgoing()) {
             if (e.getToVertex() == v1) {
                 e1 = e;
             } else if (e.getToVertex() == v3) {
@@ -97,6 +94,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
 
     /**
      * Detailed testing of OSM graph building using a very small chunk of NYC (SOHO-ish).
+     *
      * @throws Exception
      */
     @Test
@@ -114,7 +112,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         loader.setProvider(provider);
 
         loader.buildGraph(gg, extra);
-        
+
         // These vertices are labeled in the OSM file as having traffic lights.
         IntersectionVertex iv1 = (IntersectionVertex) gg.getVertex("osm:node:1919595918");
         IntersectionVertex iv2 = (IntersectionVertex) gg.getVertex("osm:node:42442273");
@@ -124,7 +122,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         assertTrue(iv2.trafficLight);
         assertTrue(iv3.trafficLight);
         assertTrue(iv4.trafficLight);
-        
+
         // These are not.
         IntersectionVertex iv5 = (IntersectionVertex) gg.getVertex("osm:node:42435485");
         IntersectionVertex iv6 = (IntersectionVertex) gg.getVertex("osm:node:42439335");
@@ -134,12 +132,12 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         assertFalse(iv6.trafficLight);
         assertFalse(iv7.trafficLight);
         assertFalse(iv8.trafficLight);
-        
+
         Set<P2<Integer>> edgeEndpoints = new HashSet<P2<Integer>>();
         for (StreetEdge se : gg.getStreetEdges()) {
             P2<Integer> endpoints = new P2<Integer>(se.getFromVertex().getIndex(),
                     se.getToVertex().getIndex());
-            
+
             // Check that we don't get any duplicate edges on this small graph.
             if (edgeEndpoints.contains(endpoints)) {
                 assertFalse(true);
@@ -151,9 +149,10 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
     /**
      * This reads test file with area
      * and tests if it can be routed if visibility is used and if it isn't
-     *
+     * <p>
      * Routing needs to be successful in both options since without visibility calculation
      * area rings are used.
+     *
      * @param skipVisibility if true visibility calculations are skipped
      * @throws UnsupportedEncodingException
      */
@@ -191,7 +190,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
 
         assertNotNull(pathList);
         assertFalse(pathList.isEmpty());
-        for (GraphPath path: pathList) {
+        for (GraphPath path : pathList) {
             assertFalse(path.states.isEmpty());
         }
     }
@@ -277,7 +276,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         wayPropertySet.addProperties(track_only, track_is_safest);
         dataForWay = wayPropertySet.getDataForWay(way);
         assertEquals(0.25, dataForWay.getSafetyFeatures().first); // right (with traffic) comes
-                                                                       // from track
+        // from track
         assertEquals(0.75, dataForWay.getSafetyFeatures().second); // left comes from lane
 
         way = new OSMWay();

@@ -20,9 +20,9 @@ public class SimpleStreetSplitterTest {
 
 
     @Before
-    public void buildSpy(){
+    public void buildSpy() {
         Graph graph = new Graph();
-        SimpleStreetSplitter simpleStreetSplitter = new SimpleStreetSplitter(graph, null, null,false);
+        SimpleStreetSplitter simpleStreetSplitter = new SimpleStreetSplitter(graph, null, null, false);
         spySimpleStreetSplitter = spy(simpleStreetSplitter);
     }
 
@@ -30,8 +30,8 @@ public class SimpleStreetSplitterTest {
      * Tests that traverse mode WALK is used when getting closest end vertex for park and ride.
      */
     @Test
-    public void testFindEndVertexForParkAndRide(){
-        GenericLocation genericLocation = new GenericLocation(10,23);
+    public void testFindEndVertexForParkAndRide() {
+        GenericLocation genericLocation = new GenericLocation(10, 23);
 
         RoutingRequest routingRequest = new RoutingRequest();
         routingRequest.setMode(TraverseMode.CAR);

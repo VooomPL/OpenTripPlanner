@@ -1,10 +1,9 @@
 package org.opentripplanner.api.resource;
 
+import junit.framework.TestCase;
 import org.opentripplanner.api.model.AbsoluteDirection;
 import org.opentripplanner.api.model.RelativeDirection;
 import org.opentripplanner.api.model.WalkStep;
-
-import junit.framework.TestCase;
 
 public class TestWalkStep extends TestCase {
 

@@ -1,16 +1,14 @@
 package org.opentripplanner.common.geometry;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.junit.Test;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CompactLineStringTest extends TestCase {
 
@@ -76,31 +74,31 @@ public class CompactLineStringTest extends TestCase {
     @Test
     public final void testDlugoszVarLenIntPacker() {
 
-        packTest(new int[] {}, 0);
-        packTest(new int[] { 0 }, 1);
-        packTest(new int[] { 63 }, 1);
-        packTest(new int[] { -64 }, 1);
-        packTest(new int[] { 64 }, 2);
-        packTest(new int[] { -65 }, 2);
-        packTest(new int[] { -8192 }, 2);
-        packTest(new int[] { -8193 }, 3);
-        packTest(new int[] { 8191 }, 2);
-        packTest(new int[] { 8192 }, 3);
-        packTest(new int[] { -1048576 }, 3);
-        packTest(new int[] { -1048577 }, 4);
-        packTest(new int[] { 1048575 }, 3);
-        packTest(new int[] { 1048576 }, 4);
-        packTest(new int[] { -67108864 }, 4);
-        packTest(new int[] { -67108865 }, 5);
-        packTest(new int[] { 67108863 }, 4);
-        packTest(new int[] { 67108864 }, 5);
-        packTest(new int[] { Integer.MAX_VALUE }, 5);
-        packTest(new int[] { Integer.MIN_VALUE }, 5);
+        packTest(new int[]{}, 0);
+        packTest(new int[]{0}, 1);
+        packTest(new int[]{63}, 1);
+        packTest(new int[]{-64}, 1);
+        packTest(new int[]{64}, 2);
+        packTest(new int[]{-65}, 2);
+        packTest(new int[]{-8192}, 2);
+        packTest(new int[]{-8193}, 3);
+        packTest(new int[]{8191}, 2);
+        packTest(new int[]{8192}, 3);
+        packTest(new int[]{-1048576}, 3);
+        packTest(new int[]{-1048577}, 4);
+        packTest(new int[]{1048575}, 3);
+        packTest(new int[]{1048576}, 4);
+        packTest(new int[]{-67108864}, 4);
+        packTest(new int[]{-67108865}, 5);
+        packTest(new int[]{67108863}, 4);
+        packTest(new int[]{67108864}, 5);
+        packTest(new int[]{Integer.MAX_VALUE}, 5);
+        packTest(new int[]{Integer.MIN_VALUE}, 5);
 
-        packTest(new int[] { 0, 0 }, 2);
-        packTest(new int[] { 0, 0, 0 }, 3);
+        packTest(new int[]{0, 0}, 2);
+        packTest(new int[]{0, 0, 0}, 3);
 
-        packTest(new int[] { 8100, 8200, 8300 }, 8);
+        packTest(new int[]{8100, 8200, 8300}, 8);
     }
 
     private void packTest(int[] arr, int expectedPackedLen) {

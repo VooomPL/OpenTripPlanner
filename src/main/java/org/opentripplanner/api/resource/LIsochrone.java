@@ -1,24 +1,6 @@
 package org.opentripplanner.api.resource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
+import com.google.common.io.Files;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -29,6 +11,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.IsoChroneRequest;
@@ -39,18 +22,25 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
-import org.locationtech.jts.geom.MultiPolygon;
+import javax.ws.rs.*;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Return isochrone geometry as a set of GeoJSON or zipped-shapefile multi-polygons.
- * 
+ * <p>
  * Example of request:
- * 
+ *
  * <code>
  * http://localhost:8080/otp-rest-servlet/ws/isochrone?routerId=bordeaux&algorithm=accSampling&fromPlace=47.059,-0.880&date=2013/10/01&time=12:00:00&maxWalkDistance=1000&mode=WALK,TRANSIT&cutoffSec=1800&cutoffSec=3600
  * </code>
- * 
+ *
  * @author laurent
  */
 @Path("/routers/{routerId}/isochrone")
@@ -96,7 +86,7 @@ public class LIsochrone extends RoutingResource {
     @GET
     @Produces("application/x-zip-compressed")
     public Response getZippedShapefileIsochrone(@QueryParam("shpName") String shpName,
-            @QueryParam("stream") @DefaultValue("true") boolean stream) throws Exception {
+                                                @QueryParam("stream") @DefaultValue("true") boolean stream) throws Exception {
         SimpleFeatureCollection contourFeatures = makeContourFeatures(computeIsochrone());
         /* Output the staged features to Shapefile */
         final File shapeDir = Files.createTempDir();
@@ -151,7 +141,7 @@ public class LIsochrone extends RoutingResource {
     /**
      * Generic method to compute isochrones. Parse the request, call the adequate builder, and
      * return a list of generic isochrone data.
-     * 
+     *
      * @return
      * @throws Exception
      */

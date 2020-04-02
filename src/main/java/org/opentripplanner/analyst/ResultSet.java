@@ -29,39 +29,51 @@ import java.util.Map;
  * can reach after M minutes of travel. For large point sets (large numbers of origins and destinations), this is
  * significantly more compact than a full origin-destination travel time matrix. It makes the total size of the results
  * linear in the number of origins, rather than quadratic.
- *
+ * <p>
  * Optionally, this can also carry travel times to every point in the target pointset and/or a series vector
  * isochrones around the origin point.
  */
-public class ResultSet implements Serializable{
+public class ResultSet implements Serializable {
 
     private static final long serialVersionUID = -6723127825189535112L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ResultSet.class);
 
-    /** An identifier consisting of the ids for the pointset and time surface that were combined. */
+    /**
+     * An identifier consisting of the ids for the pointset and time surface that were combined.
+     */
     public String id;
 
-    /** One histogram for each category of destination points in the target pointset. */
-    public Map<String,Histogram> histograms = Maps.newHashMap();
+    /**
+     * One histogram for each category of destination points in the target pointset.
+     */
+    public Map<String, Histogram> histograms = Maps.newHashMap();
     // FIXME aren't the histogram.counts identical for all these histograms?
 
-    /** Times to reach every feature, may be null */
+    /**
+     * Times to reach every feature, may be null
+     */
     public int[] times;
 
-    /** Isochrone geometries around the origin, may be null. */
+    /**
+     * Isochrone geometries around the origin, may be null.
+     */
     public IsochroneData[] isochrones;
 
     public ResultSet() {
     }
 
-    /** Build a new ResultSet by evaluating the given TimeSurface at all the given sample points, not including times. */
-    public ResultSet(SampleSet samples, TimeSurface surface){
+    /**
+     * Build a new ResultSet by evaluating the given TimeSurface at all the given sample points, not including times.
+     */
+    public ResultSet(SampleSet samples, TimeSurface surface) {
         this(samples, surface, false, false);
     }
 
-    /** Build a new ResultSet by evaluating the given TimeSurface at all the given sample points, optionally including times. */
-    public ResultSet(SampleSet samples, TimeSurface surface, boolean includeTimes, boolean includeIsochrones){
+    /**
+     * Build a new ResultSet by evaluating the given TimeSurface at all the given sample points, optionally including times.
+     */
+    public ResultSet(SampleSet samples, TimeSurface surface, boolean includeTimes, boolean includeIsochrones) {
         id = samples.pset.id + "_" + surface.id;
 
         PointSet targets = samples.pset;
@@ -94,11 +106,13 @@ public class ResultSet implements Serializable{
      * Build a new ResultSet that contains only isochrones, built by accumulating the times at all street vertices
      * into a regular grid without an intermediate pointSet.
      */
-    public ResultSet (TimeSurface surface) {
+    public ResultSet(TimeSurface surface) {
         buildIsochrones(surface);
     }
 
-    /** Build a new ResultSet directly from times at point features, optionally including histograms or interpolating isochrones */
+    /**
+     * Build a new ResultSet directly from times at point features, optionally including histograms or interpolating isochrones
+     */
     public ResultSet(int[] times, PointSet targets, boolean includeTimes, boolean includeHistograms, boolean includeIsochrones) {
         if (includeTimes)
             this.times = times;
@@ -123,7 +137,7 @@ public class ResultSet implements Serializable{
      * Sum the values of specified categories at all time limits within the
      * bounds of the search. If no categories are specified, sum all categories.
      */
-    public long sum (String... categories) {
+    public long sum(String... categories) {
         return sum((Integer) null, categories);
     }
 
@@ -140,15 +154,15 @@ public class ResultSet implements Serializable{
 
         int maxMinutes;
 
-        if(timeLimit != null)
+        if (timeLimit != null)
             maxMinutes = timeLimit / 60;
         else
             maxMinutes = Integer.MAX_VALUE;
 
-        for(String k : categories) {
+        for (String k : categories) {
             int minute = 0;
-            for(int v : histograms.get(k).sums) {
-                if(minute < maxMinutes)
+            for (int v : histograms.get(k).sums) {
+                if (minute < maxMinutes)
                     value += v;
                 minute++;
             }
@@ -177,23 +191,26 @@ public class ResultSet implements Serializable{
             JsonGenerator jgen = jsonFactory.createGenerator(output);
             jgen.setCodec(new ObjectMapper());
 
-            jgen.writeStartObject(); {
+            jgen.writeStartObject();
+            {
 
-                if(ps == null) {
-                    jgen.writeObjectFieldStart("properties"); {
+                if (ps == null) {
+                    jgen.writeObjectFieldStart("properties");
+                    {
                         if (id != null)
                             jgen.writeStringField("id", id);
                     }
                     jgen.writeEndObject();
-                }
-                else {
+                } else {
                     ps.writeJsonProperties(jgen);
                 }
 
-                jgen.writeObjectFieldStart("data"); {
-                    for(String propertyId : histograms.keySet()) {
+                jgen.writeObjectFieldStart("data");
+                {
+                    for (String propertyId : histograms.keySet()) {
 
-                        jgen.writeObjectFieldStart(propertyId); {
+                        jgen.writeObjectFieldStart(propertyId);
+                        {
                             histograms.get(propertyId).writeJson(jgen);
                         }
                         jgen.writeEndObject();
@@ -216,7 +233,9 @@ public class ResultSet implements Serializable{
         }
     }
 
-    /** Write the isochrones as GeoJSON */
+    /**
+     * Write the isochrones as GeoJSON
+     */
     public void writeIsochrones(JsonGenerator jgen) throws IOException {
         if (this.isochrones == null)
             return;
@@ -231,7 +250,9 @@ public class ResultSet implements Serializable{
         jgen.writeRaw(json.substring(1, json.length() - 1));
     }
 
-    /** A set of result sets from profile routing: min, avg, max */;
+    /** A set of result sets from profile routing: min, avg, max */
+    ;
+
     public static class RangeSet implements Serializable {
         public static final long serialVersionUID = 1L;
 

@@ -9,10 +9,6 @@ import com.esotericsoftware.kryo.serializers.ExternalizableSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.*;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Polygon;
 import de.javakaffee.kryoserializers.UnmodifiableCollectionsSerializer;
 import gnu.trove.impl.hash.TPrimitiveHash;
 import gnu.trove.list.TDoubleList;
@@ -21,24 +17,23 @@ import gnu.trove.list.linked.TDoubleLinkedList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.joda.time.DateTime;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import org.objenesis.strategy.SerializingInstantiatorStrategy;
-import org.opentripplanner.calendar.impl.CalendarServiceImpl;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.FeedInfo;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.analyst.core.GeometryIndex;
 import org.opentripplanner.analyst.request.SampleFactory;
+import org.opentripplanner.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.geometry.GraphUtils;
 import org.opentripplanner.graph_builder.annotation.GraphBuilderAnnotation;
 import org.opentripplanner.graph_builder.annotation.NoFutureDates;
 import org.opentripplanner.kryo.HashBiMapSerializer;
-import org.opentripplanner.model.GraphBundle;
+import org.opentripplanner.model.*;
+import org.opentripplanner.model.calendar.CalendarServiceData;
+import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.profile.StopClusterMode;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
@@ -66,6 +61,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
+
 /**
  * A graph is really just one or more indexes into a set of vertexes. It used to keep edgelists for each vertex, but those are in the vertex now.
  */
@@ -121,7 +117,7 @@ public class Graph implements Serializable {
 
     /**
      * Map from GTFS ServiceIds to integers close to 0. Allows using BitSets instead of Set<Object>.
-     * An empty Map is created before the Graph is built to allow registering IDs from multiple feeds.   
+     * An empty Map is created before the Graph is built to allow registering IDs from multiple feeds.
      */
     public final Map<FeedScopedId, Integer> serviceCodes = Maps.newHashMap();
 
@@ -145,13 +141,19 @@ public class Graph implements Serializable {
     //ConvexHull of all the graph vertices. Generated at Graph build time.
     private Geometry convexHull = null;
 
-    /** The density center of the graph for determining the initial geographic extent in the client. */
+    /**
+     * The density center of the graph for determining the initial geographic extent in the client.
+     */
     private Coordinate center = null;
 
-    /** The config JSON used to build this graph. Allows checking whether the configuration has changed. */
+    /**
+     * The config JSON used to build this graph. Allows checking whether the configuration has changed.
+     */
     public String builderConfig = null;
 
-    /** Embed a router configuration inside the graph, for starting up with a single file. */
+    /**
+     * Embed a router configuration inside the graph, for starting up with a single file.
+     */
     public String routerConfig = null;
 
     /* The preferences that were used for graph building. */
@@ -160,7 +162,9 @@ public class Graph implements Serializable {
     /* The time at which the graph was built, for detecting changed inputs and triggering a rebuild. */
     public DateTime buildTimeJoda = null; // FIXME record this info, null is just a placeholder
 
-    /** List of transit modes that are availible in GTFS data used in this graph**/
+    /**
+     * List of transit modes that are availible in GTFS data used in this graph
+     **/
     private HashSet<TraverseMode> transitModes = new HashSet<TraverseMode>();
 
     public boolean hasBikeSharing = false;
@@ -179,40 +183,64 @@ public class Graph implements Serializable {
 
     public final Date buildTime = new Date();
 
-    /** True if OSM data was loaded into this Graph. */
+    /**
+     * True if OSM data was loaded into this Graph.
+     */
     public boolean hasStreets = false;
 
-    /** True if GTFS data was loaded into this Graph. */
+    /**
+     * True if GTFS data was loaded into this Graph.
+     */
     public boolean hasTransit = false;
 
-    /** True if direct single-edge transfers were generated between transit stops in this Graph. */
+    /**
+     * True if direct single-edge transfers were generated between transit stops in this Graph.
+     */
     public boolean hasDirectTransfers = false;
 
-    /** True if frequency-based services exist in this Graph (GTFS frequencies with exact_times = 0). */
+    /**
+     * True if frequency-based services exist in this Graph (GTFS frequencies with exact_times = 0).
+     */
     public boolean hasFrequencyService = false;
 
-    /** True if schedule-based services exist in this Graph (including GTFS frequencies with exact_times = 1). */
+    /**
+     * True if schedule-based services exist in this Graph (including GTFS frequencies with exact_times = 1).
+     */
     public boolean hasScheduledService = false;
 
-    /** Has information how much time boarding a vehicle takes. Can be significant eg in airplanes or ferries. */
+    /**
+     * Has information how much time boarding a vehicle takes. Can be significant eg in airplanes or ferries.
+     */
     public Map<TraverseMode, Integer> boardTimes = Collections.EMPTY_MAP;
 
-    /** Has information how much time alighting a vehicle takes. Can be significant eg in airplanes or ferries. */
+    /**
+     * Has information how much time alighting a vehicle takes. Can be significant eg in airplanes or ferries.
+     */
     public Map<TraverseMode, Integer> alightTimes = Collections.EMPTY_MAP;
-    
-    /** How should we cluster stops? By 'proximity' or 'ParentStation' */
+
+    /**
+     * How should we cluster stops? By 'proximity' or 'ParentStation'
+     */
     public StopClusterMode stopClusterMode = StopClusterMode.proximity;
 
-    /** The difference in meters between the WGS84 ellipsoid height and geoid height at the graph's center */
+    /**
+     * The difference in meters between the WGS84 ellipsoid height and geoid height at the graph's center
+     */
     public Double ellipsoidToGeoidDifference = 0.0;
 
-    /** Parent stops **/
+    /**
+     * Parent stops
+     **/
     public Map<FeedScopedId, Stop> parentStopById = new HashMap<>();
 
-    /** Whether to use flex modes */
+    /**
+     * Whether to use flex modes
+     */
     public boolean useFlexService = false;
 
-    /** Areas for flex service */
+    /**
+     * Areas for flex service
+     */
     public Map<FeedScopedId, Geometry> flexAreasById = new HashMap<>();
 
     public Graph(Graph basedOn) {
@@ -241,7 +269,7 @@ public class Graph implements Serializable {
 
     /**
      * Removes a vertex from the graph.
-     *
+     * <p>
      * Called from streetutils, must be public for now
      *
      * @param v
@@ -256,6 +284,7 @@ public class Graph implements Serializable {
 
     /**
      * Removes an edge from the graph. This method is not thread-safe.
+     *
      * @param e The edge to be removed
      */
     public void removeEdge(Edge e) {
@@ -299,7 +328,7 @@ public class Graph implements Serializable {
 
     /**
      * Returns the vertex with the given ID or null if none is present.
-     *
+     * <p>
      * NOTE: you may need to run rebuildVertexAndEdgeIndices() for the indices
      * to be accurate.
      *
@@ -312,6 +341,7 @@ public class Graph implements Serializable {
 
     /**
      * Get all the vertices in the graph.
+     *
      * @return
      */
     public Collection<Vertex> getVertices() {
@@ -320,7 +350,7 @@ public class Graph implements Serializable {
 
     /**
      * Returns the edge with the given ID or null if none is present.
-     *
+     * <p>
      * NOTE: you may need to run rebuildVertexAndEdgeIndices() for the indices
      * to be accurate.
      *
@@ -333,6 +363,7 @@ public class Graph implements Serializable {
 
     /**
      * Return all the edges in the graph.
+     *
      * @return
      */
     public Collection<Edge> getEdges() {
@@ -345,6 +376,7 @@ public class Graph implements Serializable {
 
     /**
      * Add an {@link AlertPatch} to the {@link AlertPatch} {@link Set} belonging to an {@link Edge}.
+     *
      * @param edge
      * @param alertPatch
      */
@@ -368,6 +400,7 @@ public class Graph implements Serializable {
     /**
      * Remove an {@link AlertPatch} from the {@link AlertPatch} {@link Set} belonging to an
      * {@link Edge}.
+     *
      * @param edge
      * @param alertPatch
      */
@@ -387,6 +420,7 @@ public class Graph implements Serializable {
 
     /**
      * Get the {@link AlertPatch} {@link Set} that belongs to an {@link Edge} and build a new array.
+     *
      * @param edge
      * @return The {@link AlertPatch} array that belongs to the {@link Edge}
      */
@@ -405,6 +439,7 @@ public class Graph implements Serializable {
     /**
      * Add a {@link TurnRestriction} to the {@link TurnRestriction} {@link List} belonging to an
      * {@link Edge}. This method is not thread-safe.
+     *
      * @param edge
      * @param turnRestriction
      */
@@ -421,6 +456,7 @@ public class Graph implements Serializable {
     /**
      * Remove a {@link TurnRestriction} from the {@link TurnRestriction} {@link List} belonging to
      * an {@link Edge}. This method is not thread-safe.
+     *
      * @param edge
      * @param turnRestriction
      */
@@ -440,6 +476,7 @@ public class Graph implements Serializable {
      * Get the {@link TurnRestriction} {@link List} that belongs to an {@link Edge} and return an
      * immutable copy. This method is thread-safe when used by itself, but not if addTurnRestriction
      * or removeTurnRestriction is called concurrently.
+     *
      * @param edge
      * @return The {@link TurnRestriction} {@link List} that belongs to the {@link Edge}
      */
@@ -455,13 +492,14 @@ public class Graph implements Serializable {
 
     /**
      * Return only the StreetEdges in the graph.
+     *
      * @return
      */
     public Collection<StreetEdge> getStreetEdges() {
         Collection<Edge> allEdges = this.getEdges();
         return Lists.newArrayList(Iterables.filter(allEdges, StreetEdge.class));
-    }    
-    
+    }
+
     public boolean containsVertex(Vertex v) {
         return (v != null) && vertices.get(v.getLabel()) == v;
     }
@@ -485,7 +523,7 @@ public class Graph implements Serializable {
         T t = (T) _services.get(serviceType);
         if (t == null && autoCreate) {
             try {
-                t = (T)serviceType.newInstance();
+                t = (T) serviceType.newInstance();
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
@@ -580,7 +618,7 @@ public class Graph implements Serializable {
 
     /**
      * Find the total number of edges in this Graph. There are assumed to be no Edges in an incoming edge list that are not in an outgoing edge list.
-     * 
+     *
      * @return number of outgoing edges in the graph
      */
     public int countEdges() {
@@ -593,6 +631,7 @@ public class Graph implements Serializable {
 
     /**
      * Add a collection of edges from the edgesById index.
+     *
      * @param es
      */
     private void addEdgesToIndex(Collection<Edge> es) {
@@ -600,13 +639,13 @@ public class Graph implements Serializable {
             this.edgeById.put(e.getId(), e);
         }
     }
-    
+
     /**
      * Rebuilds any indices on the basis of current vertex and edge IDs.
-     * 
-     * If you want the index to be accurate, you must run this every time the 
+     * <p>
+     * If you want the index to be accurate, you must run this every time the
      * vertex or edge set changes.
-     * 
+     * <p>
      * TODO(flamholz): keep the indices up to date with changes to the graph.
      * This is not simple because the Vertex constructor may add itself to the graph
      * before the Vertex has any edges, so updating indices on addVertex is insufficient.
@@ -640,7 +679,7 @@ public class Graph implements Serializable {
      * Add a graph builder annotation to this graph's list of graph builder annotations. The return value of this method is the annotation's message,
      * which allows for a single-line idiom that creates, registers, and logs a new graph builder annotation:
      * log.warning(graph.addBuilderAnnotation(new SomeKindOfAnnotation(param1, param2)));
-     * 
+     * <p>
      * If the graphBuilderAnnotations field of this graph is null, the annotation is not actually saved, but the message is still returned. This
      * allows annotation registration to be turned off, saving memory and disk space when the user is not interested in annotations.
      */
@@ -657,6 +696,7 @@ public class Graph implements Serializable {
 
     /**
      * Adds mode of transport to transit modes in graph
+     *
      * @param mode
      */
     public void addTransitMode(TraverseMode mode) {
@@ -678,10 +718,10 @@ public class Graph implements Serializable {
      * Perform indexing on vertices, edges, and timetables, and create transient data structures.
      * This used to be done in readObject methods upon deserialization, but stand-alone mode now
      * allows passing graphs from graphbuilder to server in memory, without a round trip through
-     * serialization. 
+     * serialization.
      * TODO: do we really need a factory for different street vertex indexes?
      */
-    public void index (StreetVertexIndexFactory indexFactory) {
+    public void index(StreetVertexIndexFactory indexFactory) {
         streetIndex = indexFactory.newIndex(this);
         LOG.debug("street index built.");
         LOG.debug("Rebuilding edge and vertex indices.");
@@ -695,12 +735,12 @@ public class Graph implements Serializable {
         }
         // TODO: Move this ^ stuff into the graph index
         this.index = new GraphIndex(this);
-        if (useFlexService ) {
+        if (useFlexService) {
             this.flexIndex = new FlexIndex();
             flexIndex.init(this);
         }
     }
-    
+
     public static Graph load(InputStream in) {
         // TODO store version information, halt load if versions mismatch
         Input input = new Input(in);
@@ -736,9 +776,9 @@ public class Graph implements Serializable {
     /**
      * Compares the OTP version number stored in the graph with that of the currently running instance. Logs warnings explaining that mismatched
      * versions can cause problems.
-     * 
+     *
      * @return false if Maven versions match (even if commit ids do not match), true if Maven version of graph does not match this version of OTP or
-     *         graphs are otherwise obviously incompatible.
+     * graphs are otherwise obviously incompatible.
      */
     private boolean graphVersionMismatch() {
         MavenVersion v = MavenVersion.VERSION;
@@ -769,7 +809,7 @@ public class Graph implements Serializable {
     /**
      * This method allows reproducibly creating Kryo (de)serializer instances with exactly the same configuration.
      * This allows us to use identically configured instances for serialization and deserialization.
-     *
+     * <p>
      * When configuring serializers, there's a difference between kryo.register() and kryo.addDefaultSerializer().
      * The latter will set the default for a whole tree of classes. The former matches only the specified class.
      * By default Kryo will serialize all the non-transient fields of an instance. If the class has its own overridden
@@ -798,7 +838,7 @@ public class Graph implements Serializable {
         // FIXME we're importing all the contributed kryo-serializers just for this one serializer
         try {
             Class<?> unmodifiableCollection = Class.forName("java.util.Collections$UnmodifiableCollection");
-            kryo.addDefaultSerializer(unmodifiableCollection , UnmodifiableCollectionsSerializer.class);
+            kryo.addDefaultSerializer(unmodifiableCollection, UnmodifiableCollectionsSerializer.class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -934,6 +974,7 @@ public class Graph implements Serializable {
 
     /**
      * Return all TimeZones for all agencies in the graph
+     *
      * @return collection of referenced timezones
      */
     public Collection<TimeZone> getAllTimeZones() {
@@ -951,9 +992,9 @@ public class Graph implements Serializable {
 
     /**
      * The timezone is cached by the graph. If you've done something to the graph that has the
-     * potential to change the time zone, you should call this to ensure it is reset. 
+     * potential to change the time zone, you should call this to ensure it is reset.
      */
-    public void clearTimeZone () {
+    public void clearTimeZone() {
         this.timeZone = null;
     }
 
@@ -972,7 +1013,7 @@ public class Graph implements Serializable {
 
     /**
      * Calculates envelope out of all OSM coordinates
-     *
+     * <p>
      * Transit stops are added to the envelope as they are added to the graph
      */
     public void calculateEnvelope() {
@@ -1001,12 +1042,12 @@ public class Graph implements Serializable {
 
     /**
      * Expands envelope to include given point
-     *
+     * <p>
      * If envelope is empty it creates it (This can happen with a graph without OSM data)
      * Used when adding stops to OSM envelope
      *
-     * @param  x  the value to lower the minimum x to or to raise the maximum x to
-     * @param  y  the value to lower the minimum y to or to raise the maximum y to
+     * @param x the value to lower the minimum x to or to raise the maximum x to
+     * @param y the value to lower the minimum y to or to raise the maximum y to
      */
     public void expandToInclude(double x, double y) {
         //Envelope can be empty if graph building is run without OSM data
@@ -1022,27 +1063,27 @@ public class Graph implements Serializable {
 
     // lazy-init geom index on an as needed basis
     public GeometryIndex getGeomIndex() {
-    	
-    	if(this.geomIndex == null)
-    		this.geomIndex = new GeometryIndex(this);
-    	
-    	return this.geomIndex;
+
+        if (this.geomIndex == null)
+            this.geomIndex = new GeometryIndex(this);
+
+        return this.geomIndex;
     }
 
     // lazy-init sample factor on an as needed basis
     public SampleFactory getSampleFactory() {
-        if(this.sampleFactory == null)
+        if (this.sampleFactory == null)
             this.sampleFactory = new SampleFactory(this);
 
-        return this.sampleFactory;	
+        return this.sampleFactory;
     }
 
     /**
      * Calculates Transit center from median of coordinates of all transitStops if graph
      * has transit. If it doesn't it isn't calculated. (mean walue of min, max latitude and longitudes are used)
-     *
+     * <p>
      * Transit center is saved in center variable
-     *
+     * <p>
      * This speeds up calculation, but problem is that median needs to have all of latitudes/longitudes
      * in memory, this can become problematic in large installations. It works without a problem on New York State.
      */
@@ -1054,11 +1095,11 @@ public class Graph implements Serializable {
             Median median = new Median();
 
             getVertices().stream()
-                .filter(v -> v instanceof TransitStop)
-                .forEach(v -> {
-                    latitudes.add(v.getLat());
-                    longitudes.add(v.getLon());
-                });
+                    .filter(v -> v instanceof TransitStop)
+                    .forEach(v -> {
+                        latitudes.add(v.getLat());
+                        longitudes.add(v.getLon());
+                    });
 
             median.setData(latitudes.toArray());
             double medianLatitude = median.evaluate();

@@ -1,10 +1,10 @@
 package org.opentripplanner.util.monitoring;
 
 
-/** 
+/**
  * A singleton factory for getting a monitoring store.
- * @author novalis
  *
+ * @author novalis
  */
 public class MonitoringStoreFactory {
 

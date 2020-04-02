@@ -13,8 +13,9 @@ import java.io.IOException;
  */
 public class QualifiedModeSetDeserializer extends JsonDeserializer<QualifiedModeSet> {
 
-    @Override public QualifiedModeSet deserialize(JsonParser jsonParser,
-            DeserializationContext deserializationContext)
+    @Override
+    public QualifiedModeSet deserialize(JsonParser jsonParser,
+                                        DeserializationContext deserializationContext)
             throws IOException, JsonProcessingException {
         return new QualifiedModeSet(jsonParser.getValueAsString());
     }

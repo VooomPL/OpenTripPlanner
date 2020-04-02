@@ -1,21 +1,14 @@
 package org.opentripplanner.routing.bike_rental;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Currency;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.opentripplanner.model.OtpTransitService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.common.model.P2;
+import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.routing.services.FareService;
 import org.opentripplanner.routing.services.FareServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.*;
 
 public class TimeBasedBikeRentalFareServiceFactory implements FareServiceFactory {
 
@@ -51,7 +44,7 @@ public class TimeBasedBikeRentalFareServiceFactory implements FareServiceFactory
 
         // List of {time, price_cents}
         pricingBySecond = new ArrayList<>();
-        for (Iterator<Map.Entry<String, JsonNode>> i = config.path("prices").fields(); i.hasNext();) {
+        for (Iterator<Map.Entry<String, JsonNode>> i = config.path("prices").fields(); i.hasNext(); ) {
             Map.Entry<String, JsonNode> kv = i.next();
             int maxTimeSec = hmToMinutes(kv.getKey()) * 60;
             int priceCent = (int) Math.round(kv.getValue().asDouble() * 100);

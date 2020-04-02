@@ -1,10 +1,9 @@
 package org.opentripplanner.api.adapters;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class MapAdapter extends XmlAdapter<MapType, Map<String, String>> {
 

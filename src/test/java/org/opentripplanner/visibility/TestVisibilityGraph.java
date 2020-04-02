@@ -1,17 +1,12 @@
 package org.opentripplanner.visibility;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-
 import junit.framework.TestCase;
 
-import org.opentripplanner.visibility.Environment;
-import org.opentripplanner.visibility.VLPoint;
-import org.opentripplanner.visibility.VLPolygon;
-import org.opentripplanner.visibility.VisibilityGraph;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- These test cases are against the C++ version of VisiLibity's output for the same input.
+ * These test cases are against the C++ version of VisiLibity's output for the same input.
  */
 public class TestVisibilityGraph extends TestCase {
 
@@ -37,14 +32,14 @@ public class TestVisibilityGraph extends TestCase {
         environment.enforce_standard_form();
         VisibilityGraph vg = new VisibilityGraph(environment, 0.0000001);
 
-        boolean expected[][] = {{ true,  true,  true, false, false, false, false,  true},
-                                { true,  true,  true,  true,  true, false, false,  true},
-                                { true,  true,  true,  true,  true,  true,  true,  true},
-                                {false,  true,  true,  true,  true, false,  true,  true},
-                                {false,  true,  true,  true,  true,  true,  true,  true},
-                                {false, false,  true, false,  true,  true,  true, false},
-                                {false, false,  true,  true,  true,  true,  true,  true},
-                                { true,  true,  true,  true,  true, false,  true,  true}};
+        boolean expected[][] = {{true, true, true, false, false, false, false, true},
+                {true, true, true, true, true, false, false, true},
+                {true, true, true, true, true, true, true, true},
+                {false, true, true, true, true, false, true, true},
+                {false, true, true, true, true, true, true, true},
+                {false, false, true, false, true, true, true, false},
+                {false, false, true, true, true, true, true, true},
+                {true, true, true, true, true, false, true, true}};
 
         for (int i = 0; i < expected.length; ++i) {
             for (int j = 0; j < expected[i].length; ++j) {
@@ -70,33 +65,33 @@ public class TestVisibilityGraph extends TestCase {
         VisibilityGraph vg = new VisibilityGraph(environment, 0.0000001);
 
         boolean expected[][] = {
-                { true,  true, false,  true,  true, false,  true,  true,  true,  true, false, false, false, false,  true, false,  true,  true, false, false, false, false, false, false, false, false,  true},
-                { true,  true,  true,  true,  true, false,  true,  true,  true, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                {false,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                { true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                { true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,  true},
-                {false, false,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
-                { true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true},
-                { true,  true,  true,  true, false, false,  true,  true,  true, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                { true,  true, false, false, false, false, false,  true,  true,  true, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                { true, false, false, false, false, false, false, false,  true,  true,  true,  true,  true, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                {false, false, false, false, false, false, false, false, false,  true,  true,  true, false,  true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false,  true,  true,  true, false},
-                {false, false, false, false, false, false, false, false, false,  true, false,  true,  true,  true,  true, false,  true, false, false, false, false, false, false, false,  true,  true,  true},
-                {false, false, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false, false, false, false, false},
-                { true, false, false, false, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false, false, false,  true,  true},
-                {false, false, false, false, false, false, false, false, false,  true,  true,  true, false, false,  true,  true,  true, false, false, false, false, false, false, false, false, false, false},
-                { true,  true, false, false, false, false, false, false,  true,  true,  true,  true,  true, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                { true,  true,  true,  true, false, false, false,  true,  true,  true,  true, false, false, false, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true},
-                {false,  true,  true,  true, false, false, false,  true,  true,  true,  true, false, false, false, false, false,  true,  true,  true,  true, false, false, false, false, false, false, false},
-                {false,  true,  true,  true, false, false, false,  true,  true,  true,  true, false, false, false, false, false,  true,  true,  true,  true,  true, false, false, false, false, false, false},
-                {false,  true,  true,  true, false, false, false,  true,  true,  true,  true, false, false, false, false, false,  true,  true, false,  true,  true,  true, false, false, false, false, false},
-                {false,  true,  true,  true, false, false,  true,  true,  true,  true, false, false, false, false, false, false,  true,  true, false, false,  true,  true,  true,  true,  true,  true,  true},
-                {false,  true,  true,  true, false, false,  true,  true,  true,  true, false, false, false, false, false, false,  true,  true, false, false, false,  true,  true,  true, false, false, false},
-                {false,  true,  true,  true, false, false,  true,  true,  true,  true, false,  true, false, false, false, false,  true,  true, false, false, false,  true,  true,  true,  true,  true,  true},
-                {false,  true,  true,  true, false, false,  true,  true,  true,  true, false,  true,  true, false, false, false,  true,  true, false, false, false,  true, false,  true,  true,  true,  true},
-                {false,  true,  true,  true, false, false,  true,  true,  true,  true, false,  true,  true, false,  true, false,  true,  true, false, false, false,  true, false,  true,  true,  true,  true},
-                { true,  true,  true,  true,  true, false,  true,  true,  true,  true, false, false,  true, false,  true, false,  true,  true, false, false, false,  true, false,  true,  true,  true,  true}
+                {true, true, false, true, true, false, true, true, true, true, false, false, false, false, true, false, true, true, false, false, false, false, false, false, false, false, true},
+                {true, true, true, true, true, false, true, true, true, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true},
+                {false, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true},
+                {true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true},
+                {true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true},
+                {false, false, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
+                {true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true},
+                {true, true, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true},
+                {true, true, false, false, false, false, false, true, true, true, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true},
+                {true, false, false, false, false, false, false, false, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true},
+                {false, false, false, false, false, false, false, false, false, true, true, true, false, true, true, true, true, true, true, true, true, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, false, false, false, false, false, false, true, true, true, false},
+                {false, false, false, false, false, false, false, false, false, true, false, true, true, true, true, false, true, false, false, false, false, false, false, false, true, true, true},
+                {false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false},
+                {true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true},
+                {false, false, false, false, false, false, false, false, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false, false, false},
+                {true, true, false, false, false, false, false, false, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true},
+                {true, true, true, true, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true},
+                {false, true, true, true, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, true, false, false, false, false, false, false, false},
+                {false, true, true, true, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, true, true, false, false, false, false, false, false},
+                {false, true, true, true, false, false, false, true, true, true, true, false, false, false, false, false, true, true, false, true, true, true, false, false, false, false, false},
+                {false, true, true, true, false, false, true, true, true, true, false, false, false, false, false, false, true, true, false, false, true, true, true, true, true, true, true},
+                {false, true, true, true, false, false, true, true, true, true, false, false, false, false, false, false, true, true, false, false, false, true, true, true, false, false, false},
+                {false, true, true, true, false, false, true, true, true, true, false, true, false, false, false, false, true, true, false, false, false, true, true, true, true, true, true},
+                {false, true, true, true, false, false, true, true, true, true, false, true, true, false, false, false, true, true, false, false, false, true, false, true, true, true, true},
+                {false, true, true, true, false, false, true, true, true, true, false, true, true, false, true, false, true, true, false, false, false, true, false, true, true, true, true},
+                {true, true, true, true, true, false, true, true, true, true, false, false, true, false, true, false, true, true, false, false, false, true, false, true, true, true, true}
         };
 
         for (int i = 0; i < expected.length; ++i) {
@@ -119,10 +114,10 @@ public class TestVisibilityGraph extends TestCase {
 
         VisibilityGraph vg = new VisibilityGraph(environment, 0.0000001);
 
-        boolean expected[][] = { { true, true, true, false, true, true },
-                { true, true, true, true, true, true }, { true, true, true, true, true, false },
-                { false, true, true, true, true, false }, { true, true, true, true, true, true },
-                { true, true, false, false, true, true } };
+        boolean expected[][] = {{true, true, true, false, true, true},
+                {true, true, true, true, true, true}, {true, true, true, true, true, false},
+                {false, true, true, true, true, false}, {true, true, true, true, true, true},
+                {true, true, false, false, true, true}};
 
         for (int i = 0; i < expected.length; ++i) {
             for (int j = 0; j < expected[i].length; ++j) {
@@ -142,16 +137,16 @@ public class TestVisibilityGraph extends TestCase {
 
         VisibilityGraph vg = new VisibilityGraph(environment, 0.01);
         boolean expected[][] = {
-                { true, true, false, false, false, false, true, true, true, true },
-                { true, true, true, false, false, true, true, true, false, false },
-                { false, true, true, true, true, true, true, false, false, false },
-                { false, false, true, true, true, true, false, false, false, false },
-                { false, false, true, true, true, true, false, false, false, false },
-                { false, true, true, true, true, true, true, false, false, false },
-                { true, true, true, false, false, true, true, true, false, false },
-                { true, true, false, false, false, false, true, true, true, true },
-                { true, false, false, false, false, false, false, true, true, true },
-                { true, false, false, false, false, false, false, true, true, true } };
+                {true, true, false, false, false, false, true, true, true, true},
+                {true, true, true, false, false, true, true, true, false, false},
+                {false, true, true, true, true, true, true, false, false, false},
+                {false, false, true, true, true, true, false, false, false, false},
+                {false, false, true, true, true, true, false, false, false, false},
+                {false, true, true, true, true, true, true, false, false, false},
+                {true, true, true, false, false, true, true, true, false, false},
+                {true, true, false, false, false, false, true, true, true, true},
+                {true, false, false, false, false, false, false, true, true, true},
+                {true, false, false, false, false, false, false, true, true, true}};
 
         for (int i = 0; i < expected.length; ++i) {
             for (int j = 0; j < expected[i].length; ++j) {
@@ -168,14 +163,14 @@ public class TestVisibilityGraph extends TestCase {
 
         VisibilityGraph vg = new VisibilityGraph(environment, 0.01);
 
-        boolean expected[][] = { { true, true, true, true, true, true, false, true },
-                { true, true, true, false, true, false, true, true },
-                { true, true, true, true, false, true, true, true },
-                { true, false, true, true, true, true, true, false },
-                { true, true, false, true, true, true, false, true },
-                { true, false, true, true, true, true, true, false },
-                { false, true, true, true, false, true, true, true },
-                { true, true, true, false, true, false, true, true } };
+        boolean expected[][] = {{true, true, true, true, true, true, false, true},
+                {true, true, true, false, true, false, true, true},
+                {true, true, true, true, false, true, true, true},
+                {true, false, true, true, true, true, true, false},
+                {true, true, false, true, true, true, false, true},
+                {true, false, true, true, true, true, true, false},
+                {false, true, true, true, false, true, true, true},
+                {true, true, true, false, true, false, true, true}};
 
         for (int i = 0; i < expected.length; ++i) {
             for (int j = 0; j < expected[i].length; ++j) {
@@ -192,14 +187,14 @@ public class TestVisibilityGraph extends TestCase {
 
         VisibilityGraph vg = new VisibilityGraph(environment, 0.01);
 
-        boolean expected[][] = { { true, true, false, true, true, true, false, true },
-                { true, true, true, true, true, false, true, true },
-                { false, true, true, true, false, true, true, true },
-                { true, true, true, true, true, true, true, false },
-                { true, true, false, true, true, true, false, true },
-                { true, false, true, true, true, true, true, false },
-                { false, true, true, true, false, true, true, true },
-                { true, true, true, false, true, false, true, true } };
+        boolean expected[][] = {{true, true, false, true, true, true, false, true},
+                {true, true, true, true, true, false, true, true},
+                {false, true, true, true, false, true, true, true},
+                {true, true, true, true, true, true, true, false},
+                {true, true, false, true, true, true, false, true},
+                {true, false, true, true, true, true, true, false},
+                {false, true, true, true, false, true, true, true},
+                {true, true, true, false, true, false, true, true}};
         for (int i = 0; i < expected.length; ++i) {
             for (int j = 0; j < expected[i].length; ++j) {
                 assertEquals(expected[i][j], vg.get(i, j));

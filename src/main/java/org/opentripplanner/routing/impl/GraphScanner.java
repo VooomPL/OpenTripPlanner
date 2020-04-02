@@ -1,19 +1,15 @@
 package org.opentripplanner.routing.impl;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.opentripplanner.routing.error.GraphNotFoundException;
 import org.opentripplanner.routing.services.GraphService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Scan for graphs under the base directory and auto-register them.
@@ -22,19 +18,29 @@ public class GraphScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphScanner.class);
 
-    /** Auto-scan for new graphs every n secs. */
+    /**
+     * Auto-scan for new graphs every n secs.
+     */
     private static final int AUTOSCAN_PERIOD_SEC = 10;
 
-    /** Where to look for graphs. Defaults to 'graphs' under the OTP server base path. */
+    /**
+     * Where to look for graphs. Defaults to 'graphs' under the OTP server base path.
+     */
     public File basePath = null;
 
-    /** A list of routerIds to automatically register and load at startup */
+    /**
+     * A list of routerIds to automatically register and load at startup
+     */
     public List<String> autoRegister;
 
-    /** The default router, none by default */
+    /**
+     * The default router, none by default
+     */
     public String defaultRouterId = null;
 
-    /** The GraphService where register graphs to */
+    /**
+     * The GraphService where register graphs to
+     */
     private GraphService graphService;
 
     private ScheduledExecutorService scanExecutor;

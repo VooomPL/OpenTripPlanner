@@ -20,11 +20,11 @@ public class Histogram {
     private long count = 0;
     private int maxVal;
 
-    public Histogram (String title) {
+    public Histogram(String title) {
         this.title = title;
     }
 
-    public void add (int i) {
+    public void add(int i) {
         count++;
         int binVal = bins.adjustOrPutValue(i, 1, 1);
 
@@ -40,7 +40,7 @@ public class Histogram {
         }
     }
 
-    private static String makeBar (int value, int max) {
+    private static String makeBar(int value, int max) {
         final int WIDTH = 20;
         int n = value * WIDTH / max;
         String bar = Strings.repeat("#", n);
@@ -48,7 +48,7 @@ public class Histogram {
         return bar + space + "  ";
     }
 
-    public void display () {
+    public void display() {
         int[] lessEqual = new int[maxBin + 1];
         System.out.println("--- Histogram: " + title + " ---");
         System.out.println(" n       ==      <=       >");
@@ -64,7 +64,7 @@ public class Histogram {
         }
         // Sum now equals the sum of all bins.
         for (int i = 0; i <= maxBin; i++) {
-            if (((double)lessEqual[i]) / sum > 0.999) {
+            if (((double) lessEqual[i]) / sum > 0.999) {
                 System.out.println("Ending display at 99.9% of total objects.");
                 break;
             }
@@ -77,7 +77,7 @@ public class Histogram {
         System.out.println();
     }
 
-    public void displayHorizontal () {
+    public void displayHorizontal() {
         System.out.println("--- Histogram: " + title + " ---");
 
         // TODO: horizontal scale
@@ -120,7 +120,7 @@ public class Histogram {
 
     public int mean() {
         long sum = 0;
-        for (TIntIntIterator it = bins.iterator(); it.hasNext();) {
+        for (TIntIntIterator it = bins.iterator(); it.hasNext(); ) {
             it.advance();
 
             sum += it.key() * it.value();
@@ -129,7 +129,7 @@ public class Histogram {
         return (int) (sum / count);
     }
 
-    public static void main (String... args) {
+    public static void main(String... args) {
         System.out.println("Testing histogram store with normal distribution, mean 0");
         Histogram h = new Histogram("Normal");
 

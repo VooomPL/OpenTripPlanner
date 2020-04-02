@@ -2,9 +2,8 @@ package org.opentripplanner.graph_builder.module.osm;
 
 /**
  * Defines which OSM ways get notes and what kind of notes they get.
- * 
+ *
  * @author novalis
- * 
  */
 public class NotePicker {
 

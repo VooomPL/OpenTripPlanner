@@ -1,20 +1,18 @@
 package org.opentripplanner.routing.edgetype;
 
 import junit.framework.TestCase;
-
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.routing.core.OptimizeType;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.util.ElevationUtils;
 import org.opentripplanner.routing.util.SlopeCosts;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.util.NonLocalizedString;
 
 public class TestTriangle extends TestCase {
@@ -23,11 +21,11 @@ public class TestTriangle extends TestCase {
         Coordinate c1 = new Coordinate(-122.575033, 45.456773);
         Coordinate c2 = new Coordinate(-122.576668, 45.451426);
 
-        StreetVertex v1 = new IntersectionVertex(null, "v1", c1.x, c1.y, (NonLocalizedString)null);
-        StreetVertex v2 = new IntersectionVertex(null, "v2", c2.x, c2.y, (NonLocalizedString)null);
+        StreetVertex v1 = new IntersectionVertex(null, "v1", c1.x, c1.y, (NonLocalizedString) null);
+        StreetVertex v2 = new IntersectionVertex(null, "v2", c2.x, c2.y, (NonLocalizedString) null);
 
         GeometryFactory factory = new GeometryFactory();
-        LineString geometry = factory.createLineString(new Coordinate[] { c1, c2 });
+        LineString geometry = factory.createLineString(new Coordinate[]{c1, c2});
 
         double length = 650.0;
 
@@ -35,9 +33,9 @@ public class TestTriangle extends TestCase {
                 StreetTraversalPermission.ALL, false);
         testStreet.setBicycleSafetyFactor(0.74f); // a safe street
 
-        Coordinate[] profile = new Coordinate[] { 
+        Coordinate[] profile = new Coordinate[]{
                 new Coordinate(0, 0), // slope = 0.1
-                new Coordinate(length / 2, length / 20.0), 
+                new Coordinate(length / 2, length / 20.0),
                 new Coordinate(length, 0) // slope = -0.1
         };
         PackedCoordinateSequence elev = new PackedCoordinateSequence.Double(profile);
@@ -83,7 +81,7 @@ public class TestTriangle extends TestCase {
         double expectedSafetyWeight = (trueLength * 0.74 + slopeSafety) / options.getSpeed(TraverseMode.BICYCLE);
         assertTrue(Math.abs(expectedSafetyWeight - safetyWeight) < 0.00001);
 
-        final double ONE_THIRD = 1/3.0;
+        final double ONE_THIRD = 1 / 3.0;
         options.setTriangleSafetyFactor(ONE_THIRD);
         options.setTriangleSlopeFactor(ONE_THIRD);
         options.setTriangleTimeFactor(ONE_THIRD);

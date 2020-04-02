@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
  * This abstract class implements logic that is shared between all polling updaters.
  * Usage example ('polling' name is an example and 'polling-updater' should be the type of a
  * concrete class derived from this abstract class):
- * 
+ *
  * <pre>
  * polling.type = polling-updater
  * polling.frequencySec = 60
  * </pre>
- * 
+ *
  * @see GraphUpdater
  */
 public abstract class PollingGraphUpdater implements GraphUpdater {
@@ -28,13 +28,19 @@ public abstract class PollingGraphUpdater implements GraphUpdater {
      */
     abstract protected void runPolling() throws Exception;
 
-    /** Mirrors GraphUpdater.configure method. */
+    /**
+     * Mirrors GraphUpdater.configure method.
+     */
     abstract protected void configurePolling(Graph graph, JsonNode config) throws Exception;
 
-    /** How long to wait after polling to poll again. */
+    /**
+     * How long to wait after polling to poll again.
+     */
     protected Integer pollingPeriodSeconds;
 
-    /** The type name in the preferences JSON. FIXME String type codes seem like a red flag, should probably be removed. */
+    /**
+     * The type name in the preferences JSON. FIXME String type codes seem like a red flag, should probably be removed.
+     */
     private String type;
 
     @Override
@@ -65,9 +71,11 @@ public abstract class PollingGraphUpdater implements GraphUpdater {
         }
     }
 
-    /** Shared configuration code for all polling graph updaters. */
+    /**
+     * Shared configuration code for all polling graph updaters.
+     */
     @Override
-     public void configure (Graph graph, JsonNode config) throws Exception {
+    public void configure(Graph graph, JsonNode config) throws Exception {
         pollingPeriodSeconds = config.path("frequencySec").asInt(60);
         type = config.path("type").asText("");
         // Additional configuration for the concrete subclass

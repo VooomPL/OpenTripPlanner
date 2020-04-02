@@ -40,7 +40,7 @@ public class IntersectionTransitLink extends Edge {
         RoutingRequest options = s0.getOptions();
         StateEditor s1 = s0.edit(this);
 
-        boolean cycling = options.modes.contains(TraverseMode.BICYCLE) && !options.walkingBike;		
+        boolean cycling = options.modes.contains(TraverseMode.BICYCLE) && !options.walkingBike;
         double speed = cycling ? options.bikeSpeed : options.walkSpeed;
 
         // speed in m/s, length in mm, so we divide by 1000 to get seconds
@@ -58,10 +58,10 @@ public class IntersectionTransitLink extends Edge {
     }
 
     @Override
-    public LineString getGeometry () {
+    public LineString getGeometry() {
         GeometryFactory gf = GeometryUtils.getGeometryFactory();
         // TODO hack so these appear in paths and the visualizer.
-        return gf.createLineString(new Coordinate[] { fromv.getCoordinate(), tov.getCoordinate()});
+        return gf.createLineString(new Coordinate[]{fromv.getCoordinate(), tov.getCoordinate()});
     }
 
 

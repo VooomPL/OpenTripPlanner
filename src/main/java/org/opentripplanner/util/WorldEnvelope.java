@@ -8,7 +8,6 @@ import java.io.Serializable;
 /**
  * This class calculates borders of envelopes that can be also on 180th meridian
  * The same way as it was previously calculated in GraphMetadata constructor
- *
  */
 public class WorldEnvelope implements Serializable {
 
@@ -52,7 +51,7 @@ public class WorldEnvelope implements Serializable {
 
     /**
      * Calculates lower/upper right/left latitude and longitude of all the coordintes
-     *
+     * <p>
      * This takes into account that envelope can extends over 180th meridian
      */
     private void calculateCoordinates() {

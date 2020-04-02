@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Transport Network Visualizer</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.4/leaflet.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.4/leaflet.css"/>
     <script src="http://cdn.leafletjs.com/leaflet-0.7.4/leaflet.js"></script>
-  </head>
-  <body>
-    <div id="map" style="width: 1200px; height: 900px">
-    </div>
-    <script type="text/javascript">
+</head>
+<body>
+<div id="map" style="width: 1200px; height: 900px">
+</div>
+<script type="text/javascript">
       function updateMap () {
         if (window.map.layers) {
           window.map.layers.forEach(function (layer) {
@@ -43,6 +43,7 @@
 
       window.map.on('moveend', updateMap);
       updateMap();
-    </script>
-  </body>
+
+</script>
+</body>
 </html>

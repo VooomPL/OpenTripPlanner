@@ -13,10 +13,14 @@ import java.util.Collection;
 public class AdjustDwellTime extends TripFilter {
     public static final long serialVersionUID = 1L;
 
-    /** Stops for which to set the dwell time */
+    /**
+     * Stops for which to set the dwell time
+     */
     public Collection<String> stopId;
 
-    /** new dwell time in seconds */
+    /**
+     * new dwell time in seconds
+     */
     public int dwellTime;
 
     @Override

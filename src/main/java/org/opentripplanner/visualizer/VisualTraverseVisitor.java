@@ -13,9 +13,9 @@ public class VisualTraverseVisitor implements TraverseVisitor {
 
     private final int SLEEP_AFTER = 50;
     private final int SLEEP_LEN = 2;
-    
+
     private int sleepAfter = SLEEP_AFTER;
-    
+
     public VisualTraverseVisitor(ShowGraph gui) {
         this.gui = gui;
     }
@@ -28,8 +28,8 @@ public class VisualTraverseVisitor implements TraverseVisitor {
 
     @Override
     public void visitVertex(State state) {
-    	// every SLEEP_AFTER visits of a vertex, sleep for SLEEP_LEN
-    	// this slows down the search so it animates prettily
+        // every SLEEP_AFTER visits of a vertex, sleep for SLEEP_LEN
+        // this slows down the search so it animates prettily
         if (--sleepAfter <= 0) {
             sleepAfter = SLEEP_AFTER;
             try {
@@ -38,7 +38,7 @@ public class VisualTraverseVisitor implements TraverseVisitor {
                 LOG.warn("interrupted", e);
             }
         }
-        gui.addNewSPTEdge( state );
+        gui.addNewSPTEdge(state);
     }
 
     @Override
@@ -48,5 +48,5 @@ public class VisualTraverseVisitor implements TraverseVisitor {
 //            gui.enqueueHighlightedEdge((Edge) e);
 //        }
     }
-    
+
 }

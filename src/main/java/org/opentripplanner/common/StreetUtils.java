@@ -25,8 +25,8 @@ public class StreetUtils {
     private static Logger LOG = LoggerFactory.getLogger(StreetUtils.class);
     private static int islandCounter = 0;
 
-    public static void pruneFloatingIslands(Graph graph, int maxIslandSize, 
-            int islandWithStopMaxSize, String islandLogName) {
+    public static void pruneFloatingIslands(Graph graph, int maxIslandSize,
+                                            int islandWithStopMaxSize, String islandLogName) {
         LOG.debug("pruning");
         PrintWriter islandLog = null;
         if (islandLogName != null && !islandLogName.isEmpty()) {
@@ -37,7 +37,7 @@ public class StreetUtils {
             }
         }
         if (islandLog != null) {
-            islandLog.printf("%s\t%s\t%s\t%s\t%s\n","id","stopCount", "streetCount","wkt" ,"hadRemoved");
+            islandLog.printf("%s\t%s\t%s\t%s\t%s\n", "id", "stopCount", "streetCount", "wkt", "hadRemoved");
         }
         Map<Vertex, Subgraph> subgraphs = new HashMap<Vertex, Subgraph>();
         Map<Vertex, ArrayList<Vertex>> neighborsForVertex = new HashMap<Vertex, ArrayList<Vertex>>();
@@ -52,8 +52,8 @@ public class StreetUtils {
             State s0 = new State(gv, options);
             for (Edge e : gv.getOutgoing()) {
                 Vertex in = gv;
-                if (!(e instanceof StreetEdge || e instanceof StreetTransitLink || 
-                      e instanceof ElevatorEdge || e instanceof FreeEdge)) {
+                if (!(e instanceof StreetEdge || e instanceof StreetTransitLink ||
+                        e instanceof ElevatorEdge || e instanceof FreeEdge)) {
                     continue;
                 }
                 State s1 = e.traverse(s0);
@@ -92,8 +92,8 @@ public class StreetUtils {
                 continue;
             }
             Subgraph subgraph = computeConnectedSubgraph(neighborsForVertex, vertex);
-            if (subgraph != null){
-                for (Iterator<Vertex> vIter = subgraph.streetIterator(); vIter.hasNext();) {
+            if (subgraph != null) {
+                for (Iterator<Vertex> vIter = subgraph.streetIterator(); vIter.hasNext(); ) {
                     Vertex subnode = vIter.next();
                     subgraphs.put(subnode, subgraph);
                 }
@@ -104,14 +104,14 @@ public class StreetUtils {
         /* remove all tiny subgraphs and large subgraphs without stops */
         for (Subgraph island : islands) {
             boolean hadRemoved = false;
-            if(island.stopSize() > 0){
-            //for islands with stops
+            if (island.stopSize() > 0) {
+                //for islands with stops
                 if (island.streetSize() < islandWithStopMaxSize) {
                     depedestrianizeOrRemove(graph, island);
                     hadRemoved = true;
                 }
-            }else{
-            //for islands without stops
+            } else {
+                //for islands without stops
                 if (island.streetSize() < maxIslandSize) {
                     depedestrianizeOrRemove(graph, island);
                     hadRemoved = true;
@@ -128,7 +128,7 @@ public class StreetUtils {
 
     private static void depedestrianizeOrRemove(Graph graph, Subgraph island) {
         //iterate over the street vertex of the subgraph
-        for (Iterator<Vertex> vIter = island.streetIterator(); vIter.hasNext();) {
+        for (Iterator<Vertex> vIter = island.streetIterator(); vIter.hasNext(); ) {
             Vertex v = vIter.next();
             Collection<Edge> outgoing = new ArrayList<Edge>(v.getOutgoing());
             for (Edge e : outgoing) {
@@ -146,14 +146,14 @@ public class StreetUtils {
             }
         }
 
-        for (Iterator<Vertex> vIter = island.streetIterator(); vIter.hasNext();) {
+        for (Iterator<Vertex> vIter = island.streetIterator(); vIter.hasNext(); ) {
             Vertex v = vIter.next();
             if (v.getDegreeOut() + v.getDegreeIn() == 0) {
                 graph.remove(v);
             }
         }
         //remove street conncetion form
-        for (Iterator<Vertex> vIter = island.stopIterator(); vIter.hasNext();) {
+        for (Iterator<Vertex> vIter = island.stopIterator(); vIter.hasNext(); ) {
             Vertex v = vIter.next();
             Collection<Edge> edges = new ArrayList<Edge>(v.getOutgoing());
             edges.addAll(v.getIncoming());
@@ -185,12 +185,12 @@ public class StreetUtils {
 //        return null;
     }
 
-    private static void WriteNodesInSubGraph(Subgraph subgraph, PrintWriter islandLog, boolean hadRemoved){
+    private static void WriteNodesInSubGraph(Subgraph subgraph, PrintWriter islandLog, boolean hadRemoved) {
         Geometry convexHullGeom = subgraph.getConvexHull();
         if (convexHullGeom != null && !(convexHullGeom instanceof Polygon)) {
-            convexHullGeom = convexHullGeom.buffer(0.0001,5);
+            convexHullGeom = convexHullGeom.buffer(0.0001, 5);
         }
-        islandLog.printf("%d\t%d\t%d\t%s\t%b\n", islandCounter, subgraph.stopSize(), 
+        islandLog.printf("%d\t%d\t%d\t%s\t%b\n", islandCounter, subgraph.stopSize(),
                 subgraph.streetSize(), convexHullGeom, hadRemoved);
         islandCounter++;
     }

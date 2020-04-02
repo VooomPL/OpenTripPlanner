@@ -1,14 +1,5 @@
 package org.opentripplanner.updater.bike_rental;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.linking.SimpleStreetSplitter;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
@@ -23,6 +14,8 @@ import org.opentripplanner.updater.JsonConfigurable;
 import org.opentripplanner.updater.PollingGraphUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
@@ -53,7 +46,7 @@ public class BikeRentalUpdater extends PollingGraphUpdater {
     }
 
     @Override
-    protected void configurePolling (Graph graph, JsonNode config) throws Exception {
+    protected void configurePolling(Graph graph, JsonNode config) throws Exception {
 
         // Set data source type from config JSON
         String sourceType = config.path("sourceType").asText();
@@ -150,7 +143,7 @@ public class BikeRentalUpdater extends PollingGraphUpdater {
             this.stations = stations;
         }
 
-		@Override
+        @Override
         public void run(Graph graph) {
             // Apply stations to graph
             Set<BikeRentalStation> stationSet = new HashSet<>();

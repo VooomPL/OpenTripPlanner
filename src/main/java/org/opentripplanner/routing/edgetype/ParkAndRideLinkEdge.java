@@ -1,5 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
@@ -11,13 +13,11 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.ParkAndRideVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * This represents the connection between a P+R and the street access.
- * 
+ *
  * @author laurent
  */
 public class ParkAndRideLinkEdge extends Edge {
@@ -46,7 +46,9 @@ public class ParkAndRideLinkEdge extends Edge {
     @SuppressWarnings("unused")
     private LineString geometry = null;
 
-    /** The estimated distance between the center of the P+R envelope and the street access. */
+    /**
+     * The estimated distance between the center of the P+R envelope and the street access.
+     */
     private double linkDistance;
 
     public ParkAndRideLinkEdge(ParkAndRideVertex from, Vertex to) {
@@ -67,7 +69,7 @@ public class ParkAndRideLinkEdge extends Edge {
         Coordinate fromc = fromv.getCoordinate();
         Coordinate toc = tov.getCoordinate();
         geometry = GeometryUtils.getGeometryFactory().createLineString(
-                new Coordinate[] { fromc, toc });
+                new Coordinate[]{fromc, toc});
         linkDistance = SphericalDistanceLibrary.distance(fromc, toc);
     }
 
@@ -86,7 +88,7 @@ public class ParkAndRideLinkEdge extends Edge {
     @Override
     public State traverse(State s0) {
         // Do not enter park and ride mechanism if it's not activated in the routing request.
-        if ( ! s0.getOptions().parkAndRide) {
+        if (!s0.getOptions().parkAndRide) {
             return null;
         }
         Edge backEdge = s0.getBackEdge();

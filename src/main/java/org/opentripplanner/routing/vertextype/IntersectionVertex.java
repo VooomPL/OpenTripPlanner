@@ -21,12 +21,14 @@ public class IntersectionVertex extends StreetVertex {
      */
     public boolean freeFlowing;
 
-    /** Returns true if this.freeFlowing or if it appears that this vertex is free-flowing */
+    /**
+     * Returns true if this.freeFlowing or if it appears that this vertex is free-flowing
+     */
     public boolean inferredFreeFlowing() {
         if (this.freeFlowing) {
             return true;
         }
-        
+
         return getDegreeIn() == 1 && getDegreeOut() == 1 && !this.trafficLight;
     }
 

@@ -25,14 +25,17 @@ public final class Trip extends IdentityBean<FeedScopedId> {
 
     private int wheelchairAccessible = 0;
 
-    @Deprecated private int tripBikesAllowed = 0;
+    @Deprecated
+    private int tripBikesAllowed = 0;
 
     /**
      * 0 = unknown / unspecified, 1 = bikes allowed, 2 = bikes NOT allowed
      */
     private int bikesAllowed = 0;
 
-    /** Custom extension for KCM to specify a fare per-trip */
+    /**
+     * Custom extension for KCM to specify a fare per-trip
+     */
     private String fareId;
 
     private String drtMaxTravelTime;

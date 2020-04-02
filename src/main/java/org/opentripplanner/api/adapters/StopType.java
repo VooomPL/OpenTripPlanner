@@ -1,17 +1,15 @@
 package org.opentripplanner.api.adapters;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Stop;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.opentripplanner.model.FeedScopedId;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.opentripplanner.model.Stop;
+import java.util.List;
 
 @XmlRootElement(name = "Stop")
 public class StopType {

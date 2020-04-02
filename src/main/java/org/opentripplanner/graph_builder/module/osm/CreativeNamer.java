@@ -14,7 +14,7 @@ public class CreativeNamer {
      * A creative name pattern is a template which may contain variables of the form {{tag_name}}.
      * When a way's creative name is created, the value of its tag tag_name is substituted for the
      * variable.
-     * 
+     * <p>
      * For example, "Highway with surface {{surface}}" might become "Highway with surface gravel"
      */
     private String creativeNamePattern;
@@ -25,7 +25,7 @@ public class CreativeNamer {
 
     public CreativeNamer() {
     }
-   
+
     public I18NString generateCreativeName(OSMWithTags way) {
         return new LocalizedString(creativeNamePattern, way);
     }

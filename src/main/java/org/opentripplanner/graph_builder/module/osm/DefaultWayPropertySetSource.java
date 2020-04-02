@@ -6,22 +6,22 @@ import org.opentripplanner.routing.services.notes.StreetNotesService;
 /**
  * This factory class provides a default collection of {@link WayProperties} that determine how OSM streets can be
  * traversed in various modes.
- *
+ * <p>
  * Circa January 2011, Grant and Mele at TriMet undertook proper testing of bike (and transit) routing, and worked
  * with David Turner on assigning proper weights to different facility types. The weights in this file grew organically
  * from trial and error, and are the result of months of testing and tweaking the routes that OTP returned, as well as
  * actually walking/biking these routes and making changes based on those experiences. This set of weights should be
  * a great starting point for others to use, but they are to some extent tailored to the situation in Portland and
  * people shouldn't hesitate to adjust them to for their own instance.
- *
+ * <p>
  * The rules for assigning WayProperties to OSM ways are explained in. The final tie breaker if two Pickers both match
  * is the sequence that the properties are added in this file: if all else is equal the 'props.setProperties' statement that
  * is closer to the top of the page will prevail over those lower down the page.
- *
+ * <p>
  * Foot and bicycle permissions are also addressed in OpenStreetMapGraphBuilderImpl.Handler#getPermissionsForEntity().
  * For instance, if a way that normally does not permit walking based on its tag matches (the prevailing 'props.setProperties'
  * statement) has a 'foot=yes' tag the permissions are overridden and walking is allowed on that way.
- *
+ * <p>
  * TODO clarify why this needs a separate factory interface.
  *
  * @author bdferris, novalis
@@ -39,7 +39,7 @@ public class DefaultWayPropertySetSource implements WayPropertySetSource {
         props.setProperties("highway=construction", StreetTraversalPermission.NONE);
 
         /* PEDESTRIAN */
-		props.setProperties("highway=corridor", StreetTraversalPermission.PEDESTRIAN);
+        props.setProperties("highway=corridor", StreetTraversalPermission.PEDESTRIAN);
         props.setProperties("highway=steps", StreetTraversalPermission.PEDESTRIAN);
         props.setProperties("highway=crossing", StreetTraversalPermission.PEDESTRIAN);
         props.setProperties("highway=platform", StreetTraversalPermission.PEDESTRIAN);

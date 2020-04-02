@@ -21,7 +21,6 @@ import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -42,7 +41,8 @@ public class TestIntermediatePlaces {
 
     private static GraphPathFinder graphPathFinder;
 
-    @BeforeClass public static void setUp() {
+    @BeforeClass
+    public static void setUp() {
         try {
             Graph graph = FakeGraph.buildGraphNoTransit();
             FakeGraph.addPerpendicularRoutes(graph);
@@ -61,7 +61,8 @@ public class TestIntermediatePlaces {
         }
     }
 
-    @Test public void testWithoutIntermediatePlaces() {
+    @Test
+    public void testWithoutIntermediatePlaces() {
         GenericLocation fromLocation = new GenericLocation(39.93080, -82.98522);
         GenericLocation toLocation = new GenericLocation(39.96383, -82.96291);
         GenericLocation[] intermediateLocations = {};
@@ -70,16 +71,20 @@ public class TestIntermediatePlaces {
         handleRequest(fromLocation, toLocation, intermediateLocations, "WALK", true);
     }
 
-    @Test @Ignore public void testOneIntermediatePlace() {
+    @Test
+    @Ignore
+    public void testOneIntermediatePlace() {
         GenericLocation fromLocation = new GenericLocation(39.93080, -82.98522);
         GenericLocation toLocation = new GenericLocation(39.96383, -82.96291);
-        GenericLocation[] intermediateLocations = { new GenericLocation(39.92099, -82.95570) };
+        GenericLocation[] intermediateLocations = {new GenericLocation(39.92099, -82.95570)};
 
         handleRequest(fromLocation, toLocation, intermediateLocations, "WALK", false);
         handleRequest(fromLocation, toLocation, intermediateLocations, "WALK", true);
     }
 
-    @Test @Ignore public void testTwoIntermediatePlaces() {
+    @Test
+    @Ignore
+    public void testTwoIntermediatePlaces() {
         GenericLocation fromLocation = new GenericLocation(39.93080, -82.98522);
         GenericLocation toLocation = new GenericLocation(39.96383, -82.96291);
         GenericLocation[] intermediateLocations = new GenericLocation[2];
@@ -90,7 +95,8 @@ public class TestIntermediatePlaces {
         handleRequest(fromLocation, toLocation, intermediateLocations, "CAR", true);
     }
 
-    @Test public void testTransitWithoutIntermediatePlaces() {
+    @Test
+    public void testTransitWithoutIntermediatePlaces() {
         GenericLocation fromLocation = new GenericLocation(39.9308, -83.0118);
         GenericLocation toLocation = new GenericLocation(39.9998, -83.0198);
         GenericLocation[] intermediateLocations = {};
@@ -99,25 +105,28 @@ public class TestIntermediatePlaces {
         handleRequest(fromLocation, toLocation, intermediateLocations, "TRANSIT,WALK", true);
     }
 
-    @Test public void testThreeBusStopPlaces() {
+    @Test
+    public void testThreeBusStopPlaces() {
         GenericLocation fromLocation = new GenericLocation(39.9058, -83.1341);
         GenericLocation toLocation = new GenericLocation(39.9058, -82.8841);
-        GenericLocation[] intermediateLocations = { new GenericLocation(39.9058, -82.9841) };
+        GenericLocation[] intermediateLocations = {new GenericLocation(39.9058, -82.9841)};
 
         handleRequest(fromLocation, toLocation, intermediateLocations, "TRANSIT", false);
         handleRequest(fromLocation, toLocation, intermediateLocations, "TRANSIT", true);
     }
 
-    @Test public void testTransitOneIntermediatePlace() {
+    @Test
+    public void testTransitOneIntermediatePlace() {
         GenericLocation fromLocation = new GenericLocation(39.9108, -83.0118);
         GenericLocation toLocation = new GenericLocation(39.9698, -83.0198);
-        GenericLocation[] intermediateLocations = { new GenericLocation(39.9948, -83.0148) };
+        GenericLocation[] intermediateLocations = {new GenericLocation(39.9948, -83.0148)};
 
         handleRequest(fromLocation, toLocation, intermediateLocations, "TRANSIT,WALK", false);
         handleRequest(fromLocation, toLocation, intermediateLocations, "TRANSIT,WALK", true);
     }
 
-    @Test public void testTransitTwoIntermediatePlaces() {
+    @Test
+    public void testTransitTwoIntermediatePlaces() {
         GenericLocation fromLocation = new GenericLocation(39.9908, -83.0118);
         GenericLocation toLocation = new GenericLocation(39.9998, -83.0198);
         GenericLocation[] intermediateLocations = new GenericLocation[2];
@@ -129,7 +138,7 @@ public class TestIntermediatePlaces {
     }
 
     private void handleRequest(GenericLocation from, GenericLocation to, GenericLocation[] via,
-        String modes, boolean arriveBy) {
+                               String modes, boolean arriveBy) {
         RoutingRequest request = new RoutingRequest(modes);
         request.setDateTime("2016-04-20", "13:00", timeZone);
         request.setArriveBy(arriveBy);
@@ -166,11 +175,11 @@ public class TestIntermediatePlaces {
             Leg leg;
             do {
                 assertTrue("Intermediate location was not an endpoint of any leg",
-                    legIndex < itinerary.legs.size());
+                        legIndex < itinerary.legs.size());
                 leg = itinerary.legs.get(legIndex);
                 legIndex++;
             } while (Math.abs(leg.to.lat - location.lat) > DELTA
-                || Math.abs(leg.to.lon - location.lng) > DELTA);
+                    || Math.abs(leg.to.lon - location.lng) > DELTA);
         }
     }
 

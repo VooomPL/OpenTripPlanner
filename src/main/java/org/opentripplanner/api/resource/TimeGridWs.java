@@ -1,13 +1,11 @@
 package org.opentripplanner.api.resource;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Date;
-import java.util.Locale;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Response;
-
+import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLineHelper;
+import ar.com.hjg.pngj.ImageLineInt;
+import ar.com.hjg.pngj.PngWriter;
+import ar.com.hjg.pngj.chunks.PngChunkTEXT;
+import ar.com.hjg.pngj.chunks.PngChunkTextVar;
 import org.apache.commons.codec.binary.Base64;
 import org.opentripplanner.analyst.request.SampleGridRenderer.WTWD;
 import org.opentripplanner.analyst.request.SampleGridRequest;
@@ -20,22 +18,22 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ar.com.hjg.pngj.ImageInfo;
-import ar.com.hjg.pngj.ImageLineHelper;
-import ar.com.hjg.pngj.ImageLineInt;
-import ar.com.hjg.pngj.PngWriter;
-import ar.com.hjg.pngj.chunks.PngChunkTEXT;
-import ar.com.hjg.pngj.chunks.PngChunkTextVar;
+import javax.ws.rs.*;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayOutputStream;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * A Jersey web service resource class that returns a grid with time for a set of points.
- * 
+ * <p>
  * Example of request:
- * 
+ *
  * <code>
  * http://localhost:8080/otp/routers/bordeaux/timegrid?fromPlace=47.059,-0.880&date=2013/10/01&time=12:00:00&maxWalkDistance=1000&maxTimeSec=3600&mode=WALK,TRANSIT
  * </code>
- * 
+ *
  * @author laurent
  */
 @Path("/routers/{routerId}/timegrid")
@@ -75,7 +73,7 @@ public class TimeGridWs extends RoutingResource {
     private static final String OTPA_OFFROAD_DIST = "OTPA-OffRoad-Dist";
 
     @GET
-    @Produces({ "image/png" })
+    @Produces({"image/png"})
     public Response getTimeGridPng(@QueryParam("base64") @DefaultValue("false") boolean base64) throws Exception {
 
         /* Fetch the Router for this request using server and routerId fields from superclass. */
@@ -96,7 +94,7 @@ public class TimeGridWs extends RoutingResource {
             tgRequest.coordinateOrigin = new GenericLocation(null, coordinateOrigin).getCoordinate();
 
         // Get a sample grid
-		ZSampleGrid<WTWD> sampleGrid = router.sampleGridRenderer.getSampleGrid(tgRequest, sptRequest);
+        ZSampleGrid<WTWD> sampleGrid = router.sampleGridRenderer.getSampleGrid(tgRequest, sptRequest);
 
         int cols = sampleGrid.getXMax() - sampleGrid.getXMin() + 1;
         int rows = sampleGrid.getYMax() - sampleGrid.getYMin() + 1;
@@ -137,17 +135,17 @@ public class TimeGridWs extends RoutingResource {
 
         double unit;
         switch (zDataType) {
-        case TIME:
-            unit = 1.0; // 1:1sec, max 18h
-            break;
-        case BOARDINGS:
-            unit = 1000.0; // 1:0.001 boarding, max 65.5
-            break;
-        case WALK_DISTANCE:
-            unit = 10.0; // 1:0.1m, max 6.55km
-            break;
-        default:
-            throw new IllegalArgumentException("Unsupported Z DataType.");
+            case TIME:
+                unit = 1.0; // 1:1sec, max 18h
+                break;
+            case BOARDINGS:
+                unit = 1000.0; // 1:0.001 boarding, max 65.5
+                break;
+            case WALK_DISTANCE:
+                unit = 10.0; // 1:0.1m, max 6.55km
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported Z DataType.");
         }
 
         for (ZSamplePoint<WTWD> p : sampleGrid) {
@@ -156,17 +154,17 @@ public class TimeGridWs extends RoutingResource {
             int col = p.getX() - sampleGrid.getXMin();
             double zz;
             switch (zDataType) {
-            case TIME:
-                zz = z.wTime / z.w;
-                break;
-            case BOARDINGS:
-                zz = z.wBoardings / z.w;
-                break;
-            case WALK_DISTANCE:
-                zz = z.wWalkDist / z.w;
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported Z DataType.");
+                case TIME:
+                    zz = z.wTime / z.w;
+                    break;
+                case BOARDINGS:
+                    zz = z.wBoardings / z.w;
+                    break;
+                case WALK_DISTANCE:
+                    zz = z.wWalkDist / z.w;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported Z DataType.");
             }
             int iz;
             if (Double.isInfinite(zz)) {

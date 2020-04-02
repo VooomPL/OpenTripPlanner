@@ -9,10 +9,7 @@ import org.onebusaway.gtfs.model.Route;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class FareRuleMapperTest {
     private static final org.onebusaway.gtfs.model.FareRule FARE_RULE = new org.onebusaway.gtfs.model.FareRule();
@@ -75,7 +72,9 @@ public class FareRuleMapperTest {
         assertNull(result.getRoute());
     }
 
-    /** Mapping the same object twice, should return the the same instance. */
+    /**
+     * Mapping the same object twice, should return the the same instance.
+     */
     @Test
     public void testMapCache() throws Exception {
         org.opentripplanner.model.FareRule result1 = subject.map(FARE_RULE);

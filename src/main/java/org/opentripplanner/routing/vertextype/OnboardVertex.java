@@ -10,7 +10,7 @@ public abstract class OnboardVertex extends TransitVertex {
 
     private final TripPattern tripPattern; // set to null for non-pattern vertices
     // (or just use patterns for everything, eliminating simple hops)
-    
+
     public OnboardVertex(Graph g, String label, TripPattern tripPattern, Stop stop) {
         super(g, label, stop);
         this.tripPattern = tripPattern;
@@ -19,5 +19,5 @@ public abstract class OnboardVertex extends TransitVertex {
     public TripPattern getTripPattern() {
         return tripPattern;
     }
-    
+
 }

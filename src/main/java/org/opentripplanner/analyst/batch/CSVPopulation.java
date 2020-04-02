@@ -15,21 +15,21 @@ public class CSVPopulation extends BasicPopulation {
     private static final Logger LOG = LoggerFactory.getLogger(CSVPopulation.class);
 
     public int yCol = 0;
-    
+
     public void setLatCol(int latCol) {
-    	yCol = latCol;
+        yCol = latCol;
     }
 
     public int xCol = 1;
 
     public void setLonCol(int lonCol) {
-    	xCol = lonCol;
+        xCol = lonCol;
     }
-    
+
     public int labelCol = 2;
 
     public int inputCol = 3;
-    
+
     public String crs = null;
 
     public boolean skipHeaders = true;
@@ -82,15 +82,14 @@ public class CSVPopulation extends BasicPopulation {
                     // x: lat, y: lon. This seems backwards but is the way Geotools does it. 
                     if (latLon) {
                         lon = transformed.getY();
-                        lat = transformed.getX();	
-                    } 
+                        lat = transformed.getX();
+                    }
                     // x: lon, y: lat
                     else {
                         lon = transformed.getX();
                         lat = transformed.getY();
                     }
-                }                	
-                else {
+                } else {
                     lon = x;
                     lat = y;
                 }

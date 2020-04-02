@@ -1,21 +1,9 @@
 package org.opentripplanner.routing.trippattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Trip;
 import org.opentripplanner.gtfs.BikeAccess;
+import org.opentripplanner.model.*;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.ServiceDay;
 import org.opentripplanner.routing.core.State;
@@ -24,7 +12,13 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.SimpleConcreteVertex;
 import org.opentripplanner.routing.graph.Vertex;
 
-import static org.mockito.Mockito.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TripTimesTest {
     private static final FeedScopedId tripId = new FeedScopedId("agency", "testtrip");
@@ -39,7 +33,7 @@ public class TripTimesTest {
     private static final FeedScopedId stop_h = new FeedScopedId("agency", "H"); // 7
 
     private static final FeedScopedId[] stops =
-        {stop_a, stop_b, stop_c, stop_d, stop_e, stop_f, stop_g, stop_h};
+            {stop_a, stop_b, stop_c, stop_d, stop_e, stop_f, stop_g, stop_h};
 
     private static final TripTimes originalTripTimes;
 
@@ -49,7 +43,7 @@ public class TripTimesTest {
 
         List<StopTime> stopTimes = new LinkedList<StopTime>();
 
-        for(int i =  0; i < stops.length; ++i) {
+        for (int i = 0; i < stops.length; ++i) {
             StopTime stopTime = new StopTime();
 
             Stop stop = new Stop();

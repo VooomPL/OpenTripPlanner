@@ -1,44 +1,36 @@
 package org.opentripplanner.updater;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+
 /**
  * This class is attached to the graph:
- * 
+ *
  * <pre>
  * GraphUpdaterManager updaterManager = graph.getUpdaterManager();
  * </pre>
- * 
+ * <p>
  * Each updater will run in its own thread. When changes to the graph have to be made by these
  * updaters, this should be done via the execute method of this manager to prevent race conditions
  * between graph write operations.
- * 
  */
 public class GraphUpdaterManager {
 
     private static Logger LOG = LoggerFactory.getLogger(GraphUpdaterManager.class);
-    
+
     /**
      * Text used for naming threads when the graph lacks a routerId.
      */
     private static String DEFAULT_ROUTER_ID = "(default)";
-    
+
     /**
      * Thread factory used to create new threads, giving them more human-readable names including the routerId.
      */
@@ -72,15 +64,16 @@ public class GraphUpdaterManager {
 
     /**
      * Constructor.
+     *
      * @param graph is the Graph that will be updated.
      */
     public GraphUpdaterManager(Graph graph) {
         this.graph = graph;
-        
+
         String routerId = graph.routerId;
-        if(routerId == null || routerId.isEmpty())
+        if (routerId == null || routerId.isEmpty())
             routerId = DEFAULT_ROUTER_ID;
-        
+
         threadFactory = new ThreadFactoryBuilder().setNameFormat("GraphUpdater-" + routerId + "-%d").build();
         scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
         updaterPool = Executors.newCachedThreadPool(threadFactory);
@@ -122,7 +115,7 @@ public class GraphUpdaterManager {
 
     /**
      * Adds an updater to the manager and runs it immediately in its own thread.
-     * 
+     *
      * @param updater is the updater to add and run
      */
     public void addUpdater(final GraphUpdater updater) {
@@ -133,7 +126,7 @@ public class GraphUpdaterManager {
      * This is the method to use to modify the graph from the updaters. The runnables will be
      * scheduled after each other, guaranteeing that only one of these runnables will be active at
      * any time.
-     * 
+     *
      * @param runnable is a graph writer runnable
      */
     public void execute(GraphWriterRunnable runnable) {
@@ -171,7 +164,7 @@ public class GraphUpdaterManager {
      * Just an example of fetching status information from the graph updater manager to expose it in a web service.
      * More useful stuff should be added later.
      */
-    public Map<Integer, String> getUpdaterDescriptions () {
+    public Map<Integer, String> getUpdaterDescriptions() {
         Map<Integer, String> ret = Maps.newTreeMap();
         int i = 0;
         for (GraphUpdater updater : updaterList) {
@@ -184,7 +177,7 @@ public class GraphUpdaterManager {
      * Just an example of fetching status information from the graph updater manager to expose it in a web service.
      * More useful stuff should be added later.
      */
-    public GraphUpdater getUpdater (int id) {
+    public GraphUpdater getUpdater(int id) {
         if (id >= updaterList.size()) return null;
         return updaterList.get(id);
     }

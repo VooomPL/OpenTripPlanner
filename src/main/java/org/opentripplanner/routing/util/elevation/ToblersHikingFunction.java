@@ -91,7 +91,9 @@ public class ToblersHikingFunction {
      */
     private static final double A = 0.05;
 
-    /** The horizontal speed to maximum speed factor: Vmax = C * Vflat */
+    /**
+     * The horizontal speed to maximum speed factor: Vmax = C * Vflat
+     */
     private static final double C = 1 / Math.exp(E * A);
 
 
@@ -104,7 +106,7 @@ public class ToblersHikingFunction {
      *                                   for finding reasonable values for this constant.
      */
     public ToblersHikingFunction(double walkDistMultiplierMaxLimit) {
-        if(walkDistMultiplierMaxLimit < 1.0) {
+        if (walkDistMultiplierMaxLimit < 1.0) {
             throw new IllegalArgumentException("The 'walkDistMultiplierMaxLimit' is " + walkDistMultiplierMaxLimit +
                     ", but must be greater then 1.");
         }
@@ -113,12 +115,13 @@ public class ToblersHikingFunction {
 
     /**
      * Calculate a walking distance multiplier to account tor the slope penalty.
+     *
      * @param dx The horizontal walking distance
      * @param dh The vertical distance (height)
      */
     public double calculateHorizontalWalkingDistanceMultiplier(double dx, double dh) {
 
-        double  distanceMultiplier = 1.0 / (C * Math.exp(E * Math.abs(dh/dx + A)));
+        double distanceMultiplier = 1.0 / (C * Math.exp(E * Math.abs(dh / dx + A)));
 
         return distanceMultiplier < walkDistMultiplierMaxLimit ? distanceMultiplier : walkDistMultiplierMaxLimit;
     }

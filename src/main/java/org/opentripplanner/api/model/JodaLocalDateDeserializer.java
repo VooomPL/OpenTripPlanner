@@ -9,11 +9,14 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.IOException;
 
-/** serializer/deserializer for LocalDates to ISO dates, YYYY-MM-DD */
+/**
+ * serializer/deserializer for LocalDates to ISO dates, YYYY-MM-DD
+ */
 public class JodaLocalDateDeserializer extends JsonDeserializer<LocalDate> {
 
-    @Override public LocalDate deserialize(JsonParser jsonParser,
-            DeserializationContext deserializationContext)
+    @Override
+    public LocalDate deserialize(JsonParser jsonParser,
+                                 DeserializationContext deserializationContext)
             throws IOException, JsonProcessingException {
         return ISODateTimeFormat.date().parseLocalDate(jsonParser.getValueAsString());
     }

@@ -21,7 +21,7 @@ public class OSMFilter {
      * Determine whether any mode can or should ever traverse the given way. If not, we leave the
      * way out of the OTP graph. Potentially routable ways are those that have the tags : highway=*
      * public_transport=platform railway=platform
-     * 
+     * <p>
      * But not conveyers, proposed highways/roads or those still under construction, and raceways
      * (as well as ways where all access is specifically forbidden to the public).
      * http://wiki.openstreetmap.org/wiki/Tag:highway%3Dproposed
@@ -33,13 +33,13 @@ public class OSMFilter {
 
         String highway = way.getTag("highway");
         if (highway != null) {
-            if(
+            if (
                     highway.equals("conveyer") ||
-                    highway.equals("proposed") ||
-                    highway.equals("construction") ||
-                    highway.equals("razed") ||
-                    highway.equals("raceway") ||
-                    highway.equals("unbuilt")
+                            highway.equals("proposed") ||
+                            highway.equals("construction") ||
+                            highway.equals("razed") ||
+                            highway.equals("raceway") ||
+                            highway.equals("unbuilt")
             ) {
                 return false;
             }
@@ -72,13 +72,13 @@ public class OSMFilter {
     }
 
     public static StreetTraversalPermission getPermissionsForEntity(OSMWithTags entity,
-            StreetTraversalPermission def) {
+                                                                    StreetTraversalPermission def) {
         StreetTraversalPermission permission = null;
 
         /*
          * Only a few tags are examined here, because we only care about modes supported by OTP
          * (wheelchairs are not of concern here)
-         * 
+         *
          * Only a few values are checked for, all other values are presumed to be permissive (=>
          * This may not be perfect, but is closer to reality, since most people don't follow the
          * rules perfectly ;-)
@@ -129,29 +129,29 @@ public class OSMFilter {
 
     /**
      * Computes permissions for an OSMWay.
-     * 
+     *
      * @param way
      * @param def
      * @return
      */
     public static StreetTraversalPermission getPermissionsForWay(OSMWay way,
-            StreetTraversalPermission def, Graph graph, boolean banDiscouragedWalking, boolean banDiscouragedBiking) {
+                                                                 StreetTraversalPermission def, Graph graph, boolean banDiscouragedWalking, boolean banDiscouragedBiking) {
         StreetTraversalPermission permissions = getPermissionsForEntity(way, def);
 
         /*
          * pedestrian rules: everything is two-way (assuming pedestrians are allowed at all) bicycle
          * rules: default: permissions;
-         * 
+         *
          * cycleway=dismount means walk your bike -- the engine will automatically try walking bikes
          * any time it is forbidden to ride them, so the only thing to do here is to remove bike
          * permissions
-         * 
+         *
          * oneway=... sets permissions for cars and bikes oneway:bicycle overwrites these
          * permissions for bikes only
-         * 
+         *
          * now, cycleway=opposite_lane, opposite, opposite_track can allow once oneway has been set
          * by oneway:bicycle, but should give a warning if it conflicts with oneway:bicycle
-         * 
+         *
          * bicycle:backward=yes works like oneway:bicycle=no bicycle:backwards=no works like
          * oneway:bicycle=yes
          */
@@ -164,7 +164,7 @@ public class OSMFilter {
         }
 
         // Check for foot=discouraged, if applicable
-        if(banDiscouragedWalking && way.hasTag("foot") && way.getTag("foot").equals("discouraged")) {
+        if (banDiscouragedWalking && way.hasTag("foot") && way.getTag("foot").equals("discouraged")) {
             permissions = permissions.remove(StreetTraversalPermission.PEDESTRIAN);
         }
 
@@ -187,7 +187,7 @@ public class OSMFilter {
     }
 
     public static StreetTraversalPermission getPermissionsForWay(OSMWay way,
-            StreetTraversalPermission def, Graph graph) {
+                                                                 StreetTraversalPermission def, Graph graph) {
         return getPermissionsForWay(way, def, graph, false, false);
     }
 

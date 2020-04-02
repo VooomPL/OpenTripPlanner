@@ -1,15 +1,14 @@
 package org.opentripplanner.analyst.batch;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.nio.charset.Charset;
-
+import com.google.common.io.Files;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.google.common.io.Files;
+import java.io.File;
+import java.nio.charset.Charset;
+
+import static org.junit.Assert.assertEquals;
 
 public class CSVPopulationTest {
     @Rule
@@ -41,7 +40,9 @@ public class CSVPopulationTest {
         assertEquals(sbbg.lon, -119.70843, 0.00001);
     }
 
-    /** Test that untransformed coordinate systems work */
+    /**
+     * Test that untransformed coordinate systems work
+     */
     @Test
     public void testNoCoordinateTransform() throws Exception {
         File csvFile = temporaryFolder.newFile("noCoordinateTransform.csv");

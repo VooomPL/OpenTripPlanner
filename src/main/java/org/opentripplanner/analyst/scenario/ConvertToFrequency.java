@@ -36,19 +36,24 @@ public class ConvertToFrequency extends Modification {
 
     public String[] routeId;
 
-    @Override public String getType() {
+    @Override
+    public String getType() {
         return "convert-to-frequency";
     }
 
-    /** Windows in which to do the conversion, array of int[2] of startTimeSecs, endTimeSecs */
+    /**
+     * Windows in which to do the conversion, array of int[2] of startTimeSecs, endTimeSecs
+     */
     public int windowStart;
 
     public int windowEnd;
 
-    /** How to group trips for conversion to frequencies: by route, route and direction, or by trip pattern. */
+    /**
+     * How to group trips for conversion to frequencies: by route, route and direction, or by trip pattern.
+     */
     public ConversionGroup groupBy;
 
-    public void apply (List<FrequencyEntry> frequencyEntries, List<TripTimes> scheduledTrips, Graph graph, BitSet servicesRunning, RaptorWorkerTimetable.BoardingAssumption assumption) {
+    public void apply(List<FrequencyEntry> frequencyEntries, List<TripTimes> scheduledTrips, Graph graph, BitSet servicesRunning, RaptorWorkerTimetable.BoardingAssumption assumption) {
         // preserve existing frequency entries
         this.frequencyEntries.addAll(frequencyEntries);
 
@@ -64,17 +69,17 @@ public class ConvertToFrequency extends Modification {
                 String key;
 
                 switch (groupBy) {
-                case ROUTE_DIRECTION:
-                    key = tt.trip.getRoute().getId().getId() + "_" + tt.trip.getDirectionId();
-                    break;
-                case ROUTE:
-                    key = tt.trip.getRoute().getId().getId();
-                    break;
-                case PATTERN:
-                    key = graph.index.patternForTrip.get(tt.trip).getExemplar().getId().getId();
-                    break;
-                default:
-                    throw new RuntimeException("Unrecognized group by value");
+                    case ROUTE_DIRECTION:
+                        key = tt.trip.getRoute().getId().getId() + "_" + tt.trip.getDirectionId();
+                        break;
+                    case ROUTE:
+                        key = tt.trip.getRoute().getId().getId();
+                        break;
+                    case PATTERN:
+                        key = graph.index.patternForTrip.get(tt.trip).getExemplar().getId().getId();
+                        break;
+                    default:
+                        throw new RuntimeException("Unrecognized group by value");
                 }
 
                 tripsToConvert.put(key, tt);
@@ -85,7 +90,8 @@ public class ConvertToFrequency extends Modification {
         }
 
         // loop over all the groups and create frequency entries
-        GROUPS: for (Map.Entry<String, Collection<TripTimes>> e: tripsToConvert.asMap().entrySet()) {
+        GROUPS:
+        for (Map.Entry<String, Collection<TripTimes>> e : tripsToConvert.asMap().entrySet()) {
             // get just the running services
             List<TripTimes> group = e.getValue().stream()
                     .filter(tt -> servicesRunning.get(tt.serviceCode))
@@ -107,7 +113,7 @@ public class ConvertToFrequency extends Modification {
             int maxCount = 0;
             TripPattern tripPattern = null;
 
-            for (TObjectIntIterator<TripPattern> it = patternCount.iterator(); it.hasNext();) {
+            for (TObjectIntIterator<TripPattern> it = patternCount.iterator(); it.hasNext(); ) {
                 it.advance();
                 if (it.value() > maxCount) {
                     maxCount = it.value();
@@ -132,7 +138,7 @@ public class ConvertToFrequency extends Modification {
             // use a set to handle duplicated trips
             TIntSet arrivalTimes = new TIntHashSet();
 
-            for (boolean filter : new boolean[] { true, false }) {
+            for (boolean filter : new boolean[]{true, false}) {
                 for (TripTimes tt : group) {
                     TripPattern tp = graph.index.patternForTrip.get(tt.trip);
                     int arrivalTime = tt.getArrivalTime(tp.getStops().indexOf(stop));

@@ -1,23 +1,21 @@
 package org.opentripplanner.model.json_serialization;
 
-import java.io.IOException;
-
-
-import org.opentripplanner.routing.graph.Vertex;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.opentripplanner.routing.graph.Vertex;
+
+import java.io.IOException;
 
 
 /**
  * This serializes an object containing Edge objects, replacing any vertices with their (unique) labels
- * @see VertexSetJSONSerializer
- * @author novalis
  *
+ * @author novalis
+ * @see VertexSetJSONSerializer
  */
 public class EdgeSetJSONSerializer extends JsonSerializer<WithGraph> {
 
@@ -30,13 +28,13 @@ public class EdgeSetJSONSerializer extends JsonSerializer<WithGraph> {
 
         SimpleModule module = SerializerUtils.getSerializerModule();
         module.addSerializer(new VertexSerializer());
-        
+
         mapper.registerModule(module);
-        
+
         //configuring jgen to just use the mapper doesn't actually work
         jgen.writeRawValue(mapper.writeValueAsString(object.getObject()));
     }
-    
+
     class VertexSerializer extends JsonSerializer<Vertex> {
 
         @Override
@@ -44,11 +42,11 @@ public class EdgeSetJSONSerializer extends JsonSerializer<WithGraph> {
                 throws IOException, JsonProcessingException {
             jgen.writeObject(value.getLabel());
         }
-        
+
         @Override
         public Class<Vertex> handledType() {
             return Vertex.class;
         }
-        
+
     }
 }

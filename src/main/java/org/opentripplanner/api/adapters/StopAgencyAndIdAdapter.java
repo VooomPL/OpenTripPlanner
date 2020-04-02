@@ -1,9 +1,9 @@
 package org.opentripplanner.api.adapters;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class StopAgencyAndIdAdapter extends XmlAdapter<AgencyAndIdType, Stop> {
 

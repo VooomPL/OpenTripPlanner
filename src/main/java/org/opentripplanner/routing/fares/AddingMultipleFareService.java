@@ -1,13 +1,13 @@
 package org.opentripplanner.routing.fares;
 
-import java.io.Serializable;
-import java.util.List;
-
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.Fare.FareType;
 import org.opentripplanner.routing.core.Money;
 import org.opentripplanner.routing.services.FareService;
 import org.opentripplanner.routing.spt.GraphPath;
+
+import java.io.Serializable;
+import java.util.List;
 
 public class AddingMultipleFareService implements FareService, Serializable {
 

@@ -9,7 +9,7 @@ import org.opentripplanner.routing.graph.Graph;
  * A vertex representing a Sample in the Analyst sense -- a temporary and nondestructive linkage of
  * a single geographic point into the street network.
  */
-public class SampleVertex extends StreetVertex implements TemporaryVertex  {
+public class SampleVertex extends StreetVertex implements TemporaryVertex {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -35,12 +35,12 @@ public class SampleVertex extends StreetVertex implements TemporaryVertex  {
         super.addOutgoing(e);
     }
 
-    public SampleVertex (Graph g, Coordinate c) {
+    public SampleVertex(Graph g, Coordinate c) {
         super(g, null, c, null);
     }
 
     @Override
-    public String getLabel () {
+    public String getLabel() {
         return "sample-" + getIndex();
     }
 

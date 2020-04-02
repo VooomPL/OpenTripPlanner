@@ -4,15 +4,7 @@ package org.opentripplanner.model.calendar;
 import org.opentripplanner.model.FeedScopedId;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 public class CalendarServiceData implements Serializable {
 
@@ -29,7 +21,7 @@ public class CalendarServiceData implements Serializable {
     /**
      * @param agencyId
      * @return the time zone for the specified agencyId, or null if the agency was
-     *         not found
+     * not found
      */
     public TimeZone getTimeZoneForAgencyId(String agencyId) {
         return timeZonesByAgencyId.get(agencyId);

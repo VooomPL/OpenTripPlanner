@@ -1,19 +1,17 @@
 package org.opentripplanner.routing.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.graph.Graph;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class AlertPatchServiceImplTest {
     private class TestAlertPatch extends AlertPatch {
@@ -36,7 +34,7 @@ public class AlertPatchServiceImplTest {
 
     @Before
     public void setup() {
-        alerts = new TestAlertPatch[] {new TestAlertPatch(), new TestAlertPatch(),
+        alerts = new TestAlertPatch[]{new TestAlertPatch(), new TestAlertPatch(),
                 new TestAlertPatch(), new TestAlertPatch()};
         alerts[0].setRoute(testRoute);
         alerts[0].setStop(testStop);
@@ -75,7 +73,7 @@ public class AlertPatchServiceImplTest {
     public void testExpire() {
         Set<String> purge = new HashSet<String>();
         AlertPatchServiceImpl instance = getAlertPatchServiceImpl();
-        for(TestAlertPatch alert : alerts) {
+        for (TestAlertPatch alert : alerts) {
             instance.apply(alert);
         }
 
@@ -95,7 +93,7 @@ public class AlertPatchServiceImplTest {
     public void testExpireAll() {
         Set<String> purge = new HashSet<String>();
         AlertPatchServiceImpl instance = getAlertPatchServiceImpl();
-        for(TestAlertPatch alert : alerts) {
+        for (TestAlertPatch alert : alerts) {
             purge.add(alert.getId());
             instance.apply(alert);
         }
@@ -108,7 +106,7 @@ public class AlertPatchServiceImplTest {
     @Test
     public void testExpireAllExcept() {
         AlertPatchServiceImpl instance = getAlertPatchServiceImpl();
-        for(TestAlertPatch alert : alerts) {
+        for (TestAlertPatch alert : alerts) {
             instance.apply(alert);
         }
 

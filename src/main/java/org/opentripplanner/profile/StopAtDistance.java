@@ -16,11 +16,11 @@ public class StopAtDistance implements Comparable<StopAtDistance> {
     public int etime;
     public State state;
 
-    /** 
+    /**
      * @param state a state at a TransitStop, at the tail of a path
      * @param qmode the qualified mode (e.g. BICYCLE_RENT) used to produce this path
      */
-    public StopAtDistance (State state, QualifiedMode qmode) {
+    public StopAtDistance(State state, QualifiedMode qmode) {
         this.state = state;
         etime = (int) state.getElapsedTimeSeconds();
         // The mode from the state is not reliable for drive to transit or bicycle rental (which end with walking).

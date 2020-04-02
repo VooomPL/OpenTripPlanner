@@ -1,12 +1,5 @@
 package org.opentripplanner.analyst.batch;
 
-import java.util.TimeZone;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.opentripplanner.analyst.batch.aggregator.Aggregator;
 import org.opentripplanner.analyst.core.Sample;
 import org.opentripplanner.analyst.request.SampleFactory;
@@ -19,11 +12,14 @@ import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.TimeZone;
+import java.util.concurrent.*;
+
 public class BatchProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchProcessor.class);
     private static final String EXAMPLE_CONTEXT = "batch-context.xml";
-    
+
     private GraphService graphService;
     private SampleFactory sampleFactory;
 
@@ -33,32 +29,36 @@ public class BatchProcessor {
 
     private Aggregator aggregator;
     private Accumulator accumulator;
-    private int logThrottleSeconds = 4;    
+    private int logThrottleSeconds = 4;
     private int searchCutoffSeconds = -1;
-    
+
     /**
      * Empirical results for a 4-core processor (with 8 fake hyperthreading cores):
-     * Throughput increases linearly with nThreads, up to the number of physical cores. 
+     * Throughput increases linearly with nThreads, up to the number of physical cores.
      * Diminishing returns beyond 4 threads, but some improvement is seen up to 8 threads.
-     * The default value includes the hyperthreading cores, so you may want to set nThreads 
-     * manually in your IoC XML. 
+     * The default value includes the hyperthreading cores, so you may want to set nThreads
+     * manually in your IoC XML.
      */
-    private int nThreads = Runtime.getRuntime().availableProcessors(); 
+    private int nThreads = Runtime.getRuntime().availableProcessors();
 
     private String date = "2011-02-04";
     private String time = "08:00 AM";
     private TimeZone timeZone = TimeZone.getDefault();
     private String outputPath = "/tmp/analystOutput";
     private float checkpointIntervalMinutes = -1;
-    
-    enum Mode { BASIC, AGGREGATE, ACCUMULATE };
+
+    enum Mode {BASIC, AGGREGATE, ACCUMULATE}
+
+    ;
     private Mode mode;
     private long startTime = -1;
     private long lastLogTime = 0;
     private long lastCheckpointTime = 0;
     private ResultSet aggregateResultSet = null;
-    
-    /** Cut off the search instead of building a full path tree. Can greatly improve run times. */
+
+    /**
+     * Cut off the search instead of building a full path tree. Can greatly improve run times.
+     */
     public void setSearchCutoffMinutes(int minutes) {
         this.searchCutoffSeconds = minutes * 60;
     }
@@ -99,11 +99,11 @@ public class BatchProcessor {
             /* aggregate over destinations and save one value per origin */
             mode = Mode.AGGREGATE;
             aggregateResultSet = new ResultSet(origins); // results shaped like origins
-        } else if (accumulator != null) { 
+        } else if (accumulator != null) {
             /* accumulate data for each origin into all destinations */
             mode = Mode.ACCUMULATE;
             aggregateResultSet = new ResultSet(destinations); // results shaped like destinations
-        } else { 
+        } else {
             /* neither aggregator nor accumulator, save a bunch of results */
             mode = Mode.BASIC;
             aggregateResultSet = null;
@@ -154,10 +154,10 @@ public class BatchProcessor {
             double runTimeMin = (currentTime - startTime) / 1000.0 / 60.0;
             double projectedMin = (total - current) * (runTimeMin / current);
             LOG.info("received {} results out of {}", current, total);
-            LOG.info("running {} min, {} min remaining (projected)", (int)runTimeMin, (int)projectedMin);
+            LOG.info("running {} min, {} min remaining (projected)", (int) runTimeMin, (int) projectedMin);
         }
     }
-    
+
     private boolean checkpoint() {
         if (checkpointIntervalMinutes < 0 || aggregateResultSet == null)
             return false;
@@ -171,7 +171,7 @@ public class BatchProcessor {
         }
         return false;
     }
-    
+
     private RoutingRequest buildRequest(Individual i) {
         RoutingRequest req = prototypeRoutingRequest.clone();
         req.setDateTime(date, time, timeZone);
@@ -192,10 +192,10 @@ public class BatchProcessor {
             return null;
         }
     }
-    
-    /** 
-     * Generate samples for (i.e. non-invasively link into the Graph) only those individuals that 
-     * were not rejected by filters. Other Individuals will have null samples, indicating that they 
+
+    /**
+     * Generate samples for (i.e. non-invasively link into the Graph) only those individuals that
+     * were not rejected by filters. Other Individuals will have null samples, indicating that they
      * should be skipped.
      */
     private void linkIntoGraph(Population p) {
@@ -210,23 +210,23 @@ public class BatchProcessor {
         }
         LOG.info("successfully linked {} individuals out of {}", nonNull, n);
     }
-        
-    /** 
+
+    /**
      * A single computation to perform for a single origin.
-     * Runnable, not Callable. We want accumulation to happen in the worker thread. 
-     * Handling all accumulation in the controller thread risks amassing a queue of large 
-     * result sets. 
+     * Runnable, not Callable. We want accumulation to happen in the worker thread.
+     * Handling all accumulation in the controller thread risks amassing a queue of large
+     * result sets.
      */
     private class BatchAnalystTask implements Runnable {
-        
+
         protected final int i;
         protected final Individual oi;
-        
+
         public BatchAnalystTask(int i, Individual oi) {
             this.i = i;
             this.oi = oi;
         }
-        
+
         @Override
         public void run() {
             LOG.debug("calling origin : {}", oi);
@@ -237,22 +237,22 @@ public class BatchProcessor {
                 ResultSet results = ResultSet.forTravelTimes(destinations, spt);
                 req.cleanup();
                 switch (mode) {
-                case ACCUMULATE:
-                    synchronized (aggregateResultSet) {
-                        accumulator.accumulate(oi.input, results, aggregateResultSet);
-                    }
-                    break;
-                case AGGREGATE:
-                    aggregateResultSet.results[i] = aggregator.computeAggregate(results);
-                    break;
-                default:
-                    String subName = outputPath.replace("{}", String.format("%d_%s", i, oi.label));
-                    results.writeAppropriateFormat(subName);
+                    case ACCUMULATE:
+                        synchronized (aggregateResultSet) {
+                            accumulator.accumulate(oi.input, results, aggregateResultSet);
+                        }
+                        break;
+                    case AGGREGATE:
+                        aggregateResultSet.results[i] = aggregator.computeAggregate(results);
+                        break;
+                    default:
+                        String subName = outputPath.replace("{}", String.format("%d_%s", i, oi.label));
+                        results.writeAppropriateFormat(subName);
                 }
-                    
+
             }
-        }        
-    }    
-    
+        }
+    }
+
 }
 

@@ -1,20 +1,19 @@
 package org.opentripplanner.routing.util;
 
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Vertex;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Vertex;
 
-
-/** 
- * 
- * NullExtraEdges is used to speed up checks for extra edges in the (common) case 
- * where there are none. Extra edges come from StreetLocationFinder, where 
- * they represent the edges between a location on a street segment and the 
- * corners at the ends of that segment. 
+/**
+ * NullExtraEdges is used to speed up checks for extra edges in the (common) case
+ * where there are none. Extra edges come from StreetLocationFinder, where
+ * they represent the edges between a location on a street segment and the
+ * corners at the ends of that segment.
  */
 public class NullExtraEdges implements Map<Vertex, ArrayList<Edge>> {
 

@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-/** 
+/**
  * A response object describing a non-transit part of an Option. This is either an access/egress leg of a transit
  * trip, or a direct path to the destination that does not use transit.
  */
@@ -39,7 +39,7 @@ public class StreetSegment {
      * The path may contain more than one leg, because you may need to walk the bike.
      * Therefore accumulate the geometries into one long polyline, and accumulate the walksteps.
      */
-    public StreetSegment (State state) {
+    public StreetSegment(State state) {
         GraphPath path = new GraphPath(state, false);
         CoordinateArrayListSequence coordinates = new CoordinateArrayListSequence();
         for (Edge edge : path.edges) {
@@ -93,13 +93,17 @@ public class StreetSegment {
         time = (int) (state.getElapsedTimeSeconds());
     }
 
-    /** A StreetSegment is very similar to a StopAtDistance but it's a response object so the State has to be rendered into walksteps. */
-    public StreetSegment (StopAtDistance sd) {
+    /**
+     * A StreetSegment is very similar to a StopAtDistance but it's a response object so the State has to be rendered into walksteps.
+     */
+    public StreetSegment(StopAtDistance sd) {
         this(sd.state);
         mode = sd.qmode; // Intended mode is known more reliably in a StopAtDistance than from a State.
     }
 
-    /** Make a collections of StreetSegments from a collection of StopAtDistance. */
+    /**
+     * Make a collections of StreetSegments from a collection of StopAtDistance.
+     */
     public static List<StreetSegment> list(Collection<StopAtDistance> sds) {
         if (sds == null || sds.isEmpty()) return null;
         List<StreetSegment> ret = Lists.newArrayList();

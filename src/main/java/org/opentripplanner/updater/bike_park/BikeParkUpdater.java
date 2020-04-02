@@ -1,16 +1,5 @@
 package org.opentripplanner.updater.bike_park;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.prefs.Preferences;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.linking.SimpleStreetSplitter;
 import org.opentripplanner.routing.bike_park.BikePark;
@@ -20,18 +9,21 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.BikeParkVertex;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.GraphWriterRunnable;
-import org.opentripplanner.updater.PollingGraphUpdater;
 import org.opentripplanner.updater.JsonConfigurable;
+import org.opentripplanner.updater.PollingGraphUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Graph updater that dynamically sets availability information on bike parking lots.
  * This updater fetches data from a single BikeParkDataSource.
- *
+ * <p>
  * Bike park-and-ride and "OV-fiets mode" development has been funded by GoAbout
  * (https://goabout.com/).
- * 
+ *
  * @author laurent
  * @author GoAbout
  */

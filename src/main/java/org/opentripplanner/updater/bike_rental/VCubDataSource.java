@@ -1,19 +1,18 @@
 package org.opentripplanner.updater.bike_rental;
 
-import java.util.HashSet;
-import java.util.Map;
-
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.util.NonLocalizedString;
+
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Bike-rental station data source for the "Communauté d'Agglomération de Bordeaux" (CUB) VCub (aka
  * V^3) bike-rental network.
- * 
+ * <p>
  * URL: http://data.lacub.fr/wfs?key=<your-API-key>&request=getfeature&service=wfs&version=1.1.0&
  * typename=CI_VCUB_P&srsname=epsg:4326
- * 
- * 
+ *
  * @author laurent
  */
 public class VCubDataSource extends GenericXmlBikeRentalDataSource {

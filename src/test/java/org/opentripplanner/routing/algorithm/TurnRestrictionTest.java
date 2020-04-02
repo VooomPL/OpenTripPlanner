@@ -1,16 +1,14 @@
 package org.opentripplanner.routing.algorithm;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.TurnRestrictionType;
 import org.opentripplanner.common.geometry.GeometryUtils;
-import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -22,8 +20,9 @@ import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class TurnRestrictionTest {
 
@@ -32,7 +31,7 @@ public class TurnRestrictionTest {
     private Vertex topRight;
 
     private Vertex bottomLeft;
-    
+
     private StreetEdge maple_main1, broad1_2;
 
     @Before
@@ -90,7 +89,7 @@ public class TurnRestrictionTest {
         assertFalse(graph.getTurnRestrictions(maple_main1).isEmpty());
         assertTrue(graph.getTurnRestrictions(broad1_2).isEmpty());
     }
-    
+
     @Test
     public void testForwardDefault() {
         RoutingRequest options = new RoutingRequest();
@@ -109,19 +108,19 @@ public class TurnRestrictionTest {
 
         List<State> states = path.states;
         assertEquals(5, states.size());
-        
+
         assertEquals("maple_1st", states.get(0).getVertex().getLabel());
         assertEquals("main_1st", states.get(1).getVertex().getLabel());
         assertEquals("main_2nd", states.get(2).getVertex().getLabel());
         assertEquals("broad_2nd", states.get(3).getVertex().getLabel());
         assertEquals("broad_3rd", states.get(4).getVertex().getLabel());
     }
-    
+
     @Test
     public void testForwardAsPedestrian() {
         RoutingRequest options = new RoutingRequest(TraverseMode.WALK);
         options.walkSpeed = 1.0;
-        
+
         options.setRoutingContext(graph, topRight, bottomLeft);
         ShortestPathTree tree = new AStar().getShortestPathTree(options);
 
@@ -141,7 +140,7 @@ public class TurnRestrictionTest {
         assertEquals("broad_2nd", states.get(3).getVertex().getLabel());
         assertEquals("broad_3rd", states.get(4).getVertex().getLabel());
     }
-    
+
     @Test
     public void testForwardAsCar() {
         RoutingRequest options = new RoutingRequest(TraverseMode.CAR);
@@ -179,6 +178,7 @@ public class TurnRestrictionTest {
 
     /**
      * Create an edge. If twoWay, create two edges (back and forth).
+     *
      * @param back true if this is a reverse edge
      */
     private StreetEdge edge(StreetVertex vA, StreetVertex vB, double length, boolean back) {

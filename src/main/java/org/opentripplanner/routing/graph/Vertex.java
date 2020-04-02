@@ -1,24 +1,20 @@
 package org.opentripplanner.routing.graph;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.common.MavenVersion;
+import org.opentripplanner.common.geometry.DirectionUtils;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.util.I18NString;
+import org.opentripplanner.util.NonLocalizedString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.opentripplanner.common.MavenVersion;
-import org.opentripplanner.common.geometry.DirectionUtils;
-import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.locationtech.jts.geom.Coordinate;
-import java.util.Locale;
-import org.opentripplanner.util.I18NString;
-import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * A vertex in the graph. Each vertex has a longitude/latitude location, as well as a set of
@@ -32,29 +28,29 @@ public abstract class Vertex implements Serializable, Cloneable {
     private static int maxIndex = 0;
 
     private int index;
-    
+
     /* short debugging name */
     private final String label;
-    
+
     /* Longer human-readable name for the client */
     private I18NString name;
 
     private final double x;
 
     private final double y;
-    
+
     private transient Edge[] incoming = new Edge[0];
 
     private transient Edge[] outgoing = new Edge[0];
 
-    
+
     /* CONSTRUCTORS */
 
     protected Vertex(Graph g, String label, double x, double y) {
         this.label = label;
         this.x = x;
         this.y = y;
-        this.index = maxIndex  ++;
+        this.index = maxIndex++;
         // null graph means temporary vertex
         if (g != null)
             g.addVertex(this);
@@ -87,7 +83,7 @@ public abstract class Vertex implements Serializable, Cloneable {
 
     // Stupid method for deserialization, initialize transient fields.
     // Stopgap until old serialization methods are completely replaced.
-    public void initEdgeListsIfNeeded () {
+    public void initEdgeListsIfNeeded() {
         if (this.outgoing == null) {
             this.outgoing = new Edge[0];
         }
@@ -147,7 +143,9 @@ public abstract class Vertex implements Serializable, Cloneable {
         }
     }
 
-    /** @return whether the edge was found and removed. */
+    /**
+     * @return whether the edge was found and removed.
+     */
     public boolean removeOutgoing(Edge edge) {
         synchronized (this) {
             int n = outgoing.length;
@@ -163,7 +161,9 @@ public abstract class Vertex implements Serializable, Cloneable {
         }
     }
 
-    /** @return whether the edge was found and removed. */
+    /**
+     * @return whether the edge was found and removed.
+     */
     public boolean removeIncoming(Edge edge) {
         synchronized (this) {
             int n = incoming.length;
@@ -181,7 +181,9 @@ public abstract class Vertex implements Serializable, Cloneable {
         return Arrays.asList(outgoing);
     }
 
-    /** Get a collection containing all the edges leading from other vertices to this vertex. */
+    /**
+     * Get a collection containing all the edges leading from other vertices to this vertex.
+     */
     public Collection<Edge> getIncoming() {
         return Arrays.asList(incoming);
     }
@@ -195,44 +197,59 @@ public abstract class Vertex implements Serializable, Cloneable {
     public int getDegreeIn() {
         return incoming.length;
     }
-    
-    /** Get the longitude of the vertex */
+
+    /**
+     * Get the longitude of the vertex
+     */
     public double getX() {
         return x;
     }
 
-    /** Get the latitude of the vertex */
+    /**
+     * Get the latitude of the vertex
+     */
     public double getY() {
         return y;
     }
 
-    /** Get the longitude of the vertex */
+    /**
+     * Get the longitude of the vertex
+     */
     public double getLon() {
         return x;
     }
 
-    /** Get the latitude of the vertex */
+    /**
+     * Get the latitude of the vertex
+     */
     public double getLat() {
         return y;
     }
 
 
-    /** If this vertex is located on only one street, get that street's name
-     * in english localization */
+    /**
+     * If this vertex is located on only one street, get that street's name
+     * in english localization
+     */
     public String getName() {
         return this.name.toString();
     }
 
-    /** If this vertex is located on only one street, get that street's name
+    /**
+     * If this vertex is located on only one street, get that street's name
      * in provided localization
-     * @param locale wanted localization */
+     *
+     * @param locale wanted localization
+     */
     public String getName(Locale locale) {
         return this.name.toString(locale);
     }
 
     /* FIELD ACCESSOR METHODS : READ ONLY */
 
-    /** Every vertex has a label which is globally unique. */
+    /**
+     * Every vertex has a label which is globally unique.
+     */
     public String getLabel() {
         return label;
     }
@@ -242,17 +259,23 @@ public abstract class Vertex implements Serializable, Cloneable {
         return new Coordinate(getX(), getY());
     }
 
-    /** Get the bearing, in degrees, between this vertex and another coordinate. */
+    /**
+     * Get the bearing, in degrees, between this vertex and another coordinate.
+     */
     public double azimuthTo(Coordinate other) {
         return DirectionUtils.getAzimuth(getCoordinate(), other);
     }
 
-    /** Get the bearing, in degrees, between this vertex and another. */
+    /**
+     * Get the bearing, in degrees, between this vertex and another.
+     */
     public double azimuthTo(Vertex other) {
         return azimuthTo(other.getCoordinate());
     }
 
-    /** Get this vertex's unique index, that can serve as a hashcode or an index into a table */
+    /**
+     * Get this vertex's unique index, that can serve as a hashcode or an index into a table
+     */
     @XmlTransient
     public int getIndex() {
         return index;

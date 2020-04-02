@@ -1,14 +1,12 @@
 package org.opentripplanner.profile;
 
 import com.google.common.collect.*;
-
 import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.TraverseVisitor;
 import org.opentripplanner.routing.core.RoutingContext;
@@ -27,11 +25,14 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * More optimized ProfileRouter targeting one-to-many searches on entirely frequency-based transit networks.
- *
+ * <p>
  * This requires simpleTransfers to exist in the graph, so it needs to be built in longDistance mode.
  */
 public class AnalystProfileRouterPrototype {
@@ -65,7 +66,9 @@ public class AnalystProfileRouterPrototype {
     TObjectIntMap<Stop> fromStops;
     TimeWindow window; // filters trips used by time of day and service schedule
 
-    /** Return a set of all patterns that pass through the stops that are present in the given Tracker. */
+    /**
+     * Return a set of all patterns that pass through the stops that are present in the given Tracker.
+     */
     public Set<TripPattern> uniquePatternsVisiting(Set<Stop> stops) {
         Set<TripPattern> patterns = Sets.newHashSet();
         for (Stop stop : stops) {
@@ -85,7 +88,7 @@ public class AnalystProfileRouterPrototype {
         }
     }
 
-    public TimeSurface.RangeSet route () {
+    public TimeSurface.RangeSet route() {
 
         // NOT USED here, however FIXME this is not threadsafe, needs lock graph.index.clusterStopsAsNeeded();
 
@@ -156,7 +159,7 @@ public class AnalystProfileRouterPrototype {
             }
             /* Transfer from updated stops to adjacent stops before beginning the next round.
                Iterate over a protective copy because we add more stops to the updated list during iteration. */
-            if ( ! graph.hasDirectTransfers) {
+            if (!graph.hasDirectTransfers) {
                 throw new RuntimeException("Requires the SimpleTransfers generated in long distance mode.");
             }
             for (Stop stop : Lists.newArrayList(stopsUpdated)) {
@@ -164,7 +167,7 @@ public class AnalystProfileRouterPrototype {
                 for (SimpleTransfer transfer : Iterables.filter(outgoingEdges, SimpleTransfer.class)) {
                     Stop targetStop = ((TransitStop) transfer.getToVertex()).getStop();
                     double walkTime = transfer.getDistanceInMeters() / request.walkSpeed;
-                    TimeRange rangeAfterTransfer = times.get(stop).shift((int)walkTime);
+                    TimeRange rangeAfterTransfer = times.get(stop).shift((int) walkTime);
                     if (times.add(targetStop, rangeAfterTransfer)) {
                         stopsUpdated.add(targetStop);
                     }
@@ -239,32 +242,52 @@ public class AnalystProfileRouterPrototype {
         TraverseMode mode;
         int minTravelTimeSeconds = 0;
         TObjectIntMap<Stop> stopsFound = new TObjectIntHashMap();
+
         public StopFinderTraverseVisitor(TraverseMode mode, int minTravelTimeSeconds) {
             this.mode = mode;
             this.minTravelTimeSeconds = minTravelTimeSeconds;
         }
-        @Override public void visitEdge(Edge edge, State state) { }
-        @Override public void visitEnqueue(State state) { }
+
+        @Override
+        public void visitEdge(Edge edge, State state) {
+        }
+
+        @Override
+        public void visitEnqueue(State state) {
+        }
+
         // Accumulate stops as the search runs.
-        @Override public void visitVertex(State state) {
+        @Override
+        public void visitVertex(State state) {
             Vertex vertex = state.getVertex();
             if (vertex instanceof TransitStop) {
-                Stop stop = ((TransitStop)vertex).getStop();
+                Stop stop = ((TransitStop) vertex).getStop();
                 if (stopsFound.containsKey(stop)) return; // record only the closest stop in each cluster
                 stopsFound.put(stop, (int) state.getElapsedTimeSeconds());
             }
         }
     }
 
-    /** Given a minimum and maximum at a starting vertex, build an on-street SPT and propagate those values outward. */
+    /**
+     * Given a minimum and maximum at a starting vertex, build an on-street SPT and propagate those values outward.
+     */
     class ExtremaPropagationTraverseVisitor implements TraverseVisitor {
         final TimeRange range0;
+
         ExtremaPropagationTraverseVisitor(TimeRange range0) {
             this.range0 = range0;
         }
-        @Override public void visitEdge(Edge edge, State state) { }
-        @Override public void visitEnqueue(State state) { }
-        @Override public void visitVertex(State state) {
+
+        @Override
+        public void visitEdge(Edge edge, State state) {
+        }
+
+        @Override
+        public void visitEnqueue(State state) {
+        }
+
+        @Override
+        public void visitVertex(State state) {
             TimeRange propagatedRange = range0.shift((int) state.getElapsedTimeSeconds());
             Vertex vertex = state.getVertex();
             TimeRange existing = propagatedTimes.get(vertex);

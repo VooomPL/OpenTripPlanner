@@ -3,11 +3,12 @@ package org.opentripplanner.routing.edgetype;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.opentripplanner.model.Trip;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.MavenVersion;
+import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.OnboardVertex;
@@ -16,7 +17,6 @@ import org.opentripplanner.routing.vertextype.PatternDepartVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
@@ -24,37 +24,37 @@ import java.util.Locale;
  * and a passenger is optionally allowed to remain on the vehicle as it passes from one trip to the other. Interlining
  * is inferred from block IDs in GTFS input. We do not represent cases where the user is not allowed to remain on the
  * vehicle, as these are only interesting from an operations perspective and not for passenger information.
- *
+ * <p>
  * Interline dwell info could be stored in various places, with various advantages and disadvantages:
- *
+ * <p>
  * A. In the dwell edge itself (where it is now located). This will get in the way of realtime updates and the
- *    eventual elimination of transit edges.
+ * eventual elimination of transit edges.
  * B. In TripTimes. This has the disadvantage of leaving null fields in every TripTimes where interlining does not
- *    happen, but the null field could be a pointer to a compound type so it doesn't waste too much space.
+ * happen, but the null field could be a pointer to a compound type so it doesn't waste too much space.
  * C. In Timetables. Like TripTimes, this option also allows for real-time updates to interlining information.
  * D. TripPatterns. This does not allow full real-time updates to block and interlining behavior.
- *
+ * <p>
  * Another option is to store the Trip->Trip mapping at the Graph level, and use the source and target vertices of the
  * interline dwell edges to know which pattern should be used for resolving TripTimes. However, this will get in the
  * way of eventually eliminating transit edges. This could be a Guava BiMap<Trip, Trip>.
- *
+ * <p>
  * Links to previous and next trips could be stored directly as fields in TripTimes, or in a map.
  * Previous/next TripTimes in fields will not work because real-time updates to any one TripTimes will
  * "infect" all other TripTimes in its block.
  * Previous/next (Pattern, Trip) tuples in fields will work because the realtime lookup can be performed on the fly.
  * In maps, the trips do not need to be grouped by service ID because each trip exists on only a single service ID.
- *
+ * <p>
  * The "previous" and "next" targets in interline dwell information could be:
  * A. TripTimes. This requires refreshing the TripTimes pointers when committing realtime updates to ensure that they
- *    do not point to scheduled or outdated TripTimes. However, TripTimes do not currently store which TripPattern
- *    they belong to, which could interfere with realtime lookup.
+ * do not point to scheduled or outdated TripTimes. However, TripTimes do not currently store which TripPattern
+ * they belong to, which could interfere with realtime lookup.
  * B. Tuples of (TripPattern, Trip). This requires resolving the actual TripTimes object at runtime in case there are
- *    real-time updates.
- *
+ * real-time updates.
+ * <p>
  * Storing pointers directly to other TripTimes in prev/next fields in TripTimes prevents those TripTimes from being
  * independent of one another. An update to one TripTimes will "infect" the entire block it belongs to because the
  * prev/next links are bidirectional.
- *
+ * <p>
  * Interlining info (Patterns, Trips) can either be stored locally (in the TripPatterns/Timetables) or nonlocally (at the Graph level).
  */
 public class PatternInterlineDwell extends Edge implements OnboardEdge {
@@ -64,7 +64,7 @@ public class PatternInterlineDwell extends Edge implements OnboardEdge {
     private static final long serialVersionUID = MavenVersion.VERSION.getUID();
 
     /* Interlining relationships between trips. This could actually be a single Graph-wide BiMap. */
-    final BiMap<Trip,Trip> trips = HashBiMap.create();
+    final BiMap<Trip, Trip> trips = HashBiMap.create();
 
     public PatternInterlineDwell(TripPattern p0, TripPattern p1) {
         // The dwell actually connects the _arrival_ at the last stop of the first pattern
@@ -105,12 +105,12 @@ public class PatternInterlineDwell extends Edge implements OnboardEdge {
         s1.incrementTimeInSeconds(0); // FIXME too optimistic
         return s1.makeState();
     }
-    
+
     @Override
     public double weightLowerBound(RoutingRequest options) {
         return timeLowerBound(options);
     }
-    
+
     @Override
     public double timeLowerBound(RoutingRequest options) {
         return 0; // FIXME overly optimistic

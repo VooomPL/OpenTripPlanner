@@ -1,27 +1,10 @@
 package org.opentripplanner.routing.impl;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.FareAttribute;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
-import org.opentripplanner.routing.core.Fare;
+import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.core.Fare.FareType;
-import org.opentripplanner.routing.core.FareComponent;
-import org.opentripplanner.routing.core.FareRuleSet;
-import org.opentripplanner.routing.core.Money;
-import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.WrappedCurrency;
 import org.opentripplanner.routing.edgetype.HopEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.services.FareService;
@@ -29,7 +12,12 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A set of edges on a single route, with associated information for calculating fares */
+import java.io.Serializable;
+import java.util.*;
+
+/**
+ * A set of edges on a single route, with associated information for calculating fares
+ */
 class Ride {
 
     String feedId;
@@ -39,7 +27,7 @@ class Ride {
     FeedScopedId route;
 
     FeedScopedId trip;
-    
+
     Set<String> zones;
 
     String startZone;
@@ -98,7 +86,9 @@ class Ride {
     }
 }
 
-/** Holds information for doing the graph search on fares */
+/**
+ * Holds information for doing the graph search on fares
+ */
 class FareSearch {
     // Cell [i,j] holds the best (lowest) cost for a trip from rides[i] to rides[j]
     float[][] resultTable;
@@ -124,7 +114,9 @@ class FareSearch {
     }
 }
 
-/** Holds fare and corresponding fareId */
+/**
+ * Holds fare and corresponding fareId
+ */
 class FareAndId {
     float fare;
     FeedScopedId fareId;
@@ -140,7 +132,7 @@ class FareAndId {
  * It cannot necessarily handle multi-feed graphs, because a rule-less fare attribute
  * might be applied to rides on routes in another feed, for example.
  * For more interesting fare structures like New York's MTA, or cities with multiple
- * feeds and inter-feed transfer rules, you get to implement your own FareService. 
+ * feeds and inter-feed transfer rules, you get to implement your own FareService.
  * See this thread on gtfs-changes explaining the proper interpretation of fares.txt:
  * http://groups.google.com/group/gtfs-changes/browse_thread/thread/8a4a48ae1e742517/4f81b826cb732f3b
  */
@@ -150,7 +142,9 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultFareServiceImpl.class);
 
-    /** For each fare type (regular, student, etc...) the collection of rules that apply. */
+    /**
+     * For each fare type (regular, student, etc...) the collection of rules that apply.
+     */
     protected Map<FareType, Collection<FareRuleSet>> fareRulesPerType;
 
     public DefaultFareServiceImpl() {
@@ -166,10 +160,10 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
         Ride ride = null;
         for (State state : path.states) {
             Edge edge = state.getBackEdge();
-            if ( ! (edge instanceof HopEdge))
+            if (!(edge instanceof HopEdge))
                 continue;
             HopEdge hEdge = (HopEdge) edge;
-            if (ride == null || ! state.getRoute().equals(ride.route)) {
+            if (ride == null || !state.getRoute().equals(ride.route)) {
                 ride = new Ride();
                 rides.add(ride);
                 ride.startZone = hEdge.getBeginStop().getZoneId();
@@ -182,9 +176,9 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
                 ride.feedId = hEdge.getFeedId();
             }
             ride.lastStop = hEdge.getEndStop();
-            ride.endZone  = ride.lastStop.getZoneId();
+            ride.endZone = ride.lastStop.getZoneId();
             ride.zones.add(ride.endZone);
-            ride.endTime  = state.getTimeSeconds();
+            ride.endTime = state.getTimeSeconds();
             // in default fare service, classify rides by mode 
             ride.classifier = state.getBackMode();
         }
@@ -224,7 +218,7 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
     }
 
     private FareSearch performSearch(FareType fareType, List<Ride> rides,
-            Collection<FareRuleSet> fareRules) {
+                                     Collection<FareRuleSet> fareRules) {
         FareSearch r = new FareSearch(rides.size());
 
         // Dynamic algorithm to calculate fare cost.
@@ -265,9 +259,9 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
     }
 
     protected float getLowestCost(FareType fareType, List<Ride> rides,
-            Collection<FareRuleSet> fareRules) {
+                                  Collection<FareRuleSet> fareRules) {
         FareSearch r = performSearch(fareType, rides, fareRules);
-        return r.resultTable[0][rides.size()-1];
+        return r.resultTable[0][rides.size() - 1];
     }
 
     /**
@@ -290,20 +284,20 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
      * just not be listed at all.
      */
     protected boolean populateFare(Fare fare, Currency currency, FareType fareType, List<Ride> rides,
-            Collection<FareRuleSet> fareRules) {
+                                   Collection<FareRuleSet> fareRules) {
         FareSearch r = performSearch(fareType, rides, fareRules);
 
         List<FareComponent> details = new ArrayList<FareComponent>();
         int count = 0;
         int start = 0;
         int end = rides.size() - 1;
-        while(start <= end) {
+        while (start <= end) {
             // skip parts where no fare is present, we want to return something
             // even if not all legs have fares
-            while(start <= end && r.endOfComponent[start] < 0) {
+            while (start <= end && r.endOfComponent[start] < 0) {
                 ++start;
             }
-            if(start > end) {
+            if (start > end) {
                 break;
             }
 
@@ -311,7 +305,7 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
             float cost = r.resultTable[start][via];
             FeedScopedId fareId = r.fareIds[start][via];
             FareComponent detail = new FareComponent(fareId, getMoney(currency, cost));
-            for(int i = start; i <= via; ++i) {
+            for (int i = start; i <= via; ++i) {
                 detail.addRoute(rides.get(i).route);
             }
             details.add(detail);
@@ -319,33 +313,33 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
             start = via + 1;
         }
 
-        fare.addFare(fareType, getMoney(currency, r.resultTable[0][rides.size()-1]));
+        fare.addFare(fareType, getMoney(currency, r.resultTable[0][rides.size() - 1]));
         fare.addFareDetails(fareType, details);
         return count > 0;
     }
 
     protected float calculateCost(FareType fareType, List<Ride> rides,
-            Collection<FareRuleSet> fareRules) {
+                                  Collection<FareRuleSet> fareRules) {
         return getBestFareAndId(fareType, rides, fareRules).fare;
     }
 
     private FareAndId getBestFareAndId(FareType fareType, List<Ride> rides,
-            Collection<FareRuleSet> fareRules) {
+                                       Collection<FareRuleSet> fareRules) {
         Set<String> zones = new HashSet<String>();
         Set<FeedScopedId> routes = new HashSet<FeedScopedId>();
         Set<String> agencies = new HashSet<String>();
         Set<FeedScopedId> trips = new HashSet<FeedScopedId>();
         int transfersUsed = -1;
-        
+
         Ride firstRide = rides.get(0);
-        long   startTime = firstRide.startTime;
+        long startTime = firstRide.startTime;
         String startZone = firstRide.startZone;
         String endZone = firstRide.endZone;
         String feedId = firstRide.feedId;
         long lastRideStartTime = firstRide.startTime;
         long lastRideEndTime = firstRide.endTime;
         for (Ride ride : rides) {
-            if ( ! ride.feedId.equals(feedId)) {
+            if (!ride.feedId.equals(feedId)) {
                 LOG.debug("skipped multi-feed ride sequence {}", rides);
                 return new FareAndId(Float.POSITIVE_INFINITY, null);
             }
@@ -358,12 +352,12 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
             trips.add(ride.trip);
             transfersUsed += 1;
         }
-        
+
         FareAttribute bestAttribute = null;
         float bestFare = Float.POSITIVE_INFINITY;
         long tripTime = lastRideStartTime - startTime;
         long journeyTime = lastRideEndTime - startTime;
-        	
+
         // find the best fare that matches this set of rides
         for (FareRuleSet ruleSet : fareRules) {
             FareAttribute attribute = ruleSet.getFareAttribute();
@@ -371,7 +365,7 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
             // check only if the fare is not mapped to an agency
             if (!ruleSet.hasAgencyDefined() && !attribute.getId().getAgencyId().equals(feedId))
                 continue;
-            
+
             if (ruleSet.matches(agencies, startZone, endZone, zones, routes, trips)) {
                 // TODO Maybe move the code below in FareRuleSet::matches() ?
                 if (attribute.isTransfersSet() && attribute.getTransfers() < transfersUsed) {
@@ -379,12 +373,12 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
                 }
                 // assume transfers are evaluated at boarding time,
                 // as trimet does
-                if (attribute.isTransferDurationSet() && 
-                    tripTime > attribute.getTransferDuration()) {
+                if (attribute.isTransferDurationSet() &&
+                        tripTime > attribute.getTransferDuration()) {
                     continue;
                 }
-                if (attribute.isJourneyDurationSet() && 
-                    journeyTime > attribute.getJourneyDuration()) {
+                if (attribute.isJourneyDurationSet() &&
+                        journeyTime > attribute.getJourneyDuration()) {
                     continue;
                 }
                 float newFare = getFarePrice(attribute, fareType);
@@ -400,24 +394,24 @@ public class DefaultFareServiceImpl implements FareService, Serializable {
         }
         return new FareAndId(bestFare, bestAttribute == null ? null : bestAttribute.getId());
     }
-    
+
     private float getFarePrice(FareAttribute fare, FareType type) {
-    	switch(type) {
-		case senior:
-			if (fare.getSeniorPrice() >= 0) {
-				return fare.getSeniorPrice();
-			}
-			break;
-		case youth:
-			if (fare.getYouthPrice() >= 0) {
-				return fare.getYouthPrice();
-			}
-			break;
-		case regular:
-		default:
-			break;
-    	}
-    	return fare.getPrice();
+        switch (type) {
+            case senior:
+                if (fare.getSeniorPrice() >= 0) {
+                    return fare.getSeniorPrice();
+                }
+                break;
+            case youth:
+                if (fare.getYouthPrice() >= 0) {
+                    return fare.getYouthPrice();
+                }
+                break;
+            case regular:
+            default:
+                break;
+        }
+        return fare.getPrice();
     }
 
 }

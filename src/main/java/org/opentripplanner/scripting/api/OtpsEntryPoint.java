@@ -1,7 +1,6 @@
 package org.opentripplanner.scripting.api;
 
-import java.io.IOException;
-
+import com.beust.jcommander.JCommander;
 import org.opentripplanner.analyst.batch.RasterPopulation;
 import org.opentripplanner.analyst.batch.SyntheticRasterPopulation;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -9,19 +8,18 @@ import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPMain;
 import org.opentripplanner.standalone.OTPServer;
 
-import com.beust.jcommander.JCommander;
+import java.io.IOException;
 
 /**
  * This is the main entry point (facade) for use by scripts. An instance of this facade is
  * accessible through the bean named "otp" in the various scripts, or by creating one if using OTP
  * as a library from an external script.
- * 
+ * <p>
  * This facade allow a script to access / create OTP objects (routers, populations, ...)
- * 
+ *
+ * @author laurent
  * @see OtpsRouter
  * @see OtpsPopulation
- * 
- * @author laurent
  */
 public class OtpsEntryPoint {
 
@@ -37,20 +35,20 @@ public class OtpsEntryPoint {
      * Create an OTP scripting entry point using the same command-line parameters as used by the OTP
      * application. This is useful when using scripting from an outside environment, using OTP as a
      * library. For example in jython the following script 'myscript.py':
-     * 
+     *
      * <pre>
      *   #!/usr/bin/jython
      *   from org.opentripplanner.scripting.api import OtpsEntryPoint
      *   otp = OtpsEntryPoint.fromArgs([ "-g", "." ])
      *   ...
      * </pre>
-     * 
+     * <p>
      * One can then run jython with:
-     * 
+     *
      * <pre>
      *   CLASSPATH=otp.jar jython myscript.py
      * </pre>
-     * 
+     *
      * @param args Command-line arguments, as used by the application.
      * @return The "otp" scripting facade bean.
      * @throws Exception
@@ -113,7 +111,7 @@ public class OtpsEntryPoint {
     /**
      * Create a grid of evently spaced points in a rectangle. Coordinates are expressed in the given
      * CRS, by default WGS84 geographical.
-     * 
+     *
      * @param top
      * @param bottom
      * @param left
@@ -123,7 +121,7 @@ public class OtpsEntryPoint {
      * @return A new grid population of rows x cols individuals, regularly spaced.
      */
     public OtpsPopulation createGridPopulation(double top, double bottom, double left,
-            double right, int rows, int cols) {
+                                               double right, int rows, int cols) {
         SyntheticRasterPopulation rasterPop = new SyntheticRasterPopulation();
         rasterPop.left = left;
         rasterPop.right = right;
@@ -137,8 +135,8 @@ public class OtpsEntryPoint {
 
     /**
      * Load a population from a CSV file.
-     * 
-     * @param filename The filename to load data from.
+     *
+     * @param filename   The filename to load data from.
      * @param latColName The name of the latitude column header.
      * @param lonColName The name of the longitude column header.
      * @return A population containing an individual per CSV row.
@@ -151,7 +149,7 @@ public class OtpsEntryPoint {
 
     /**
      * Load a population from a raster (GeoTIFF) file.
-     * 
+     *
      * @param filename The filename to load data from.
      * @return A population containing an individual per cell.
      */
@@ -171,7 +169,7 @@ public class OtpsEntryPoint {
 
     /**
      * @param retval Set the return value of the script, which will be returned in web mode. For
-     *        command-line mode, the return value is not used (for now).
+     *               command-line mode, the return value is not used (for now).
      */
     public void setRetval(Object retval) {
         this.retval = retval;

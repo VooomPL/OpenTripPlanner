@@ -1,8 +1,8 @@
 package org.opentripplanner.api.adapters;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.opentripplanner.model.Trip;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class TripAdapter extends XmlAdapter<TripType, Trip> {
 

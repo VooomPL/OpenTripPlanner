@@ -1,19 +1,14 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ArrayListMultimap;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.openstreetmap.model.OSMNode;
 import org.opentripplanner.openstreetmap.model.OSMWay;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
 
-import com.google.common.collect.ArrayListMultimap;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
+import java.util.*;
 
 /**
  * Stores information about an OSM area needed for visibility graph construction. Algorithm based on
@@ -34,7 +29,7 @@ class Area {
     private MultiPolygon jtsMultiPolygon;
 
     Area(OSMWithTags parent, List<OSMWay> outerRingWays, List<OSMWay> innerRingWays,
-            Map<Long, OSMNode> _nodes) {
+         Map<Long, OSMNode> _nodes) {
         this.parent = parent;
         // ring assignment
         List<List<Long>> innerRingNodes = constructRings(innerRingWays);
@@ -56,7 +51,8 @@ class Area {
 
         // now, ring grouping
         // first, find outermost rings
-        OUTER: for (Ring outer : outerRings) {
+        OUTER:
+        for (Ring outer : outerRings) {
             for (Ring possibleContainer : outerRings) {
                 if (outer != possibleContainer
                         && outer.geometry.hasPointInside(possibleContainer.geometry)) {
@@ -154,7 +150,7 @@ class Area {
     }
 
     private boolean constructRingsRecursive(ArrayListMultimap<Long, OSMWay> waysByEndpoint,
-            List<Long> ring, List<List<Long>> closedRings, long endpoint) {
+                                            List<Long> ring, List<List<Long>> closedRings, long endpoint) {
 
         List<OSMWay> ways = new ArrayList<OSMWay>(waysByEndpoint.get(endpoint));
 

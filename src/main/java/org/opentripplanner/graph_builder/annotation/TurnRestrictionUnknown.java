@@ -7,13 +7,13 @@ public class TurnRestrictionUnknown extends GraphBuilderAnnotation {
     public static final String FMT = "Invalid turn restriction tag %s in turn restriction %d";
 
     public static final String HTMLFMT = "Invalid turn restriction tag %s in  <a href=\"http://www.openstreetmap.org/relation/%d\">\"%d\"</a>";
-    
+
     final String tagval;
     final long relationId;
-    
-    public TurnRestrictionUnknown(long relationId, String tagval){
+
+    public TurnRestrictionUnknown(long relationId, String tagval) {
         this.relationId = relationId;
-    	this.tagval = tagval;
+        this.tagval = tagval;
     }
 
     @Override

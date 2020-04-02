@@ -1,7 +1,6 @@
 package org.opentripplanner.routing.core;
 
 import junit.framework.TestCase;
-
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 
@@ -74,7 +73,7 @@ public class TestRouteMatcher extends TestCase {
             thrown = true;
         }
         assertTrue(thrown);
-        
+
         Route r1c = new Route();
         r1c.setId(new FeedScopedId("A_1", "R_42"));
         r1c.setShortName("R_42");

@@ -1,10 +1,9 @@
 package org.opentripplanner.api.adapters;
 
-import java.util.ArrayList;
+import org.opentripplanner.model.FeedScopedId;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.opentripplanner.model.FeedScopedId;
+import java.util.ArrayList;
 
 public class AgencyAndIdArrayListAdapter extends XmlAdapter<ArrayList<AgencyAndIdType>, ArrayList<FeedScopedId>> {
 
@@ -25,7 +24,7 @@ public class AgencyAndIdArrayListAdapter extends XmlAdapter<ArrayList<AgencyAndI
             return null;
         }
         ArrayList<AgencyAndIdType> result = new ArrayList<AgencyAndIdType>();
-        for(FeedScopedId a:arg) result.add(new AgencyAndIdType(a.getAgencyId(), a.getId()));
+        for (FeedScopedId a : arg) result.add(new AgencyAndIdType(a.getAgencyId(), a.getId()));
         return result;
     }
 

@@ -24,9 +24,10 @@ public class StopPatternFlexFields implements Serializable {
 
     /**
      * Default constructor.
-     * @param stopTimes stopTimes for this pattern
+     *
+     * @param stopTimes          stopTimes for this pattern
      * @param areaGeometryByArea Map of GTFS-Flex areas, keyed by area ID
-     * @param deduplicator Deduplicator
+     * @param deduplicator       Deduplicator
      */
     public StopPatternFlexFields(List<StopTime> stopTimes, Map<String, Geometry> areaGeometryByArea, Deduplicator deduplicator) {
         size = stopTimes.size();

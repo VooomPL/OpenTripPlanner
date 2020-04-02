@@ -1,12 +1,11 @@
 package org.opentripplanner.geocoder.bano;
 
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
+import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.geocoder.GeocoderResult;
 import org.opentripplanner.geocoder.GeocoderResults;
-
-import org.locationtech.jts.geom.Envelope;
 
 public class BanoGeocoderTest {
 

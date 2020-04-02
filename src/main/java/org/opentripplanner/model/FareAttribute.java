@@ -19,13 +19,19 @@ public final class FareAttribute extends IdentityBean<FeedScopedId> {
 
     private int transferDuration = MISSING_VALUE;
 
-    /** youthPrice is an extension to the GTFS spec to support Seattle fare types. */
+    /**
+     * youthPrice is an extension to the GTFS spec to support Seattle fare types.
+     */
     private float youthPrice;
 
-    /** seniorPrice is an extension to the GTFS spec to support Seattle fare types. */
+    /**
+     * seniorPrice is an extension to the GTFS spec to support Seattle fare types.
+     */
     private float seniorPrice;
 
-    /** This is a proposed extension to the GTFS spec */
+    /**
+     * This is a proposed extension to the GTFS spec
+     */
     private int journeyDuration = MISSING_VALUE;
 
     public FareAttribute() {

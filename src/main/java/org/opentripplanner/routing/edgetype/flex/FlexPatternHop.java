@@ -5,7 +5,9 @@ import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.edgetype.PatternHop;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 
-/** A PatternHop with GTFS-Flex service enabled. */
+/**
+ * A PatternHop with GTFS-Flex service enabled.
+ */
 public class FlexPatternHop extends PatternHop {
 
     private static final long serialVersionUID = 1L;
@@ -108,7 +110,7 @@ public class FlexPatternHop extends PatternHop {
 
         private static RequestStops fromGtfs(int code) {
             for (RequestStops it : values()) {
-                if(it.gtfsCode == code) {
+                if (it.gtfsCode == code) {
                     return it;
                 }
             }

@@ -45,8 +45,8 @@ public final class ShapePoint implements Serializable, Comparable<ShapePoint> {
 
     /**
      * @return the distance traveled along the shape path. If no distance was
-     *         specified, the value is undefined. Check first with
-     *         {@link #isDistTraveledSet()}
+     * specified, the value is undefined. Check first with
+     * {@link #isDistTraveledSet()}
      */
     public double getDistTraveled() {
         return distTraveled;

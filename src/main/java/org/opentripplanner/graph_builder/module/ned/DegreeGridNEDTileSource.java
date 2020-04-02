@@ -1,12 +1,12 @@
 package org.opentripplanner.graph_builder.module.ned;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.S3ServiceException;
 import org.jets3t.service.ServiceException;
 import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.model.S3Object;
 import org.jets3t.service.security.AWSCredentials;
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.services.ned.NEDTileSource;
 import org.opentripplanner.routing.graph.Graph;
@@ -14,11 +14,7 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +24,6 @@ import java.util.List;
  * organized as USGS organizes them when you ship them a hard drive).
  *
  * @author novalis
- *
  */
 public class DegreeGridNEDTileSource implements NEDTileSource {
     private static Logger log = LoggerFactory.getLogger(DegreeGridNEDTileSource.class);

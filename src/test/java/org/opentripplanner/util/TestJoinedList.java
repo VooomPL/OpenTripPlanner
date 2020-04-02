@@ -1,9 +1,9 @@
 package org.opentripplanner.util;
 
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import junit.framework.TestCase;
 
 public class TestJoinedList extends TestCase {
     @SuppressWarnings("unchecked")
@@ -19,7 +19,7 @@ public class TestJoinedList extends TestCase {
         JoinedList<Integer> joined = new JoinedList<Integer>(list1, list2);
         assertTrue(joined.get(0) == 0);
         assertTrue(joined.get(3) == 3);
-        
+
         Iterator<Integer> it = joined.iterator();
         for (int i = 0; i < 6; ++i) {
             assertTrue(it.hasNext());

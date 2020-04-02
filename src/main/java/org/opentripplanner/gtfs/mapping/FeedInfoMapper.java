@@ -9,7 +9,9 @@ import java.util.Map;
 
 import static org.opentripplanner.gtfs.mapping.ServiceDateMapper.mapServiceDate;
 
-/** Responsible for mapping GTFS FeedInfo into the OTP model. */
+/**
+ * Responsible for mapping GTFS FeedInfo into the OTP model.
+ */
 class FeedInfoMapper {
     private Map<org.onebusaway.gtfs.model.FeedInfo, FeedInfo> mappedFeedInfos = new HashMap<>();
 
@@ -17,7 +19,9 @@ class FeedInfoMapper {
         return feedInfos == null ? null : MapUtils.mapToList(feedInfos, this::map);
     }
 
-    /** Map from GTFS to OTP model, {@code null} safe.  */
+    /**
+     * Map from GTFS to OTP model, {@code null} safe.
+     */
     FeedInfo map(org.onebusaway.gtfs.model.FeedInfo orginal) {
         return orginal == null ? null : mappedFeedInfos.computeIfAbsent(orginal, this::doMap);
     }

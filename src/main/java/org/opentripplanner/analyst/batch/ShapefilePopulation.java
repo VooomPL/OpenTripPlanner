@@ -1,7 +1,5 @@
 package org.opentripplanner.analyst.batch;
 
-import java.io.File;
-
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Query;
@@ -9,15 +7,16 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import java.io.File;
 
 public class ShapefilePopulation extends BasicPopulation {
 
@@ -26,7 +25,7 @@ public class ShapefilePopulation extends BasicPopulation {
     public String labelAttribute;
 
     public String inputAttribute;
-    
+
     @Override
     public void createIndividuals() {
         String filename = this.sourceFilename;
@@ -34,7 +33,7 @@ public class ShapefilePopulation extends BasicPopulation {
         LOG.debug("Feature attributes: input data in {}, labeled with {}", inputAttribute, labelAttribute);
         try {
             File file = new File(filename);
-            if ( ! file.exists())
+            if (!file.exists())
                 throw new RuntimeException("Shapefile does not exist.");
             FileDataStore store = FileDataStoreFinder.getDataStore(file);
             SimpleFeatureSource featureSource = store.getFeatureSource();
@@ -71,7 +70,7 @@ public class ShapefilePopulation extends BasicPopulation {
                 double input = 0.0;
                 if (inputAttribute != null) {
                     Number n = (Number) feature.getAttribute(inputAttribute);
-                    input = n.doubleValue(); 
+                    input = n.doubleValue();
                 }
                 Individual individual = new Individual(label, point.getX(), point.getY(), input);
                 this.addIndividual(individual);

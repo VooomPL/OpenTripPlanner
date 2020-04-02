@@ -1,16 +1,16 @@
 package org.opentripplanner.graph_builder.module;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Check the every vertex and edge in the graph to make sure the edge lists and from/to
@@ -19,16 +19,20 @@ import org.slf4j.LoggerFactory;
 public class GraphCoherencyCheckerModule implements GraphBuilderModule {
 
 
-    /** An set of ids which identifies what stages this graph builder provides (i.e. streets, elevation, transit) */
+    /**
+     * An set of ids which identifies what stages this graph builder provides (i.e. streets, elevation, transit)
+     */
     public List<String> provides() {
         return Collections.emptyList();
     }
 
-    /** A list of ids of stages which must be provided before this stage */
+    /**
+     * A list of ids of stages which must be provided before this stage
+     */
     public List<String> getPrerequisites() {
         return Arrays.asList("streets");
     }
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(GraphCoherencyCheckerModule.class);
 
     @Override
@@ -61,12 +65,12 @@ public class GraphCoherencyCheckerModule implements GraphBuilderModule {
                 }
             }
         }
-        LOG.info("edge lists and from/to members are {}coherent.", coherent ? "": "not ");
+        LOG.info("edge lists and from/to members are {}coherent.", coherent ? "" : "not ");
     }
 
     @Override
     public void checkInputs() {
         //No inputs other than the graph itself
     }
-    
+
 }

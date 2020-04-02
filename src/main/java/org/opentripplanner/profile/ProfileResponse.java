@@ -22,11 +22,11 @@ public class ProfileResponse {
      * as well as the top N options that do use transit for each access mode.
      *
      * @param allOptions a collection of Options with a mix of all access and egress modes, using transit or not.
-     * @param orderBy specifies how the top N transit options will be chosen.
-     * @param limit the maximum number of transit options to include in the response per access mode.
-     *              zero or negative means no limit.
+     * @param orderBy    specifies how the top N transit options will be chosen.
+     * @param limit      the maximum number of transit options to include in the response per access mode.
+     *                   zero or negative means no limit.
      */
-    public ProfileResponse (Collection<Option> allOptions, Option.SortOrder orderBy, int limit) {
+    public ProfileResponse(Collection<Option> allOptions, Option.SortOrder orderBy, int limit) {
         List<Option> transitOptions = Lists.newArrayList();
         // Always return all non-transit options
         for (Option option : allOptions) {
@@ -68,5 +68,5 @@ public class ProfileResponse {
             LOG.info("{} {}", option.stats, option.summary);
         }
     }
-    
+
 }

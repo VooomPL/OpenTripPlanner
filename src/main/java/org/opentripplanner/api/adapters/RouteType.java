@@ -1,18 +1,17 @@
 package org.opentripplanner.api.adapters;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Route;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 /**
-   Holds data about a GTFS route from routes.txt.  Data includes id,
-   short name, long name, color, etc.
-*/
+ * Holds data about a GTFS route from routes.txt.  Data includes id,
+ * short name, long name, color, etc.
+ */
 
 @XmlRootElement(name = "route")
 public class RouteType {
@@ -45,8 +44,8 @@ public class RouteType {
             this.routeTextColor = route.getTextColor();
         }
     }
-    
-    public FeedScopedId getId(){
+
+    public FeedScopedId getId() {
         return this.id;
     }
 

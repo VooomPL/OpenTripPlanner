@@ -2,8 +2,8 @@ package org.opentripplanner.profile;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Sets;
-import org.opentripplanner.model.Route;
 import org.opentripplanner.index.model.RouteShort;
+import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +25,16 @@ public class Segment {
         public int fromIndex;
         public int toIndex;
         public int nTrips;
-        public SegmentPattern (PatternRide patternRide) {
+
+        public SegmentPattern(PatternRide patternRide) {
             this.patternId = patternRide.pattern.code;
             this.fromIndex = patternRide.fromIndex;
-            this.toIndex   = patternRide.toIndex;
-            this.nTrips    = patternRide.stats.num; // this stats has time window applied
+            this.toIndex = patternRide.toIndex;
+            this.nTrips = patternRide.stats.num; // this stats has time window applied
         }
+
         @Override
-        public int compareTo (SegmentPattern other) {
+        public int compareTo(SegmentPattern other) {
             return other.nTrips - this.nTrips;
         }
     }
@@ -52,7 +54,7 @@ public class Segment {
     public String startTime;
     public String endTime;
 
-    public Segment (Ride ride) {
+    public Segment(Ride ride) {
         Route route = ride.patternRides.get(0).pattern.route;
         from = ride.from.id;
         to = ride.to.id;

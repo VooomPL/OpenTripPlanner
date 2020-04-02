@@ -40,7 +40,7 @@ public class TestUnroutable extends TestCase {
         osmBuilder.setProvider(provider);
         HashMap<Class<?>, Object> extra = Maps.newHashMap();
         osmBuilder.buildGraph(graph, extra); // TODO get rid of this "extra" thing
-     }
+    }
 
     /**
      * Search for a path across the Willamette river. This OSM data includes a bridge that is not yet built and is

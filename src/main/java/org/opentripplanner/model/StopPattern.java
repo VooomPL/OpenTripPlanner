@@ -1,60 +1,57 @@
 package org.opentripplanner.model;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
-
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Polygon;
 import org.opentripplanner.routing.trippattern.Deduplicator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class represents what is called a JourneyPattern in Transmodel: the sequence of stops at
- * which a trip (GTFS) or vehicle journey (Transmodel) calls, irrespective of the day on which 
+ * which a trip (GTFS) or vehicle journey (Transmodel) calls, irrespective of the day on which
  * service runs.
- * 
+ * <p>
  * An important detail: Routes in GTFS are not a structurally important element, they just serve as
  * user-facing information. It is possible for the same journey pattern to appear in more than one
- * route. 
- * 
+ * route.
+ * <p>
  * OTP already has several classes that represent this same thing: A TripPattern in the context of
  * routing. It represents all trips with the same stop pattern A ScheduledStopPattern in the GTFS
  * loading process. A RouteVariant in the TransitIndex, which has a unique human-readable name and
  * belongs to a particular route.
- * 
+ * <p>
  * We would like to combine all these different classes into one.
- * 
+ * <p>
  * Any two trips with the same stops in the same order, and that operate on the same days, can be
  * combined using a TripPattern to simplify the graph. This saves memory and reduces search
  * complexity since we only consider the trip that departs soonest for each pattern. Field
  * calendarId has been removed. See issue #1320.
- * 
+ * <p>
  * A StopPattern is very closely related to a TripPattern -- it essentially serves as the unique key for a TripPattern.
  * Should the route be included in the StopPattern?
  */
 public class StopPattern implements Serializable {
 
     private static final long serialVersionUID = 20140101L;
-    
+
     /* Constants for the GTFS pick up / drop off type fields. */
     // It would be nice to have an enum for these, but the equivalence with integers is important.
     public static final int PICKDROP_SCHEDULED = 0;
     public static final int PICKDROP_NONE = 1;
     public static final int PICKDROP_CALL_AGENCY = 2;
     public static final int PICKDROP_COORDINATE_WITH_DRIVER = 3;
-    
+
     public final int size; // property could be derived from arrays
     public final Stop[] stops;
-    public final int[]  pickups;
-    public final int[]  dropoffs;
+    public final int[] pickups;
+    public final int[] dropoffs;
 
-    /** GTFS-Flex specific fields; will be null unless GTFS-Flex dataset is in use. */
+    /**
+     * GTFS-Flex specific fields; will be null unless GTFS-Flex dataset is in use.
+     */
     private StopPatternFlexFields flexFields;
 
     public boolean equals(Object other) {
@@ -64,7 +61,7 @@ public class StopPattern implements Serializable {
                     Arrays.equals(this.pickups, that.pickups) &&
                     Arrays.equals(this.dropoffs, that.dropoffs) &&
                     ((flexFields == null && that.flexFields == null) ||
-                    (flexFields != null && flexFields.equals(((StopPattern) other).flexFields)));
+                            (flexFields != null && flexFields.equals(((StopPattern) other).flexFields)));
         } else {
             return false;
         }
@@ -92,10 +89,11 @@ public class StopPattern implements Serializable {
 
     /**
      * Default constructor
-     * @param stopTimes List of StopTimes; assumes that stopTimes are already sorted by time.
+     *
+     * @param stopTimes    List of StopTimes; assumes that stopTimes are already sorted by time.
      * @param deduplicator Deduplicator. If null, do not deduplicate arrays.
      */
-    public StopPattern (List<StopTime> stopTimes, Deduplicator deduplicator) {
+    public StopPattern(List<StopTime> stopTimes, Deduplicator deduplicator) {
         this.size = stopTimes.size();
         if (size == 0) {
             this.stops = new Stop[size];
@@ -136,16 +134,17 @@ public class StopPattern implements Serializable {
 
     /**
      * Create StopPattern without deduplicating arrays
+     *
      * @param stopTimes List of StopTimes; assumes that stopTimes are already sorted by time.
      */
-    public StopPattern (List<StopTime> stopTimes) {
+    public StopPattern(List<StopTime> stopTimes) {
         this(stopTimes, null);
     }
 
     /**
      * @param stopId in agency_id format
      */
-    public boolean containsStop (String stopId) {
+    public boolean containsStop(String stopId) {
         if (stopId == null) return false;
         for (Stop stop : stops) if (stopId.equals(stop.getId().toString())) return true;
         return false;

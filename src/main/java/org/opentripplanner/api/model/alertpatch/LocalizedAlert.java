@@ -20,7 +20,7 @@ public class LocalizedAlert {
         this.locale = locale;
     }
 
-    public LocalizedAlert(){
+    public LocalizedAlert() {
     }
 
     @JsonSerialize

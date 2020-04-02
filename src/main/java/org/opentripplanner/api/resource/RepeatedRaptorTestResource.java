@@ -1,12 +1,12 @@
 package org.opentripplanner.api.resource;
 
 import org.joda.time.LocalDate;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.analyst.SurfaceCache;
 import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.api.param.LatLon;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.profile.ProfileRequest;
 import org.opentripplanner.profile.RepeatedRaptorProfileRouter;
 import org.opentripplanner.routing.core.TraverseModeSet;
@@ -18,11 +18,7 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -40,19 +36,19 @@ public class RepeatedRaptorTestResource {
     private SurfaceCache surfaceCache;
 
     private int n_increase = 0;
-    private int n_decrease= 0;
+    private int n_decrease = 0;
     private int n_total = 0;
     private long sum_decrease = 0;
 
-    public RepeatedRaptorTestResource (@Context OTPServer otpServer, @PathParam("routerId") String routerId) {
+    public RepeatedRaptorTestResource(@Context OTPServer otpServer, @PathParam("routerId") String routerId) {
         Router router = otpServer.getRouter(routerId);
         graph = router.graph;
         surfaceCache = otpServer.surfaceCache;
     }
 
     @GET
-    @Produces({ MediaType.APPLICATION_JSON })
-    public Response profileRoute (
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response profileRoute(
             @QueryParam("from") LatLon from,
             @QueryParam("fromStop") String fromStopString,
             @QueryParam("banAgency") String banAgency,
@@ -79,22 +75,22 @@ public class RepeatedRaptorTestResource {
         return Response.ok().entity("OK\n").build();
     }
 
-    private void oneOrigin (double lat, double lon, String banAgency) {
+    private void oneOrigin(double lat, double lon, String banAgency) {
 
         ProfileRequest req = new ProfileRequest();
-        req.fromLat      = lat;
-        req.fromLon      = lon;
-        req.fromTime     = 60 * 60 * 8;
-        req.toTime       = 60 * 60 * 9;
-        req.walkSpeed    = 2;
-        req.bikeSpeed    = 4;
-        req.carSpeed     = 8;
-        req.date         = new LocalDate(2015, 04, 20);
-        req.maxWalkTime  = 20; // minutes
-        req.accessModes  = new QualifiedModeSet("WALK");
-        req.egressModes  = new QualifiedModeSet("WALK");
+        req.fromLat = lat;
+        req.fromLon = lon;
+        req.fromTime = 60 * 60 * 8;
+        req.toTime = 60 * 60 * 9;
+        req.walkSpeed = 2;
+        req.bikeSpeed = 4;
+        req.carSpeed = 8;
+        req.date = new LocalDate(2015, 04, 20);
+        req.maxWalkTime = 20; // minutes
+        req.accessModes = new QualifiedModeSet("WALK");
+        req.egressModes = new QualifiedModeSet("WALK");
         req.transitModes = new TraverseModeSet("TRANSIT");
-        req.analyst      = true;
+        req.analyst = true;
 
         if (surfaceCache == null) {
             LOG.error("You must run OTP with the --analyst option to enable spatial analysis features.");

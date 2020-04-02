@@ -28,12 +28,15 @@ import org.opentripplanner.util.I18NString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Indexes all edges and transit vertices of the graph spatially. Has a variety of query methods
  * used during network linking and trip planning.
- * 
+ * <p>
  * Creates a TemporaryStreetLocation representing a location on a street that's not at an
  * intersection, based on input latitude and longitude. Instantiating this class is expensive,
  * because it creates a spatial index of all of the intersections in the graph.
@@ -58,11 +61,11 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
 
     // If a point is within MAX_CORNER_DISTANCE, it is treated as at the corner.
     private static final double MAX_CORNER_DISTANCE_METERS = 10;
-    
+
     // Edges will only be found if they are closer than this distance
     // TODO: this default may be too large?
     public static final double MAX_DISTANCE_FROM_STREET_METERS = 1000;
-    
+
     private static final double MAX_DISTANCE_FROM_STREET_DEGREES =
             MAX_DISTANCE_FROM_STREET_METERS * 180 / Math.PI / SphericalDistanceLibrary.RADIUS_OF_EARTH_IN_M;
 
@@ -92,7 +95,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
             simpleStreetSplitter = new SimpleStreetSplitter(this.graph, null, null, false);
         } else {
             simpleStreetSplitter = new SimpleStreetSplitter(this.graph,
-                (HashGridSpatialIndex<Edge>) edgeTree, transitStopTree, false);
+                    (HashGridSpatialIndex<Edge>) edgeTree, transitStopTree, false);
         }
 
     }
@@ -103,16 +106,14 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
      * between 0 (the from vertex) and 1 (the to vertex).
      *
      * @param graph
-     *
      * @param label
      * @param name
-     * @param edges A collection of nearby edges, which represent one street.
+     * @param edges        A collection of nearby edges, which represent one street.
      * @param nearestPoint
-     *
      * @return the new TemporaryStreetLocation
      */
     public static TemporaryStreetLocation createTemporaryStreetLocation(Graph graph, String label,
-            I18NString name, Iterable<StreetEdge> edges, Coordinate nearestPoint, boolean endVertex) {
+                                                                        I18NString name, Iterable<StreetEdge> edges, Coordinate nearestPoint, boolean endVertex) {
         boolean wheelchairAccessible = false;
 
         TemporaryStreetLocation location = new TemporaryStreetLocation(label, nearestPoint, name, endVertex);
@@ -157,7 +158,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
     }
 
     private static void createHalfLocation(TemporaryStreetLocation base, I18NString name,
-                Coordinate nearestPoint, StreetEdge street, boolean endVertex) {
+                                           Coordinate nearestPoint, StreetEdge street, boolean endVertex) {
         StreetVertex tov = (StreetVertex) street.getToVertex();
         StreetVertex fromv = (StreetVertex) street.getFromVertex();
         LineString geometry = street.getGeometry();
@@ -199,7 +200,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
              * index transit edges as we do not need them and some GTFS do not have shape data, so
              * long straight lines between 2 faraway stations will wreck performance on a hash grid
              * spatial index.
-             * 
+             *
              * If one need to store transit edges in the index, we could improve the hash grid
              * rasterizing splitting long segments.
              */
@@ -212,7 +213,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
                 }
                 Envelope env = geometry.getEnvelopeInternal();
                 if (edgeTree instanceof HashGridSpatialIndex)
-                    ((HashGridSpatialIndex)edgeTree).insert(geometry, e);
+                    ((HashGridSpatialIndex) edgeTree).insert(geometry, e);
                 else
                     edgeTree.insert(env, e);
             }
@@ -248,7 +249,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
     public List<Vertex> getVerticesForEnvelope(Envelope envelope) {
         List<Vertex> vertices = verticesTree.query(envelope);
         // Here we assume vertices list modifiable
-        for (Iterator<Vertex> iv = vertices.iterator(); iv.hasNext();) {
+        for (Iterator<Vertex> iv = vertices.iterator(); iv.hasNext(); ) {
             Vertex v = iv.next();
             if (!envelope.contains(new Coordinate(v.getLon(), v.getLat())))
                 iv.remove();
@@ -260,7 +261,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
     @Override
     public Collection<Edge> getEdgesForEnvelope(Envelope envelope) {
         List<Edge> edges = edgeTree.query(envelope);
-        for (Iterator<Edge> ie = edges.iterator(); ie.hasNext();) {
+        for (Iterator<Edge> ie = edges.iterator(); ie.hasNext(); ) {
             Edge e = ie.next();
             Envelope eenv = e.getGeometry().getEnvelopeInternal();
             //Envelope eenv = e.getEnvelope();
@@ -274,7 +275,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
     @Override
     public List<TransitStop> getTransitStopForEnvelope(Envelope envelope) {
         List<TransitStop> transitStops = transitStopTree.query(envelope);
-        for (Iterator<TransitStop> its = transitStops.iterator(); its.hasNext();) {
+        for (Iterator<TransitStop> its = transitStops.iterator(); its.hasNext(); ) {
             TransitStop ts = its.next();
             if (!envelope.intersects(new Coordinate(ts.getLon(), ts.getLat())))
                 its.remove();
@@ -309,7 +310,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
         }
         return nearest;
     }
-    
+
     @Override
     public Vertex getVertexForLocation(GenericLocation loc, RoutingRequest options,
                                        boolean endVertex) {
@@ -355,8 +356,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
 
             if (s.v1 != null)
                 new SampleEdge(s.v1, v, s.d1);
-        }
-        else {
+        } else {
             if (s.v0 != null)
                 new SampleEdge(v, s.v0, s.d0);
 

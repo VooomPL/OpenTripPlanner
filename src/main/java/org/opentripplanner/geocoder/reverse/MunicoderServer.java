@@ -1,10 +1,6 @@
 package org.opentripplanner.geocoder.reverse;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -26,13 +22,14 @@ public class MunicoderServer {
 
     // FIXME inject context
     private BoundaryResolver boundaryResolver;
-   
+
     public void setBoundaryResolver(BoundaryResolver boundaryResolver) {
         this.boundaryResolver = boundaryResolver;
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON}) // APPLICATION_XML + "; charset=UTF-8", MediaType.APPLICATION_JSON + "; charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_JSON})
+    // APPLICATION_XML + "; charset=UTF-8", MediaType.APPLICATION_JSON + "; charset=UTF-8"})
     public String resolveLocation(
             @QueryParam("location") String location,
             @QueryParam("callback") String callback) {
@@ -43,9 +40,9 @@ public class MunicoderServer {
         //System.out.println("br="+boundaryResolver);
         //return arr[0];
         String result = boundaryResolver.resolve(Double.parseDouble(arr[1]), Double.parseDouble(arr[0]));
-        result = (result == null) ? "{}" : "{ \"name\" : \""+result+"\" }";
-        if(callback != null) {
-            return callback+"("+result+");";
+        result = (result == null) ? "{}" : "{ \"name\" : \"" + result + "\" }";
+        if (callback != null) {
+            return callback + "(" + result + ");";
         }
         return result;
     }

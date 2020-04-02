@@ -7,10 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AgencyMapperTest {
     private static final Agency AGENCY = new Agency();
@@ -81,7 +78,9 @@ public class AgencyMapperTest {
         assertNull(result.getBrandingUrl());
     }
 
-    /** Mapping the same object twice, should return the the same instance. */
+    /**
+     * Mapping the same object twice, should return the the same instance.
+     */
     @Test
     public void testMapCache() throws Exception {
         org.opentripplanner.model.Agency result1 = subject.map(AGENCY);

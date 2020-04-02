@@ -31,7 +31,7 @@ public class RasterPopulation extends BasicPopulation {
     public double left, right, top, bottom; // bounding box values in CRS
     public int band = 0; // raster band to read
     public double unitySeconds = 0; // scale output values so unity=1. 0 to turn off. 
-    
+
     /* derived fields */
     protected CoordinateReferenceSystem coverageCRS; // from input raster or config string
     protected GridEnvelope2D gridEnvelope; // the envelope for the pixels
@@ -39,7 +39,7 @@ public class RasterPopulation extends BasicPopulation {
     protected GridGeometry2D gridGeometry; // relationship between the grid envelope and the CRS envelope
     protected MathTransform gridToWGS84; // composed transform from the grid to the CRS to WGS84
     protected GridCoverage2D coverage; // null if synthetic (no coverage to load)
-    
+
     @Override
     public void writeAppropriateFormat(String outFileName, ResultSet results) {
         this.writeGeotiff(outFileName, results);
@@ -48,10 +48,10 @@ public class RasterPopulation extends BasicPopulation {
     public void setUnityMinutes(double minutes) {
         this.unitySeconds = minutes * 60;
     }
-    
+
     public void writeGeotiff(String fileName, ResultSet results) {
         LOG.info("writing geotiff.");
-        float[][] imagePixelData = new float[rows][cols]; 
+        float[][] imagePixelData = new float[rows][cols];
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 int index = row * cols + col;
@@ -75,7 +75,7 @@ public class RasterPopulation extends BasicPopulation {
         }
         LOG.info("done writing geotiff.");
     }
-    
+
     @Override
     public void createIndividuals() {
         LOG.info("Loading population from raster file {}", sourceFilename);
@@ -91,7 +91,7 @@ public class RasterPopulation extends BasicPopulation {
             gridGeometry.getGridToCRS();
             // because we may want to produce an empty raster rather than loading one, alongside the coverage we 
             // store the row/col dimensions and the referenced envelope in the original coordinate reference system.
-            this.cols  = gridEnvelope.width;
+            this.cols = gridEnvelope.width;
             this.rows = gridEnvelope.height;
             this.createIndividuals0();
         } catch (Exception ex) {
@@ -99,10 +99,12 @@ public class RasterPopulation extends BasicPopulation {
         }
         LOG.info("Done loading raster from file.");
     }
-    
-    /** Shared internal createIndividuals method allowing synthetic subclass to reuse projection code */
+
+    /**
+     * Shared internal createIndividuals method allowing synthetic subclass to reuse projection code
+     */
     protected void createIndividuals0() {
-        MathTransform tr; 
+        MathTransform tr;
         try {
             final CoordinateReferenceSystem WGS84 = CRS.decode("EPSG:4326", true);
             tr = CRS.findMathTransform(coverageCRS, WGS84);
@@ -130,7 +132,7 @@ public class RasterPopulation extends BasicPopulation {
                     double lat = targetPos.getOrdinate(1);
                     // evaluate using grid coordinates, which should be more efficient than using world coordinates
                     if (coverage != null)
-                        coverage.evaluate(coord, val); 
+                        coverage.evaluate(coord, val);
                     // add this grid cell to the population
                     String label = row + "_" + col;
                     Individual individual = new Individual(label, lon, lat, val[band]);
@@ -142,5 +144,5 @@ public class RasterPopulation extends BasicPopulation {
             }
         }
     }
-    
+
 }

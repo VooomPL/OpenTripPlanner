@@ -1,33 +1,21 @@
 package org.opentripplanner.customize;
 
+import javassist.*;
+import javassist.bytecode.*;
+import javassist.util.proxy.FactoryHelper;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtNewConstructor;
-import javassist.Modifier;
-import javassist.bytecode.AccessFlag;
-import javassist.bytecode.Bytecode;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.ConstPool;
-import javassist.bytecode.DuplicateMemberException;
-import javassist.bytecode.FieldInfo;
-import javassist.bytecode.MethodInfo;
-import javassist.bytecode.Opcode;
-import javassist.util.proxy.FactoryHelper;
-
 /**
  * This creates a subclass of a given class by adding a new interface to it, and allows users to add
  * any necessary fields
- * 
+ * <p>
  * The intended use is to allow optimizations or extensions that require per-edge data to massage an
- * existing graph to meet their needs, without adding additional fields to the core. 
- * 
+ * existing graph to meet their needs, without adding additional fields to the core.
+ *
  * @author novalis
- * 
  */
 public class ClassCustomizer {
 
@@ -41,10 +29,9 @@ public class ClassCustomizer {
         this.extraClassPath = file;
     }
 
-    /** 
-     * 
-     * @param iface The interface the new class should implement
-     * @param oldlassName The class to be extended
+    /**
+     * @param iface        The interface the new class should implement
+     * @param oldlassName  The class to be extended
      * @param newClassName the name of the new class to be created
      */
     public ClassCustomizer(Class<?> iface, String oldlassName, String newClassName) {
@@ -57,14 +44,16 @@ public class ClassCustomizer {
 
             classFile.setName(newClassName);
 
-            classFile.setInterfaces(new String[] { iface.getName() });
+            classFile.setInterfaces(new String[]{iface.getName()});
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    /** Adds a new field of type double to the customized class */
+    /**
+     * Adds a new field of type double to the customized class
+     */
     public void addDoubleField(String fieldName) {
         // FIXME: this should support default values but does not
 
@@ -86,7 +75,9 @@ public class ClassCustomizer {
         }
     }
 
-    /** Writes the class file to the classpath and returns a class object */
+    /**
+     * Writes the class file to the classpath and returns a class object
+     */
     public Class<?> saveClass() {
         ClassFile classFile = ctClass.getClassFile();
 
@@ -105,7 +96,9 @@ public class ClassCustomizer {
         }
     }
 
-    /** Creates a clone of original but with the class NewClass (which extends original's class) */
+    /**
+     * Creates a clone of original but with the class NewClass (which extends original's class)
+     */
     public static <T> T reclass(T original, Class<? extends T> newClass) {
         Class<?> origClass = original.getClass();
 
@@ -135,7 +128,7 @@ public class ClassCustomizer {
 
     /**
      * capitalize the first letter of the string
-     * 
+     *
      * @param str
      * @return
      */
@@ -144,8 +137,9 @@ public class ClassCustomizer {
     }
 
     /**
-     * Add a simple getter with signature "double getFoo()" to the class, which simply returns the value of the 
-     * field fieldName 
+     * Add a simple getter with signature "double getFoo()" to the class, which simply returns the value of the
+     * field fieldName
+     *
      * @param ctClass
      * @param classFile
      * @param fieldName

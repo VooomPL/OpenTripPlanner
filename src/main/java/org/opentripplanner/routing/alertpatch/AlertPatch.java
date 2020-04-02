@@ -1,16 +1,6 @@
 package org.opentripplanner.routing.alertpatch;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.*;
-
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.api.adapters.AgencyAndIdAdapter;
+import org.opentripplanner.model.*;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.edgetype.PreAlightEdge;
 import org.opentripplanner.routing.edgetype.PreBoardEdge;
@@ -21,11 +11,15 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.*;
+
 /**
  * This adds a note to all boardings of a given route or stop (optionally, in a given direction)
  *
  * @author novalis
- *
  */
 public class AlertPatch implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(AlertPatch.class);
@@ -104,7 +98,7 @@ public class AlertPatch implements Serializable {
                     tripPatterns.add(tripPattern);
                 }
             } else if (route != null) {
-               tripPatterns = graph.index.patternsForRoute.get(route);
+                tripPatterns = graph.index.patternsForRoute.get(route);
             } else {
                 // Find patterns for the feed.
                 tripPatterns = graph.index.patternsForFeedId.get(feedId);
@@ -158,14 +152,14 @@ public class AlertPatch implements Serializable {
         if (route != null || trip != null || agency != null) {
             Collection<TripPattern> tripPatterns = null;
 
-            if(trip != null) {
+            if (trip != null) {
                 tripPatterns = new LinkedList<TripPattern>();
                 TripPattern tripPattern = graph.index.patternForTrip.get(trip);
-                if(tripPattern != null) {
+                if (tripPattern != null) {
                     tripPatterns.add(tripPattern);
                 }
             } else if (route != null) {
-               tripPatterns = graph.index.patternsForRoute.get(route);
+                tripPatterns = graph.index.patternsForRoute.get(route);
             } else {
                 // Find patterns for the feed.
                 tripPatterns = graph.index.patternsForFeedId.get(feedId);

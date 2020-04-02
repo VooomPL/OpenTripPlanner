@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -21,18 +21,23 @@ public class UpdaterStatusResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdaterStatusResource.class);
 
-    /** Choose short or long form of results. */
-    @QueryParam("detail") private boolean detail = false;
+    /**
+     * Choose short or long form of results.
+     */
+    @QueryParam("detail")
+    private boolean detail = false;
 
     Router router;
 
-    public UpdaterStatusResource (@Context OTPServer otpServer, @PathParam("routerId") String routerId) {
+    public UpdaterStatusResource(@Context OTPServer otpServer, @PathParam("routerId") String routerId) {
         router = otpServer.getRouter(routerId);
     }
 
-    /** Return a list of all agencies in the graph. */
+    /**
+     * Return a list of all agencies in the graph.
+     */
     @GET
-    public Response getUpdaters () {
+    public Response getUpdaters() {
         GraphUpdaterManager updaterManager = router.graph.updaterManager;
         if (updaterManager == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No updaters running.").build();
@@ -40,10 +45,12 @@ public class UpdaterStatusResource {
         return Response.status(Response.Status.OK).entity(updaterManager.getUpdaterDescriptions()).build();
     }
 
-    /** Return status for a specific updater. */
+    /**
+     * Return status for a specific updater.
+     */
     @GET
     @Path("/{updaterId}")
-    public Response getUpdaters (@PathParam("updaterId") int updaterId) {
+    public Response getUpdaters(@PathParam("updaterId") int updaterId) {
         GraphUpdaterManager updaterManager = router.graph.updaterManager;
         if (updaterManager == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No updaters running.").build();

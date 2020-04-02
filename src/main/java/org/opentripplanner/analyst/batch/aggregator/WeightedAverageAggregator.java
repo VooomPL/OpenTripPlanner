@@ -5,9 +5,9 @@ import org.opentripplanner.analyst.batch.ResultSet;
 
 /**
  * An Aggregator which calculates the weighted average of the shortest path lengths to all Individuals in the destination Population.
- * 
+ * <p>
  * This can be used to find the average distance/time to all people or jobs in a metropolitan area from a given origin.
- * 
+ *
  * @author andrewbyrd
  */
 public class WeightedAverageAggregator implements Aggregator {
@@ -17,7 +17,7 @@ public class WeightedAverageAggregator implements Aggregator {
         double aggregate = 0;
         int i = 0;
         int n = 0;
-        for (Individual target: rs.population) {
+        for (Individual target : rs.population) {
             double t = rs.results[i++];
             if (Double.isInfinite(target.input))
                 continue;

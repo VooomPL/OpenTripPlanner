@@ -11,16 +11,24 @@ import java.util.stream.IntStream;
 public class TransferRule extends Modification {
     private static final long serialVersionUID = 1L;
 
-    /** The boarding assumption to use for matched transfers */
+    /**
+     * The boarding assumption to use for matched transfers
+     */
     public RaptorWorkerTimetable.BoardingAssumption assumption;
 
-    /** From GTFS modes; note constants in Route */
+    /**
+     * From GTFS modes; note constants in Route
+     */
     public int[] fromMode;
 
-    /** To GTFS modes */
+    /**
+     * To GTFS modes
+     */
     public int[] toMode;
 
-    /** Stop label; if null will be applied to all stops. */
+    /**
+     * Stop label; if null will be applied to all stops.
+     */
     public String stop;
 
     /**
@@ -34,10 +42,10 @@ public class TransferRule extends Modification {
 
     /**
      * The proportion of the headway to apply when transferring, when assumption = PROPORTION.
-     *
+     * <p>
      * So, for example, if you set this to 0.33, and the buses run at thirty-minute frequency,
      * the wait time will be ten minutes.
-     *
+     * <p>
      * There is theoretical justification for setting this below 0.5 when the frequency-based network
      * under consideration will eventually have a schedule, even if transfers have not been and will
      * not be explicitly synchronized. Suppose all possible transfer times as a
@@ -47,7 +55,7 @@ public class TransferRule extends Modification {
      * transfer time of less than half headway (because transfer time is correlated with total trip
      * time, the objective function). Thus the average transfer time in optimal trips is less than
      * half headway.
-     *
+     * <p>
      * The same is not true of the initial wait, assuming the user gets to their the same way each time
      * they go there (which is probably true of most people who do not write transportation analytics
      * software for a living). If you leave your origin at random and do the same thing every day,
@@ -57,11 +65,12 @@ public class TransferRule extends Modification {
      */
     public Double waitProportion;
 
-    @Override public String getType() {
+    @Override
+    public String getType() {
         return "transfer-rule";
     }
 
-    public boolean matches (RaptorWorkerTimetable from, RaptorWorkerTimetable to) {
+    public boolean matches(RaptorWorkerTimetable from, RaptorWorkerTimetable to) {
         if (fromMode != null && !IntStream.of(fromMode).anyMatch(m -> m == from.mode))
             return false;
 

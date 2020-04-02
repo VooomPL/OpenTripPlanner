@@ -1,24 +1,19 @@
 package org.opentripplanner.routing.core;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
+
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.*;
 
 
 /**
  * Allows adding supplemental edges to existing vertices in another graph. Useful for CH, and
  * potentially for "extraEdges".
- * 
+ *
  * @author andrewbyrd
  */
 public class OverlayGraph implements Serializable {
@@ -187,9 +182,9 @@ public class OverlayGraph implements Serializable {
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         for (List<Edge> le : outgoing.values())
-            ((ArrayList<Edge>)le).trimToSize();
+            ((ArrayList<Edge>) le).trimToSize();
         for (List<Edge> le : incoming.values())
-            ((ArrayList<Edge>)le).trimToSize();
+            ((ArrayList<Edge>) le).trimToSize();
         out.defaultWriteObject();
     }
 

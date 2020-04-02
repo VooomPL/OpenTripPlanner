@@ -12,12 +12,12 @@ public class InterliningTeleport extends GraphBuilderAnnotation {
     final String blockId;
     final int distance;
 
-    public InterliningTeleport(Trip prevTrip, String blockId, int distance){
-    	this.prevTrip = prevTrip;
-    	this.blockId = blockId;
-    	this.distance = distance;
+    public InterliningTeleport(Trip prevTrip, String blockId, int distance) {
+        this.prevTrip = prevTrip;
+        this.blockId = blockId;
+        this.distance = distance;
     }
-    
+
     @Override
     public String getMessage() {
         return String.format(FMT, prevTrip, blockId, distance);

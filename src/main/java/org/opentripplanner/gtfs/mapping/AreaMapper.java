@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Map from the OBA model of GTFS-flex areas to the OTP internal model of areas. */
+/**
+ * Map from the OBA model of GTFS-flex areas to the OTP internal model of areas.
+ */
 class AreaMapper {
 
     private final Map<org.onebusaway.gtfs.model.Area, FlexArea> mappedAreas = new HashMap<>();
@@ -16,7 +18,9 @@ class AreaMapper {
         return MapUtils.mapToList(agencies, this::map);
     }
 
-    /** Map from the OBA model of GTFS-flex areas to the OTP internal model of areas.  */
+    /**
+     * Map from the OBA model of GTFS-flex areas to the OTP internal model of areas.
+     */
     FlexArea map(org.onebusaway.gtfs.model.Area orginal) {
         return orginal == null ? null : mappedAreas.computeIfAbsent(orginal, this::doMap);
     }

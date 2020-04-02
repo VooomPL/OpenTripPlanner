@@ -19,7 +19,7 @@ public class StopClusterDetail {
     public double lon;
     public List<StopShort> stops; // filled in only if detail is requested
 
-    public StopClusterDetail (StopCluster cluster, boolean detail) {
+    public StopClusterDetail(StopCluster cluster, boolean detail) {
         id = cluster.id;
         lat = cluster.lat;
         lon = cluster.lon;
@@ -32,7 +32,7 @@ public class StopClusterDetail {
         }
     }
 
-    public static List<StopClusterDetail> list (Collection<StopCluster> in, boolean detail) {
+    public static List<StopClusterDetail> list(Collection<StopCluster> in, boolean detail) {
         List<StopClusterDetail> out = Lists.newArrayList();
         for (StopCluster cluster : in) out.add(new StopClusterDetail(cluster, detail));
         return out;

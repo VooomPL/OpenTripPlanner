@@ -29,7 +29,7 @@ final public class TemporaryPartialStreetEdge extends StreetWithElevationEdge im
      * The elevation data is calculated using the 'parentEdge' and given 'length'.
      */
     public TemporaryPartialStreetEdge(StreetEdge parentEdge, StreetVertex v1, StreetVertex v2,
-            LineString geometry, I18NString name, double length) {
+                                      LineString geometry, I18NString name, double length) {
         super(v1, v2, geometry, name, length, parentEdge.getPermission(), false);
         this.parentEdge = parentEdge;
         setCarSpeed(parentEdge.getCarSpeed());
@@ -46,7 +46,7 @@ final public class TemporaryPartialStreetEdge extends StreetWithElevationEdge im
      * The elevation data is calculated using the 'parentEdge' and the calculated 'length'.
      */
     TemporaryPartialStreetEdge(StreetEdge parentEdge, StreetVertex v1, StreetVertex v2,
-            LineString geometry, I18NString name) {
+                               LineString geometry, I18NString name) {
         super(v1, v2, geometry, name, 0, parentEdge.getPermission(), false);
         this.parentEdge = parentEdge;
         setCarSpeed(parentEdge.getCarSpeed());
@@ -139,16 +139,16 @@ final public class TemporaryPartialStreetEdge extends StreetWithElevationEdge im
     }
 
     private void assertEdgeIsNotDirectedAwayFromTemporaryEndVertex(StreetVertex v1) {
-        if(v1 instanceof TemporaryVertex) {
-            if (((TemporaryVertex)v1).isEndVertex()) {
+        if (v1 instanceof TemporaryVertex) {
+            if (((TemporaryVertex) v1).isEndVertex()) {
                 throw new IllegalStateException("A temporary edge is directed away from an end vertex");
             }
         }
     }
 
     private void assertEdgeIsDirectedTowardsTemporaryEndVertex(StreetVertex v2) {
-        if(v2 instanceof TemporaryVertex) {
-            if (!((TemporaryVertex)v2).isEndVertex()) {
+        if (v2 instanceof TemporaryVertex) {
+            if (!((TemporaryVertex) v2).isEndVertex()) {
                 throw new IllegalStateException("A temporary edge is directed towards a start vertex");
             }
         }

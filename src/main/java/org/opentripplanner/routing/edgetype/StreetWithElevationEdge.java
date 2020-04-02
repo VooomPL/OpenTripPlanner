@@ -1,18 +1,17 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.CompactElevationProfile;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.routing.util.ElevationUtils;
 import org.opentripplanner.routing.util.SlopeCosts;
 import org.opentripplanner.routing.vertextype.StreetVertex;
-
-import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * A StreetEdge with elevation data.
- * 
+ *
  * @author laurent
  */
 public class StreetWithElevationEdge extends StreetEdge {
@@ -35,13 +34,13 @@ public class StreetWithElevationEdge extends StreetEdge {
      * Remember to call the {@link #setElevationProfile(PackedCoordinateSequence, boolean)} to initiate elevation data.
      */
     public StreetWithElevationEdge(StreetVertex v1, StreetVertex v2, LineString geometry,
-            I18NString name, double length, StreetTraversalPermission permission, boolean back) {
+                                   I18NString name, double length, StreetTraversalPermission permission, boolean back) {
         super(v1, v2, geometry, name, length, permission, back);
 
     }
 
     public StreetWithElevationEdge(StreetVertex v1, StreetVertex v2, LineString geometry,
-            String name, double length, StreetTraversalPermission permission, boolean back) {
+                                   String name, double length, StreetTraversalPermission permission, boolean back) {
         this(v1, v2, geometry, new NonLocalizedString(name), length, permission, back);
     }
 
@@ -61,9 +60,9 @@ public class StreetWithElevationEdge extends StreetEdge {
         SlopeCosts costs = ElevationUtils.getSlopeCosts(elev, slopeLimit);
 
         packedElevationProfile = CompactElevationProfile.compactElevationProfile(elev);
-        slopeSpeedFactor = (float)costs.slopeSpeedFactor;
-        slopeWorkFactor = (float)costs.slopeWorkFactor;
-        maxSlope = (float)costs.maxSlope;
+        slopeSpeedFactor = (float) costs.slopeSpeedFactor;
+        slopeWorkFactor = (float) costs.slopeWorkFactor;
+        maxSlope = (float) costs.maxSlope;
         flattened = costs.flattened;
         effectiveWalkFactor = costs.effectiveWalkFactor;
 

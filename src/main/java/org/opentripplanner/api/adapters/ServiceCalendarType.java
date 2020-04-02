@@ -1,13 +1,12 @@
 package org.opentripplanner.api.adapters;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.ServiceCalendar;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement(name = "Calendar")
 public class ServiceCalendarType {

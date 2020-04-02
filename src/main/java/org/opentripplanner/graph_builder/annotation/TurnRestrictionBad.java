@@ -6,7 +6,7 @@ public class TurnRestrictionBad extends GraphBuilderAnnotation {
 
     public static final String FMT = "Bad turn restriction at relation %s. Reason: %s";
     public static final String HTMLFMT = "Bad turn restriction at relation <a href='http://www.openstreetmap.org/relation/%s'>%s</a>. Reason: %s";
-    
+
     final long id;
 
     final String reason;

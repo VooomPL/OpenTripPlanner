@@ -1,13 +1,6 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import org.locationtech.jts.geom.*;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.P2;
@@ -20,11 +13,7 @@ import org.opentripplanner.routing.algorithm.strategies.SkipEdgeStrategy;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.edgetype.AreaEdge;
-import org.opentripplanner.routing.edgetype.AreaEdgeList;
-import org.opentripplanner.routing.edgetype.NamedArea;
-import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
+import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -32,6 +21,7 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
+import org.opentripplanner.util.I18NString;
 import org.opentripplanner.visibility.Environment;
 import org.opentripplanner.visibility.VLPoint;
 import org.opentripplanner.visibility.VLPolygon;
@@ -39,16 +29,7 @@ import org.opentripplanner.visibility.VisibilityPolygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.opentripplanner.util.I18NString;
+import java.util.*;
 
 /**
  * Theoretically, it is not correct to build the visibility graph on the joined polygon of areas
@@ -62,7 +43,6 @@ import org.opentripplanner.util.I18NString;
  * <p/>
  * Anyway, since we're not going to run an O(N^3) algorithm at runtime just to give people who don't
  * understand Snell's Law weird paths that they can complain about, this should be just fine.
- * 
  */
 public class WalkableAreaBuilder {
 
@@ -86,7 +66,7 @@ public class WalkableAreaBuilder {
     private HashMap<Coordinate, IntersectionVertex> areaBoundaryVertexForCoordinate = new HashMap<Coordinate, IntersectionVertex>();
 
     public WalkableAreaBuilder(Graph graph, OSMDatabase osmdb, WayPropertySet wayPropertySet,
-            StreetEdgeFactory edgeFactory, Handler handler) {
+                               StreetEdgeFactory edgeFactory, Handler handler) {
         this.graph = graph;
         this.osmdb = osmdb;
         this.wayPropertySet = wayPropertySet;
@@ -96,6 +76,7 @@ public class WalkableAreaBuilder {
 
     /**
      * For all areas just use outermost rings as edges so that areas can be routable without visibility calculations
+     *
      * @param group
      */
     public void buildWithoutVisibility(AreaGroup group) {
@@ -120,13 +101,13 @@ public class WalkableAreaBuilder {
                 for (Ring outerRing : area.outermostRings) {
                     for (int i = 0; i < outerRing.nodes.size(); ++i) {
                         createEdgesForRingSegment(edges, edgeList, area, outerRing, i,
-                            alreadyAddedEdges);
+                                alreadyAddedEdges);
                     }
                     //TODO: is this actually needed?
                     for (Ring innerRing : outerRing.holes) {
                         for (int j = 0; j < innerRing.nodes.size(); ++j) {
                             createEdgesForRingSegment(edges, edgeList, area, innerRing, j,
-                                alreadyAddedEdges);
+                                    alreadyAddedEdges);
                         }
                     }
                 }
@@ -158,7 +139,7 @@ public class WalkableAreaBuilder {
 
                 // public transform platforms will be handled separately if platformEntriesLinking
                 // parameter is true
-                if(platformEntriesLinking
+                if (platformEntriesLinking
                         && "platform".equals(area.parent.getTag("public_transport"))) {
                     continue;
                 }
@@ -253,8 +234,8 @@ public class WalkableAreaBuilder {
                     IntersectionVertex endEndpoint = handler.getVertexForOsmNode(nodeJ,
                             areaEntity);
 
-                    Coordinate[] coordinates = new Coordinate[] { startEndpoint.getCoordinate(),
-                            endEndpoint.getCoordinate() };
+                    Coordinate[] coordinates = new Coordinate[]{startEndpoint.getCoordinate(),
+                            endEndpoint.getCoordinate()};
                     GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
                     LineString line = geometryFactory.createLineString(coordinates);
                     if (poly != null && poly.contains(line)) {
@@ -283,7 +264,7 @@ public class WalkableAreaBuilder {
 
         @Override
         public boolean shouldSkipEdge(Vertex origin, Vertex target, State current, Edge edge,
-                ShortestPathTree spt, RoutingRequest traverseOptions) {
+                                      ShortestPathTree spt, RoutingRequest traverseOptions) {
             return !edges.contains(edge);
         }
     }
@@ -291,7 +272,7 @@ public class WalkableAreaBuilder {
     /**
      * Do an all-pairs shortest path search from a list of vertices over a specified set of edges,
      * and retain only those edges which are actually used in some shortest path.
-     * 
+     *
      * @param startingVertices
      * @param edges
      */
@@ -334,7 +315,7 @@ public class WalkableAreaBuilder {
     }
 
     private void addtoVisibilityAndStartSets(Set<OSMNode> startingNodes,
-            ArrayList<VLPoint> visibilityPoints, ArrayList<OSMNode> visibilityNodes, OSMNode node) {
+                                             ArrayList<VLPoint> visibilityPoints, ArrayList<OSMNode> visibilityNodes, OSMNode node) {
         if (osmdb.isNodeBelongsToWay(node.getId())
                 || osmdb.isNodeSharedByMultipleAreas(node.getId()) || node.isStop()) {
             startingNodes.add(node);
@@ -365,7 +346,7 @@ public class WalkableAreaBuilder {
     }
 
     private void createEdgesForRingSegment(Set<Edge> edges, AreaEdgeList edgeList, Area area,
-            Ring ring, int i, HashSet<P2<OSMNode>> alreadyAddedEdges) {
+                                           Ring ring, int i, HashSet<P2<OSMNode>> alreadyAddedEdges) {
         OSMNode node = ring.nodes.get(i);
         OSMNode nextNode = ring.nodes.get((i + 1) % ring.nodes.size());
         P2<OSMNode> nodePair = new P2<OSMNode>(node, nextNode);
@@ -381,13 +362,13 @@ public class WalkableAreaBuilder {
     }
 
     private void createSegments(OSMNode fromNode, OSMNode toNode, IntersectionVertex startEndpoint,
-            IntersectionVertex endEndpoint, Collection<Area> areas, AreaEdgeList edgeList,
-            Set<Edge> edges) {
+                                IntersectionVertex endEndpoint, Collection<Area> areas, AreaEdgeList edgeList,
+                                Set<Edge> edges) {
 
         List<Area> intersects = new ArrayList<Area>();
 
-        Coordinate[] coordinates = new Coordinate[] { startEndpoint.getCoordinate(),
-                endEndpoint.getCoordinate() };
+        Coordinate[] coordinates = new Coordinate[]{startEndpoint.getCoordinate(),
+                endEndpoint.getCoordinate()};
         GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
         LineString line = geometryFactory.createLineString(coordinates);
         for (Area area : areas) {
@@ -557,7 +538,7 @@ public class WalkableAreaBuilder {
     }
 
     private void accumulateVisibilityPoints(List<OSMNode> nodes, VLPolygon polygon,
-            List<VLPoint> visibilityPoints, List<OSMNode> visibilityNodes, boolean hole) {
+                                            List<VLPoint> visibilityPoints, List<OSMNode> visibilityNodes, boolean hole) {
         int n = polygon.vertices.size();
         for (int i = 0; i < n; ++i) {
             OSMNode curNode = nodes.get(i);
@@ -579,7 +560,7 @@ public class WalkableAreaBuilder {
     }
 
     private VLPolygon makeStandardizedVLPolygon(List<VLPoint> vertices, List<OSMNode> nodes,
-            boolean reversed) {
+                                                boolean reversed) {
         VLPolygon polygon = new VLPolygon(vertices);
 
         if ((reversed && polygon.area() > 0) || (!reversed && polygon.area() < 0)) {

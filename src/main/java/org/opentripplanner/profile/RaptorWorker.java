@@ -22,11 +22,11 @@ import java.util.stream.IntStream;
  * during a given time window. It originated as a rewrite of our RAPTOR code that would use "thin workers", allowing
  * computation by a generic function-execution service like AWS Lambda. The gains in efficiency were significant enough
  * that RaptorWorkers are now used in the context of a full-size OTP server executing spatial analysis tasks.
- *
+ * <p>
  * We can imagine that someday all OTP searches, including simple point-to-point searches, may be carried out on such
  * compacted tables, including both the transit and street searches (via a compacted street network in a column store
  * or struct-like byte array using something like the FastSerialization library).
- *
+ * <p>
  * This implements the RAPTOR algorithm; see http://research.microsoft.com/pubs/156567/raptor_alenex.pdf
  */
 public class RaptorWorker {
@@ -38,19 +38,19 @@ public class RaptorWorker {
      * Destinations with travel time above this threshold are considered unreachable. Note that this will cut off half of the
      * trips to a particular location if half the time it takes less than the cutoff and half the time more. Use in combination
      * with the reachability threshold in ProfileRequest to get desired results.
-     *
+     * <p>
      * The fact that there are edge effects here implies a problem with our methodology. We should be taking the approach that
      * the Accessibility Observatory has taken in which accessibility (rather than travel time) is calculated at each minute.
      * Alternatively, we could calculate the full OD matrix for each minute and save that to determine whether a particular destination
      * is reachable in less than x minutes on median for any arbitrary cutoff.
-     *
+     * <p>
      * This should be a number beyond which people would generally consider transit to be completely unreasonable.
      */
     static final int MAX_DURATION = 120 * 60;
 
     /**
      * The number of randomized frequency schedule draws to take for each minute of the search.
-     *
+     * <p>
      * We loop over all departure minutes and do a schedule search, and then run this many Monte Carlo
      * searches with randomized frequency schedules within each minute. It does not need to be particularly
      * high as it happens each minute, and there is likely a lot of repetition in the scheduled service
@@ -59,7 +59,9 @@ public class RaptorWorker {
      */
     public static final int MONTE_CARLO_COUNT_PER_MINUTE = 2;
 
-    /** If there are no schedules, the number of Monte Carlo draws to take */
+    /**
+     * If there are no schedules, the number of Monte Carlo draws to take
+     */
     public static final int TOTAL_MONTE_CARLO_COUNT = 99;
 
     int max_time = 0;
@@ -76,33 +78,39 @@ public class RaptorWorker {
      * location, as a later round may have found a faster but more-transfers way to get there). A path
      * reconstructed this way will tbus be optimal in the earliest-arrival sense but may not have the
      * fewest transfers; in fact, it will tend not to.
-     *
+     * <p>
      * Consider the case where there is a slower one-seat ride and a quicker route with a transfer
      * to get to a transit center. At the transit center you board another vehicle. If it turns out
      * that you still catch that vehicle at the same time regardless of which option you choose,
      * general utility theory would suggest that you would choose the one seat ride due to a) the
      * inconvenience of the transfer and b) the fact that most people have a smaller disutility for
      * in-vehicle time than waiting time, especially if the waiting is exposed to the elements, etc.
-     *
+     * <p>
      * However, this implementation will find the more-transfers trip because it doesn't know where you're
      * going from the transit center, whereas true RAPTOR would find both. It's not non-optimal in the
      * earliest arrival sense, but it's also not the only optimal option.
-     *
+     * <p>
      * All of that said, we could reconstruct paths simply by storing one more parallel array with
      * the index of the stop that you boarded a particular pattern at. Then we can do the typical
      * reverse-optimization step.
      */
     int[] previousPatterns;
 
-    /** The best times for reaching stops via transit rather than via a transfer from another stop */
+    /**
+     * The best times for reaching stops via transit rather than via a transfer from another stop
+     */
     int[] bestNonTransferTimes;
 
     RaptorWorkerData data;
 
-    /** stops touched this round */
+    /**
+     * stops touched this round
+     */
     BitSet stopsTouched;
 
-    /** stops touched any round this minute */
+    /**
+     * stops touched any round this minute
+     */
     BitSet allStopsTouched;
 
     BitSet patternsTouched;
@@ -123,13 +131,13 @@ public class RaptorWorker {
         allStopsTouched = new BitSet(data.nStops);
         stopsTouched = new BitSet(data.nStops);
         patternsTouched = new BitSet(data.nPatterns);
-        this.req = req; 
+        this.req = req;
         Arrays.fill(bestTimes, UNREACHED); // initialize once here and reuse on subsequent iterations.
         Arrays.fill(bestNonTransferTimes, UNREACHED);
         offsets = new FrequencyRandomOffsets(data);
     }
 
-    public void advance () {
+    public void advance() {
         round++;
         //        timesPerStop = new int[data.nStops];
         //        Arrays.fill(timesPerStop, UNREACHED);
@@ -139,10 +147,10 @@ public class RaptorWorker {
     }
 
     /**
-     * @param accessTimes a map from transit stops to the time it takes to reach those stops
+     * @param accessTimes     a map from transit stops to the time it takes to reach those stops
      * @param nonTransitTimes the time to reach all targets without transit. Targets can be vertices or points/samples.
      */
-    public PropagatedTimesStore runRaptor (Graph graph, TIntIntMap accessTimes, int[] nonTransitTimes, TaskStatistics ts) {
+    public PropagatedTimesStore runRaptor(Graph graph, TIntIntMap accessTimes, int[] nonTransitTimes, TaskStatistics ts) {
         long beginCalcTime = System.currentTimeMillis();
         TIntIntMap initialStops = new TIntIntHashMap();
         TIntIntIterator initialIterator = accessTimes.iterator();
@@ -232,13 +240,11 @@ public class RaptorWorker {
                         req.boardingAssumption = RaptorWorkerTimetable.BoardingAssumption.WORST_CASE;
                         // don't include extrema in averages
                         includeIterationInAverages[iteration] = false;
-                    }
-                    else if (i == 1 && req.boardingAssumption == RaptorWorkerTimetable.BoardingAssumption.RANDOM) {
+                    } else if (i == 1 && req.boardingAssumption == RaptorWorkerTimetable.BoardingAssumption.RANDOM) {
                         req.boardingAssumption = RaptorWorkerTimetable.BoardingAssumption.BEST_CASE;
                         // don't include extrema in averages
                         includeIterationInAverages[iteration] = false;
-                    }
-                    else if (requestedBoardingAssumption == RaptorWorkerTimetable.BoardingAssumption.RANDOM)
+                    } else if (requestedBoardingAssumption == RaptorWorkerTimetable.BoardingAssumption.RANDOM)
                         // use a new Monte Carlo draw each time
                         // included in averages by default
                         offsets.randomize();
@@ -310,8 +316,10 @@ public class RaptorWorker {
         }
     }
 
-    /** Run a raptor search not using frequencies */
-    public void runRaptorScheduled (TIntIntMap initialStops, int departureTime) {
+    /**
+     * Run a raptor search not using frequencies
+     */
+    public void runRaptorScheduled(TIntIntMap initialStops, int departureTime) {
         // Arrays.fill(bestTimes, UNREACHED); hold on to old state
         max_time = departureTime + MAX_DURATION;
         round = 0;
@@ -335,8 +343,10 @@ public class RaptorWorker {
         }
     }
 
-    /** Run a RAPTOR search using frequencies */
-    public void runRaptorFrequency (int departureTime, int[] bestTimes, int[] bestNonTransferTimes, int[] previousPatterns) {
+    /**
+     * Run a RAPTOR search using frequencies
+     */
+    public void runRaptorFrequency(int departureTime, int[] bestTimes, int[] bestNonTransferTimes, int[] previousPatterns) {
         max_time = departureTime + MAX_DURATION;
         round = 0;
         advance(); // go to first round
@@ -356,10 +366,11 @@ public class RaptorWorker {
         }
     }
 
-    public boolean doOneRound (int[] bestTimes, int[] bestNonTransferTimes, int[] previousPatterns, boolean useFrequencies) {
+    public boolean doOneRound(int[] bestTimes, int[] bestNonTransferTimes, int[] previousPatterns, boolean useFrequencies) {
         //LOG.info("round {}", round);
         stopsTouched.clear(); // clear any stops left over from previous round.
-        PATTERNS: for (int p = patternsTouched.nextSetBit(0); p >= 0; p = patternsTouched.nextSetBit(p+1)) {
+        PATTERNS:
+        for (int p = patternsTouched.nextSetBit(0); p >= 0; p = patternsTouched.nextSetBit(p + 1)) {
             //LOG.info("pattern {} {}", p, data.patternNames.get(p));
             int onTrip = -1;
             RaptorWorkerTimetable timetable = data.timetablesForPattern.get(p);
@@ -506,11 +517,11 @@ public class RaptorWorker {
     /**
      * Propagate from the transit network to the street network.
      * Uses allStopsTouched to determine from whence to propagate.
-     *
+     * <p>
      * This is valid both for randomized frequencies and for schedules, because the stops that have
      * been updated will be in allStopsTouched.
      */
-    public void doPropagation (int[] timesAtTransitStops, int[] timesAtTargets, int departureTime) {
+    public void doPropagation(int[] timesAtTransitStops, int[] timesAtTargets, int departureTime) {
         long beginPropagationTime = System.currentTimeMillis();
 
         // Record distances to each sample or intersection
@@ -552,7 +563,9 @@ public class RaptorWorker {
         totalPropagationTime += (System.currentTimeMillis() - beginPropagationTime);
     }
 
-    /** Mark all the patterns passing through the given stop. */
+    /**
+     * Mark all the patterns passing through the given stop.
+     */
     private void markPatternsForStop(int stop) {
         int[] patterns = data.patternsForStop.get(stop);
         for (int pattern : patterns) {

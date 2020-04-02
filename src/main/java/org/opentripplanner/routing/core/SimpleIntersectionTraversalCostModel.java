@@ -1,33 +1,45 @@
 package org.opentripplanner.routing.core;
 
-import java.io.Serializable;
-
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
+
+import java.io.Serializable;
 
 public class SimpleIntersectionTraversalCostModel extends AbstractIntersectionTraversalCostModel implements Serializable {
 
     // Model parameters are here. //
     // Constants for when there is a traffic light.
 
-    /** Expected time it takes to make a right at a light. */
+    /**
+     * Expected time it takes to make a right at a light.
+     */
     private Double expectedRightAtLightTimeSec = 15.0;
 
-    /** Expected time it takes to continue straight at a light. */
+    /**
+     * Expected time it takes to continue straight at a light.
+     */
     private Double expectedStraightAtLightTimeSec = 15.0;
 
-    /** Expected time it takes to turn left at a light. */
+    /**
+     * Expected time it takes to turn left at a light.
+     */
     private Double expectedLeftAtLightTimeSec = 15.0;
 
     // Constants for when there is no traffic light
 
-    /** Expected time it takes to make a right without a stop light. */
+    /**
+     * Expected time it takes to make a right without a stop light.
+     */
     private Double expectedRightNoLightTimeSec = 8.0;
 
-    /** Expected time it takes to continue straight without a stop light. */
+    /**
+     * Expected time it takes to continue straight without a stop light.
+     */
     private Double expectedStraightNoLightTimeSec = 5.0;
 
-    /** Expected time it takes to turn left without a stop light. */
+    /**
+     * Expected time it takes to turn left without a stop light.
+     */
     private Double expectedLeftNoLightTimeSec = 8.0;
 
     @Override
@@ -59,7 +71,7 @@ public class SimpleIntersectionTraversalCostModel extends AbstractIntersectionTr
         } else {
 
             //assume highway vertex
-            if(from.getCarSpeed()>25 && to.getCarSpeed()>25) {
+            if (from.getCarSpeed() > 25 && to.getCarSpeed() > 25) {
                 return 0;
             }
 

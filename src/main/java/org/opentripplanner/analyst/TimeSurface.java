@@ -1,22 +1,17 @@
 package org.opentripplanner.analyst;
 
-import org.locationtech.jts.geom.Coordinate;
 import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import org.apache.commons.math3.util.FastMath;
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.analyst.request.SampleGridRenderer;
 import org.opentripplanner.analyst.request.SampleGridRenderer.WTWD;
 import org.opentripplanner.common.geometry.AccumulativeGridSampler;
 import org.opentripplanner.common.geometry.SparseMatrixZSampleGrid;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.GenericLocation;
-import org.opentripplanner.profile.AnalystProfileRouterPrototype;
-import org.opentripplanner.profile.ProfileRequest;
-import org.opentripplanner.profile.ProfileRouter;
-import org.opentripplanner.profile.RepeatedRaptorProfileRouter;
-import org.opentripplanner.profile.RoundBasedProfileRouter;
-import org.opentripplanner.profile.TimeRange;
+import org.opentripplanner.profile.*;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.ShortestPathTree;
@@ -50,12 +45,16 @@ public class TimeSurface implements Serializable {
     public String description;
     public double walkSpeed = 1.33; // meters/sec TODO could we just store the whole routing request instead of params?
 
-    /** Create a time surface with a sample grid */
+    /**
+     * Create a time surface with a sample grid
+     */
     public TimeSurface(ShortestPathTree spt) {
         this(spt, true);
     }
-    
-    /** Create a time surface, optionally making a sample grid */
+
+    /**
+     * Create a time surface, optionally making a sample grid
+     */
     public TimeSurface(ShortestPathTree spt, boolean makeSampleGrid) {
 
         params = spt.getOptions().parameters;
@@ -87,13 +86,15 @@ public class TimeSurface implements Serializable {
         this.dateTime = spt.getOptions().dateTime;
         long t1 = System.currentTimeMillis();
         LOG.info("Made TimeSurface from SPT in {} msec.", (int) (t1 - t0));
-        
+
         if (makeSampleGrid)
             makeSampleGrid(spt);
     }
 
-    /** Make a max or min timesurface from propagated times in a ProfileRouter. */
-    public TimeSurface (AnalystProfileRouterPrototype profileRouter) {
+    /**
+     * Make a max or min timesurface from propagated times in a ProfileRouter.
+     */
+    public TimeSurface(AnalystProfileRouterPrototype profileRouter) {
         ProfileRequest req = profileRouter.request;
         lon = req.fromLon;
         lat = req.fromLat;
@@ -104,8 +105,10 @@ public class TimeSurface implements Serializable {
         walkSpeed = profileRouter.request.walkSpeed;
     }
 
-    /** Make a max or min timesurface from propagated times in a ProfileRouter. */
-    public TimeSurface (ProfileRouter profileRouter) {
+    /**
+     * Make a max or min timesurface from propagated times in a ProfileRouter.
+     */
+    public TimeSurface(ProfileRouter profileRouter) {
         // TODO merge with the version that takes AnalystProfileRouterPrototype, they are exactly the same.
         // But those two classes are not in the same inheritance hierarchy.
         ProfileRequest req = profileRouter.request;
@@ -117,9 +120,11 @@ public class TimeSurface implements Serializable {
         cutoffMinutes = profileRouter.MAX_DURATION / 60;
         walkSpeed = profileRouter.request.walkSpeed;
     }
-    
-    /** Make a max or min timesurface from propagated times in a ProfileRouter. */
-    public TimeSurface (RoundBasedProfileRouter profileRouter) {
+
+    /**
+     * Make a max or min timesurface from propagated times in a ProfileRouter.
+     */
+    public TimeSurface(RoundBasedProfileRouter profileRouter) {
         ProfileRequest req = profileRouter.request;
         lon = req.fromLon;
         lat = req.fromLat;
@@ -138,7 +143,7 @@ public class TimeSurface implements Serializable {
         cutoffMinutes = 120; // FIXME is there any well-defined cutoff? This is needed for generating isochrone curves.
     }
 
-	public static TimeSurface.RangeSet makeSurfaces (AnalystProfileRouterPrototype profileRouter) {
+    public static TimeSurface.RangeSet makeSurfaces(AnalystProfileRouterPrototype profileRouter) {
         TimeSurface minSurface = new TimeSurface(profileRouter);
         TimeSurface avgSurface = new TimeSurface(profileRouter);
         TimeSurface maxSurface = new TimeSurface(profileRouter);
@@ -159,7 +164,9 @@ public class TimeSurface implements Serializable {
         return result;
     }
 
-    /** Groups together three TimeSurfaces as a single response for profile-analyst. */
+    /**
+     * Groups together three TimeSurfaces as a single response for profile-analyst.
+     */
     public static class RangeSet {
         public TimeSurface min;
         public TimeSurface avg;
@@ -175,11 +182,13 @@ public class TimeSurface implements Serializable {
         return id;
     }
 
-    public int size() { return nextId; }
+    public int size() {
+        return nextId;
+    }
 
     // TODO Lazy-initialize sample grid on demand so initial SPT finishes faster, and only isolines lag behind.
     // however, the existing sampler needs an SPT, not general vertex-time mappings.
-    private void makeSampleGrid (ShortestPathTree spt) {
+    private void makeSampleGrid(ShortestPathTree spt) {
         long t0 = System.currentTimeMillis();
         final double gridSizeMeters = 300; // Todo: set dynamically and make sure this matches isoline builder params
         final double V0 = 1.00; // off-road walk speed in m/sec
@@ -198,7 +207,7 @@ public class TimeSurface implements Serializable {
      * Create the SampleGrid from whatever values are already in the TimeSurface, rather than looking at the SPT.
      * This is not really ideal since it includes only intersection nodes, and no points along the road segments.
      */
-    public void makeSampleGridWithoutSPT () {
+    public void makeSampleGridWithoutSPT() {
         long t0 = System.currentTimeMillis();
         final double gridSizeMeters = 300; // Todo: set dynamically and make sure this matches isoline builder params
         // Off-road max distance MUST be APPROX EQUALS to the grid precision

@@ -1,15 +1,14 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.opentripplanner.common.model.T2;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.services.notes.NoteMatcher;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.TranslatedString;
+
+import java.util.Map;
+import java.util.regex.Pattern;
 
 //Currently unused since notes are disabled in DefaultWayPropertySetSource
 public class NoteProperties {

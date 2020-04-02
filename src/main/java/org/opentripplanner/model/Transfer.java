@@ -120,6 +120,6 @@ public final class Transfer implements Serializable {
     }
 
     private static String toStrOpt(String lbl, IdentityBean arg1, IdentityBean arg2) {
-        return  (arg1 == null ? "" : (lbl + arg1.getId() + ".." + arg2.getId()));
+        return (arg1 == null ? "" : (lbl + arg1.getId() + ".." + arg2.getId()));
     }
 }

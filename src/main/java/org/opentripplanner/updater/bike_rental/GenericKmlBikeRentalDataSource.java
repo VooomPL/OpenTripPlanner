@@ -1,18 +1,13 @@
 package org.opentripplanner.updater.bike_rental;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.prefs.Preferences;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Load bike rental stations from a KML placemarks. Use name as bike park name and point
@@ -30,7 +25,7 @@ public class GenericKmlBikeRentalDataSource extends GenericXmlBikeRentalDataSour
 
     /**
      * @param namePrefix A string to prefix all station names coming from this source (for example:
-     *        "OV-fietspunt "). Please add a space at the end if needed.
+     *                   "OV-fietspunt "). Please add a space at the end if needed.
      */
     public void setNamePrefix(String namePrefix) {
         this.namePrefix = namePrefix;
@@ -38,7 +33,7 @@ public class GenericKmlBikeRentalDataSource extends GenericXmlBikeRentalDataSour
 
     /**
      * @param networks A network, or a comma-separated list of networks, to set to all stations from
-     *        the dataSource. Default to null (compatible with all).
+     *                 the dataSource. Default to null (compatible with all).
      */
     public void setNetworks(String networks) {
         this.networks = new HashSet<String>();
@@ -47,7 +42,7 @@ public class GenericKmlBikeRentalDataSource extends GenericXmlBikeRentalDataSour
 
     /**
      * @param allowDropoff True if the bike rental stations coming from this source allows bike
-     *        dropoff. True by default.
+     *                     dropoff. True by default.
      */
     public void setAllowDropoff(boolean allowDropoff) {
         this.allowDropoff = allowDropoff;

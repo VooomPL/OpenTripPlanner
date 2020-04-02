@@ -15,23 +15,23 @@ import java.util.List;
 /**
  * This is a JCommander-annotated class that holds parameters for OTP stand-alone mode.
  * These parameters can be parsed from the command line, or provided in a file using Jcommander's
- * at-symbol syntax (see http://jcommander.org/#Syntax). When stand-alone OTP is started as a 
+ * at-symbol syntax (see http://jcommander.org/#Syntax). When stand-alone OTP is started as a
  * daemon, parameters are loaded from such a file, located by default in '/etc/opentripplanner.cfg'.
- * 
+ * <p>
  * Note that JCommander-annotated parameters can be any type that can be constructed from a string.
- * This module also contains classes for validating parameters. 
+ * This module also contains classes for validating parameters.
  * See: http://jcommander.org/#Parameter_validation
- * 
- * Some parameter fields are not initialized so when inferring other parameters, we can check for 
+ * <p>
+ * Some parameter fields are not initialized so when inferring other parameters, we can check for
  * null and see whether they were specified on the command line.
- * 
+ *
  * @author abyrd
  */
 public class CommandLineParameters implements Cloneable {
 
-    private static final int    DEFAULT_PORT        = 8080;
-    private static final int    DEFAULT_SECURE_PORT = 8081;
-    private static final String DEFAULT_BASE_PATH   = "/var/otp";
+    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_SECURE_PORT = 8081;
+    private static final String DEFAULT_BASE_PATH = "/var/otp";
 
     /* Options for the command itself, rather than build or server sub-tasks. */
 
@@ -65,7 +65,7 @@ public class CommandLineParameters implements Cloneable {
             description = "Pass the graph to the server in-memory after building it, and saving to disk.")
     public boolean preFlight;
 
-    @Parameter(names = { "--version", },
+    @Parameter(names = {"--version",},
             description = "Print the version, and then exit.")
     public boolean version = false;
 
@@ -132,13 +132,15 @@ public class CommandLineParameters implements Cloneable {
             description = "Allow unauthenticated access to sensitive API resources, e.g. /routers")
     public boolean insecure = false;
 
-    @Parameter(names = { "--script" }, description = "run the specified OTP script (groovy, python)")
+    @Parameter(names = {"--script"}, description = "run the specified OTP script (groovy, python)")
     public File scriptFile = null;
 
-    @Parameter(names = { "--enableScriptingWebService" }, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
+    @Parameter(names = {"--enableScriptingWebService"}, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
     boolean enableScriptingWebService = false;
 
-    /** Set some convenience parameters based on other parameters' values. */
+    /**
+     * Set some convenience parameters based on other parameters' values.
+     */
     public void infer() {
         server |= (inMemory || preFlight || port != null);
         if (basePath == null) basePath = DEFAULT_BASE_PATH;
@@ -168,46 +170,46 @@ public class CommandLineParameters implements Cloneable {
             ret.routerIds = Lists.newArrayList();
             ret.routerIds.addAll(this.routerIds);
         }
-        
+
         return ret;
     }
-    
+
     public static class ReadableFile implements IParameterValidator {
         @Override
         public void validate(String name, String value) throws ParameterException {
             File file = new File(value);
-            if ( ! file.isFile()) {
+            if (!file.isFile()) {
                 String msg = String.format("%s: '%s' is not a file.", name, value);
                 throw new ParameterException(msg);
             }
-            if ( ! file.canRead()) {
+            if (!file.canRead()) {
                 String msg = String.format("%s: file '%s' is not readable.", name, value);
                 throw new ParameterException(msg);
             }
         }
     }
-    
+
     public static class ReadableDirectory implements IParameterValidator {
         @Override
         public void validate(String name, String value) throws ParameterException {
             File file = new File(value);
-            if ( ! file.isDirectory()) {
+            if (!file.isDirectory()) {
                 String msg = String.format("%s: '%s' is not a directory.", name, value);
                 throw new ParameterException(msg);
             }
-            if ( ! file.canRead()) {
+            if (!file.canRead()) {
                 String msg = String.format("%s: directory '%s' is not readable.", name, value);
                 throw new ParameterException(msg);
             }
         }
     }
-    
+
     public static class ReadWriteDirectory implements IParameterValidator {
         @Override
         public void validate(String name, String value) throws ParameterException {
             new ReadableDirectory().validate(name, value);
             File file = new File(value);
-            if ( ! file.canWrite()) {
+            if (!file.canWrite()) {
                 String msg = String.format("%s: directory '%s' is not writable.", name, value);
                 throw new ParameterException(msg);
             }
@@ -218,7 +220,7 @@ public class CommandLineParameters implements Cloneable {
         @Override
         public void validate(String name, String value) throws ParameterException {
             Integer i = Integer.parseInt(value);
-            if ( i <= 0 ) {
+            if (i <= 0) {
                 String msg = String.format("%s must be a positive integer.", name);
                 throw new ParameterException(msg);
             }
@@ -233,7 +235,7 @@ public class CommandLineParameters implements Cloneable {
             int port = Integer.parseInt(value);
             this.validate(port);
         }
-        
+
         public void validate(int port) throws ParameterException {
             ServerSocket socket = null;
             boolean portUnavailable = false;
@@ -247,18 +249,18 @@ public class CommandLineParameters implements Cloneable {
                 if (socket != null) {
                     try {
                         socket.close();
-                    } catch (IOException e) { 
+                    } catch (IOException e) {
                         // will not be thrown
                     }
                 }
             }
-            if ( portUnavailable ) {
+            if (portUnavailable) {
                 String msg = String.format(": port %d is not available. %s.", port, reason);
                 throw new ParameterException(msg);
             }
         }
     }
-    
+
     public static class RouterId implements IParameterValidator {
         @Override
         public void validate(String name, String value) throws ParameterException {

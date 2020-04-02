@@ -1,23 +1,23 @@
 package org.opentripplanner.graph_builder.module;
 
-import static org.junit.Assert.assertEquals;
+import com.beust.jcommander.internal.Lists;
+import org.junit.Test;
+import org.opentripplanner.graph_builder.model.GtfsBundle;
+import org.opentripplanner.gtfs.BikeAccess;
+import org.opentripplanner.gtfs.MockGtfs;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.IdentityBean;
+import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-import com.beust.jcommander.internal.Lists;
-import org.junit.Test;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.IdentityBean;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.gtfs.MockGtfs;
-import org.opentripplanner.graph_builder.model.GtfsBundle;
-import org.opentripplanner.gtfs.BikeAccess;
-import org.opentripplanner.routing.edgetype.TripPattern;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
+import static org.junit.Assert.assertEquals;
 
 public class GtfsGraphBuilderModuleTest {
 
@@ -94,7 +94,7 @@ public class GtfsGraphBuilderModuleTest {
         return gtfs;
     }
 
-    private static List<GtfsBundle> getGtfsAsBundleList (MockGtfs gtfs) {
+    private static List<GtfsBundle> getGtfsAsBundleList(MockGtfs gtfs) {
         GtfsBundle bundle = new GtfsBundle();
         bundle.setFeedId(new GtfsFeedId.Builder().id("FEED").build());
         bundle.setPath(gtfs.getPath());
@@ -104,7 +104,7 @@ public class GtfsGraphBuilderModuleTest {
     }
 
     private static <S extends Serializable, T extends IdentityBean<S>> T withId(Iterable<T> beans,
-            S id) {
+                                                                                S id) {
         for (T bean : beans) {
             if (bean.getId().equals(id)) {
                 return bean;

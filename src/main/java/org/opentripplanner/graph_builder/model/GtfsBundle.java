@@ -1,12 +1,5 @@
 package org.opentripplanner.graph_builder.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipFile;
-
 import org.apache.http.client.ClientProtocolException;
 import org.onebusaway.csv_entities.CsvInputSource;
 import org.onebusaway.csv_entities.FileCsvInputSource;
@@ -16,6 +9,13 @@ import org.opentripplanner.graph_builder.module.GtfsFeedId;
 import org.opentripplanner.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipFile;
 
 public class GtfsBundle {
 
@@ -33,15 +33,15 @@ public class GtfsBundle {
 
     private boolean transfersTxtDefinesStationPaths = false;
 
-    /** 
+    /**
      * Create direct transfers between the constituent stops of each parent station.
      * This is different from "linking stops to parent stations" below.
      */
     public boolean parentStationTransfers = false;
 
-    /** 
-     * Connect parent station vertices to their constituent stops to allow beginning and 
-     * ending paths (itineraries) at them. 
+    /**
+     * Connect parent station vertices to their constituent stops to allow beginning and
+     * ending paths (itineraries) at them.
      */
     public boolean linkStopsToParentStations = false;
 
@@ -59,7 +59,7 @@ public class GtfsBundle {
 
     public GtfsBundle() {
     }
-    
+
     public GtfsBundle(File gtfsFile) {
         this.setPath(gtfsFile);
     }
@@ -75,11 +75,11 @@ public class GtfsBundle {
     public void setCsvInputSource(CsvInputSource csvInputSource) {
         this.csvInputSource = csvInputSource;
     }
-    
+
     public String getDataKey() {
         return path + ";" + url + ";" + (csvInputSource != null ? csvInputSource.hashCode() : "");
     }
-    
+
     public CsvInputSource getCsvInputSource() throws IOException {
         if (csvInputSource == null) {
             if (path != null) {
@@ -101,8 +101,8 @@ public class GtfsBundle {
         return csvInputSource;
     }
 
-    public String toString () {
-        String src; 
+    public String toString() {
+        String src;
         if (path != null) {
             src = path.toString();
         } else if (url != null) {
@@ -115,7 +115,7 @@ public class GtfsBundle {
         }
         return "GTFS bundle at " + src;
     }
-    
+
     /**
      * So that we can load multiple gtfs feeds into the same database.
      */
@@ -158,13 +158,13 @@ public class GtfsBundle {
     }
 
     /**
-     * Transfers.txt usually specifies where the transit operator prefers people to transfer, 
+     * Transfers.txt usually specifies where the transit operator prefers people to transfer,
      * due to schedule structure and other factors.
-     * 
-     * However, in systems like the NYC subway system, transfers.txt can partially substitute 
+     * <p>
+     * However, in systems like the NYC subway system, transfers.txt can partially substitute
      * for the missing pathways.txt file.  In this case, transfer edges will be created between
      * stops where transfers are defined.
-     * 
+     *
      * @return
      */
     public boolean doesTransfersTxtDefineStationPaths() {

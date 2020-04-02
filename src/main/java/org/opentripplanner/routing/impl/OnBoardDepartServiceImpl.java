@@ -1,12 +1,12 @@
 package org.opentripplanner.routing.impl;
 
-import java.util.List;
-
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Trip;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.P2;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.ServiceDay;
@@ -22,22 +22,21 @@ import org.opentripplanner.routing.vertextype.PatternStopVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+import java.util.List;
 
 /**
  * Graph service for depart-on-board mode.
- * 
+ * <p>
  * Default implementation with initial position and date-time set.
- * 
+ * <p>
  * We need departure date-time on top of initial position to determine the service day on which the
  * given trip is running.
- * 
+ * <p>
  * Works only for standard trips: frequency-based is not (yet?) supported.
- * 
+ * <p>
  * TODO The method is not optimal for looping trips, as several origin point can map to distinct
  * location on trip shape.
- * 
+ *
  * @author laurent
  */
 public class OnBoardDepartServiceImpl implements OnBoardDepartService {
@@ -205,7 +204,7 @@ public class OnBoardDepartServiceImpl implements OnBoardDepartService {
              */
             int depTime = bestTripTimes.getDepartureTime(bestStopIndex);
             int arrTime = bestTripTimes.getArrivalTime(bestStopIndex + 1);
-            fractionCovered =  ((double) (time - depTime)) / ((double) (arrTime - depTime));
+            fractionCovered = ((double) (time - depTime)) / ((double) (arrTime - depTime));
 
             P2<LineString> geomPair =
                     GeometryUtils.splitGeometryAtFraction(geometry, fractionCovered);

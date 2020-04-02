@@ -1,18 +1,17 @@
 package org.opentripplanner.graph_builder.module.shapefile;
 
+import org.opengis.feature.simple.SimpleFeature;
+import org.opentripplanner.graph_builder.services.shapefile.SimpleFeatureConverter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.opengis.feature.simple.SimpleFeature;
-import org.opentripplanner.graph_builder.services.shapefile.SimpleFeatureConverter;
-
 /**
  * A converter which is a composite of other converters. It can combine them with an "and" or "or"
  * strategy. The orPermissions variable controls that.
- * 
+ *
  * @author rob, novalis
- * 
  */
 public class CompositeBooleanConverter implements SimpleFeatureConverter<Boolean> {
 
@@ -26,10 +25,10 @@ public class CompositeBooleanConverter implements SimpleFeatureConverter<Boolean
     public CompositeBooleanConverter(SimpleFeatureConverter<Boolean>... converters) {
         this.converters = new ArrayList<SimpleFeatureConverter<Boolean>>(Arrays.asList(converters));
     }
-    
+
     /**
      * Is the or combination strategy being used?
-     * 
+     *
      * @return whether the or combination strategy is used
      */
     public boolean isOrPermissions() {
@@ -42,9 +41,8 @@ public class CompositeBooleanConverter implements SimpleFeatureConverter<Boolean
 
     /**
      * set the list of converters used to the passed in parameter
-     * 
-     * @param converters
-     *            list of converters to use
+     *
+     * @param converters list of converters to use
      */
     public void setConverters(
             Collection<SimpleFeatureConverter<Boolean>> converters) {
@@ -75,6 +73,7 @@ public class CompositeBooleanConverter implements SimpleFeatureConverter<Boolean
 
     /**
      * add a converter to the list to be applied
+     *
      * @param converter the new converter
      */
     public void add(SimpleFeatureConverter<Boolean> converter) {

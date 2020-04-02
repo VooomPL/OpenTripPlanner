@@ -15,7 +15,7 @@ public interface CalendarService {
     /**
      * @param serviceId the target service id
      * @return the set of all service dates for which the specified service id is
-     *         active
+     * active
      */
     Set<ServiceDate> getServiceDatesForServiceId(FeedScopedId serviceId);
 

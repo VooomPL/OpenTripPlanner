@@ -11,7 +11,7 @@ import java.util.List;
  * Groups stops by geographic proximity and name similarity.
  * This will at least half the number of distinct stop places. In profile routing this means a lot less branching
  * and a lot less transfers to consider.
- *
+ * <p>
  * It seems to work quite well for both the Washington DC region and Portland. Locations outside the US would require
  * additional stop name normalizer modules.
  */
@@ -30,7 +30,7 @@ public class StopCluster {
         this.name = name;
     }
 
-    public void setCoordinates(double lat, double lon){
+    public void setCoordinates(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
     }

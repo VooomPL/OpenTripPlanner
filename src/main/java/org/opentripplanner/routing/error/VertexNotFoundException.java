@@ -10,7 +10,7 @@ public class VertexNotFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     List<String> notFound;
-    
+
     public VertexNotFoundException(List<String> notFound) {
         super("vertices not found: " + notFound.toString());
         this.notFound = notFound;
@@ -19,5 +19,5 @@ public class VertexNotFoundException extends RuntimeException {
     public List<String> getMissing() {
         return notFound;
     }
-    
+
 }

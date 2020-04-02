@@ -9,10 +9,14 @@ import org.opentripplanner.routing.graph.Graph;
  * a transit stop.
  */
 public class SplitterVertex extends IntersectionVertex {
-    /** The OSM node ID of the intersection before this split vertex */
+    /**
+     * The OSM node ID of the intersection before this split vertex
+     */
     public final long previousNodeId;
 
-    /** The OSM node ID of the intersection after this split vertex */
+    /**
+     * The OSM node ID of the intersection after this split vertex
+     */
     public final long nextNodeId;
 
     public SplitterVertex(Graph g, String label, double x, double y, StreetEdge streetEdge) {

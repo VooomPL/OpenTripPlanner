@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
-
-import org.onebusaway.gtfs.model.Route;
 import org.opentripplanner.analyst.core.Sample;
 import org.opentripplanner.analyst.request.SampleFactory;
-import org.opentripplanner.model.json_serialization.*;
+import org.opentripplanner.model.json_serialization.BitSetDeserializer;
+import org.opentripplanner.model.json_serialization.BitSetSerializer;
+import org.opentripplanner.model.json_serialization.EncodedPolylineJSONDeserializer;
+import org.opentripplanner.model.json_serialization.EncodedPolylineJSONSerializer;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,35 +19,51 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** Add a trip pattern */
+/**
+ * Add a trip pattern
+ */
 public class AddTripPattern extends Modification {
     public static final long serialVersionUID = 1L;
     public static final Logger LOG = LoggerFactory.getLogger(AddTripPattern.class);
 
-    /** The name of this pattern */
+    /**
+     * The name of this pattern
+     */
     public String name;
 
-    /** The geometry of this pattern */
+    /**
+     * The geometry of this pattern
+     */
     @JsonDeserialize(using = EncodedPolylineJSONDeserializer.class)
     @JsonSerialize(using = EncodedPolylineJSONSerializer.class)
     public LineString geometry;
 
-    /** What coordinate indices should be stops */
+    /**
+     * What coordinate indices should be stops
+     */
     @JsonDeserialize(using = BitSetDeserializer.class)
     @JsonSerialize(using = BitSetSerializer.class)
     public BitSet stops;
 
-    /** The timetables for this trip pattern */
+    /**
+     * The timetables for this trip pattern
+     */
     public Collection<PatternTimetable> timetables;
 
-    /** used to store the indices of the temporary stops in the graph */
+    /**
+     * used to store the indices of the temporary stops in the graph
+     */
     public transient TemporaryStop[] temporaryStops;
 
-    /** GTFS mode (route_type), see constants at https://developers.google.com/transit/gtfs/reference/#routestxt */
+    /**
+     * GTFS mode (route_type), see constants at https://developers.google.com/transit/gtfs/reference/#routestxt
+     */
     public int mode = 3;
 
-    /** Create temporary stops associated with the given graph. Note that a given AddTripPattern can be associated only with a single graph. */
-    public void materialize (Graph graph) {
+    /**
+     * Create temporary stops associated with the given graph. Note that a given AddTripPattern can be associated only with a single graph.
+     */
+    public void materialize(Graph graph) {
         SampleFactory sfac = graph.getSampleFactory();
 
         temporaryStops = new TemporaryStop[stops.cardinality()];
@@ -62,54 +79,82 @@ public class AddTripPattern extends Modification {
         return "add-trip-pattern";
     }
 
-    /** a class representing a minimal timetable */
+    /**
+     * a class representing a minimal timetable
+     */
     public static class PatternTimetable implements Serializable {
-        /** hop times in seconds */
+        /**
+         * hop times in seconds
+         */
         public int[] hopTimes;
 
-        /** dwell times in seconds */
+        /**
+         * dwell times in seconds
+         */
         public int[] dwellTimes;
 
-        /** is this a frequency entry? */
+        /**
+         * is this a frequency entry?
+         */
         public boolean frequency;
 
-        /** start time (seconds since GTFS midnight) */
+        /**
+         * start time (seconds since GTFS midnight)
+         */
         public int startTime;
 
-        /** end time for frequency-based trips (seconds since GTFS midnight) */
+        /**
+         * end time for frequency-based trips (seconds since GTFS midnight)
+         */
         public int endTime;
 
-        /** headway for frequency-based patterns */
+        /**
+         * headway for frequency-based patterns
+         */
         public int headwaySecs;
 
-        /** What days is this active on (starting with Monday at 0)? */
+        /**
+         * What days is this active on (starting with Monday at 0)?
+         */
         @JsonDeserialize(using = BitSetDeserializer.class)
         @JsonSerialize(using = BitSetSerializer.class)
         public BitSet days;
     }
 
-    /** A class representing a stop temporarily in the graph */
+    /**
+     * A class representing a stop temporarily in the graph
+     */
     public static class TemporaryStop {
-        /** The indices of temporary stops are negative numbers to avoid clashes with the positive (vertex) indices of permanent stops. Note that code in RaptorWorkerData depends on these being negative. */
+        /**
+         * The indices of temporary stops are negative numbers to avoid clashes with the positive (vertex) indices of permanent stops. Note that code in RaptorWorkerData depends on these being negative.
+         */
         private static AtomicInteger nextId = new AtomicInteger(-1);
 
-        /** the index of this stop in the graph */
+        /**
+         * the index of this stop in the graph
+         */
         public final int index;
 
-        /** The latitude of this stop */
+        /**
+         * The latitude of this stop
+         */
         public final double lat;
 
-        /** The longitude of this stop */
+        /**
+         * The longitude of this stop
+         */
         public final double lon;
 
-        /** how this vertex is connected to the graph */
+        /**
+         * how this vertex is connected to the graph
+         */
         public final Sample sample;
 
-        public TemporaryStop (Coordinate c, SampleFactory sampleFactory) {
+        public TemporaryStop(Coordinate c, SampleFactory sampleFactory) {
             this(c.y, c.x, sampleFactory);
         }
 
-        public TemporaryStop (double lat, double lon, SampleFactory sampleFactory) {
+        public TemporaryStop(double lat, double lon, SampleFactory sampleFactory) {
             this.lat = lat;
             this.lon = lon;
             this.index = nextId.decrementAndGet();
@@ -119,7 +164,7 @@ public class AddTripPattern extends Modification {
                 LOG.warn("Temporary stop unlinked: {}", this);
         }
 
-        public String toString () {
+        public String toString() {
             return "Temporary stop at " + this.lat + ", " + this.lon;
         }
     }

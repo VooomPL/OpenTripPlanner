@@ -1,22 +1,22 @@
 package org.opentripplanner;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.HashMap;
-
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.graph_builder.module.DirectTransferGenerator;
 import org.opentripplanner.graph_builder.module.StreetLinkerModule;
 import org.opentripplanner.graph_builder.module.osm.DefaultWayPropertySetSource;
 import org.opentripplanner.graph_builder.module.osm.OpenStreetMapModule;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.openstreetmap.impl.AnyFileBasedOpenStreetMapProviderImpl;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.edgetype.factory.TransferGraphLinker;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.HashMap;
 
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
@@ -27,7 +27,7 @@ public class ConstantsForTests {
     public static final String PORTLAND_GTFS = "src/test/resources/google_transit.zip";
 
     public static final String KCM_GTFS = "src/test/resources/kcm_gtfs.zip";
-    
+
     public static final String FAKE_GTFS = "src/test/resources/testagency.zip";
 
     public static final String FARE_COMPONENT_GTFS = "src/test/resources/farecomponent_gtfs.zip";
@@ -122,7 +122,7 @@ public class ConstantsForTests {
             PatternHopFactory factory = new PatternHopFactory(ctx);
             factory.run(g);
 
-            CalendarServiceData csd =  createCalendarServiceData(ctx.getOtpTransitService());
+            CalendarServiceData csd = createCalendarServiceData(ctx.getOtpTransitService());
             g.putService(CalendarServiceData.class, csd);
             g.updateTransitFeedValidity(csd);
             g.hasTransit = true;
@@ -134,7 +134,7 @@ public class ConstantsForTests {
             g.index(new DefaultStreetVertexIndexFactory());
 
             return g;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;

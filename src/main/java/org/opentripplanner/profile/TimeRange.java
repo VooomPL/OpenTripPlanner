@@ -10,10 +10,17 @@ public class TimeRange {
 
     public int min, max, avg, n;
 
-    /** Construct a TimeRange where all fields are zero. */
-    public TimeRange() { };
+    /**
+     * Construct a TimeRange where all fields are zero.
+     */
+    public TimeRange() {
+    }
 
-    /** Construct a TimeRange for a single value. */
+    ;
+
+    /**
+     * Construct a TimeRange for a single value.
+     */
     public TimeRange(int t) {
         this.min = t;
         this.max = t;
@@ -21,9 +28,11 @@ public class TimeRange {
         n = 1;
     }
 
-    /** Return true if the time range was updated, false if it remained the same. */
+    /**
+     * Return true if the time range was updated, false if it remained the same.
+     */
     // TODO does comparing averages lead to an endless-improvement loop situation?
-    public boolean mergeIn (TimeRange other) {
+    public boolean mergeIn(TimeRange other) {
         if (other.min < this.min || other.max < this.max || other.avg < this.avg) {
             // the other range is better in at least one way, combine it into this one
             if (other.min < this.min && other.max < this.max && other.avg < this.avg) {
@@ -51,8 +60,10 @@ public class TimeRange {
         }
     }
 
-    /** Return a copy of this TimeRange that is translated forward in time by t seconds. */
-    public TimeRange shift (int t) {
+    /**
+     * Return a copy of this TimeRange that is translated forward in time by t seconds.
+     */
+    public TimeRange shift(int t) {
         TimeRange ret = new TimeRange();
         ret.min = this.min + t;
         ret.max = this.max + t;
@@ -61,33 +72,43 @@ public class TimeRange {
         return ret;
     }
 
-    /** Return a copy of this TimeRange that includes a uniformly distributed wait from zero to t seconds. */
-    public TimeRange wait (int t) {
+    /**
+     * Return a copy of this TimeRange that includes a uniformly distributed wait from zero to t seconds.
+     */
+    public TimeRange wait(int t) {
         TimeRange ret = new TimeRange();
         ret.min = this.min;
         ret.max = this.max + t;
-        ret.avg = this.avg + t/2;
+        ret.avg = this.avg + t / 2;
         ret.n = this.n;
         return ret;
     }
 
-    /** Keeps one TimeRange per TransitStop that has been reached. */
+    /**
+     * Keeps one TimeRange per TransitStop that has been reached.
+     */
     public static class Tracker implements Iterable<Stop> {
 
         Map<Stop, TimeRange> ranges = Maps.newHashMap();
 
-        /** Set the travel time to a specific transit stop to exactly t seconds, overwriting any existing value. */
-        public void set (Stop stop, int t) {
+        /**
+         * Set the travel time to a specific transit stop to exactly t seconds, overwriting any existing value.
+         */
+        public void set(Stop stop, int t) {
             ranges.put(stop, new TimeRange(t));
         }
 
-        /** Get the existing TimeRange for the specified stop, or NULL if none is defined. */
-        public TimeRange get (Stop stop) {
+        /**
+         * Get the existing TimeRange for the specified stop, or NULL if none is defined.
+         */
+        public TimeRange get(Stop stop) {
             return ranges.get(stop);
         }
 
-        /** Return true if the time range at the given stop was updated. */
-        public boolean add (Stop stop, TimeRange newRange) {
+        /**
+         * Return true if the time range at the given stop was updated.
+         */
+        public boolean add(Stop stop, TimeRange newRange) {
             TimeRange existingRange = ranges.get(stop);
             if (existingRange == null) {
                 ranges.put(stop, newRange);
@@ -104,9 +125,9 @@ public class TimeRange {
 
     public void checkCoherent() {
         if (avg < 0) {
-            System.out.printf ("avg is negative: %d \n", avg);
+            System.out.printf("avg is negative: %d \n", avg);
         }
-        if (! (min <= avg && avg <= max)) {
+        if (!(min <= avg && avg <= max)) {
             System.out.printf("incoherent: min %d avg %d max %d \n", min, avg, max);
         }
     }

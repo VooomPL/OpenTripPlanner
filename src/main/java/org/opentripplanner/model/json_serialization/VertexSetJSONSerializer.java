@@ -1,24 +1,22 @@
 package org.opentripplanner.model.json_serialization;
 
-import java.io.IOException;
-
-
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Graph;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Graph;
+
+import java.io.IOException;
 
 
 /**
  * This serializes an object containing Vertex objects, replacing any edges with integer edge ids.
- * @see EdgeSetJSONSerializer
- * @author novalis
  *
+ * @author novalis
+ * @see EdgeSetJSONSerializer
  */
 public class VertexSetJSONSerializer extends JsonSerializer<WithGraph> {
 
@@ -31,12 +29,12 @@ public class VertexSetJSONSerializer extends JsonSerializer<WithGraph> {
 
         SimpleModule module = SerializerUtils.getSerializerModule();
         module.addSerializer(new EdgeSerializer(object.getGraph()));
-        
+
         mapper.registerModule(module);
         //configuring jgen to just use the mapper doesn't actually work
         jgen.writeRawValue(mapper.writeValueAsString(object.getObject()));
     }
-    
+
     class EdgeSerializer extends JsonSerializer<Edge> {
 
         private Graph graph;
@@ -51,11 +49,11 @@ public class VertexSetJSONSerializer extends JsonSerializer<WithGraph> {
             Integer edgeId = graph.getIdForEdge(value);
             jgen.writeObject(edgeId);
         }
-        
+
         @Override
         public Class<Edge> handledType() {
             return Edge.class;
         }
-        
+
     }
 }

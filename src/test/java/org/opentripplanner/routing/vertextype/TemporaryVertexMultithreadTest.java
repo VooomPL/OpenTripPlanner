@@ -51,7 +51,8 @@ public class TemporaryVertexMultithreadTest {
             super(graph, label, ANY_LOC, ANY_LOC);
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return getLabel();
         }
     }
@@ -61,7 +62,8 @@ public class TemporaryVertexMultithreadTest {
             super(graph, label);
         }
 
-        @Override public boolean isEndVertex() {
+        @Override
+        public boolean isEndVertex() {
             throw new IllegalStateException("The `isEndVertex` is not used by dispose logic.");
         }
     }

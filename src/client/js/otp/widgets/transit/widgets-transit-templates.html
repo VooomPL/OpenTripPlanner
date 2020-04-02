@@ -2,15 +2,15 @@
 
     <div class="otp-stopViewer-container notDraggable">
         <div class="otp-stopViewer-stopInfo">
-			{{no_stops_selected}}
+            {{no_stops_selected}}
         </div>
 
         <div style="margin-top: 4px; text-align: center;">
-			<b>{{date}}</b>: <input type='text' class="otp-stopViewer-dateInput" />
+            <b>{{date}}</b>: <input type='text' class="otp-stopViewer-dateInput"/>
         </div>
         <div class="otp-stopViewer-timeList"></div>
         <div class="otp-stopViewer-findButtonRow">
-			<button class="otp-stopViewer-findButton">{{find_stops}}</button>
+            <button class="otp-stopViewer-findButton">{{find_stops}}</button>
         </div>
 
     </div>
@@ -24,21 +24,21 @@
         </div>
         <div class="otp-stopViewer-routeRow">
             {{#routeShortName}}
-                ({{routeShortName}})
+            ({{routeShortName}})
             {{/routeShortName}}
             {{routeLongName}}
         </div>
 
         {{#headsign}}
-            <div class="otp-stopViewer-headsignRow">
-				{{to}}{{headsign}}
-            </div>
+        <div class="otp-stopViewer-headsignRow">
+            {{to}}{{headsign}}
+        </div>
         {{/headsign}}
 
         {{#blockId}}
-            <div class="otp-stopViewer-blockRow">
-				{{block}} {{blockId}}
-            </div>
+        <div class="otp-stopViewer-blockRow">
+            {{block}} {{blockId}}
+        </div>
         {{/blockId}}
     </div>
 </script>
@@ -51,34 +51,34 @@
 
         <div style="position: absolute; top: 0px; left: 0px; right: 0px;">
             <div style="position:absolute; left: 0px; padding-top: 2px;">
-				{{feed}}:
+                {{feed}}:
             </div>
             <div style="position:absolute; left: 65px; right: 0px;">
-                <select style="width: 100%" class="otp-stopFinder-feedSelect" />
+                <select style="width: 100%" class="otp-stopFinder-feedSelect"/>
             </div>
         </div>
 
         <div style="position: absolute; top: 25px; left: 0px; right: 0px;">
             <div style="position:absolute; left: 0px; padding-top: 2px;">
-				{{by_id}}:
+                {{by_id}}:
             </div>
             <div style="position:absolute; left: 65px; right: 70px;">
-                <input type="text" style="width: 100%" class="otp-stopFinder-idField" />
+                <input type="text" style="width: 100%" class="otp-stopFinder-idField"/>
             </div>
             <div style="position:absolute; width: 60px; right: 0px;">
-				<button class="otp-stopFinder-idButton">{{search}}</button>
+                <button class="otp-stopFinder-idButton">{{search}}</button>
             </div>
         </div>
 
         <div style="position: absolute; top: 50px; left: 0px; right: 0px;">
             <div style="position:absolute; left: 0px; padding-top: 2px;">
-				{{by_name}}:
+                {{by_name}}:
             </div>
             <div style="position:absolute; left: 65px; right: 70px;">
-                <input type="text" style="width: 100%" class="otp-stopFinder-nameField" />
+                <input type="text" style="width: 100%" class="otp-stopFinder-nameField"/>
             </div>
             <div style="position:absolute; width: 60px; right: 0px;">
-				<button class="otp-stopFinder-nameButton">{{search}}</button>
+                <button class="otp-stopFinder-nameButton">{{search}}</button>
             </div>
         </div>
 

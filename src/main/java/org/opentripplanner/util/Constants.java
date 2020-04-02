@@ -2,7 +2,7 @@ package org.opentripplanner.util;
 
 /**
  * Constants
- * 
+ *
  * @author Frank Purcell
  * @version $Revision: 1.0 $
  * @since 1.0

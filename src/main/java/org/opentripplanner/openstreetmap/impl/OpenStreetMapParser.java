@@ -1,27 +1,16 @@
 package org.opentripplanner.openstreetmap.impl;
 
+import org.opentripplanner.openstreetmap.model.*;
 import org.opentripplanner.openstreetmap.services.OpenStreetMapContentHandler;
-import org.opentripplanner.openstreetmap.model.OSMNode;
-import org.opentripplanner.openstreetmap.model.OSMNodeRef;
-import org.opentripplanner.openstreetmap.model.OSMRelation;
-import org.opentripplanner.openstreetmap.model.OSMRelationMember;
-import org.opentripplanner.openstreetmap.model.OSMTag;
-import org.opentripplanner.openstreetmap.model.OSMWay;
-import org.opentripplanner.openstreetmap.model.OSMWithTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 
 public class OpenStreetMapParser {
 

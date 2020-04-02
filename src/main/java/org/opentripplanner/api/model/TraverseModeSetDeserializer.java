@@ -12,8 +12,9 @@ import java.io.IOException;
  * Deserialize a TraverseModeSet from its string constituents.
  */
 public class TraverseModeSetDeserializer extends JsonDeserializer<TraverseModeSet> {
-    @Override public TraverseModeSet deserialize(JsonParser jsonParser,
-            DeserializationContext deserializationContext)
+    @Override
+    public TraverseModeSet deserialize(JsonParser jsonParser,
+                                       DeserializationContext deserializationContext)
             throws IOException, JsonProcessingException {
         return new TraverseModeSet(jsonParser.getValueAsString());
     }

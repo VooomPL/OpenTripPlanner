@@ -1,23 +1,23 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.TransitStationStop;
-import org.locationtech.jts.geom.LineString;
+
 import java.util.Locale;
 
 /**
  * A transfer directly between two stops without using the street network.
- *
  */
 public class TransferEdge extends Edge {
 
     private static final long serialVersionUID = 1L;
-    
+
     int time = 0;
-    
+
     double distance;
 
     private LineString geometry = null;
@@ -30,18 +30,19 @@ public class TransferEdge extends Edge {
     public TransferEdge(TransitStationStop fromv, TransitStationStop tov, double distance) {
         this(fromv, tov, distance, (int) distance);
     }
-    
+
     /**
      * Creates a new Transfer edge.
-     * @param fromv     the Vertex where the transfer originates
-     * @param tov       the Vertex where the transfer ends
-     * @param distance  the distance in meters from the origin Vertex to the destination
-     * @param time      the minimum time in seconds it takes to complete this transfer
+     *
+     * @param fromv    the Vertex where the transfer originates
+     * @param tov      the Vertex where the transfer ends
+     * @param distance the distance in meters from the origin Vertex to the destination
+     * @param time     the minimum time in seconds it takes to complete this transfer
      */
     public TransferEdge(TransitStationStop fromv, TransitStationStop tov, double distance, int time) {
         super(fromv, tov);
         this.distance = distance;
-        this.time = time; 
+        this.time = time;
     }
 
     public String getDirection() {
@@ -85,7 +86,7 @@ public class TransferEdge extends Edge {
     }
 
     public void setGeometry(LineString geometry) {
-        this.geometry  = geometry;
+        this.geometry = geometry;
     }
 
     public void setWheelchairAccessible(boolean wheelchairAccessible) {

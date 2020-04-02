@@ -47,7 +47,9 @@ public final class StopTime implements Serializable, Comparable<StopTime> {
 
     private double endServiceAreaRadius = MISSING_VALUE;
 
-    /** This is a Conveyal extension to the GTFS spec to support Seattle on/off peak fares. */
+    /**
+     * This is a Conveyal extension to the GTFS spec to support Seattle on/off peak fares.
+     */
     private String farePeriodId;
 
     public StopTime() {

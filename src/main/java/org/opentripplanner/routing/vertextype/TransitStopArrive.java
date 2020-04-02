@@ -1,8 +1,8 @@
 package org.opentripplanner.routing.vertextype;
 
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
-import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.routing.graph.Graph;
 
 public class TransitStopArrive extends OffboardVertex {

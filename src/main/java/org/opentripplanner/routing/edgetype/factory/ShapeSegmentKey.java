@@ -1,7 +1,5 @@
-
-
 /**
- * 
+ *
  */
 package org.opentripplanner.routing.edgetype.factory;
 

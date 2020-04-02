@@ -20,18 +20,20 @@ import static org.opentripplanner.graph_builder.module.FakeGraph.*;
  * Test the code that finds initial transit stops.
  */
 public class InitialStopsTest extends TestCase {
-    /** Time (in seconds) that a decrease must be greater than in order to be considered a decrease (make sure tests don't inadvertently pass due to rounding errors) */
+    /**
+     * Time (in seconds) that a decrease must be greater than in order to be considered a decrease (make sure tests don't inadvertently pass due to rounding errors)
+     */
     public static final int EPSILON = 10;
 
     /**
      * Test that increasing the bike speed on a bike-to-transit search
      * a) decreases or leaves unchanged all access times.
      * b) allows access to a superset of the originally accessible stops.
-     *
+     * <p>
      * There was once a bug where bike speed was not correctly applied because we used the distance not the speed.
      */
     @Test
-    public void testInitialStopBikeSpeedIncrease () throws Exception {
+    public void testInitialStopBikeSpeedIncrease() throws Exception {
         Graph g = buildGraphNoTransit();
         addRegularStopGrid(g);
         addTransitMultipleLines(g);
@@ -67,7 +69,7 @@ public class InitialStopsTest extends TestCase {
         // we should find decreases to at least some stops
         boolean foundDecreases = false;
 
-        for (TIntIntIterator it = initialStops1.iterator(); it.hasNext();) {
+        for (TIntIntIterator it = initialStops1.iterator(); it.hasNext(); ) {
             it.advance();
 
             // the reached stops from the faster search should be a superset of the reached stops from the slower search
@@ -86,11 +88,11 @@ public class InitialStopsTest extends TestCase {
      * a) decreases or leaves unchanged all access times.
      * b) allows access to a superset of the originally accessible stops.
      * c) decreases at least some access times.
-     *
+     * <p>
      * There was once a bug where bike speed was not correctly applied because we used the distance not the speed.
      */
     @Test
-    public void testInitialStopWalkSpeedIncrease () throws Exception {
+    public void testInitialStopWalkSpeedIncrease() throws Exception {
         Graph g = buildGraphNoTransit();
         addRegularStopGrid(g);
         addTransitMultipleLines(g);
@@ -127,7 +129,7 @@ public class InitialStopsTest extends TestCase {
         // we should find decreases to at least some stops
         boolean foundDecreases = false;
 
-        for (TIntIntIterator it = initialStops1.iterator(); it.hasNext();) {
+        for (TIntIntIterator it = initialStops1.iterator(); it.hasNext(); ) {
             it.advance();
 
             // the reached stops from the faster search should be a superset of the reached stops from the slower search

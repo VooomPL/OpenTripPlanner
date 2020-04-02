@@ -9,13 +9,13 @@ public class StopUnlinked extends GraphBuilderAnnotation {
 
     public static final String FMT = "Stop %s not near any streets; it will not be usable.";
     public static final String HTMLFMT = "Stop <a href=\"http://www.openstreetmap.org/?mlat=%s&mlon=%s&layers=T\">\"%s\" (%s)</a> not near any streets; it will not be usable.";
-    
+
     final TransitStop stop;
-    
-    public StopUnlinked(TransitStop stop){
-    	this.stop = stop;
+
+    public StopUnlinked(TransitStop stop) {
+        this.stop = stop;
     }
-    
+
     @Override
     public String getMessage() {
         return String.format(FMT, stop);
@@ -30,5 +30,5 @@ public class StopUnlinked extends GraphBuilderAnnotation {
     public Vertex getReferencedVertex() {
         return this.stop;
     }
-    
+
 }

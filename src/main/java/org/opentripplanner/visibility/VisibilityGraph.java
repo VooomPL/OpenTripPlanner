@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-
-
- This port undoubtedly introduced a number of bugs (and removed some features).
-
- Bug reports should be directed to the OpenTripPlanner project, unless they
- can be reproduced in the original VisiLibity
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity
  */
 public class VisibilityGraph {
 
@@ -39,8 +39,8 @@ public class VisibilityGraph {
         // visibility polygons
         for (int k1 = 0; k1 < n; k1++) {
             VLPoint point1 = environment.kth_point(k1);
-            if (origins != null && !origins.contains(point1)) 
-                    continue;
+            if (origins != null && !origins.contains(point1))
+                continue;
             VLPolygon polygon_temp = new VisibilityPolygon(point1, environment, epsilon);
             for (int k2 = 0; k2 < n; k2++) {
                 if (k1 == k2)

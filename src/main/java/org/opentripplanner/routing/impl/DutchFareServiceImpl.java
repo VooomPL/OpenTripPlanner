@@ -1,17 +1,17 @@
 package org.opentripplanner.routing.impl;
 
-import java.util.Collection;
-import java.util.Currency;
-import java.util.List;
-
 import org.opentripplanner.common.model.P2;
-import org.opentripplanner.routing.core.FareRuleSet;
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.Fare.FareType;
+import org.opentripplanner.routing.core.FareRuleSet;
 import org.opentripplanner.routing.core.Money;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Currency;
+import java.util.List;
 
 public class DutchFareServiceImpl extends DefaultFareServiceImpl {
 
@@ -26,27 +26,27 @@ public class DutchFareServiceImpl extends DefaultFareServiceImpl {
     public static final int TRANSFER_DURATION = 60 * 35; /* tranfers within 35 min won't require a new base fare */
 
     final Currency euros = Currency.getInstance("EUR");
-    
+
     /**
      * This overridden method completely ignores the Currency object supplied by the caller.
      * This is because the caller in the superclass assumes the input data uses only one currency.
      * However, Dutch data contains fares in both Euros and Dutch Railways fare units, with the added complexity
      * that these pseudo-currency units do not have sub-units in the way Euros have cents, which leads to
-     * incorrect rounding and scaling etc.  While the fare rules consulted by this fare service do have a mix of EUR 
-     * and train pseudo-units, this Fare object is accumulating the monetary fare returned to the user and is known 
+     * incorrect rounding and scaling etc.  While the fare rules consulted by this fare service do have a mix of EUR
+     * and train pseudo-units, this Fare object is accumulating the monetary fare returned to the user and is known
      * to always be in Euros. See issue #2679 for discussion.
      */
     @Override
     protected boolean populateFare(Fare fare, Currency currency, FareType fareType, List<Ride> rides,
                                    Collection<FareRuleSet> fareRules) {
         float lowestCost = getLowestCost(fareType, rides, fareRules);
-        if(lowestCost != Float.POSITIVE_INFINITY) {
+        if (lowestCost != Float.POSITIVE_INFINITY) {
             fare.addFare(fareType, getMoney(euros, lowestCost));
             return true;
         }
         return false;
     }
- 
+
     /* The Netherlands has an almost uniform system for electronic ticketing using a NFC-card, branded as OV-chipkaart.
      *
      * To travel through all modes in The Netherlands a uses has two products on their card:
@@ -104,7 +104,7 @@ public class DutchFareServiceImpl extends DefaultFareServiceImpl {
 
         for (FareRuleSet ruleSet : fareRules) {
             if (ruleSet.getFareAttribute().getId().getId().startsWith(fareIdStartsWith) &&
-                ruleSet.getOriginDestinations().contains(od)) {
+                    ruleSet.getOriginDestinations().contains(od)) {
                 String fareId = ruleSet.getFareAttribute().getId().getId();
                 String[] parts = fareId.split("::");
                 String fareZone = parts[1];
@@ -120,7 +120,7 @@ public class DutchFareServiceImpl extends DefaultFareServiceImpl {
 
         return null;
     }
-    
+
     private float getCostByUnits(String fareZone, int units, int prevSumUnits, Collection<FareRuleSet> fareRules) {
         if (units == 0) {
             return 0f;
@@ -208,7 +208,7 @@ public class DutchFareServiceImpl extends DefaultFareServiceImpl {
 
         float cost = 0f;
 
-	    int units = 0;
+        int units = 0;
         int prevSumUnits = 0;
 
         boolean mustHaveCheckedOut = false;
@@ -225,7 +225,7 @@ public class DutchFareServiceImpl extends DefaultFareServiceImpl {
 
             if (ride.agency.startsWith("IFF:")) {
                 LOG.trace("1. Trains");
-		        /* In Reizen op Saldo we will try to fares as long as possible. */
+                /* In Reizen op Saldo we will try to fares as long as possible. */
 
                 /* If our previous agency isn't this agency, then we must have checked out */
                 mustHaveCheckedOut |= !ride.agency.equals(lastAgencyId);
@@ -241,7 +241,7 @@ public class DutchFareServiceImpl extends DefaultFareServiceImpl {
                     mustHaveCheckedOut = false;
                 }
 
-        		/* The entrance Fee applies if the transfer time ends before the new trip starts. */
+                /* The entrance Fee applies if the transfer time ends before the new trip starts. */
                 if ((alightedTariefEenheden + TRANSFER_DURATION) < ride.startTime) {
                     LOG.trace("3. Exceeded Transfer Time");
                     cost += getCostByUnits(lastFareZone, units, prevSumUnits, fareRules);

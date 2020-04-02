@@ -23,7 +23,7 @@ public class StateEditorTest {
      * Test update of non transit options.
      */
     @Test
-    public final void testSetNonTransitOptionsFromState(){
+    public final void testSetNonTransitOptionsFromState() {
         RoutingRequest request = new RoutingRequest();
         request.setMode(TraverseMode.CAR);
         request.parkAndRide = true;

@@ -1,10 +1,6 @@
 package org.opentripplanner.routing.fares;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.routing.impl.DefaultFareServiceFactory;
 import org.opentripplanner.routing.services.FareService;
@@ -12,7 +8,10 @@ import org.opentripplanner.routing.services.FareServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class MultipleFareServiceFactory implements FareServiceFactory {
 
@@ -39,7 +38,7 @@ public abstract class MultipleFareServiceFactory implements FareServiceFactory {
 
     /**
      * Accept several ways to define fares to compose. Examples:
-     * 
+     *
      * <pre>
      * { combinationStrategy : "additive",
      *   // An array of 'fares'
@@ -60,7 +59,7 @@ public abstract class MultipleFareServiceFactory implements FareServiceFactory {
         for (JsonNode pConfig : config.path("fares")) {
             subFactories.add(DefaultFareServiceFactory.fromConfig(pConfig));
         }
-        for (Iterator<Map.Entry<String, JsonNode>> i = config.fields(); i.hasNext();) {
+        for (Iterator<Map.Entry<String, JsonNode>> i = config.fields(); i.hasNext(); ) {
             Map.Entry<String, JsonNode> kv = i.next();
             String key = kv.getKey();
             if (key.startsWith("fare") && !key.equals("fares")) {

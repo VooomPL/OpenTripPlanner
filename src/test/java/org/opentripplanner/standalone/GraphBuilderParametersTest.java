@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
-
+import static org.junit.Assert.assertEquals;
 import static org.opentripplanner.standalone.GraphBuilderParameters.enumValueOf;
-import static org.junit.Assert.*;
-import static org.opentripplanner.standalone.GraphBuilderParametersTest.AnEnum.*;
+import static org.opentripplanner.standalone.GraphBuilderParametersTest.AnEnum.A;
+import static org.opentripplanner.standalone.GraphBuilderParametersTest.AnEnum.B;
 
 
 public class GraphBuilderParametersTest {
-    enum AnEnum { A, B }
+    enum AnEnum {A, B}
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String KEY = "key";

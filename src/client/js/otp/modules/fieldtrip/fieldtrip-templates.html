@@ -1,5 +1,6 @@
 <script id="otp-fieldtrip-manager" type="text/html">
-    <div id="{{widgetId}}-tabs" class="otp-fieldTripManager-tabs notDraggable" style="position: absolute; top: 30px; bottom: 50px; left: 10px; right: 10px;">
+    <div id="{{widgetId}}-tabs" class="otp-fieldTripManager-tabs notDraggable"
+         style="position: absolute; top: 30px; bottom: 50px; left: 10px; right: 10px;">
         <ul>
             <li><a href="#{{widgetId}}-newRequestsTab">New Requests</a></li>
             <li><a href="#{{widgetId}}-plannedRequestsTab">Planned</a></li>
@@ -43,11 +44,11 @@
         <h5>{{schoolName}} Trip on {{formattedDate}} (#{{id}})</h5>
         Submitted by {{teacherName}} on {{timeStamp}}<br>
         <b>Outbound Trip:</b>
-            {{#outboundTripStatus}}{{outboundTripStatus}}{{/outboundTripStatus}}
-            {{^outboundTripStatus}}Not Planned{{/outboundTripStatus}}<br>
+        {{#outboundTripStatus}}{{outboundTripStatus}}{{/outboundTripStatus}}
+        {{^outboundTripStatus}}Not Planned{{/outboundTripStatus}}<br>
         <b>Inbound Trip:</b>
-            {{#inboundTripStatus}}{{inboundTripStatus}}{{/inboundTripStatus}}
-            {{^inboundTripStatus}}Not Planned{{/inboundTripStatus}}
+        {{#inboundTripStatus}}{{inboundTripStatus}}{{/inboundTripStatus}}
+        {{^inboundTripStatus}}Not Planned{{/inboundTripStatus}}
 
     </div>
 </script>
@@ -58,79 +59,87 @@
         <div class="otp-fieldTrip-requestWidget-summary">
             <b>Destination</b>: {{endLocation}}<br>
             <b>Day of Travel</b>: {{travelDate}}
-                <span style="font-size: .8em">[<a href="#" class="changeDateLink">Change</a>]</span><br>
-            <b>Teacher/School</b>: {{teacherName}} ({{schoolName}}, Grade {{#grade}}{{grade}}{{/grade}}{{^grade}}N/A{{/grade}})<br>
+            <span style="font-size: .8em">[<a href="#" class="changeDateLink">Change</a>]</span><br>
+            <b>Teacher/School</b>: {{teacherName}} ({{schoolName}}, Grade
+            {{#grade}}{{grade}}{{/grade}}{{^grade}}N/A{{/grade}})<br>
             <b>Teacher Address</b>: {{address}}, {{city}} {{state}} {{zip}}<br>
             <b>Phone</b>: {{#phoneNumber}}{{phoneNumber}}{{/phoneNumber}}{{^phoneNumber}}N/A{{/phoneNumber}}&nbsp;/&nbsp;
             <b>Fax</b>: {{#faxNumber}}{{faxNumber}}{{/faxNumber}}{{^faxNumber}}N/A{{/faxNumber}}<br>
             <b>Email</b>: {{#emailAddress}}{{emailAddress}}{{/emailAddress}}{{^emailAddress}}N/A{{/emailAddress}}<br>
-            <b>Students</b>: {{numStudents}} (Ages {{#minimumAge}}{{minimumAge}}{{/minimumAge}}{{^minimumAge}}N/A{{/minimumAge}}&nbsp;to&nbsp;
-                {{#maximumAge}}{{maximumAge}}{{/maximumAge}}{{^maximumAge}}N/A{{/maximumAge}}) /
-                <b>Chaperones</b>: {{#numChaperones}}{{numChaperones}}{{/numChaperones}}{{^numChaperones}}N/A{{/numChaperones}}
-                &nbsp;<span style="font-size: .8em">[<a href="#" class="changeGroupSizeLink">Change</a>]</span><br>
+            <b>Students</b>: {{numStudents}} (Ages
+            {{#minimumAge}}{{minimumAge}}{{/minimumAge}}{{^minimumAge}}N/A{{/minimumAge}}&nbsp;to&nbsp;
+            {{#maximumAge}}{{maximumAge}}{{/maximumAge}}{{^maximumAge}}N/A{{/maximumAge}}) /
+            <b>Chaperones</b>:
+            {{#numChaperones}}{{numChaperones}}{{/numChaperones}}{{^numChaperones}}N/A{{/numChaperones}}
+            &nbsp;<span style="font-size: .8em">[<a href="#" class="changeGroupSizeLink">Change</a>]</span><br>
             <b>Start Address</b>: {{startLocation}}<br>
             <b>Time Arriving at Destination</b>: {{arriveDestinationTime}}<br>
             <b>Time Leaving at Destination</b>: {{leaveDestinationTime}}<br>
             <b>Time Due Back at School</b>: {{arriveSchoolTime}}<br>
             <b>Intermediate Locations</b>:
-                {{#intermediateLocations}}{{intermediateLocations}}{{/intermediateLocations}}{{^intermediateLocations}}N/A{{/intermediateLocations}}<br>
+            {{#intermediateLocations}}{{intermediateLocations}}{{/intermediateLocations}}{{^intermediateLocations}}N/A{{/intermediateLocations}}<br>
             <b>Payment Preference</b>: {{paymentPreference}}<br>
             {{#requireInvoice}}<span style="color: white; background: #800;">&nbsp;{{/requireInvoice}}
             <b>Invoice Required?</b>:
                 {{#requireInvoice}}Yes{{/requireInvoice}}{{^requireInvoice}}No{{/requireInvoice}}
             {{#requireInvoice}}&nbsp;</span>{{/requireInvoice}}<br>
             <b>Class Pass ID</b>:
-                {{#classpassId}}{{classpassId}}{{/classpassId}}{{^classpassId}}(None){{/classpassId}}<br>
+            {{#classpassId}}{{classpassId}}{{/classpassId}}{{^classpassId}}(None){{/classpassId}}<br>
 
             <b>Teacher Notes:</b>
-                {{#submitterNotes}}{{submitterNotes}}{{/submitterNotes}}{{^submitterNotes}}N/A{{/submitterNotes}}&nbsp;<span style="font-size: .8em">[<a href="#" class="editTeacherNotesLink">Edit</a>]</span><br>
+            {{#submitterNotes}}{{submitterNotes}}{{/submitterNotes}}{{^submitterNotes}}N/A{{/submitterNotes}}&nbsp;<span
+                style="font-size: .8em">[<a href="#" class="editTeacherNotesLink">Edit</a>]</span><br>
             <i>Request submitted: {{timeStamp}}</i>
 
             <div style="margin-top: 1em; border-bottom: 2px solid gray; font-weight: bold;">User Feedback</div>
             {{#feedback}}
-                <div style="margin-top: 10px; background: #f0f0f0; font-size: 12px; padding: 6px;">
-                    {{feedback}}
-                    <div style="margin-top: 6px; font-size: 11px; font-style: italic; text-align: right;">
-                        Submitted {{timeStamp}}
-                    </div>
+            <div style="margin-top: 10px; background: #f0f0f0; font-size: 12px; padding: 6px;">
+                {{feedback}}
+                <div style="margin-top: 6px; font-size: 11px; font-style: italic; text-align: right;">
+                    Submitted {{timeStamp}}
                 </div>
+            </div>
             {{/feedback}}
             {{^feedback}}
-                <div style="margin-top: 10px; font-size: 12px; font-style: italic;">
-                    No feedback submitted yet.
-                </div>
+            <div style="margin-top: 10px; font-size: 12px; font-style: italic;">
+                No feedback submitted yet.
+            </div>
             {{/feedback}}
 
             <div style="margin-top: 1em; border-bottom: 2px solid gray; font-weight: bold;">Internal Agent Notes</div>
             {{#internalNotes}}
-                <div style="margin-top: 10px; background: #f0f0f0; font-size: 12px; padding: 6px;">
-                    <div style="float:right; font-size: 8px;"><button class="deleteNoteButton-{{id}}">X</button></div>
-                    {{note}}
-                    <div style="margin-top: 6px; font-size: 11px; font-style: italic; text-align: right;">
-                        Submitted by {{userName}} on {{timeStamp}}
-                    </div>
+            <div style="margin-top: 10px; background: #f0f0f0; font-size: 12px; padding: 6px;">
+                <div style="float:right; font-size: 8px;">
+                    <button class="deleteNoteButton-{{id}}">X</button>
                 </div>
+                {{note}}
+                <div style="margin-top: 6px; font-size: 11px; font-style: italic; text-align: right;">
+                    Submitted by {{userName}} on {{timeStamp}}
+                </div>
+            </div>
             {{/internalNotes}}
             {{^internalNotes}}
-                <div style="margin-top: 10px; font-size: 12px; font-style: italic;">
-                    No internal notes.
-                </div>
+            <div style="margin-top: 10px; font-size: 12px; font-style: italic;">
+                No internal notes.
+            </div>
             {{/internalNotes}}
 
             <div style="margin-top: 1em; border-bottom: 2px solid gray; font-weight: bold;">Operational Notes</div>
             {{#operationalNotes}}
-                <div style="margin-top: 10px; background: #f0f0f0; font-size: 12px; padding: 6px;">
-                    <div style="float:right; font-size: 8px;"><button class="deleteNoteButton-{{id}}">X</button></div>
-                    {{note}}
-                    <div style="margin-top: 6px; font-size: 11px; font-style: italic; text-align: right;">
-                        Submitted by {{userName}} on {{timeStamp}}
-                    </div>
+            <div style="margin-top: 10px; background: #f0f0f0; font-size: 12px; padding: 6px;">
+                <div style="float:right; font-size: 8px;">
+                    <button class="deleteNoteButton-{{id}}">X</button>
                 </div>
+                {{note}}
+                <div style="margin-top: 6px; font-size: 11px; font-style: italic; text-align: right;">
+                    Submitted by {{userName}} on {{timeStamp}}
+                </div>
+            </div>
             {{/operationalNotes}}
             {{^operationalNotes}}
-                <div style="margin-top: 10px; font-size: 12px; font-style: italic;">
-                    No operational notes.
-                </div>
+            <div style="margin-top: 10px; font-size: 12px; font-style: italic;">
+                No operational notes.
+            </div>
             {{/operationalNotes}}
 
         </div>
@@ -140,10 +149,10 @@
                 <b>OUTBOUND TRIP</b>
                 <div class="otp-fieldTrip-requestWidget-planInfo outboundPlanInfo">
                     {{#outboundPlanInfo}}
-                        {{outboundPlanInfo}}
+                    {{outboundPlanInfo}}
                     {{/outboundPlanInfo}}
                     {{^outboundPlanInfo}}
-                        (No Trip Planned)
+                    (No Trip Planned)
                     {{/outboundPlanInfo}}
                 </div>
                 <button class="otp-fieldTrip-requestWidget-button outboundPlanButton">Plan from Request</button>
@@ -155,10 +164,10 @@
                 <b>INBOUND TRIP</b>
                 <div class="otp-fieldTrip-requestWidget-planInfo inboundPlanInfo">
                     {{#inboundPlanInfo}}
-                        {{inboundPlanInfo}}
+                    {{inboundPlanInfo}}
                     {{/inboundPlanInfo}}
                     {{^inboundPlanInfo}}
-                        (No Trip Planned)
+                    (No Trip Planned)
                     {{/inboundPlanInfo}}
                 </div>
                 <button class="otp-fieldTrip-requestWidget-button inboundPlanButton">Plan from Request</button>
@@ -175,7 +184,8 @@
                 <a href="{{dsUrl}}/public/fieldtrip/feedbackForm?requestId={{id}}" target="blank_">Feedback Link</a> |
                 <a href="{{dsUrl}}/fieldtrip/receipt?requestId={{id}}" target="blank_">Receipt Link</a> |
                 <a href="#" class="printablePlanLink">Printable Trip Plan</a> |
-                <a href="{{dsUrl}}/fieldtrip/opsReport?month={{travelMonth}}&day={{travelDay}}&year={{travelYear}}" target="blank_">Daily Report</a>
+                <a href="{{dsUrl}}/fieldtrip/opsReport?month={{travelMonth}}&day={{travelDay}}&year={{travelYear}}"
+                   target="blank_">Daily Report</a>
             </div>
         </div>
     </div>
@@ -189,7 +199,7 @@
                 <h6>Origin</h6>
                 <div style="position: relative;">
                     <div style="position: absolute; left: 0px; right: 80px;">
-                        <input type="text" class="originInput borderBox" style="width: 100%;" value="{{origin}}" />
+                        <input type="text" class="originInput borderBox" style="width: 100%;" value="{{origin}}"/>
                     </div>
                     <div style="position: absolute; right: 0px; width: 75px;">
                         <button class="refreshOriginButton borderBox" style="width: 100%">Refresh</button>
@@ -197,7 +207,8 @@
                 </div>
                 <div style="position: absolute; top: 54px; left: 8px;">Geocoder Results:</div>
                 <div class="otp-fieldTrip-geocoder-listContainer">
-                    <select size=10 class="originSelect borderBox" style="width: 100%; height: 100%; background: white;" />
+                    <select size=10 class="originSelect borderBox"
+                            style="width: 100%; height: 100%; background: white;"/>
                 </div>
             </div>
         </div>
@@ -207,7 +218,8 @@
                 <h6>Destination</h6>
                 <div style="position: relative;">
                     <div style="position: absolute; left: 0px; right: 80px;">
-                        <input type="text" class="destinationInput borderBox" style="width: 100%;" value="{{destination}}" />
+                        <input type="text" class="destinationInput borderBox" style="width: 100%;"
+                               value="{{destination}}"/>
                     </div>
                     <div style="position: absolute; right: 0px; width: 75px;">
                         <button class="refreshDestinationButton borderBox" style="width: 100%">Refresh</button>
@@ -215,7 +227,8 @@
                 </div>
                 <div style="position: absolute; top: 54px; left: 8px;">Geocoder Results:</div>
                 <div class="otp-fieldTrip-geocoder-listContainer">
-                    <select size=10 class="destinationSelect borderBox" style="width: 100%; height: 100%; background: white;" />
+                    <select size=10 class="destinationSelect borderBox"
+                            style="width: 100%; height: 100%; background: white;"/>
                 </div>
 
             </div>
@@ -223,12 +236,12 @@
 
         <div class="otp-fieldTrip-geocoder-buttonRow">
             {{#showGeocoders}}
-                Geocoder:
-                <select class="geocoderSelect" style="margin-right: 20px;">
-                    {{#geocoders}}
-                         <option>{{name}}</option>
-                    {{/geocoders}}
-                </select>
+            Geocoder:
+            <select class="geocoderSelect" style="margin-right: 20px;">
+                {{#geocoders}}
+                <option>{{name}}</option>
+                {{/geocoders}}
+            </select>
             {{/showGeocoders}}
             <button class="useLocationsButton">Use Selected Locations</button>
             <button class="closeButton">Close</button>
@@ -246,16 +259,20 @@
             </div>
 
             <div style="margin-top: 1em;">
-                <b>Teacher</b>: {{teacherName}} ({{schoolName}}, Grade {{#grade}}{{grade}}{{/grade}}{{^grade}}N/A{{/grade}})<br>
+                <b>Teacher</b>: {{teacherName}} ({{schoolName}}, Grade
+                {{#grade}}{{grade}}{{/grade}}{{^grade}}N/A{{/grade}})<br>
                 <b>Teacher Address</b>: {{address}}, {{city}} {{state}} {{zip}}<br>
                 <b>Phone</b>: {{#phoneNumber}}{{phoneNumber}}{{/phoneNumber}}{{^phoneNumber}}N/A{{/phoneNumber}}&nbsp;/&nbsp;
                 <b>Fax</b>: {{#faxNumber}}{{faxNumber}}{{/faxNumber}}{{^faxNumber}}N/A{{/faxNumber}}<br>
-                <b>Email</b>: {{#emailAddress}}{{emailAddress}}{{/emailAddress}}{{^emailAddress}}N/A{{/emailAddress}}<br>
-                <b>Students</b>: {{numStudents}} (Ages {{#minimumAge}}{{minimumAge}}{{/minimumAge}}{{^minimumAge}}N/A{{/minimumAge}}&nbsp;to&nbsp;
-                    {{#maximumAge}}{{maximumAge}}{{/maximumAge}}{{^maximumAge}}N/A{{/maximumAge}}) /
-                    <b>Chaperones</b>: {{#numChaperones}}{{numChaperones}}{{/numChaperones}}{{^numChaperones}}N/A{{/numChaperones}}<br>
+                <b>Email</b>:
+                {{#emailAddress}}{{emailAddress}}{{/emailAddress}}{{^emailAddress}}N/A{{/emailAddress}}<br>
+                <b>Students</b>: {{numStudents}} (Ages
+                {{#minimumAge}}{{minimumAge}}{{/minimumAge}}{{^minimumAge}}N/A{{/minimumAge}}&nbsp;to&nbsp;
+                {{#maximumAge}}{{maximumAge}}{{/maximumAge}}{{^maximumAge}}N/A{{/maximumAge}}) /
+                <b>Chaperones</b>:
+                {{#numChaperones}}{{numChaperones}}{{/numChaperones}}{{^numChaperones}}N/A{{/numChaperones}}<br>
                 {{#classpassId}}
-                    <b>Class Pass ID</b>: {{classpassId}}<br>
+                <b>Class Pass ID</b>: {{classpassId}}<br>
                 {{/classpassId}}
 
                 <i>Request submitted: {{timeStamp}}</i>
@@ -267,16 +284,16 @@
                 </div>
                 <div class="otp-fieldtrip-printablePlan-tripBody">
                     {{#outboundItineraries}}
-                        <div class="otp-fieldtrip-printablePlan-itinContainer">
-                            <div class="otp-fieldtrip-printablePlan-itinHeader">
-                                {{passengers}} passengers on following Itinerary:
-                            </div>
-                            <div class="otp-fieldtrip-printablePlan-itinBody outbound-itinBody-{{outboundItinIndex}}">
-                            </div>
+                    <div class="otp-fieldtrip-printablePlan-itinContainer">
+                        <div class="otp-fieldtrip-printablePlan-itinHeader">
+                            {{passengers}} passengers on following Itinerary:
                         </div>
+                        <div class="otp-fieldtrip-printablePlan-itinBody outbound-itinBody-{{outboundItinIndex}}">
+                        </div>
+                    </div>
                     {{/outboundItineraries}}
                     {{^outboundItineraries}}
-                        <i>No Outbound Trip Planned</i>
+                    <i>No Outbound Trip Planned</i>
                     {{/outboundItineraries}}
                 </div>
             </div>
@@ -287,16 +304,16 @@
                 </div>
                 <div class="otp-fieldtrip-printablePlan-tripBody">
                     {{#inboundItineraries}}
-                        <div class="otp-fieldtrip-printablePlan-itinContainer">
-                            <div class="otp-fieldtrip-printablePlan-itinHeader">
-                                {{passengers}} passengers on following Itinerary:
-                            </div>
-                            <div class="otp-fieldtrip-printablePlan-itinBody inbound-itinBody-{{inboundItinIndex}}">
-                            </div>
+                    <div class="otp-fieldtrip-printablePlan-itinContainer">
+                        <div class="otp-fieldtrip-printablePlan-itinHeader">
+                            {{passengers}} passengers on following Itinerary:
                         </div>
+                        <div class="otp-fieldtrip-printablePlan-itinBody inbound-itinBody-{{inboundItinIndex}}">
+                        </div>
+                    </div>
                     {{/inboundItineraries}}
                     {{^inboundItineraries}}
-                        <i>No Inbound Trip Planned</i>
+                    <i>No Inbound Trip Planned</i>
                     {{/inboundItineraries}}
                 </div>
             </div>
@@ -310,13 +327,14 @@
         <div class="otp-dialogContent">
             {{message}}
             <div style="margin-top: 6px;">
-                <textarea class="borderBox textarea" style="z-index: 1000000; width: 100%; height: 3em;">{{text}}</textarea>
+                <textarea class="borderBox textarea"
+                          style="z-index: 1000000; width: 100%; height: 3em;">{{text}}</textarea>
             </div>
             {{#showTypeSelection}}
-                <div style="margin-top: 5px;">Type:&nbsp;
-                    <input type="radio" name="type" value="internal" checked> Internal&nbsp;&nbsp;
-                    <input type="radio" name="type" value="operational"> Operational
-                </div>
+            <div style="margin-top: 5px;">Type:&nbsp;
+                <input type="radio" name="type" value="internal" checked> Internal&nbsp;&nbsp;
+                <input type="radio" name="type" value="operational"> Operational
+            </div>
             {{/showTypeSelection}}
         </div>
         <div class="otp-dialogButtonRow">
@@ -410,16 +428,17 @@
         <div class="otp-dialogContent">
             <div style="margin-top: 6px;">
                 Number of Students:&nbsp;
-                <input class='numStudents' style='display: inline; width: 50px;' type="text" value="{{numStudents}}" />
+                <input class='numStudents' style='display: inline; width: 50px;' type="text" value="{{numStudents}}"/>
             </div>
             <div style="margin-top: 6px;">
                 Student Age Range:&nbsp;
-                <input class='minimumAge' style='display: inline; width: 50px;' type="text" value="{{minimumAge}}" /> to
-                <input class='maximumAge' style='display: inline; width: 50px;' type="text" value="{{maximumAge}}" />
+                <input class='minimumAge' style='display: inline; width: 50px;' type="text" value="{{minimumAge}}"/> to
+                <input class='maximumAge' style='display: inline; width: 50px;' type="text" value="{{maximumAge}}"/>
             </div>
             <div style="margin-top: 6px;">
                 Number of Chaperones:&nbsp;
-                <input class='numChaperones' style='display: inline; width: 50px;' type="text" value="{{numChaperones}}" />
+                <input class='numChaperones' style='display: inline; width: 50px;' type="text"
+                       value="{{numChaperones}}"/>
             </div>
         </div>
         <div class="otp-dialogButtonRow">

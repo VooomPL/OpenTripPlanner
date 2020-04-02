@@ -2,31 +2,15 @@ package org.opentripplanner.model.impl;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.FareAttribute;
-import org.opentripplanner.model.FareRule;
-import org.opentripplanner.model.FeedInfo;
-import org.opentripplanner.model.Frequency;
-import org.opentripplanner.model.Pathway;
-import org.opentripplanner.model.OtpTransitService;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.ServiceCalendar;
-import org.opentripplanner.model.ServiceCalendarDate;
-import org.opentripplanner.model.ShapePoint;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Transfer;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.mapping.GTFSToOtpTransitServiceMapper;
+import org.opentripplanner.model.*;
+import org.opentripplanner.model.calendar.ServiceDate;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import static java.util.Comparator.comparing;

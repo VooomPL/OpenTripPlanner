@@ -1,8 +1,5 @@
 package org.opentripplanner.standalone;
 
-import java.io.File;
-import java.util.Collection;
-
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.opentripplanner.analyst.DiskBackedPointSetCache;
 import org.opentripplanner.analyst.PointSetCache;
@@ -12,6 +9,9 @@ import org.opentripplanner.routing.services.GraphService;
 import org.opentripplanner.scripting.impl.ScriptingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Collection;
 
 /**
  * This replaces a Spring application context, which OTP originally used.
@@ -25,7 +25,9 @@ public class OTPServer {
     // Core OTP modules
     private GraphService graphService;
 
-    /** The directory under which graphs, caches, etc. will be stored. */
+    /**
+     * The directory under which graphs, caches, etc. will be stored.
+     */
     public File basePath = null;
 
     // Optional Analyst global modules (caches)
@@ -35,7 +37,7 @@ public class OTPServer {
 
     public CommandLineParameters params;
 
-    public OTPServer (CommandLineParameters params, GraphService gs) {
+    public OTPServer(CommandLineParameters params, GraphService gs) {
         LOG.info("Wiring up and configuring server.");
 
         this.params = params;
@@ -58,7 +60,7 @@ public class OTPServer {
 
     /**
      * @return The GraphService. Please use it only when the GraphService itself is necessary. To
-     *         get Graph instances, use getRouter().
+     * get Graph instances, use getRouter().
      */
     public GraphService getGraphService() {
         return graphService;
@@ -81,11 +83,11 @@ public class OTPServer {
      * Jersey forces us to use injection to get application context into HTTP method handlers, but in OTP we always
      * just inject this OTPServer instance and grab anything else we need (routers, graphs, application components)
      * from this single object.
-     *
+     * <p>
      * More on custom injection in Jersey 2:
      * http://jersey.576304.n2.nabble.com/Custom-providers-in-Jersey-2-tp7580699p7580715.html
      */
-     public AbstractBinder makeBinder() {
+    public AbstractBinder makeBinder() {
         return new AbstractBinder() {
             @Override
             protected void configure() {

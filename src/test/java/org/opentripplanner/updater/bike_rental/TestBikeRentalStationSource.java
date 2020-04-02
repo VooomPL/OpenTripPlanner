@@ -1,10 +1,9 @@
 package org.opentripplanner.updater.bike_rental;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
+
+import java.util.List;
 
 public class TestBikeRentalStationSource extends TestCase {
 

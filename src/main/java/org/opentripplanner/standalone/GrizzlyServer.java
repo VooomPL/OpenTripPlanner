@@ -1,15 +1,7 @@
 package org.opentripplanner.standalone;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.BindException;
-
 import org.glassfish.grizzly.http.CompressionConfig;
-import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
-import org.glassfish.grizzly.http.server.HttpHandler;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.NetworkListener;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
+import org.glassfish.grizzly.http.server.*;
 import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
@@ -19,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.core.Application;
+import java.io.File;
+import java.io.IOException;
+import java.net.BindException;
 
 public class GrizzlyServer {
 
@@ -33,12 +28,16 @@ public class GrizzlyServer {
         SLF4JBridgeHandler.install();
     }
 
-    /** The command line parameters, including things like port number and content directories. */
+    /**
+     * The command line parameters, including things like port number and content directories.
+     */
     private CommandLineParameters params;
     private OTPServer server;
 
-    /** Construct a Grizzly server with the given IoC injector and command line parameters. */
-    public GrizzlyServer (CommandLineParameters params, OTPServer server) {
+    /**
+     * Construct a Grizzly server with the given IoC injector and command line parameters.
+     */
+    public GrizzlyServer(CommandLineParameters params, OTPServer server) {
         this.params = params;
         this.server = server;
     }
@@ -68,9 +67,9 @@ public class GrizzlyServer {
      * an HttpServer and NetworkListener manually so we can set the number of threads and other details.
      */
     public void run() {
-        
+
         LOG.info("Starting OTP Grizzly server on ports {} (HTTP) and {} (HTTPS) of interface {}",
-            params.port, params.securePort, params.bindAddress);
+                params.port, params.securePort, params.bindAddress);
         LOG.info("OTP server base path is {}", params.basePath);
         HttpServer httpServer = new HttpServer();
 
@@ -85,9 +84,9 @@ public class GrizzlyServer {
         // TODO we should probably use Grizzly async processing rather than tying up the HTTP handler threads.
         int nHandlerThreads = getMaxThreads();
         ThreadPoolConfig threadPoolConfig = ThreadPoolConfig.defaultConfig()
-            .setCorePoolSize(nHandlerThreads)
-            .setMaxPoolSize(nHandlerThreads)
-            .setQueueLimit(-1);
+                .setCorePoolSize(nHandlerThreads)
+                .setMaxPoolSize(nHandlerThreads)
+                .setQueueLimit(-1);
 
         /* HTTP (non-encrypted) listener */
         NetworkListener httpListener = new NetworkListener("otp_insecure", params.bindAddress, params.port);
@@ -104,7 +103,7 @@ public class GrizzlyServer {
         );
 
         // For both HTTP and HTTPS listeners: enable gzip compression, set thread pool, add listener to httpServer.
-        for (NetworkListener listener : new NetworkListener[] {httpListener, httpsListener}) {
+        for (NetworkListener listener : new NetworkListener[]{httpListener, httpsListener}) {
             CompressionConfig cc = listener.getCompressionConfig();
             cc.setCompressionMode(CompressionConfig.CompressionMode.ON);
             cc.setCompressionMinSize(50000); // the min number of bytes to compress

@@ -9,7 +9,7 @@ import org.opentripplanner.routing.vertextype.TransitStopDepart;
 /**
  * PreBoard edges connect a TransitStop to its agency_stop_depart vertices; PreAlight edges connect
  * an agency_stop_arrive vertex to its TransitStop.
- * 
+ * <p>
  * Applies the local stop rules (see TransitStop.java and LocalStopFinder.java) as well as transfer
  * limits, timed and preferred transfer rules, transfer penalties, and boarding costs. This avoids
  * applying these costs/rules repeatedly in (Pattern)Board edges. These are single station or

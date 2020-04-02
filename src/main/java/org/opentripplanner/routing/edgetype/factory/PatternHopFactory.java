@@ -6,64 +6,25 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.linearref.LinearLocation;
-import org.locationtech.jts.linearref.LocationIndexedLine;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.util.FastMath;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FlexArea;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.FeedInfo;
-import org.opentripplanner.model.Frequency;
-import org.opentripplanner.model.Pathway;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.ShapePoint;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopPatternFlexFields;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Transfer;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.OtpTransitService;
-import org.opentripplanner.model.CalendarService;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.linearref.LinearLocation;
+import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.P2;
-import org.opentripplanner.graph_builder.annotation.BogusShapeDistanceTraveled;
-import org.opentripplanner.graph_builder.annotation.BogusShapeGeometry;
-import org.opentripplanner.graph_builder.annotation.BogusShapeGeometryCaught;
-import org.opentripplanner.graph_builder.annotation.HopSpeedFast;
-import org.opentripplanner.graph_builder.annotation.HopSpeedSlow;
-import org.opentripplanner.graph_builder.annotation.HopZeroTime;
-import org.opentripplanner.graph_builder.annotation.NegativeDwellTime;
-import org.opentripplanner.graph_builder.annotation.NegativeHopTime;
-import org.opentripplanner.graph_builder.annotation.NonStationParentStation;
-import org.opentripplanner.graph_builder.annotation.RepeatedStops;
-import org.opentripplanner.graph_builder.annotation.TripDegenerate;
-import org.opentripplanner.graph_builder.annotation.TripUndefinedService;
+import org.opentripplanner.graph_builder.annotation.*;
 import org.opentripplanner.graph_builder.module.GtfsFeedId;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
-import org.opentripplanner.model.StopPattern;
+import org.opentripplanner.model.*;
 import org.opentripplanner.routing.core.StopTransfer;
 import org.opentripplanner.routing.core.TransferTable;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.edgetype.FreeEdge;
-import org.opentripplanner.routing.edgetype.PathwayEdge;
-import org.opentripplanner.routing.edgetype.PatternInterlineDwell;
-import org.opentripplanner.routing.edgetype.PreAlightEdge;
-import org.opentripplanner.routing.edgetype.PreBoardEdge;
-import org.opentripplanner.routing.edgetype.StationStopEdge;
-import org.opentripplanner.routing.edgetype.TimedTransferEdge;
-import org.opentripplanner.routing.edgetype.Timetable;
-import org.opentripplanner.routing.edgetype.TransferEdge;
-import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -74,30 +35,17 @@ import org.opentripplanner.routing.services.FareServiceFactory;
 import org.opentripplanner.routing.services.OnBoardDepartService;
 import org.opentripplanner.routing.trippattern.FrequencyEntry;
 import org.opentripplanner.routing.trippattern.TripTimes;
-import org.opentripplanner.routing.vertextype.TransitStation;
-import org.opentripplanner.routing.vertextype.TransitStationStop;
-import org.opentripplanner.routing.vertextype.TransitStop;
-import org.opentripplanner.routing.vertextype.TransitStopArrive;
-import org.opentripplanner.routing.vertextype.TransitStopDepart;
+import org.opentripplanner.routing.vertextype.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // Filtering out (removing) stoptimes from a trip forces us to either have two copies of that list,
 // or do all the steps within one loop over trips. It would be clearer if there were multiple loops over the trips.
 
 /**
- * This compound key object is used when grouping interlining trips together by (serviceId, blockId). 
+ * This compound key object is used when grouping interlining trips together by (serviceId, blockId).
  */
 class BlockIdAndServiceId {
     public String blockId;
@@ -107,7 +55,7 @@ class BlockIdAndServiceId {
         this.blockId = trip.getBlockId();
         this.serviceId = trip.getServiceId();
     }
-    
+
     public boolean equals(Object o) {
         if (o instanceof BlockIdAndServiceId) {
             BlockIdAndServiceId other = ((BlockIdAndServiceId) o);
@@ -143,8 +91,8 @@ class IndexedLineSegment {
         double lat1Radians = c1.y * FastMath.PI / 180;
         double lat2Radians = c2.y * FastMath.PI / 180;
         double y = FastMath.sin(deltaLon) * FastMath.cos(lat2Radians);
-        double x = FastMath.cos(lat1Radians)*FastMath.sin(lat2Radians) -
-                FastMath.sin(lat1Radians)*FastMath.cos(lat2Radians)*FastMath.cos(deltaLon);
+        double x = FastMath.cos(lat1Radians) * FastMath.sin(lat2Radians) -
+                FastMath.sin(lat1Radians) * FastMath.cos(lat2Radians) * FastMath.cos(deltaLon);
         return FastMath.atan2(y, x);
     }
 
@@ -153,8 +101,8 @@ class IndexedLineSegment {
         double bearingToCoord = bearing(start, coord);
         double bearingToEnd = bearing(start, end);
         return FastMath.asin(FastMath.sin(distanceFromStart / RADIUS)
-            * FastMath.sin(bearingToCoord - bearingToEnd))
-            * RADIUS;
+                * FastMath.sin(bearingToCoord - bearingToEnd))
+                * RADIUS;
     }
 
     double distance(Coordinate coord) {
@@ -188,8 +136,8 @@ class IndexedLineSegment {
     private double inverseAlongTrackDistance(Coordinate coord, double inverseCrossTrackError) {
         double distanceFromEnd = SphericalDistanceLibrary.fastDistance(end, coord);
         double alongTrackDistance = FastMath.acos(FastMath.cos(distanceFromEnd / RADIUS)
-            / FastMath.cos(inverseCrossTrackError / RADIUS))
-            * RADIUS;
+                / FastMath.cos(inverseCrossTrackError / RADIUS))
+                * RADIUS;
         return alongTrackDistance;
     }
 
@@ -213,8 +161,8 @@ class IndexedLineSegment {
     private double alongTrackDistance(Coordinate coord, double crossTrackError) {
         double distanceFromStart = SphericalDistanceLibrary.fastDistance(start, coord);
         double alongTrackDistance = FastMath.acos(FastMath.cos(distanceFromStart / RADIUS)
-            / FastMath.cos(crossTrackError / RADIUS))
-            * RADIUS;
+                / FastMath.cos(crossTrackError / RADIUS))
+                * RADIUS;
         return alongTrackDistance;
     }
 }
@@ -249,7 +197,7 @@ public class PatternHopFactory {
     private OtpTransitService transitService;
 
     private CalendarService calendarService;
-    
+
     private Map<ShapeSegmentKey, LineString> geometriesByShapeSegmentKey = new HashMap<ShapeSegmentKey, LineString>();
 
     private Map<FeedScopedId, LineString> geometriesByShapeId = new HashMap<FeedScopedId, LineString>();
@@ -279,20 +227,22 @@ public class PatternHopFactory {
         this.transitService = context.getOtpTransitService();
         this.calendarService = context.getCalendarService();
     }
-    
+
     public PatternHopFactory() {
         this.feedId = null;
         this.transitService = null;
         this.calendarService = null;
     }
 
-    /** Generate the edges. Assumes that there are already vertices in the graph for the stops. */
+    /**
+     * Generate the edges. Assumes that there are already vertices in the graph for the stops.
+     */
     public void run(Graph graph) {
         if (fareServiceFactory == null) {
             fareServiceFactory = new DefaultFareServiceFactory();
         }
         fareServiceFactory.processGtfs(transitService);
-        
+
         // TODO: Why are we loading stops? The Javadoc above says this method assumes stops are aleady loaded.
         loadStops(graph);
         loadPathways(graph);
@@ -300,7 +250,7 @@ public class PatternHopFactory {
         loadAgencies(graph);
         // TODO: Why is there cached "data", and why are we clearing it? Due to a general lack of comments, I have no idea.
         // Perhaps it is to allow name collisions with previously loaded feeds.
-        clearCachedData(); 
+        clearCachedData();
 
         loadFlexAreaMap();
         loadFlexAreasIntoGraph(graph);
@@ -310,7 +260,7 @@ public class PatternHopFactory {
             // TODO: FIX Service code collision for multiple feeds.
             graph.serviceCodes.put(serviceId, graph.serviceCodes.size());
         }
-        
+
         LOG.debug("building hops from trips");
         Collection<Trip> trips = transitService.getAllTrips();
         int tripCount = 0;
@@ -320,15 +270,15 @@ public class PatternHopFactory {
          * all the frequency entries referencing the same trip can be added at once to the same
          * Timetable/TripPattern.
          */
-        ListMultimap<Trip, Frequency> frequenciesForTrip = ArrayListMultimap.create();        
-        for(Frequency freq : transitService.getAllFrequencies()) {
+        ListMultimap<Trip, Frequency> frequenciesForTrip = ArrayListMultimap.create();
+        for (Frequency freq : transitService.getAllFrequencies()) {
             frequenciesForTrip.put(freq.getTrip(), freq);
         }
-        
+
         /* Then loop over all trips, handling each one as a frequency-based or scheduled trip. */
         int freqCount = 0;
         int nonFreqCount = 0;
-        
+
         /* The hops don't actually exist when we build their geometries, but we have to build their geometries
          * below, before we throw away the modified stopTimes, saving only the tripTimes (which don't have enough
          * information to build a geometry). So we keep them here.
@@ -337,14 +287,15 @@ public class PatternHopFactory {
          *  FIXME _why_ doesn't it have a single geometry?
          */
         Map<TripPattern, LineString[]> geometriesByTripPattern = Maps.newHashMap();
-        
-        TRIP : for (Trip trip : trips) {
+
+        TRIP:
+        for (Trip trip : trips) {
             if (++tripCount % 100000 == 0) {
                 LOG.debug("loading trips {}/{}", tripCount, trips.size());
             }
 
             // TODO: move to a validator module
-            if ( ! calendarService.getServiceIds().contains(trip.getServiceId())) {
+            if (!calendarService.getServiceIds().contains(trip.getServiceId())) {
                 LOG.warn(graph.addBuilderAnnotation(new TripUndefinedService(trip)));
                 continue TRIP; // Invalid trip, skip it, it will break later
             }
@@ -358,8 +309,8 @@ public class PatternHopFactory {
                 LOG.warn(graph.addBuilderAnnotation(new RepeatedStops(trip, removedStopSequences)));
             }
             filterStopTimes(stopTimes, graph);
-            interpolateStopTimes(stopTimes);   
-            
+            interpolateStopTimes(stopTimes);
+
             /* If after filtering this trip does not contain at least 2 stoptimes, it does not serve any purpose. */
             if (stopTimes.size() < 2) {
                 LOG.warn(graph.addBuilderAnnotation(new TripDegenerate(trip)));
@@ -402,15 +353,15 @@ public class PatternHopFactory {
                 tripPattern.add(tripTimes);
                 nonFreqCount++;
             }
-            
+
             // create geometries if they aren't already created
             // note that this is not only done on new trip patterns, because it is possible that
             // there would be a trip pattern with no geometry yet because it failed some of these tests
-            if (!geometriesByTripPattern.containsKey(tripPattern) && 
+            if (!geometriesByTripPattern.containsKey(tripPattern) &&
                     trip.getShapeId() != null && trip.getShapeId().getId() != null &&
                     !trip.getShapeId().getId().equals("")) {
                 // save the geometry to later be applied to the hops
-                geometriesByTripPattern.put(tripPattern,  createGeometry(graph, trip, stopTimes));
+                geometriesByTripPattern.put(tripPattern, createGeometry(graph, trip, stopTimes));
             }
 
 
@@ -460,8 +411,8 @@ public class PatternHopFactory {
         loadTransfers(graph);
 
         /* Store parent stops in graph, even if not linked. These are needed for clustering*/
-        for(TransitStationStop stop : context.stationStopNodes.values()){
-            if(stop instanceof TransitStation){
+        for (TransitStationStop stop : context.stationStopNodes.values()) {
+            if (stop instanceof TransitStation) {
                 TransitStation parentStopVertex = (TransitStation) stop;
                 graph.parentStopById.put(parentStopVertex.getStopId(), parentStopVertex.getStop());
             }
@@ -472,15 +423,15 @@ public class PatternHopFactory {
         for (TripPattern tableTripPattern : tripPatterns.values()) {
             tableTripPattern.scheduledTimetable.finish();
         }
-        
+
         clearCachedData(); // eh?
         graph.putService(FareService.class, fareServiceFactory.makeFareService());
         graph.putService(OnBoardDepartService.class, new OnBoardDepartServiceImpl());
     }
 
     private TripPattern findOrCreateTripPattern(StopPattern stopPattern, Route route, int directionId) {
-        for(TripPattern tripPattern : tripPatterns.get(stopPattern)) {
-            if(tripPattern.route.equals(route) && tripPattern.directionId == directionId) {
+        for (TripPattern tripPattern : tripPatterns.get(stopPattern)) {
+            if (tripPattern.route.equals(route) && tripPattern.directionId == directionId) {
                 return tripPattern;
             }
         }
@@ -496,7 +447,7 @@ public class PatternHopFactory {
      * and update the TripPatterns accordingly. This must be called after all the pattern edges and vertices
      * are already created, because it creates interline dwell edges between existing pattern arrive/depart vertices.
      */
-    private void interline (Collection<TripPattern> tripPatterns, Graph graph) {
+    private void interline(Collection<TripPattern> tripPatterns, Graph graph) {
 
         /* Record which Pattern each interlined TripTimes belongs to. */
         Map<TripTimes, TripPattern> patternForTripTimes = Maps.newHashMap();
@@ -510,7 +461,7 @@ public class PatternHopFactory {
             /* TODO: Block semantics seem undefined for frequency trips, so skip them? */
             for (TripTimes tripTimes : timetable.tripTimes) {
                 Trip trip = tripTimes.trip;
-                if ( ! Strings.isNullOrEmpty(trip.getBlockId())) {
+                if (!Strings.isNullOrEmpty(trip.getBlockId())) {
                     tripTimesForBlock.put(new BlockIdAndServiceId(trip), tripTimes);
                     // For space efficiency, only record times that are part of a block.
                     patternForTripTimes.put(tripTimes, pattern);
@@ -525,7 +476,7 @@ public class PatternHopFactory {
           Sort trips within each block by first departure time, then iterate over trips in this block and service,
           linking them. Has no effect on single-trip blocks.
          */
-        SERVICE_BLOCK :
+        SERVICE_BLOCK:
         for (BlockIdAndServiceId block : tripTimesForBlock.keySet()) {
             List<TripTimes> blockTripTimes = tripTimesForBlock.get(block);
             Collections.sort(blockTripTimes);
@@ -540,9 +491,9 @@ public class PatternHopFactory {
                     TripPattern prevPattern = patternForTripTimes.get(prev);
                     TripPattern currPattern = patternForTripTimes.get(curr);
                     Stop fromStop = prevPattern.getStop(prevPattern.getStops().size() - 1);
-                    Stop toStop   = currPattern.getStop(0);
+                    Stop toStop = currPattern.getStop(0);
                     double teleportationDistance = SphericalDistanceLibrary.fastDistance(
-                                        fromStop.getLat(), fromStop.getLon(), toStop.getLat(), toStop.getLon());
+                            fromStop.getLat(), fromStop.getLon(), toStop.getLat(), toStop.getLon());
                     if (teleportationDistance > maxInterlineDistance) {
                         // FIXME Trimet data contains a lot of these -- in their data, two trips sharing a block ID just
                         // means that they are served by the same vehicle, not that interlining is automatically allowed.
@@ -578,16 +529,16 @@ public class PatternHopFactory {
      * The geometry is broken down into one geometry per inter-stop segment ("hop"). We also need a shape for the entire
      * trip and tripPattern, but given the complexity of the existing code for generating hop geometries, we will create
      * the full-trip geometry by simply concatenating the hop geometries.
-     *
+     * <p>
      * This geometry will in fact be used for an entire set of trips in a trip pattern. Technically one of the trips
      * with exactly the same sequence of stops could follow a different route on the streets, but that's very uncommon.
      */
     private LineString[] createGeometry(Graph graph, Trip trip, List<StopTime> stopTimes) {
         FeedScopedId shapeId = trip.getShapeId();
-        
+
         // One less geometry than stoptime as array indexes represetn hops not stops (fencepost problem).
         LineString[] geoms = new LineString[stopTimes.size() - 1];
-        
+
         // Detect presence or absence of shape_dist_traveled on a per-trip basis
         StopTime st0 = stopTimes.get(0);
         boolean hasShapeDist = st0.isShapeDistTraveledSet();
@@ -614,13 +565,13 @@ public class PatternHopFactory {
         }
         // This trip does not have shape_dist in stop_times, but does have an associated shape.
         ArrayList<IndexedLineSegment> segments = new ArrayList<IndexedLineSegment>();
-        for (int i = 0 ; i < shape.getNumPoints() - 1; ++i) {
+        for (int i = 0; i < shape.getNumPoints() - 1; ++i) {
             segments.add(new IndexedLineSegment(i, shape.getCoordinateN(i), shape.getCoordinateN(i + 1)));
         }
         // Find possible segment matches for each stop.
         List<List<IndexedLineSegment>> possibleSegmentsForStop = new ArrayList<List<IndexedLineSegment>>();
         int minSegmentIndex = 0;
-        for (int i = 0; i < stopTimes.size() ; ++i) {
+        for (int i = 0; i < stopTimes.size(); ++i) {
             Stop stop = stopTimes.get(i).getStop();
             Coordinate coord = new Coordinate(stop.getLon(), stop.getLat());
             List<IndexedLineSegment> stopSegments = new ArrayList<IndexedLineSegment>();
@@ -630,7 +581,7 @@ public class PatternHopFactory {
             int index = -1;
             int minSegmentIndexForThisStop = -1;
             for (IndexedLineSegment segment : segments) {
-                index ++;
+                index++;
                 if (segment.index < minSegmentIndex) {
                     continue;
                 }
@@ -658,7 +609,7 @@ public class PatternHopFactory {
                 Collections.sort(stopSegments, new IndexedLineSegmentComparator(coord));
             }
 
-            for (int j = i - 1; j >= 0; j --) {
+            for (int j = i - 1; j >= 0; j--) {
                 for (Iterator<IndexedLineSegment> it = possibleSegmentsForStop.get(j).iterator(); it.hasNext(); ) {
                     IndexedLineSegment segment = it.next();
                     if (segment.index > maxSegmentIndex) {
@@ -733,17 +684,18 @@ public class PatternHopFactory {
             }
             geoms[i] = geometry;
         }
-        
+
         return geoms;
     }
 
     /**
      * Find a consistent, increasing list of LinearLocations along a shape for a set of stops.
      * Handles loops routes.
+     *
      * @return
      */
     private List<LinearLocation> getStopLocations(List<List<IndexedLineSegment>> possibleSegmentsForStop,
-            List<StopTime> stopTimes, int index, int prevSegmentIndex) {
+                                                  List<StopTime> stopTimes, int index, int prevSegmentIndex) {
 
         if (index == stopTimes.size()) {
             return new LinkedList<LinearLocation>();
@@ -775,12 +727,12 @@ public class PatternHopFactory {
      * Unsetting the arrival/departure time of clearly incorrect stoptimes will cause them to be
      * interpolated in the next step. Annotations are also added to the graph to reveal the problems
      * to the user.
-     * 
+     *
      * @param stopTimes the stoptimes to be filtered (from a single trip)
-     * @param graph the graph where annotations will be registered
+     * @param graph     the graph where annotations will be registered
      */
     private void filterStopTimes(List<StopTime> stopTimes, Graph graph) {
-        
+
         if (stopTimes.size() < 2) return;
         StopTime st0 = stopTimes.get(0);
 
@@ -802,13 +754,13 @@ public class PatternHopFactory {
 
         /* Indicates that stop times in this trip are being shifted forward one day. */
         boolean midnightCrossed = false;
-        
+
         for (int i = 1; i < stopTimes.size(); i++) {
             boolean st1bogus = false;
             StopTime st1 = stopTimes.get(i);
 
             /* If the feed did not specify any timepoints, mark all times that are present as timepoints. */
-            if ( !hasTimepoints && (st1.isDepartureTimeSet() || st1.isArrivalTimeSet())) {
+            if (!hasTimepoints && (st1.isDepartureTimeSet() || st1.isArrivalTimeSet())) {
                 st1.setTimepoint(1);
             }
 
@@ -823,12 +775,12 @@ public class PatternHopFactory {
             if (!st1.isDepartureTimeSet() && st1.isArrivalTimeSet()) {
                 st1.setDepartureTime(st1.getArrivalTime());
             }
-            /* Do not process (skip over) non-timepoint stoptimes, leaving them in place for interpolation. */ 
+            /* Do not process (skip over) non-timepoint stoptimes, leaving them in place for interpolation. */
             // All non-timepoint stoptimes in a series will have identical arrival and departure values of MISSING_VALUE.
-            if ( ! (st1.isArrivalTimeSet() && st1.isDepartureTimeSet())) {
+            if (!(st1.isArrivalTimeSet() && st1.isDepartureTimeSet())) {
                 continue;
             }
-            int dwellTime = st0.getDepartureTime() - st0.getArrivalTime(); 
+            int dwellTime = st0.getDepartureTime() - st0.getArrivalTime();
             if (dwellTime < 0) {
                 LOG.warn(graph.addBuilderAnnotation(new NegativeDwellTime(st0)));
                 if (st0.getArrivalTime() > 23 * SECONDS_IN_HOUR && st0.getDepartureTime() < 1 * SECONDS_IN_HOUR) {
@@ -851,9 +803,9 @@ public class PatternHopFactory {
                 }
             }
             double hopDistance = SphericalDistanceLibrary.fastDistance(
-                   st0.getStop().getLat(), st0.getStop().getLon(),
-                   st1.getStop().getLat(), st1.getStop().getLon());
-            double hopSpeed = hopDistance/runningTime;
+                    st0.getStop().getLat(), st0.getStop().getLon(),
+                    st1.getStop().getLat(), st1.getStop().getLon());
+            double hopSpeed = hopDistance / runningTime;
             /* zero-distance hops are probably not harmful, though they could be better 
              * represented as dwell times
             if (hopDistance == 0) {
@@ -865,32 +817,32 @@ public class PatternHopFactory {
             */
             // sanity-check the hop
             if (st0.getArrivalTime() == st1.getArrivalTime() ||
-                st0.getDepartureTime() == st1.getDepartureTime()) {
+                    st0.getDepartureTime() == st1.getDepartureTime()) {
                 LOG.trace("{} {}", st0, st1);
                 // series of identical stop times at different stops
-                LOG.trace(graph.addBuilderAnnotation(new HopZeroTime((float) hopDistance, 
-                          st1.getTrip(), st1.getStopSequence())));
+                LOG.trace(graph.addBuilderAnnotation(new HopZeroTime((float) hopDistance,
+                        st1.getTrip(), st1.getStopSequence())));
                 // clear stoptimes that are obviously wrong, causing them to later be interpolated
-/* FIXME (lines commented out because they break routability in multi-feed NYC for some reason -AMB) */
+                /* FIXME (lines commented out because they break routability in multi-feed NYC for some reason -AMB) */
 //                st1.clearArrivalTime();
 //                st1.clearDepartureTime();
                 st1bogus = true;
             } else if (hopSpeed > 45) {
                 // 45 m/sec ~= 100 miles/hr
                 // elapsed time of 0 will give speed of +inf
-                LOG.trace(graph.addBuilderAnnotation(new HopSpeedFast((float) hopSpeed, 
+                LOG.trace(graph.addBuilderAnnotation(new HopSpeedFast((float) hopSpeed,
                         (float) hopDistance, st0.getTrip(), st0.getStopSequence())));
             } else if (hopSpeed < 0.1) {
                 // 0.1 m/sec ~= 0.2 miles/hr
-                LOG.trace(graph.addBuilderAnnotation(new HopSpeedSlow((float) hopSpeed, 
+                LOG.trace(graph.addBuilderAnnotation(new HopSpeedSlow((float) hopSpeed,
                         (float) hopDistance, st0.getTrip(), st0.getStopSequence())));
             }
             // st0 should reflect the last stoptime that was not clearly incorrect
-            if ( ! st1bogus)  
+            if (!st1bogus)
                 st0 = st1;
         } // END for loop over stop times
     }
-    
+
     private void loadAgencies(Graph graph) {
         for (Agency agency : transitService.getAllAgencies()) {
             graph.addAgency(feedId.getId(), agency);
@@ -957,8 +909,8 @@ public class PatternHopFactory {
      * This is currently done by assuming equidistant stops and constant speed.
      * While we may not be able to improve the constant speed assumption, we can
      * TODO: use route matching (or shape distance etc.) to improve inter-stop distances
-     *  
-     * @param stopTimes the stoptimes (from a single trip) to be interpolated 
+     *
+     * @param stopTimes the stoptimes (from a single trip) to be interpolated
      */
     private void interpolateStopTimes(List<StopTime> stopTimes) {
         int lastStop = stopTimes.size() - 1;
@@ -989,7 +941,7 @@ public class PatternHopFactory {
                 if (j == lastStop + 1) {
                     throw new RuntimeException(
                             "Could not interpolate arrival/departure time on stop " + i
-                            + " (missing final stop time) on trip " + st0.getTrip());
+                                    + " (missing final stop time) on trip " + st0.getTrip());
                 }
                 numInterpStops = j - i;
                 int arrivalTime;
@@ -1087,7 +1039,7 @@ public class PatternHopFactory {
         }
     }
 
-    
+
     private LineString getHopGeometryViaShapeDistTraveled(Graph graph, FeedScopedId shapeId, StopTime st0, StopTime st1) {
 
         double startDistance = st0.getShapeDistTraveled();
@@ -1128,16 +1080,18 @@ public class PatternHopFactory {
                 && startIndex.getComponentIndex() == endIndex.getComponentIndex();
     }
 
-    /** create a 2-point linestring (a straight line segment) between the two stops */
+    /**
+     * create a 2-point linestring (a straight line segment) between the two stops
+     */
     private LineString createSimpleGeometry(Stop s0, Stop s1) {
-        
-        Coordinate[] coordinates = new Coordinate[] {
+
+        Coordinate[] coordinates = new Coordinate[]{
                 new Coordinate(s0.getLon(), s0.getLat()),
                 new Coordinate(s1.getLon(), s1.getLat())
         };
         CoordinateSequence sequence = new PackedCoordinateSequence.Double(coordinates, 2);
-        
-        return _geometryFactory.createLineString(sequence);        
+
+        return _geometryFactory.createLineString(sequence);
     }
 
     private boolean isValid(Geometry geometry, Stop s0, Stop s1) {
@@ -1155,7 +1109,7 @@ public class PatternHopFactory {
         }
         Coordinate geometryStartCoord = coordinates[0];
         Coordinate geometryEndCoord = coordinates[coordinates.length - 1];
-        
+
         Coordinate startCoord = new Coordinate(s0.getLon(), s0.getLat());
         Coordinate endCoord = new Coordinate(s1.getLon(), s1.getLat());
         if (SphericalDistanceLibrary.fastDistance(startCoord, geometryStartCoord) > maxStopToShapeSnapDistance) {
@@ -1167,9 +1121,9 @@ public class PatternHopFactory {
     }
 
     private LineString getSegmentGeometry(Graph graph, FeedScopedId shapeId,
-            LocationIndexedLine locationIndexedLine, LinearLocation startIndex,
-            LinearLocation endIndex, double startDistance, double endDistance, 
-            StopTime st0, StopTime st1) {
+                                          LocationIndexedLine locationIndexedLine, LinearLocation startIndex,
+                                          LinearLocation endIndex, double startDistance, double endDistance,
+                                          StopTime st0, StopTime st1) {
 
         ShapeSegmentKey key = new ShapeSegmentKey(shapeId, startDistance, endDistance);
 
@@ -1182,7 +1136,7 @@ public class PatternHopFactory {
             CoordinateSequence sequence = new PackedCoordinateSequence.Double(geometry
                     .getCoordinates(), 2);
             geometry = _geometryFactory.createLineString(sequence);
-            
+
             if (!isValid(geometry, st0.getStop(), st1.getStop())) {
                 LOG.warn(graph.addBuilderAnnotation(new BogusShapeGeometryCaught(shapeId, st0, st1)));
                 //fall back to trivial geometry
@@ -1193,12 +1147,12 @@ public class PatternHopFactory {
 
         return geometry;
     }
-    
-    /* 
+
+    /*
      * If a shape appears in more than one feed, the shape points will be loaded several
      * times, and there will be duplicates in the DAO. Filter out duplicates and repeated
      * coordinates because 1) they are unnecessary, and 2) they define 0-length line segments
-     * which cause JTS location indexed line to return a segment location of NaN, 
+     * which cause JTS location indexed line to return a segment location of NaN,
      * which we do not want.
      */
     private List<ShapePoint> getUniqueShapePointsForShapeId(FeedScopedId shapeId) {
@@ -1207,9 +1161,9 @@ public class PatternHopFactory {
         ShapePoint last = null;
         for (ShapePoint sp : points) {
             if (last == null || last.getSequence() != sp.getSequence()) {
-                if (last != null && 
-                    last.getLat() == sp.getLat() && 
-                    last.getLon() == sp.getLon()) {
+                if (last != null &&
+                        last.getLat() == sp.getLat() &&
+                        last.getLon() == sp.getLon()) {
                     LOG.trace("pair of identical shape points (skipping): {} {}", last, sp);
                 } else {
                     filtered.add(sp);
@@ -1229,7 +1183,7 @@ public class PatternHopFactory {
 
         LineString geometry = geometriesByShapeId.get(shapeId);
 
-        if (geometry != null) 
+        if (geometry != null)
             return geometry;
 
         List<ShapePoint> points = getUniqueShapePointsForShapeId(shapeId);
@@ -1294,13 +1248,13 @@ public class PatternHopFactory {
      * Filter out any series of stop times that refer to the same stop. This is very inefficient in
      * an array-backed list, but we are assuming that this is a rare occurrence. The alternative is
      * to copy every list of stop times during filtering.
-     * 
+     * <p>
      * TODO: OBA GFTS makes the stoptime lists unmodifiable, so this will not work.
-     * We need to copy any modified list. 
-     * 
+     * We need to copy any modified list.
+     *
      * @return whether any repeated stops were filtered out.
      */
-    private TIntList removeRepeatedStops (List<StopTime> stopTimes) {
+    private TIntList removeRepeatedStops(List<StopTime> stopTimes) {
         boolean filtered = false;
         StopTime prev = null;
         Iterator<StopTime> it = stopTimes.iterator();
@@ -1348,18 +1302,18 @@ public class PatternHopFactory {
         this.fareServiceFactory = fareServiceFactory;
     }
 
-    /** 
-     * Create bidirectional, "free" edges (zero-time, low-cost edges) between stops and their 
+    /**
+     * Create bidirectional, "free" edges (zero-time, low-cost edges) between stops and their
      * parent stations. This is used to produce implicit transfers between all stops that are
-     * part of the same parent station. It was introduced as a workaround to allow in-station 
+     * part of the same parent station. It was introduced as a workaround to allow in-station
      * transfers for underground/grade-separated transportation systems like the NYC subway (where
      * it's important to provide in-station transfers for fare computation).
-     * 
-     * This step used to be automatically applied whenever transfers.txt was used to create 
+     * <p>
+     * This step used to be automatically applied whenever transfers.txt was used to create
      * transfers (rather than or in addition to transfers through the street netowrk),
      * but has been separated out since it is really a separate process.
      */
-    public void createParentStationTransfers () {
+    public void createParentStationTransfers() {
         for (Stop stop : transitService.getAllStops()) {
             String parentStation = stop.getParentStation();
             if (parentStation != null) {
@@ -1395,12 +1349,12 @@ public class PatternHopFactory {
             }
         }
     }
-    
+
     /**
      * Links the vertices representing parent stops to their child stops bidirectionally. This is
      * not intended to provide implicit transfers (i.e. child stop to parent station to another
      * child stop) but instead to allow beginning or ending a path (itinerary) at a parent station.
-     * 
+     * <p>
      * Currently this linking is only intended for use in the long distance path service. The
      * pathparsers should ensure that it is effectively ignored in other path services, and even in
      * the long distance path service anywhere but the beginning or end of a path.
@@ -1413,7 +1367,7 @@ public class PatternHopFactory {
                 String agencyId = stop.getId().getAgencyId();
                 FeedScopedId parentStationId = new FeedScopedId(agencyId, parentStation);
                 Stop parentStop = transitService.getStopForId(parentStationId);
-                if(context.stationStopNodes.get(parentStop) instanceof TransitStation) {
+                if (context.stationStopNodes.get(parentStop) instanceof TransitStation) {
                     TransitStation parentStopVertex = (TransitStation)
                             context.stationStopNodes.get(parentStop);
                     new StationStopEdge(parentStopVertex, stopVertex);
@@ -1422,14 +1376,14 @@ public class PatternHopFactory {
                     LOG.warn(graph.addBuilderAnnotation(new NonStationParentStation(stopVertex)));
                 }
             }
-        }        
+        }
     }
-    
+
     /**
      * Create transfer edges between stops which are listed in transfers.txt.
-     * 
+     * <p>
      * NOTE: this method is only called when transfersTxtDefinesStationPaths is set to
-     * True for a given GFTS feed. 
+     * True for a given GFTS feed.
      */
     public void createTransfersTxtTransfers() {
 
@@ -1454,8 +1408,8 @@ public class PatternHopFactory {
             }
 
             TransferEdge transferEdge = new TransferEdge(fromv, tov, distance, time);
-            CoordinateSequence sequence = new PackedCoordinateSequence.Double(new Coordinate[] {
-                    fromv.getCoordinate(), tov.getCoordinate() }, 2);
+            CoordinateSequence sequence = new PackedCoordinateSequence.Double(new Coordinate[]{
+                    fromv.getCoordinate(), tov.getCoordinate()}, 2);
             LineString geometry = _geometryFactory.createLineString(sequence);
             transferEdge.setGeometry(geometry);
         }
@@ -1473,7 +1427,7 @@ public class PatternHopFactory {
         this.maxStopToShapeSnapDistance = maxStopToShapeSnapDistance;
     }
 
-    private Collection<Transfer> expandTransfer (Transfer source) {
+    private Collection<Transfer> expandTransfer(Transfer source) {
         Stop fromStop = source.getFromStop();
         Stop toStop = source.getToStop();
 
@@ -1520,11 +1474,12 @@ public class PatternHopFactory {
                     expandedTransfers.size(),
                     fromStops.size(),
                     toStops.size()
-                    );
+            );
 
             return expandedTransfers;
         }
     }
+
     private void loadFlexAreaMap() {
         for (FlexArea flexArea : transitService.getAllAreas()) {
             Geometry geometry = GeometryUtils.parseWkt(flexArea.getWkt());

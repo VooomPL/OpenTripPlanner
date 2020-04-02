@@ -31,21 +31,21 @@ public class StopsAlerts implements GraphBuilderModule {
     public void buildGraph(Graph graph, HashMap<Class<?>, Object> extra) {
         try {
             PrintWriter pw = new PrintWriter(new File(logFile));
-            pw.printf("%s,%s,%s,%s\n","stopId","lon","lat","types");
+            pw.printf("%s,%s,%s,%s\n", "stopId", "lon", "lat", "types");
             for (TransitStop ts : Iterables.filter(graph.getVertices(), TransitStop.class)) {
                 StringBuilder types = new StringBuilder();
-                for(IStopTester stopTester:stopTesters){
-                    if(stopTester.fulfillDemands(ts,graph)){
-                        if(types.length() > 0) types.append(";");
+                for (IStopTester stopTester : stopTesters) {
+                    if (stopTester.fulfillDemands(ts, graph)) {
+                        if (types.length() > 0) types.append(";");
                         types.append(stopTester.getType());
                     }
                 }
-                if(types.length() > 0) {
-                    pw.printf("%s,%f,%f,%s\n",ts.getStopId(), ts.getCoordinate().x,
+                if (types.length() > 0) {
+                    pw.printf("%s,%f,%f,%s\n", ts.getStopId(), ts.getCoordinate().x,
                             ts.getCoordinate().y, types.toString());
                 }
             }
-            pw.close();            
+            pw.close();
         } catch (FileNotFoundException e) {
             LOG.error("Failed to write StopsAlerts log file", e);
         }
@@ -53,7 +53,7 @@ public class StopsAlerts implements GraphBuilderModule {
 
     @Override
     public void checkInputs() {
-        if(logFile.isEmpty())
+        if (logFile.isEmpty())
             throw new RuntimeException("missing log file name");
     }
 }

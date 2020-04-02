@@ -1,16 +1,11 @@
 package org.opentripplanner.routing.core;
 
-import java.io.File;
-import java.util.Date;
-import java.util.Random;
-
 import junit.framework.TestCase;
-
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.Stop;
+import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.edgetype.OnBoardDepartPatternHop;
 import org.opentripplanner.routing.edgetype.PatternHop;
@@ -26,11 +21,15 @@ import org.opentripplanner.routing.vertextype.PatternArriveVertex;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 import org.opentripplanner.util.TestUtils;
 
+import java.io.File;
+import java.util.Date;
+import java.util.Random;
+
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
 /**
  * Test on-board routing, ie routing with a starting point "on-board" a vehicle.
- * 
+ *
  * @author laurent
  */
 public class TestOnBoardRouting extends TestCase {
@@ -54,11 +53,11 @@ public class TestOnBoardRouting extends TestCase {
 
     /**
      * Compute a set of path between two random stop locations in a test GTFS.
-     * 
+     * <p>
      * For each departure/arrival location, compute a normal path (depart alighted). Then re-run the
      * same itinerary but with departure while on-board at a randomly-picked up trip alongside the
      * path.
-     * 
+     * <p>
      * We assert that the two itineraries will arrive at the same time, at the same place, with at
      * least one less boarding, and take a less or equals amount of time.
      */

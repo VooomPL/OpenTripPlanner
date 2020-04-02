@@ -1,20 +1,14 @@
 package org.opentripplanner.util;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
  * This is for translated strings for which translations are read from OSM or GTFS alerts.
- *
+ * <p>
  * This can be translated street names, GTFS alerts and notes.
+ *
  * @author Hannes Junnila
  */
 public class TranslatedString implements I18NString, Serializable {
@@ -29,7 +23,7 @@ public class TranslatedString implements I18NString, Serializable {
 
     private TranslatedString(Map<String, String> translations) {
         for (Map.Entry<String, String> i : translations.entrySet()) {
-            if (i.getKey() == null){
+            if (i.getKey() == null) {
                 this.translations.put(null, i.getValue());
             } else {
                 this.translations.put(i.getKey().toLowerCase(), i.getValue());
@@ -39,7 +33,7 @@ public class TranslatedString implements I18NString, Serializable {
 
     @Override
     public boolean equals(Object other) {
-        return (other instanceof TranslatedString) && this.translations.equals(((TranslatedString)other).translations);
+        return (other instanceof TranslatedString) && this.translations.equals(((TranslatedString) other).translations);
     }
 
     /**
@@ -51,18 +45,15 @@ public class TranslatedString implements I18NString, Serializable {
     public static I18NString getI18NString(Map<String, String> translations) {
         if (intern.containsKey(translations)) {
             return intern.get(translations);
-        }
-        else {
+        } else {
             I18NString ret;
             // Check if we only have one name, even under multiple languages
             long numberOfUniqValues = translations.values().stream().distinct().count();
-            if(numberOfUniqValues == 0) {
+            if (numberOfUniqValues == 0) {
                 throw new IllegalArgumentException("Map of languages and translations is empty.");
-            }
-            else if(numberOfUniqValues == 1) {
+            } else if (numberOfUniqValues == 1) {
                 ret = new NonLocalizedString(translations.values().iterator().next());
-            }
-            else {
+            } else {
                 ret = new TranslatedString(translations);
             }
             intern.put(translations, ret);
@@ -80,7 +71,7 @@ public class TranslatedString implements I18NString, Serializable {
     /**
      * @return The available translations
      */
-    public List<Entry<String,String>> getTranslations() {
+    public List<Entry<String, String>> getTranslations() {
         return new ArrayList<Entry<String, String>>(translations.entrySet());
     }
 

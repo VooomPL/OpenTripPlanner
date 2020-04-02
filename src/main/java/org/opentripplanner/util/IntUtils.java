@@ -1,19 +1,20 @@
 package org.opentripplanner.util;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class IntUtils {
     private static final Logger LOG = LoggerFactory.getLogger(IntUtils.class);
-    public  static final String POINT_PREFIX = "POINT("; 
-    
-    /** does this string appear to be a coordinate of some sort */
-    public static boolean looksLikeCoordinate(String str)
-    {
-        if(str != null && (str.contains(POINT_PREFIX) || str.matches("[\\s]*[0-9\\-.]+[,\\s]+[0-9\\-.]+[\\s]*")))
+    public static final String POINT_PREFIX = "POINT(";
+
+    /**
+     * does this string appear to be a coordinate of some sort
+     */
+    public static boolean looksLikeCoordinate(String str) {
+        if (str != null && (str.contains(POINT_PREFIX) || str.matches("[\\s]*[0-9\\-.]+[,\\s]+[0-9\\-.]+[\\s]*")))
             return true;
 
         return false;
@@ -23,12 +24,16 @@ public class IntUtils {
         return Math.round(d * Math.pow(10, places)) / Math.pow(10, places);
     }
 
-    /** take a string of ints (eg: 1,2,3,4), and return a List of Integers */
+    /**
+     * take a string of ints (eg: 1,2,3,4), and return a List of Integers
+     */
     static public List<Integer> asList(String str) {
         return asList(str, ",");
     }
 
-    /** take a string of ints (eg: 1[sep]2[sep]3[sep]4), and return a List of Integers */
+    /**
+     * take a string of ints (eg: 1[sep]2[sep]3[sep]4), and return a List of Integers
+     */
     static public List<Integer> asList(String str, String sep) {
         List<Integer> retVal = new ArrayList<Integer>();
         try {
@@ -106,13 +111,13 @@ public class IntUtils {
 
     /**
      * expect an Integer between prefix and suffix
-     * 
+     * <p>
      * eg: if is this is our string "Hi there #2112, how are you" then a call of
      * getIntegerFromSubString("Hi there #2112, how are you", "#", ","); will return 2112
-     * 
+     * <p>
      * note: if " " is specified, and there is no space from prefix to end of line, then the whole
      * line is evaluated
-     * 
+     *
      * @param target
      * @param prefix
      * @param suffix

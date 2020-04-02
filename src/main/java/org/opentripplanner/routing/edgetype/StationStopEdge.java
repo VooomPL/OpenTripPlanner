@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -7,17 +8,16 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.TransitStation;
 import org.opentripplanner.routing.vertextype.TransitStop;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * An edge that connects a parent station to a constituent stop. This is not intended to provide
  * implicit transfers (i.e. child stop to parent station to another child stop) but instead to allow
  * beginning or ending a path (itinerary) at a parent station.
- * 
+ * <p>
  * Currently this edge is only intended for use at the beginning or end of a path.
- * 
- * Note that when most users specify that they want to depart from a parent stop at 8AM, they 
+ * <p>
+ * Note that when most users specify that they want to depart from a parent stop at 8AM, they
  * actually want to leave from any constituent stop at or after exactly 8AM and are accounting for
  * the initial walk access leg themselves. No edge should have zero cost (this can potentially
  * create endless search loops) but the edges can have zero time while having positive cost.

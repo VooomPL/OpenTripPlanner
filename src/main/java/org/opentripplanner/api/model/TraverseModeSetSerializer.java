@@ -14,8 +14,10 @@ import java.io.IOException;
  * Serialize traverse mode sets as strings.
  */
 public class TraverseModeSetSerializer extends JsonSerializer<TraverseModeSet> {
-    /** Create a module including the serializer and deserializer for local dates */
-    public static SimpleModule makeModule () {
+    /**
+     * Create a module including the serializer and deserializer for local dates
+     */
+    public static SimpleModule makeModule() {
         Version moduleVersion = new Version(1, 0, 0, null, null, null);
         SimpleModule module = new SimpleModule("TraverseModeSet", moduleVersion);
         module.addSerializer(TraverseModeSet.class, new TraverseModeSetSerializer());
@@ -23,8 +25,9 @@ public class TraverseModeSetSerializer extends JsonSerializer<TraverseModeSet> {
         return module;
     }
 
-    @Override public void serialize(TraverseModeSet traverseModeSet, JsonGenerator jsonGenerator,
-            SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+    @Override
+    public void serialize(TraverseModeSet traverseModeSet, JsonGenerator jsonGenerator,
+                          SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
         jsonGenerator.writeString(traverseModeSet.getAsStr());
     }
 }

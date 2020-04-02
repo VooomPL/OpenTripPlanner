@@ -1,36 +1,21 @@
 package org.opentripplanner.routing.core;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
-
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
 import junit.framework.TestCase;
-
+import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.gtfs.GtfsContext;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.ConstantsForTests;
-import org.opentripplanner.gtfs.GtfsContext;
-import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.routing.algorithm.AStar;
-import org.opentripplanner.routing.edgetype.SimpleTransfer;
-import org.opentripplanner.routing.edgetype.TimedTransferEdge;
-import org.opentripplanner.routing.edgetype.Timetable;
-import org.opentripplanner.routing.edgetype.TimetableSnapshot;
-import org.opentripplanner.routing.edgetype.TransitBoardAlight;
-import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -42,11 +27,16 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.util.TestUtils;
 
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
+
+import static org.mockito.Mockito.*;
+import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
 /**
  * This is a singleton class to hold graph data between test runs, since loading it is slow.
@@ -105,8 +95,9 @@ class Context {
 
     /**
      * Create simple transfer edge between two vertices given their labels
-     * @param from is label of from vertex
-     * @param to is label of to vertex
+     *
+     * @param from     is label of from vertex
+     * @param to       is label of to vertex
      * @param distance is distance of transfer
      */
     private void createSimpleTransfer(String from, String to, int distance) {
@@ -135,6 +126,7 @@ public class TestTransfers extends TestCase {
 
     /**
      * Plan journey without optimization and return list of states and edges
+     *
      * @param options are options to use for planning the journey
      * @return ordered list of states and edges in the journey
      */
@@ -144,7 +136,8 @@ public class TestTransfers extends TestCase {
 
     /**
      * Plan journey and return list of states and edges
-     * @param options are options to use for planning the journey
+     *
+     * @param options  are options to use for planning the journey
      * @param optimize is true when optimization should be used
      * @return ordered list of states and edges in the journey
      */
@@ -179,8 +172,8 @@ public class TestTransfers extends TestCase {
      * Apply an update to a table trip pattern and check whether the update was applied correctly
      */
     private void applyUpdateToTripPattern(TripPattern pattern, String tripId, String stopId,
-            int stopSeq, int arrive, int depart, ScheduleRelationship scheduleRelationship,
-            int timestamp, ServiceDate serviceDate) throws ParseException {
+                                          int stopSeq, int arrive, int depart, ScheduleRelationship scheduleRelationship,
+                                          int timestamp, ServiceDate serviceDate) throws ParseException {
         TimetableSnapshot snapshot = graph.timetableSnapshotSource.getTimetableSnapshot();
         Timetable timetable = snapshot.resolve(pattern, serviceDate);
         TimeZone timeZone = new SimpleTimeZone(-7, "PST");
@@ -209,7 +202,7 @@ public class TestTransfers extends TestCase {
 
         TripUpdate tripUpdate = tripUpdateBuilder.build();
 
-        TripTimes updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        TripTimes updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         int tripIndex = timetable.getTripIndex(tripId);
         assertTrue(tripIndex != -1);
@@ -324,7 +317,7 @@ public class TestTransfers extends TestCase {
         // Find state with FrequencyBoard back edge and save time of that state
         long time = -1;
         for (State s : path.states) {
-            if (s.getBackEdge() instanceof TransitBoardAlight && ((TransitBoardAlight)s.getBackEdge()).boarding)  {
+            if (s.getBackEdge() instanceof TransitBoardAlight && ((TransitBoardAlight) s.getBackEdge()).boarding) {
                 time = s.getTimeSeconds(); // find the final board edge, don't break
             }
         }
@@ -347,7 +340,7 @@ public class TestTransfers extends TestCase {
         // Find state with FrequencyBoard back edge and save time of that state
         long newTime = -1;
         for (State s : path.states) {
-            if (s.getBackEdge() instanceof TransitBoardAlight && ((TransitBoardAlight)s.getBackEdge()).boarding)  {
+            if (s.getBackEdge() instanceof TransitBoardAlight && ((TransitBoardAlight) s.getBackEdge()).boarding) {
                 newTime = s.getTimeSeconds(); // find the final board edge, don't break
             }
         }

@@ -1,16 +1,15 @@
 package org.opentripplanner.routing.vertextype;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Graph;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+import static org.junit.Assert.*;
 
 public class IntersectionVertexTest {
 
@@ -18,7 +17,7 @@ public class IntersectionVertexTest {
 
     private StreetEdge fromEdge;
     private StreetEdge straightAheadEdge;
-    
+
     @Before
     public void before() {
         graph = new Graph();
@@ -64,11 +63,11 @@ public class IntersectionVertexTest {
     public void testFreeFlowing() {
         IntersectionVertex iv = new IntersectionVertex(graph, "vertex", 1.0, 2.0);
         assertFalse(iv.freeFlowing);
-        
+
         iv.freeFlowing = (true);
         assertTrue(iv.freeFlowing);
     }
-    
+
     @Test
     public void testInferredFreeFlowing() {
         IntersectionVertex iv = new IntersectionVertex(graph, "vertex", 1.0, 2.0);
@@ -76,28 +75,28 @@ public class IntersectionVertexTest {
         assertFalse(iv.inferredFreeFlowing());
         assertEquals(0, iv.getDegreeIn());
         assertEquals(0, iv.getDegreeOut());
-        
-        iv.trafficLight = (true);  
+
+        iv.trafficLight = (true);
         assertTrue(iv.trafficLight);
         assertFalse(iv.inferredFreeFlowing());
-        
+
         iv.addIncoming(fromEdge);
         assertEquals(1, iv.getDegreeIn());
         assertEquals(0, iv.getDegreeOut());
         assertFalse(iv.inferredFreeFlowing());
-        
+
         iv.addOutgoing(straightAheadEdge);
         assertEquals(1, iv.getDegreeIn());
         assertEquals(1, iv.getDegreeOut());
         assertFalse(iv.inferredFreeFlowing());
-        
-        iv.trafficLight = (false);  
+
+        iv.trafficLight = (false);
         assertFalse(iv.trafficLight);
         assertTrue(iv.inferredFreeFlowing());
-        
+
         // Set the freeFlowing bit to false.
         iv.freeFlowing = (false);
-        assertFalse(iv.freeFlowing);       
+        assertFalse(iv.freeFlowing);
     }
 
     /****
@@ -111,11 +110,11 @@ public class IntersectionVertexTest {
 
     /**
      * Create an edge. If twoWay, create two edges (back and forth).
-     * 
+     *
      * @param vA
      * @param vB
      * @param length
-     * @param back true if this is a reverse edge
+     * @param back   true if this is a reverse edge
      */
     private StreetEdge edge(StreetVertex vA, StreetVertex vB, double length, boolean back) {
         String labelA = vA.getLabel();

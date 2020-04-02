@@ -1,11 +1,11 @@
 package org.opentripplanner.util;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class DateUtilsTest {
     @Test

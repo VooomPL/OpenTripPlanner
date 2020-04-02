@@ -112,7 +112,7 @@ public class PartialPatternHop extends FlexPatternHop {
     }
 
     private void setGeometry(PatternHop hop, LengthIndexedLine line, double boardBuffer, double alightBuffer) {
-        double pointsPerMeter =  (line.getEndIndex() - line.getStartIndex()) / SphericalDistanceLibrary.fastLength(hop.getGeometry());
+        double pointsPerMeter = (line.getEndIndex() - line.getStartIndex()) / SphericalDistanceLibrary.fastLength(hop.getGeometry());
         double boardBufferPts = boardBuffer * pointsPerMeter;
         double alightBufferPts = alightBuffer * pointsPerMeter;
         double start = Math.max(line.getStartIndex(), startIndex - boardBufferPts);

@@ -34,10 +34,10 @@ import java.util.Arrays;
 /**
  * Perform one-to-many profile routing using repeated RAPTOR searches. In this context, profile routing means finding
  * the optimal itinerary for each departure moment in a given window, without trying to reconstruct the exact paths.
- *
+ * <p>
  * In other contexts (Modeify-style point to point routing) we would want to include suboptimal but resonable paths
  * and retain enough information to reconstruct all those paths accounting for common trunk frequencies and stop clusters.
- *
+ * <p>
  * This method is conceptually very similar to the work of the Minnesota Accessibility Observatory
  * (http://www.its.umn.edu/Publications/ResearchReports/pdfdownloadl.pl?id=2504)
  * They run repeated searches for each departure time in the window. We take advantage of the fact that the street
@@ -57,10 +57,14 @@ public class RepeatedRaptorProfileRouter {
     // The spacing in minutes between RAPTOR calls within the time window
     public int stepMinutes = 1;
 
-    /** Three time surfaces for min, max, and average travel time over the given time window. */
+    /**
+     * Three time surfaces for min, max, and average travel time over the given time window.
+     */
     public TimeSurface.RangeSet timeSurfaceRangeSet;
 
-    /** If not null, completely skip this agency during the calculations. */
+    /**
+     * If not null, completely skip this agency during the calculations.
+     */
     public String banAgency = null;
 
     /**
@@ -72,13 +76,19 @@ public class RepeatedRaptorProfileRouter {
 
     private ShortestPathTree preTransitSpt;
 
-    /** The sum of all earliest-arrival travel times to a given transit stop. Will be divided to create an average. */
+    /**
+     * The sum of all earliest-arrival travel times to a given transit stop. Will be divided to create an average.
+     */
     TObjectLongMap<TransitStop> accumulator = new TObjectLongHashMap<TransitStop>();
 
-    /** The number of travel time observations added into the accumulator. The divisor when calculating an average. */
+    /**
+     * The number of travel time observations added into the accumulator. The divisor when calculating an average.
+     */
     TObjectIntMap<TransitStop> counts = new TObjectIntHashMap<TransitStop>();
 
-    /** Samples to propagate times to */
+    /**
+     * Samples to propagate times to
+     */
     private SampleSet sampleSet;
 
     private PropagatedTimesStore propagatedTimesStore;
@@ -91,10 +101,10 @@ public class RepeatedRaptorProfileRouter {
 
     /**
      * Make a router to use for making time surfaces only.
-     *
+     * <p>
      * If you're building ResultSets, you should use the below method that uses a SampleSet;
      * otherwise you maximum and average may not be correct.
-     *
+     * <p>
      * If you want isochrones, you should use this method, or use a sampleset that is very fine. The
      * reason for this is that isochrones are interpolated from these points in Euclidean space, so the
      * points need to be very fine. Consider the case of three roads in an equilateral triangle, the edges
@@ -113,7 +123,7 @@ public class RepeatedRaptorProfileRouter {
     /**
      * Make a router to use for making ResultSets. This propagates times all the way to the samples, so that
      * average and maximum travel time are correct.
-     * 
+     * <p>
      * Samples are linked to two vertices at the ends of an edge, and it is possible that the average for the sample
      * (as well as the max) is lower than the average or the max at either of the vertices, because it may be that
      * every time the max at one vertex is occurring, a lower value is occurring at the other. This initially
@@ -121,13 +131,13 @@ public class RepeatedRaptorProfileRouter {
      * It may be that some of the time it makes sense to go out of your house and turn left, and sometimes it makes
      * sense to turn right, depending on which is coming first.
      */
-    public RepeatedRaptorProfileRouter (Graph graph, ProfileRequest request, SampleSet sampleSet) {
+    public RepeatedRaptorProfileRouter(Graph graph, ProfileRequest request, SampleSet sampleSet) {
         this.request = request;
         this.graph = graph;
         this.sampleSet = sampleSet;
     }
 
-    public ResultEnvelope route () {
+    public ResultEnvelope route() {
 
         boolean isochrone = (sampleSet == null); // When no sample set is provided, we're making isochrones.
         boolean transit = (request.transitModes != null && request.transitModes.isTransit()); // Does the search involve transit at all?
@@ -184,7 +194,7 @@ public class RepeatedRaptorProfileRouter {
             propagatedTimesStore = new PropagatedTimesStore(graph, request, nonTransitTimes.length);
             int[][] singleRoundResults = new int[1][];
             singleRoundResults[0] = nonTransitTimes;
-            propagatedTimesStore.setFromArray(singleRoundResults, new boolean[] {true},
+            propagatedTimesStore.setFromArray(singleRoundResults, new boolean[]{true},
                     PropagatedTimesStore.ConfidenceCalculationMethod.MIN_MAX);
         }
         for (int min : propagatedTimesStore.mins) {
@@ -281,8 +291,10 @@ public class RepeatedRaptorProfileRouter {
         }
     }
 
-    /** Create RAPTOR worker data from a graph, profile request and sample set (the last of which may be null */
-    public static RaptorWorkerData getRaptorWorkerData (ProfileRequest request, Graph graph, SampleSet sampleSet, TaskStatistics ts) {
+    /**
+     * Create RAPTOR worker data from a graph, profile request and sample set (the last of which may be null
+     */
+    public static RaptorWorkerData getRaptorWorkerData(ProfileRequest request, Graph graph, SampleSet sampleSet, TaskStatistics ts) {
         LOG.info("Make data...");
         long startData = System.currentTimeMillis();
 

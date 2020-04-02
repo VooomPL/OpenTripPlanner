@@ -1,46 +1,41 @@
 package org.opentripplanner.analyst.batch;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
+import com.csvreader.CsvWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.csvreader.CsvWriter;
+import java.nio.charset.Charset;
+import java.util.*;
 
 public class BasicPopulation implements Population {
 
     private static final Logger LOG = LoggerFactory.getLogger(BasicPopulation.class);
-    
+
     public String sourceFilename;
-    
-    public List<Individual> individuals = new ArrayList<Individual>(); 
-    
-    public List<IndividualFilter> filterChain = null; 
+
+    public List<Individual> individuals = new ArrayList<Individual>();
+
+    public List<IndividualFilter> filterChain = null;
 
     private boolean[] skip = null;
-    
-    public BasicPopulation() {  }
+
+    public BasicPopulation() {
+    }
 
     public BasicPopulation(Individual... individuals) {
         this.individuals = Arrays.asList(individuals);
     }
-    
+
     public BasicPopulation(Collection<Individual> individuals) {
         this.individuals = new ArrayList<Individual>(individuals);
     }
 
-    @Override 
+    @Override
     public void addIndividual(Individual individual) {
         this.individuals.add(individual);
     }
 
-    @Override 
+    @Override
     public Iterator<Individual> iterator() {
         return new PopulationIterator();
     }
@@ -59,20 +54,20 @@ public class BasicPopulation implements Population {
     public int size() {
         return this.individuals.size();
     }
-        
+
     protected void writeCsv(String outFileName, ResultSet results) {
         LOG.debug("Writing population to CSV: {}", outFileName);
         try {
             CsvWriter writer = new CsvWriter(outFileName, ',', Charset.forName("UTF8"));
-            writer.writeRecord( new String[] {"label", "lat", "lon", "input", "output"} );
+            writer.writeRecord(new String[]{"label", "lat", "lon", "input", "output"});
             int i = 0;
             int j = 0;
             // using internal list rather than filtered iterator
             for (Individual indiv : this.individuals) {
-                if ( ! this.skip[i]) {
-                    String[] entries = new String[] { 
-                            indiv.label, Double.toString(indiv.lat), Double.toString(indiv.lon), 
-                            Double.toString(indiv.input), Double.toString(results.results[j]) 
+                if (!this.skip[i]) {
+                    String[] entries = new String[]{
+                            indiv.label, Double.toString(indiv.lat), Double.toString(indiv.lon),
+                            Double.toString(indiv.input), Double.toString(results.results[j])
                     };
                     writer.writeRecord(entries);
                     j++;
@@ -94,11 +89,12 @@ public class BasicPopulation implements Population {
     }
 
     // TODO maybe store skip values in the samples themselves?
-    /** 
-     * If a filter chain is specified, apply it to the individuals. Must be called after loading 
-     * or generating the individuals. Filtering does not actually remove individuals from the 
-     * population, it merely tags them as rejected. This is important for structured populations 
-     * like rasters, where we may need to write out all individuals including those that were 
+
+    /**
+     * If a filter chain is specified, apply it to the individuals. Must be called after loading
+     * or generating the individuals. Filtering does not actually remove individuals from the
+     * population, it merely tags them as rejected. This is important for structured populations
+     * like rasters, where we may need to write out all individuals including those that were
      * skipped.
      */
     private void applyFilterChain() {
@@ -110,7 +106,7 @@ public class BasicPopulation implements Population {
             int rejected = 0;
             int i = 0;
             for (Individual individual : this.individuals) {
-                boolean skipThis = ! filter.filter(individual);
+                boolean skipThis = !filter.filter(individual);
                 if (skipThis)
                     rejected += 1;
                 skip[i++] |= skipThis;
@@ -122,7 +118,7 @@ public class BasicPopulation implements Population {
             if (s)
                 rejected += 1;
         LOG.info("TOTALS: accepted {} rejected {}", skip.length - rejected, rejected);
-        
+
     }
 
     @Override
@@ -138,11 +134,11 @@ public class BasicPopulation implements Population {
         int i = 0;
         int n = individuals.size();
         Iterator<Individual> iter = individuals.iterator();
-        
+
         public boolean hasNext() {
             while (i < n && skip[i]) {
                 //LOG.debug("in iter, i = {}", i);
-                if (! iter.hasNext())
+                if (!iter.hasNext())
                     return false;
                 i += 1;
                 iter.next();
@@ -150,7 +146,7 @@ public class BasicPopulation implements Population {
             //LOG.debug("done skipping at {}", i);
             return iter.hasNext();
         }
-        
+
         public Individual next() {
             if (this.hasNext()) {
                 Individual ret = iter.next();
@@ -162,9 +158,9 @@ public class BasicPopulation implements Population {
         }
 
         public void remove() {
-            throw new UnsupportedOperationException(); 
+            throw new UnsupportedOperationException();
         }
-        
+
     }
 
 }

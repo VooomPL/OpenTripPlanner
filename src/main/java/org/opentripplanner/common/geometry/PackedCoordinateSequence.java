@@ -1,11 +1,11 @@
 package org.opentripplanner.common.geometry;
 
-import java.io.Serializable;
-import java.lang.ref.SoftReference;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Envelope;
+
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
 
 /**
  * A {@link CoordinateSequence} implementation based on a packed arrays. In this implementation,
@@ -14,10 +14,10 @@ import org.locationtech.jts.geom.Envelope;
  * <p>
  * For efficiency, created Coordinate arrays are cached using a soft reference. The cache is cleared
  * each time the coordinate sequence contents are modified through a setter method.
- * 
+ * <p>
  * 2009-11-25 - bdferris - This class copied from JTS (LGPL-licensed) to add {@link Serializable} to
  * the class so that we can serialize it with our graphs
- * 
+ *
  * @version 1.7
  */
 public abstract class PackedCoordinateSequence implements CoordinateSequence, Serializable, Cloneable {
@@ -127,11 +127,9 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
     /**
      * Sets the first ordinate of a coordinate in this sequence.
-     * 
-     * @param index
-     *            the coordinate index
-     * @param value
-     *            the new ordinate value
+     *
+     * @param index the coordinate index
+     * @param value the new ordinate value
      */
     public void setX(int index, double value) {
         coordRef = null;
@@ -140,11 +138,9 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
     /**
      * Sets the second ordinate of a coordinate in this sequence.
-     * 
-     * @param index
-     *            the coordinate index
-     * @param value
-     *            the new ordinate value
+     *
+     * @param index the coordinate index
+     * @param value the new ordinate value
      */
     public void setY(int index, double value) {
         coordRef = null;
@@ -154,12 +150,12 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
     /**
      * Returns a Coordinate representation of the specified coordinate, by always building a new
      * Coordinate object
-     * 
+     *
      * @param index
      * @return
      */
     protected abstract Coordinate getCoordinateInternal(int index);
-    
+
     /**
      * @see java.lang.Object#clone()
      */
@@ -171,19 +167,16 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Sets the ordinate of a coordinate in this sequence. <br>
      * Warning: for performance reasons the ordinate index is not checked - if it is over dimensions
      * you may not get an exception but a meaningless value.
-     * 
-     * @param index
-     *            the coordinate index
-     * @param ordinate
-     *            the ordinate index in the coordinate, 0 based, smaller than the number of
-     *            dimensions
-     * @param value
-     *            the new ordinate value
+     *
+     * @param index    the coordinate index
+     * @param ordinate the ordinate index in the coordinate, 0 based, smaller than the number of
+     *                 dimensions
+     * @param value    the new ordinate value
      */
     public abstract void setOrdinate(int index, int ordinate, double value);
 
@@ -201,7 +194,7 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * Builds a new packed coordinate sequence
-         * 
+         *
          * @param coords
          * @param dimensions
          */
@@ -219,7 +212,7 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * Builds a new packed coordinate sequence out of a float coordinate array
-         * 
+         *
          * @param coordinates
          */
         public Double(float[] coordinates, int dimensions) {
@@ -232,7 +225,7 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * Builds a new packed coordinate sequence out of a coordinate array
-         * 
+         *
          * @param coordinates
          */
         public Double(Coordinate[] coordinates, int dimension) {
@@ -252,7 +245,7 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * Builds a new packed coordinate sequence out of a coordinate array
-         * 
+         *
          * @param coordinates
          */
         public Double(Coordinate[] coordinates) {
@@ -295,8 +288,8 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * @see org.locationtech.jts.geom.CoordinateSequence#getOrdinate(int, int) Beware, for
-         *      performace reasons the ordinate index is not checked, if it's over dimensions you
-         *      may not get an exception but a meaningless value.
+         * performace reasons the ordinate index is not checked, if it's over dimensions you
+         * may not get an exception but a meaningless value.
          */
         public double getOrdinate(int index, int ordinate) {
             return coords[index * dimension + ordinate];
@@ -339,7 +332,7 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * Constructs a packed coordinate sequence from an array of <code>float<code>s
-         * 
+         *
          * @param coords
          * @param dimensions
          */
@@ -368,7 +361,7 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * Constructs a packed coordinate sequence out of a coordinate array
-         * 
+         *
          * @param coordinates
          */
         public Float(Coordinate[] coordinates, int dimension) {
@@ -422,8 +415,8 @@ public abstract class PackedCoordinateSequence implements CoordinateSequence, Se
 
         /**
          * @see org.locationtech.jts.geom.CoordinateSequence#getOrdinate(int, int) Beware, for
-         *      performace reasons the ordinate index is not checked, if it's over dimensions you
-         *      may not get an exception but a meaningless value.
+         * performace reasons the ordinate index is not checked, if it's over dimensions you
+         * may not get an exception but a meaningless value.
          */
         public double getOrdinate(int index, int ordinate) {
             return coords[index * dimension + ordinate];

@@ -1,5 +1,8 @@
 package org.opentripplanner.geocoder;
 
+import org.locationtech.jts.geom.Envelope;
+
+import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,10 +12,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import javax.ws.rs.core.UriBuilder;
-
-import org.locationtech.jts.geom.Envelope;
 
 public class GeocoderUSCSV implements Geocoder {
 
@@ -35,14 +34,14 @@ public class GeocoderUSCSV implements Geocoder {
     @Override
     public GeocoderResults geocode(String address, Envelope bbox) {
         assert geocoderBaseUrl != null;
-        
-        String content = null;        
-        
+
+        String content = null;
+
         try {
             URL url = getGeocoderURL(geocoderBaseUrl, address);
             URLConnection conn = url.openConnection();
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            
+
             StringBuilder sb = new StringBuilder(128);
             String line = null;
             while ((line = reader.readLine()) != null) {
@@ -56,7 +55,7 @@ public class GeocoderUSCSV implements Geocoder {
         } catch (IOException e) {
             return noGeocoderResult("communication error");
         }
-        
+
         Collection<GeocoderResult> results = new ArrayList<GeocoderResult>();
         try {
             String[] lines = content.split("\n");

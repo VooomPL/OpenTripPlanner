@@ -8,11 +8,7 @@ import org.onebusaway.gtfs.model.Stop;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PathwayMapperTest {
 
@@ -78,7 +74,9 @@ public class PathwayMapperTest {
         assertFalse(result.isWheelchairTraversalTimeSet());
     }
 
-    /** Mapping the same object twice, should return the the same instance. */
+    /**
+     * Mapping the same object twice, should return the the same instance.
+     */
     @Test
     public void testMapCache() throws Exception {
         org.opentripplanner.model.Pathway result1 = subject.map(PATHWAY);

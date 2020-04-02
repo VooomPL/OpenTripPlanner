@@ -1,8 +1,5 @@
 package org.opentripplanner.graph_builder.module.shapefile;
 
-import java.io.IOException;
-import java.util.HashMap;
-
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -12,6 +9,9 @@ import org.opentripplanner.graph_builder.services.shapefile.FeatureSourceFactory
 import org.opentripplanner.graph_builder.services.shapefile.SimpleFeatureConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * This is a simple feature converter that gets features from a secondary feature source. This is
@@ -35,8 +35,8 @@ public class JoinedFeatureConverter<T> implements SimpleFeatureConverter<T> {
     }
 
     public JoinedFeatureConverter(String mainKey, String joinedKey,
-            SimpleFeatureConverter<T> converter,
-            FeatureSource<SimpleFeatureType, SimpleFeature> joinedSource) {
+                                  SimpleFeatureConverter<T> converter,
+                                  FeatureSource<SimpleFeatureType, SimpleFeature> joinedSource) {
         this.mainKey = mainKey;
         this.joinedKey = joinedKey;
         this.converter = converter;
@@ -60,7 +60,8 @@ public class JoinedFeatureConverter<T> implements SimpleFeatureConverter<T> {
         }
     }
 
-    /** We have to cache all the features in the supplemental file, because
+    /**
+     * We have to cache all the features in the supplemental file, because
      * if we try to load them on the fly, GeoTools wigs out.
      */
     private void ensureCached() {
@@ -92,7 +93,7 @@ public class JoinedFeatureConverter<T> implements SimpleFeatureConverter<T> {
      * Convert a feature value to a String for hashing. We use this instead of simply calling
      * toString to avoid issues when the column types for these features are slightly different. See
      * http://opentripplanner.org/ticket/226
-     * 
+     *
      * @param keyValue
      * @return a string to use as the hash key
      */
@@ -101,11 +102,11 @@ public class JoinedFeatureConverter<T> implements SimpleFeatureConverter<T> {
             return null;
         }
         if (keyValue instanceof Number) {
-            keyValue = ((Number)keyValue).doubleValue();
+            keyValue = ((Number) keyValue).doubleValue();
         }
         return keyValue.toString();
     }
-    
+
     public void setConverter(SimpleFeatureConverter<T> converter) {
         this.converter = converter;
     }

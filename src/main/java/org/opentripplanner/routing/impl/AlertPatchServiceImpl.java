@@ -1,21 +1,14 @@
 package org.opentripplanner.routing.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.services.AlertPatchService;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class AlertPatchServiceImpl implements AlertPatchService {
 

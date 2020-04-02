@@ -1,17 +1,9 @@
 package org.opentripplanner.common.geometry;
 
 import org.junit.Test;
-import org.opentripplanner.common.model.P2;
+import org.locationtech.jts.geom.*;
 import org.opentripplanner.analyst.UnsupportedGeometryException;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.CoordinateSequenceFactory;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.common.model.P2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,7 +16,7 @@ public class GeometryUtilsTest {
     public final void testConvertGeoJsonToJtsGeometry()
             throws UnsupportedGeometryException {
 
-         { // Should convert Point correctly
+        { // Should convert Point correctly
             double lng1 = -77.1111;
             double lat1 = 38.1111;
             org.geojson.Point p1 = new org.geojson.Point(lng1, lat1);
@@ -33,7 +25,7 @@ public class GeometryUtilsTest {
             assertEquals(lat1, geometry.getY(), tolerance);
         }
 
-         { // Should convert LineString correctly
+        { // Should convert LineString correctly
             double lng1 = -77.1111;
             double lat1 = 38.1111;
             double lng2 = -77.2222;

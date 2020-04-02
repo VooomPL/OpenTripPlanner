@@ -8,12 +8,11 @@ import java.io.InputStream;
 /**
  * A Vertical datum specified as a grid of offsets from NAD83
  * http://vdatum.noaa.gov/dev/gtx_info.html
- * 
+ *
  * @author novalis
- * 
  */
 public class VerticalDatum {
-    
+
     double lowerLeftLatitude;
 
     double lowerLeftLongitude;
@@ -25,8 +24,8 @@ public class VerticalDatum {
     float[][] datum;
 
     public VerticalDatum(double lowerLeftLongitude, double lowerLeftLatitude, double width,
-            double height, float[][] datum) {
-        this.lowerLeftLongitude = lowerLeftLongitude; 
+                         double height, float[][] datum) {
+        this.lowerLeftLongitude = lowerLeftLongitude;
         this.lowerLeftLatitude = lowerLeftLatitude;
         this.deltaLongitude = width;
         this.deltaLatitude = height;
@@ -43,7 +42,7 @@ public class VerticalDatum {
             if (longitude < lowerLeftLongitude) {
                 // lowerLeftLongitude is right of 180 (probablY)
                 lowerLeftAdjusted -= 360; // this transforms lowerLeft so that interpolation will
-                                          // work
+                // work
                 if (longitude < lowerLeftLongitude) {
                     throw new RuntimeException("longitude out of range");
                 }
@@ -81,7 +80,7 @@ public class VerticalDatum {
             if (longitude < lowerLeftLongitude) {
                 // lowerLeftLongitude is right of 180 (probablY)
                 lowerLeftAdjusted -= 360; // this transforms lowerLeft so that interpolation will
-                                          // work
+                // work
                 if (longitude < lowerLeftLongitude) {
                     return false;
                 }
@@ -96,8 +95,8 @@ public class VerticalDatum {
         }
         return true;
     }
-        
-    public static VerticalDatum fromGTX (InputStream inputStream) throws IOException {
+
+    public static VerticalDatum fromGTX(InputStream inputStream) throws IOException {
         DataInputStream stream = new DataInputStream(new BufferedInputStream(inputStream));
         double lowerLeftLatitude = stream.readDouble();
         double lowerLeftLongitude = stream.readDouble();

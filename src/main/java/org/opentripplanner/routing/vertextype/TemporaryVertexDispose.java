@@ -3,12 +3,7 @@ package org.opentripplanner.routing.vertextype;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is a utility class used to remove a temporary subgraph from the manin graph.
@@ -34,7 +29,9 @@ class TemporaryVertexDispose {
      */
     private Set<Vertex> done = new HashSet<>();
 
-    /** Intentionally private constructor to prevent instantiation outside of the class. */
+    /**
+     * Intentionally private constructor to prevent instantiation outside of the class.
+     */
     private TemporaryVertexDispose(Vertex tempVertex) {
         todo.add(tempVertex);
     }
@@ -44,6 +41,7 @@ class TemporaryVertexDispose {
 
     /**
      * Create an instance and dispose temporary subgraph.
+     *
      * @param tempVertex any temporary vertex part of the temporary subgraph.
      * @return a collection of all the vertices removed from the graph.
      */
@@ -53,6 +51,7 @@ class TemporaryVertexDispose {
 
     /**
      * Create an instance and dispose temporary subgraphs.
+     *
      * @param vertices all temporary vertices to search from to dispose subgraphs
      * @return a collection of all vertices removed from the graph
      */
@@ -69,6 +68,7 @@ class TemporaryVertexDispose {
 
     /**
      * Create an instance and discover TemporaryVertex subgraph.
+     *
      * @param tempVertex any temporary vertex part of the temporary subgraph.
      * @return a collection of all the vertices connected to this vertex.
      */
@@ -79,7 +79,7 @@ class TemporaryVertexDispose {
     /* private methods */
 
     private static Collection<Vertex> search(Vertex tempVertex, boolean dispose) {
-        if(tempVertex instanceof TemporaryVertex) {
+        if (tempVertex instanceof TemporaryVertex) {
             TemporaryVertexDispose task = new TemporaryVertexDispose(tempVertex);
             task.search(dispose);
             return task.done;
@@ -93,7 +93,7 @@ class TemporaryVertexDispose {
         // stack overflow in the case of deep temporary graphs.
         while (!todo.isEmpty()) {
             Vertex current = next();
-            if(isNotAlreadyProcessed(current)) {
+            if (isNotAlreadyProcessed(current)) {
                 for (Edge edge : current.getOutgoing()) {
                     visitVertex(edge.getToVertex(), edge, true, dispose);
                 }
@@ -109,16 +109,15 @@ class TemporaryVertexDispose {
      * Add the temporary vertex to processing queue, or if dispose = true, disconnect edge from
      * vertex if vertex is part of the main graph.
      *
-     * @param v the vertex to dispose
+     * @param v             the vertex to dispose
      * @param connectedEdge the connected temporary edge
-     * @param incoming true if the edge is an incoming edge, false if it is an outgoing edge
-     * @param dispose true if edge should be disconnected from the vertex
+     * @param incoming      true if the edge is an incoming edge, false if it is an outgoing edge
+     * @param dispose       true if edge should be disconnected from the vertex
      */
     private void visitVertex(Vertex v, Edge connectedEdge, boolean incoming, boolean dispose) {
-        if(v instanceof TemporaryVertex) {
+        if (v instanceof TemporaryVertex) {
             addVertexToProcessTodoList(v);
-        }
-        else if (dispose) {
+        } else if (dispose) {
             removeEdgeFromMainGraphVertex(v, connectedEdge, incoming);
         }
     }
@@ -127,21 +126,20 @@ class TemporaryVertexDispose {
      * We have reached a NONE temporary Vertex and need to remove the temporary `connectedEdge`
      * from the Vertex part of the main graph.
      *
-     * @param v the vertex part of the main graph
+     * @param v             the vertex part of the main graph
      * @param connectedEdge the connected temporary edge to be removed
-     * @param incoming true if the edge is an incoming edge, false if it is an outgoing edge
+     * @param incoming      true if the edge is an incoming edge, false if it is an outgoing edge
      */
     private void removeEdgeFromMainGraphVertex(Vertex v, Edge connectedEdge, boolean incoming) {
-        if(incoming) {
+        if (incoming) {
             v.removeIncoming(connectedEdge);
-        }
-        else {
+        } else {
             v.removeOutgoing(connectedEdge);
         }
     }
 
     private void addVertexToProcessTodoList(Vertex v) {
-        if(isNotAlreadyProcessed(v)) {
+        if (isNotAlreadyProcessed(v)) {
             todo.add(v);
         }
     }
@@ -151,6 +149,6 @@ class TemporaryVertexDispose {
     }
 
     private Vertex next() {
-        return todo.remove(todo.size()-1);
+        return todo.remove(todo.size() - 1);
     }
 }

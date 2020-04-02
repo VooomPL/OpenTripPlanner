@@ -1,9 +1,9 @@
 package org.opentripplanner.common;
 
-import java.io.Serializable;
-
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.graph.Edge;
+
+import java.io.Serializable;
 
 public class TurnRestriction implements Serializable {
     private static final long serialVersionUID = 6072427988268244536L;
@@ -16,29 +16,30 @@ public class TurnRestriction implements Serializable {
     public String toString() {
         return type.name() + " from " + from + " to " + to + "(" + modes + ")";
     }
-    
-    public TurnRestriction () {
+
+    public TurnRestriction() {
         time = null;
     }
-    
+
     /**
      * Convenience constructor.
-     * 
+     *
      * @param from
      * @param to
      * @param type
      */
     public TurnRestriction(Edge from, Edge to, TurnRestrictionType type,
-            TraverseModeSet modes) {
+                           TraverseModeSet modes) {
         this();
         this.from = from;
         this.to = to;
         this.type = type;
         this.modes = modes;
     }
-    
+
     /**
      * Return true if the turn restriction is in force at the time described by the long.
+     *
      * @param time
      * @return
      */

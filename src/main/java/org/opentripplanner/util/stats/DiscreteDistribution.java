@@ -1,10 +1,10 @@
 package org.opentripplanner.util.stats;
 
-import java.text.MessageFormat;
-
 import com.google.common.collect.Multiset;
 import com.google.common.collect.SortedMultiset;
 import com.google.common.collect.TreeMultiset;
+
+import java.text.MessageFormat;
 
 interface Quantifiable<K extends Quantifiable<K>> extends Comparable<K> {
 

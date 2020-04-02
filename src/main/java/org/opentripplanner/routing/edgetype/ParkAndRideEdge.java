@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -8,19 +9,17 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.ParkAndRideVertex;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * Parking a car at a park-and-ride station.
- * 
+ * <p>
  * We only allow going from CAR to WALK mode. Routing the opposite way would need more information
  * (ie knowing where you park your car in the first place), and is probably better handled by a
  * two-step routing (in walk mode from origin to parking, then in car mode from the parking to
  * destination).
- * 
+ *
  * @author laurent
- * 
  */
 public class ParkAndRideEdge extends Edge {
 

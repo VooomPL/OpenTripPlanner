@@ -6,10 +6,10 @@ import org.opentripplanner.routing.graph.Graph;
  * Interface for graph updaters. Objects that implement this interface should always be configured
  * via PreferencesConfigurable.configure after creating the object. GraphUpdaterConfigurator should
  * take care of that. Beware that updaters run in separate threads at the same time.
- * 
+ * <p>
  * The only allowed way to make changes to the graph in an updater is by executing (anonymous)
  * GraphWriterRunnable objects via GraphUpdaterManager.execute.
- * 
+ * <p>
  * Example implementations can be found in ExampleGraphUpdater and ExamplePollingGraphUpdater.
  */
 public interface GraphUpdater extends JsonConfigurable {

@@ -25,22 +25,24 @@ import java.util.Collection;
  * models should not affect the length of existing streets, even slightly (due to float
  * roundoff from splits, etc.) An error of even a few seconds can be significant if it causes
  * the router to miss a transit vehicle or transfer, or causes the stop to move just beyond a
- * hard boundary. 
- * 
+ * hard boundary.
+ * <p>
  * We do this by using the same linking code that is used
  * for Analyst (the SampleFactory code) which additionally means that this code
  * path is used and tested in multiple applications.
- *
+ * <p>
  * This is not currently used. But it could be very useful for patching temporary transit lines in
  * interactively generated scenarios.
  */
 public class SampleStopLinker {
     private Graph graph;
 
-    /** keep track of stops that are linked to the same vertices */
+    /**
+     * keep track of stops that are linked to the same vertices
+     */
     private Multimap<VertexPair, TransitStop> links;
 
-    public SampleStopLinker (Graph graph) {
+    public SampleStopLinker(Graph graph) {
         this.graph = graph;
     }
 
@@ -49,12 +51,12 @@ public class SampleStopLinker {
      * edges between stops linked to the same pair of vertices. This is important
      * e.g. for transit centers where there are many stops on the same street segment;
      * we don't want to force the user to walk to the end of the street and back.
-     * 
+     * <p>
      * If you're not generating transfers via the street network there is no need to make
      * transfers at this stage. But if you're not generating transfers via the street network,
      * why are you using this module at all?
      */
-    public void link (boolean makeTransfers) {
+    public void link(boolean makeTransfers) {
         if (makeTransfers)
             links = HashMultimap.create();
 
@@ -87,7 +89,7 @@ public class SampleStopLinker {
                         // make a geometry
                         GeometryFactory gf = GeometryUtils.getGeometryFactory();
                         LineString geom =
-                                gf.createLineString(new Coordinate[] { ts0.getCoordinate(), ts1.getCoordinate() });
+                                gf.createLineString(new Coordinate[]{ts0.getCoordinate(), ts1.getCoordinate()});
 
                         double dist =
                                 SphericalDistanceLibrary.distance(ts0.getLat(), ts0.getLon(), ts1.getLat(), ts1.getLon());
@@ -100,7 +102,9 @@ public class SampleStopLinker {
         }
     }
 
-    /** represents an unordered pair of vertices from a sample */
+    /**
+     * represents an unordered pair of vertices from a sample
+     */
     private static class VertexPair {
         private final int v1, v2;
 
@@ -114,11 +118,11 @@ public class SampleStopLinker {
             return v1 + v2;
         }
 
-        public boolean equals (Object other) {
+        public boolean equals(Object other) {
             if (other instanceof VertexPair) {
                 VertexPair vpo = (VertexPair) other;
                 // bidirectional comparison
-                return vpo.v1 == v1 && vpo.v2 == v2 || vpo.v2 == v1 && vpo.v1 == v2; 
+                return vpo.v1 == v1 && vpo.v2 == v2 || vpo.v2 == v1 && vpo.v1 == v2;
             }
 
             return false;

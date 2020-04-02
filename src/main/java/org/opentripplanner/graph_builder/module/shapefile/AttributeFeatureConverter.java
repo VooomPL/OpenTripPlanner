@@ -1,13 +1,14 @@
 package org.opentripplanner.graph_builder.module.shapefile;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-
 import org.opengis.feature.simple.SimpleFeature;
 import org.opentripplanner.graph_builder.services.shapefile.SimpleFeatureConverter;
 
-/** 
- * Reads a single attribute from a feature and converts it to an object */
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
+/**
+ * Reads a single attribute from a feature and converts it to an object
+ */
 public class AttributeFeatureConverter<T> implements SimpleFeatureConverter<T> {
 
     private String attributeName;
@@ -16,20 +17,20 @@ public class AttributeFeatureConverter<T> implements SimpleFeatureConverter<T> {
     public AttributeFeatureConverter(String attributeName) {
         this.attributeName = attributeName;
     }
-    
+
     public AttributeFeatureConverter() {
-        
+
     }
-    
-    public void setAttributeName(String attributeName){
+
+    public void setAttributeName(String attributeName) {
         this.attributeName = attributeName;
     }
-    
+
     public String getAttributeName() {
         return attributeName;
     }
 
-    @SuppressWarnings({ "unchecked", "deprecation" })
+    @SuppressWarnings({"unchecked", "deprecation"})
     @Override
     public T convert(SimpleFeature feature) {
         T value = (T) feature.getAttribute(attributeName);

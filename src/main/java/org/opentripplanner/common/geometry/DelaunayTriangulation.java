@@ -4,9 +4,9 @@ import org.locationtech.jts.geom.Coordinate;
 
 /**
  * A DelaunayPoint is the geometrical point of a node of the triangulation.
- * 
- * @author laurent
+ *
  * @param <TZ>
+ * @author laurent
  */
 interface DelaunayPoint<TZ> {
 
@@ -23,11 +23,11 @@ interface DelaunayPoint<TZ> {
 
 /**
  * A DelaunayEdge is a directed segment between two DelaunayPoints of the triangulation.
- * 
+ * <p>
  * The interface is kept minimal for isoline building purposes.
- * 
- * @author laurent
+ *
  * @param <TZ>
+ * @author laurent
  */
 interface DelaunayEdge<TZ> {
 
@@ -57,7 +57,7 @@ interface DelaunayEdge<TZ> {
      * HACK. This should not be here really. But with Java, attaching some user value to an object
      * rely on another level of indirection and costly maps/arrays. Exposing this flag directly here
      * saves *lots* of processing time. TODO Is there a better way to do that?
-     * 
+     *
      * @return The flag set by setProcessed.
      */
     public boolean isProcessed();
@@ -70,12 +70,12 @@ interface DelaunayEdge<TZ> {
 
 /**
  * A Delaunay triangulation (adapted to isoline building).
- * 
+ * <p>
  * A simple interface returning a collection (an iterable) of DelaunayEdges. The interface is kept
  * minimal for isoline building purposes.
- * 
- * @author laurent
+ *
  * @param TZ The value stored for each node.
+ * @author laurent
  */
 public interface DelaunayTriangulation<TZ> {
 

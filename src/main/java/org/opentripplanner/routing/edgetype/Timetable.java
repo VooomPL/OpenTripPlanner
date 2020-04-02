@@ -1,20 +1,15 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 import com.beust.jcommander.internal.Lists;
-
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.routing.core.ServiceDay;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StopTransfer;
@@ -24,10 +19,8 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import java.io.Serializable;
+import java.util.*;
 
 
 /**
@@ -71,12 +64,14 @@ public class Timetable implements Serializable {
      */
     private transient int minDwellTimes[];
 
-    /** 
-     * Helps determine whether a particular pattern is worth searching for departures at a given time. 
+    /**
+     * Helps determine whether a particular pattern is worth searching for departures at a given time.
      */
     private transient int minTime, maxTime;
-    
-    /** Construct an empty Timetable. */
+
+    /**
+     * Construct an empty Timetable.
+     */
     public Timetable(TripPattern pattern) {
         this.pattern = pattern;
         this.serviceDate = null;
@@ -85,7 +80,7 @@ public class Timetable implements Serializable {
     /**
      * Copy constructor: create an un-indexed Timetable with the same TripTimes as the specified timetable.
      */
-    Timetable (Timetable tt, ServiceDate serviceDate) {
+    Timetable(Timetable tt, ServiceDate serviceDate) {
         tripTimes.addAll(tt.tripTimes);
         this.serviceDate = serviceDate;
         this.pattern = tt.pattern;
@@ -105,7 +100,7 @@ public class Timetable implements Serializable {
         if (this.pattern.services == null)
             return true;
         // Check whether any services are running at all on this pattern.
-        if ( ! sd.anyServiceRunning(this.pattern.services)) return false;
+        if (!sd.anyServiceRunning(this.pattern.services)) return false;
         // Make the search time relative to the given service day.
         searchTime = sd.secondsSinceMidnight(searchTime);
         // Check whether any trip can be boarded at all, given the search time
@@ -121,38 +116,37 @@ public class Timetable implements Serializable {
     /**
      * Get the next (previous) trip that departs (arrives) from the specified stop at or after
      * (before) the specified time.
-     *
+     * <p>
      * For GTFS-Flex service, this method will take into account the fact that the passenger
      * may be boarding or alighting midway between stops (flag stops), and that the vehicle may
      * be deviating off-route to pick up or drop off the passenger (deviated-route service.) In
      * both cases, unscheduled timepoints on the route in between scheduled stops are calculated
      * via linear interpolation.
-     *
+     * <p>
      * The parameters `flexOffsetScale`, `preBoardDirectTime`, and `postAlightDirectTime` are
      * specific to GTFS-Flex service. If arrivals/departures are being evaluated for default
      * fixed-route service, these parameters will have the value 0 (see
      * {@link #getNextTrip(State, ServiceDay, int, boolean)}).
      *
-     * @param s0 State to evaluate the method at; the method uses the state's time.
-     * @param serviceDay Only consider trips if their service_id is active on this day
-     * @param stopIndex Index of stop in the trip to evaluate departure or arrival at
-     * @param boarding If true, find next trip which departs specified stop; if false, find
-     *                 previous trip which arrives at specified stop
-     * @param flexOffsetScale For GTFS-Flex routing, a control parameter to determine the amount of
-     *                        seconds to offset the scheduled timepoint due to a board/alight in
-     *                        the middle of a
-     *                        {@link org.opentripplanner.routing.edgetype.flex.FlexPatternHop}.
-     *                        Use the percentage in [0, 1] ([-1, 0]) from the beginning (end) of
-     *                        the hop at which the board (alight) is taking place. Note that the
-     *                        value is expected to be negative when evaluating alight points. Use
-     *                        0 if this is not a flag stop or deviated-route board (alight) point.
-     * @param flexPreBoardDirectTime For GTFS-Flex routing, the amount of time the vehicle travels
-     *                               before rejoining the route, or 0 if this is not a deviated-
-     *                               route board (alight) point.
+     * @param s0                       State to evaluate the method at; the method uses the state's time.
+     * @param serviceDay               Only consider trips if their service_id is active on this day
+     * @param stopIndex                Index of stop in the trip to evaluate departure or arrival at
+     * @param boarding                 If true, find next trip which departs specified stop; if false, find
+     *                                 previous trip which arrives at specified stop
+     * @param flexOffsetScale          For GTFS-Flex routing, a control parameter to determine the amount of
+     *                                 seconds to offset the scheduled timepoint due to a board/alight in
+     *                                 the middle of a
+     *                                 {@link org.opentripplanner.routing.edgetype.flex.FlexPatternHop}.
+     *                                 Use the percentage in [0, 1] ([-1, 0]) from the beginning (end) of
+     *                                 the hop at which the board (alight) is taking place. Note that the
+     *                                 value is expected to be negative when evaluating alight points. Use
+     *                                 0 if this is not a flag stop or deviated-route board (alight) point.
+     * @param flexPreBoardDirectTime   For GTFS-Flex routing, the amount of time the vehicle travels
+     *                                 before rejoining the route, or 0 if this is not a deviated-
+     *                                 route board (alight) point.
      * @param flexPostAlightDirectTime For GTFS-Flex routing, the amount of time the vehicle
      *                                 travels after leaving the route, or 0 if this is not a
      *                                 deviated-route board (alight) point.
-     *
      * @return the TripTimes object representing the (possibly updated) best trip, or null if no
      * trip matches both the time and other criteria.
      */
@@ -181,8 +175,8 @@ public class Timetable implements Serializable {
         // We could invert this and skip some service days based on schedule overlap as in RRRR.
         for (TripTimes tt : tripTimes) {
             if (tt.isCanceled()) continue;
-            if ( ! serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
-            if ( ! tt.tripAcceptable(s0, stopIndex)) continue;
+            if (!serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
+            if (!tt.tripAcceptable(s0, stopIndex)) continue;
             int adjustedTime = adjustTimeForTransfer(s0, currentStop, tt.trip, boarding, serviceDay, time);
             if (adjustedTime == -1) continue;
             if (boarding) {
@@ -202,9 +196,10 @@ public class Timetable implements Serializable {
                 }
 
                 int depTime = tt.getDepartureTime(stopIndex) + flexTimeAdjustment;
-                if (depTime < 0) continue; // negative values were previously used for canceled trips/passed stops/skipped stops, but
-                                           // now its not sure if this check should be still in place because there is a boolean field
-                                           // for canceled trips
+                if (depTime < 0)
+                    continue; // negative values were previously used for canceled trips/passed stops/skipped stops, but
+                // now its not sure if this check should be still in place because there is a boolean field
+                // for canceled trips
                 if (depTime >= adjustedTime && depTime < bestTime) {
                     bestTrip = tt;
                     bestTime = depTime;
@@ -238,14 +233,14 @@ public class Timetable implements Serializable {
         for (FrequencyEntry freq : frequencyEntries) {
             TripTimes tt = freq.tripTimes;
             if (tt.isCanceled()) continue;
-            if ( ! serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
-            if ( ! tt.tripAcceptable(s0, stopIndex)) continue;
+            if (!serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
+            if (!tt.tripAcceptable(s0, stopIndex)) continue;
             int adjustedTime = adjustTimeForTransfer(s0, currentStop, tt.trip, boarding, serviceDay, time);
             if (adjustedTime == -1) continue;
             LOG.debug("  running freq {}", freq);
             if (boarding) {
                 int depTime = freq.nextDepartureTime(stopIndex, adjustedTime); // min transfer time included in search
-                if (depTime < 0) continue; 
+                if (depTime < 0) continue;
                 if (depTime >= adjustedTime && depTime < bestTime) {
                     bestFreq = freq;
                     bestTime = depTime;
@@ -271,12 +266,11 @@ public class Timetable implements Serializable {
      * Get the next (previous) trip that departs (arrives) from the specified stop at or after
      * (before) the specified time.
      *
-     * @param s0 State to evaluate the method at; the method uses the state's time.
+     * @param s0         State to evaluate the method at; the method uses the state's time.
      * @param serviceDay Only consider trips if their service_id is active on this day
-     * @param stopIndex index of stop in the trip to evaluate departure or arrival at
-     * @param boarding if true, find next trip which departs specified stop; if false, find
-     *                 previous trip which arrives at specified stop
-     *
+     * @param stopIndex  index of stop in the trip to evaluate departure or arrival at
+     * @param boarding   if true, find next trip which departs specified stop; if false, find
+     *                   previous trip which arrives at specified stop
      * @return the TripTimes object representing the (possibly updated) best trip, or null if no
      * trip matches both the time and other criteria.
      */
@@ -302,8 +296,8 @@ public class Timetable implements Serializable {
         long clockTime = s0.getOptions().clockTimeSec;
         for (TripTimes tt : tripTimes) {
             if (tt.isCanceled()) continue;
-            if ( ! serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
-            if ( ! tt.tripAcceptable(s0, stopIndex)) continue;
+            if (!serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
+            if (!tt.tripAcceptable(s0, stopIndex)) continue;
             int adjustedTime = adjustTimeForTransfer(s0, currentStop, tt.trip, boarding, serviceDay, time);
             if (adjustedTime == -1) continue;
             if (boarding) {
@@ -336,7 +330,7 @@ public class Timetable implements Serializable {
      * FIXME adjustedTime can legitimately be -1! But negative times might as well be zero.
      */
     private int adjustTimeForTransfer(State state, Stop currentStop, Trip trip, boolean boarding, ServiceDay serviceDay, int t0) {
-        if ( ! state.isEverBoarded()) {
+        if (!state.isEverBoarded()) {
             // This is the first boarding not a transfer.
             return t0;
         }
@@ -411,7 +405,9 @@ public class Timetable implements Serializable {
         }
     }
 
-    /** @return the index of TripTimes for this trip ID in this particular Timetable */
+    /**
+     * @return the index of TripTimes for this trip ID in this particular Timetable
+     */
     public int getTripIndex(FeedScopedId tripId) {
         int ret = 0;
         for (TripTimes tt : tripTimes) {
@@ -423,7 +419,9 @@ public class Timetable implements Serializable {
         return -1;
     }
 
-    /** @return the index of TripTimes for this trip ID in this particular Timetable, ignoring AgencyIds. */
+    /**
+     * @return the index of TripTimes for this trip ID in this particular Timetable, ignoring AgencyIds.
+     */
     public int getTripIndex(String tripId) {
         int ret = 0;
         for (TripTimes tt : tripTimes) {
@@ -446,9 +444,9 @@ public class Timetable implements Serializable {
 
     /**
      * Set new trip times for trip given a trip index
-     * 
+     *
      * @param tripIndex trip index of trip
-     * @param tt new trip times for trip
+     * @param tt        new trip times for trip
      * @return old trip times of trip
      */
     public TripTimes setTripTimes(int tripIndex, TripTimes tt) {
@@ -464,19 +462,19 @@ public class Timetable implements Serializable {
      * assume here that all trips in a timetable are from the same feed, which should always be the
      * case.
      *
-     * @param tripUpdate GTFS-RT trip update
-     * @param timeZone time zone of trip update
+     * @param tripUpdate        GTFS-RT trip update
+     * @param timeZone          time zone of trip update
      * @param updateServiceDate service date of trip update
      * @return new copy of updated TripTimes after TripUpdate has been applied on TripTimes of trip
-     *         with the id specified in the trip descriptor of the TripUpdate; null if something
-     *         went wrong
+     * with the id specified in the trip descriptor of the TripUpdate; null if something
+     * went wrong
      */
     public TripTimes createUpdatedTripTimes(TripUpdate tripUpdate, TimeZone timeZone, ServiceDate updateServiceDate) {
         if (tripUpdate == null) {
             LOG.error("A null TripUpdate pointer was passed to the Timetable class update method.");
             return null;
         }
-        
+
         // Though all timetables have the same trip ordering, some may have extra trips due to
         // the dynamic addition of unscheduled trips.
         // However, we want to apply trip updates on top of *scheduled* times
@@ -529,7 +527,7 @@ public class Timetable implements Serializable {
                 if (match) {
                     StopTimeUpdate.ScheduleRelationship scheduleRelationship =
                             update.hasScheduleRelationship() ? update.getScheduleRelationship()
-                            : StopTimeUpdate.ScheduleRelationship.SCHEDULED;
+                                    : StopTimeUpdate.ScheduleRelationship.SCHEDULED;
                     if (scheduleRelationship == StopTimeUpdate.ScheduleRelationship.SKIPPED) {
                         LOG.warn("Partially canceled trips are unsupported by this method." +
                                 " Skipping TripUpdate.");
@@ -656,12 +654,16 @@ public class Timetable implements Serializable {
         return true;
     }
 
-    /** Returns the shortest possible running time for this stop */
+    /**
+     * Returns the shortest possible running time for this stop
+     */
     public int getBestRunningTime(int stopIndex) {
         return minRunningTimes[stopIndex];
     }
 
-    /** Returns the shortest possible dwell time at this stop */
+    /**
+     * Returns the shortest possible dwell time at this stop
+     */
     public int getBestDwellTime(int stopIndex) {
         if (minDwellTimes == null) {
             return 0;
@@ -672,10 +674,12 @@ public class Timetable implements Serializable {
     public boolean isValidFor(ServiceDate serviceDate) {
         return this.serviceDate == null || this.serviceDate.equals(serviceDate);
     }
-    
-    /** Find and cache service codes. Duplicates information in trip.getServiceId for optimization. */
+
+    /**
+     * Find and cache service codes. Duplicates information in trip.getServiceId for optimization.
+     */
     // TODO maybe put this is a more appropriate place
-    public void setServiceCodes (Map<FeedScopedId, Integer> serviceCodes) {
+    public void setServiceCodes(Map<FeedScopedId, Integer> serviceCodes) {
         for (TripTimes tt : this.tripTimes) {
             tt.serviceCode = serviceCodes.get(tt.trip.getServiceId());
         }

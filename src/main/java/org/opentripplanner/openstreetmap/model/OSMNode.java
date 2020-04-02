@@ -11,7 +11,7 @@ public class OSMNode extends OSMWithTags {
 
     /**
      * Returns the capacity of this node if defined, or 0.
-     * 
+     *
      * @return
      */
     public int getCapacity() throws NumberFormatException {
@@ -19,20 +19,20 @@ public class OSMNode extends OSMWithTags {
         if (capacity == null) {
             return 0;
         }
-        
+
         return Integer.parseInt(getTag("capacity"));
     }
 
     /**
      * Is this a multi-level node that should be decomposed to multiple coincident nodes? Currently returns true only for elevators.
-     * 
+     *
      * @return whether the node is multi-level
      * @author mattwigway
      */
     public boolean isMultiLevel() {
         return hasTag("highway") && "elevator".equals(getTag("highway"));
     }
-    
+
     public boolean hasTrafficLight() {
         return hasTag("highway") && "traffic_signals".equals(getTag("highway"));
     }
@@ -54,7 +54,7 @@ public class OSMNode extends OSMWithTags {
     /**
      * TODO Maybe all those methods (isSomething...) in OSMXxx should be moved to a dedicated OSM
      * filtering class.
-     * 
+     *
      * @return True if this node is a bike rental station.
      */
     public boolean isBikeRental() {
@@ -63,6 +63,7 @@ public class OSMNode extends OSMWithTags {
 
     /**
      * Checks if this node is bollard
+     *
      * @return true if it is
      */
     public boolean isBollard() {

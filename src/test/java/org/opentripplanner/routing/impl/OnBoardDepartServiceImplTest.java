@@ -1,30 +1,10 @@
 package org.opentripplanner.routing.impl;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.CoordinateSequenceFactory;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.TimeZone;
-
 import org.junit.Test;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopPattern;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Trip;
+import org.locationtech.jts.geom.*;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.*;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.ServiceDay;
@@ -41,8 +21,15 @@ import org.opentripplanner.routing.vertextype.PatternArriveVertex;
 import org.opentripplanner.routing.vertextype.PatternDepartVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.TimeZone;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /*
  * FIXME: This test has become seriously ugly after recent changes to OTP. Using mocks, which seemed

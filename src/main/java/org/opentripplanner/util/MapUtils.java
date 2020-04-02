@@ -1,11 +1,6 @@
 package org.opentripplanner.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,7 +44,7 @@ public class MapUtils {
     }
 
     public static <T, U> void addToMapListUnique(Map<T, List<U>> mapList,
-            T key, List<U> values) {
+                                                 T key, List<U> values) {
         List<U> list = mapList.get(key);
         if (list == null) {
             list = new ArrayList<U>(values.size());
@@ -63,7 +58,7 @@ public class MapUtils {
     }
 
     public static <T, U, V extends Collection<U>> void mergeInUnique(Map<T, V> mapList,
-            Map<T, V> from) {
+                                                                     Map<T, V> from) {
         for (Map.Entry<T, V> entry : from.entrySet()) {
             T key = entry.getKey();
             V value = entry.getValue();

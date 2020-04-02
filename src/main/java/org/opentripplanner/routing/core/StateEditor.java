@@ -1,9 +1,5 @@
 package org.opentripplanner.routing.core;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
-
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
@@ -16,10 +12,14 @@ import org.opentripplanner.routing.vertextype.TemporaryVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Set;
+
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
  * allowing it to be modified before being put to use.
- *
+ * <p>
  * By virtue of being in the same package as States, it can modify their package private fields.
  *
  * @author andrewbyrd
@@ -140,7 +140,7 @@ public class StateEditor {
         // Only apply limit in transit-only case, unless this is a one-to-many request with hard
         // walk limiting, in which case we want to cut off the search.
         if (options.modes.isTransit() || !options.softWalkLimiting && options.batch)
-            return child.getDistanceTraversedInMode().getOrDefault(TraverseMode.WALK,0D) >= options.maxWalkDistance;
+            return child.getDistanceTraversedInMode().getOrDefault(TraverseMode.WALK, 0D) >= options.maxWalkDistance;
 
         return false;
     }
@@ -187,6 +187,7 @@ public class StateEditor {
 
     /**
      * Increments distance traversed in current traverse mode.
+     *
      * @param distance
      */
     public void incrementDistanceTraversedInMode(Double distance) {
@@ -202,6 +203,7 @@ public class StateEditor {
 
     /**
      * Increments time spend in current traverse mode.
+     *
      * @param timeInSec
      */
     public void incrementTimeTraversedInMode(int timeInSec) {

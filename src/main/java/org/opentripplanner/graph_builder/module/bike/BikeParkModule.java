@@ -1,8 +1,5 @@
 package org.opentripplanner.graph_builder.module.bike;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.routing.bike_park.BikePark;
 import org.opentripplanner.routing.bike_rental.BikeRentalStationService;
@@ -13,13 +10,16 @@ import org.opentripplanner.updater.bike_park.BikeParkDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 /**
  * This graph builder allow one to statically build bike park using the same source as the dynamic
  * bike park updater.
- * 
+ * <p>
  * Bike park-and-ride and "OV-fiets mode" development has been funded by GoAbout
  * (https://goabout.com/).
- * 
+ *
  * @author laurent
  * @author GoAbout
  */

@@ -2,7 +2,7 @@ package org.opentripplanner.scripting.api;
 
 /**
  * Simple geographical coordinates.
- * 
+ *
  * @author laurent
  */
 public class OtpsLatLon {

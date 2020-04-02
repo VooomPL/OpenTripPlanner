@@ -1,13 +1,12 @@
 package org.opentripplanner.routing.core;
 
 import javax.xml.bind.annotation.XmlType;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Set;
 
-@XmlType(name="TraverseMode")  
+@XmlType(name = "TraverseMode")
 public enum TraverseMode {
     WALK, BICYCLE, CAR,
     TRAM, SUBWAY, RAIL, BUS, FERRY,
@@ -15,10 +14,10 @@ public enum TraverseMode {
     TRANSIT, LEG_SWITCH,
     AIRPLANE;
 
-    private static HashMap <Set<TraverseMode>, Set<TraverseMode>> setMap = 
-            new HashMap <Set<TraverseMode>, Set<TraverseMode>>();
+    private static HashMap<Set<TraverseMode>, Set<TraverseMode>> setMap =
+            new HashMap<Set<TraverseMode>, Set<TraverseMode>>();
 
-    public static Set<TraverseMode> internSet (Set<TraverseMode> modeSet) {
+    public static Set<TraverseMode> internSet(Set<TraverseMode> modeSet) {
         if (modeSet == null)
             return null;
         Set<TraverseMode> ret = setMap.get(modeSet);
@@ -41,7 +40,7 @@ public enum TraverseMode {
     public boolean isOnStreetNonTransit() {
         return this == WALK || this == BICYCLE || this == CAR;
     }
-    
+
     public boolean isDriving() {
         return this == CAR;
     }

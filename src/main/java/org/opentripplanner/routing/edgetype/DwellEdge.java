@@ -2,8 +2,8 @@ package org.opentripplanner.routing.edgetype;
 
 /**
  * Marker edges for DwellEdge
- * @author novalis
  *
+ * @author novalis
  */
 public interface DwellEdge {
 

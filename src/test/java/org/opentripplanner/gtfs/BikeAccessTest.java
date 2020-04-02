@@ -1,10 +1,10 @@
 package org.opentripplanner.gtfs;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Trip;
+
+import static org.junit.Assert.assertEquals;
 
 public class BikeAccessTest {
 

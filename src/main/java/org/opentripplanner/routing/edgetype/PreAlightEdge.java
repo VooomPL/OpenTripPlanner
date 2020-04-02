@@ -1,16 +1,16 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 
 /**
  * PreBoard edges connect a TransitStop to its agency_stop_depart vertices; PreAlight edges connect
  * agency_stop_arrive vertices to a TransitStop.
- *
+ * <p>
  * Applies the local stop rules (see TransitStop.java and LocalStopFinder.java) as well as transfer
  * limits, timed and preferred transfer rules, transfer penalties, and boarding costs. This avoids
  * applying these costs/rules repeatedly in (Pattern)Board edges. These are single station or
@@ -44,7 +44,7 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
                 return null;
             }
         }
-        
+
         if (options.arriveBy) {
             /* Backward traversal: apply stop(pair)-specific costs */
             // Do not pre-board if transit modes are not selected.

@@ -17,8 +17,9 @@ import java.util.List;
  * Decode an encoded polyline.
  */
 public class EncodedPolylineJSONDeserializer extends JsonDeserializer<Geometry> {
-    @Override public Geometry deserialize(JsonParser jsonParser,
-            DeserializationContext deserializationContext)
+    @Override
+    public Geometry deserialize(JsonParser jsonParser,
+                                DeserializationContext deserializationContext)
             throws IOException, JsonProcessingException {
         EncodedPolylineBean bean = new EncodedPolylineBean(jsonParser.getValueAsString(), null, 0);
         List<Coordinate> coords = PolylineEncoder.decode(bean);

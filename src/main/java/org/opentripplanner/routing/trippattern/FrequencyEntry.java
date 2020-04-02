@@ -1,13 +1,13 @@
 package org.opentripplanner.routing.trippattern;
 
-import static org.opentripplanner.routing.trippattern.TripTimes.formatSeconds;
-
-import org.opentripplanner.model.Frequency;
 import org.opentripplanner.common.MavenVersion;
+import org.opentripplanner.model.Frequency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+
+import static org.opentripplanner.routing.trippattern.TripTimes.formatSeconds;
 
 /**
  * Uses a TripTimes to represent multiple trips following the same template at regular intervals.
@@ -25,14 +25,14 @@ public class FrequencyEntry implements Serializable {
     public final TripTimes tripTimes;
 
     public FrequencyEntry(Frequency freq, TripTimes tripTimes) {
-        this.startTime  = freq.getStartTime();
-        this.endTime    = freq.getEndTime();
-        this.headway    = freq.getHeadwaySecs();
+        this.startTime = freq.getStartTime();
+        this.endTime = freq.getEndTime();
+        this.headway = freq.getHeadwaySecs();
         this.exactTimes = freq.getExactTimes() != 0;
-        this.tripTimes  = tripTimes;
+        this.tripTimes = tripTimes;
     }
 
-    public FrequencyEntry (int startTime, int endTime, int headway, boolean exactTimes, TripTimes tripTimes) {
+    public FrequencyEntry(int startTime, int endTime, int headway, boolean exactTimes, TripTimes tripTimes) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.headway = headway;
@@ -55,7 +55,7 @@ public class FrequencyEntry implements Serializable {
         return String.format("FreqEntry: trip %s start %s end %s headway %s", tripTimes.trip, formatSeconds(startTime), formatSeconds(endTime), formatSeconds(headway));
     }
 
-    public int nextDepartureTime (int stop, int time) {
+    public int nextDepartureTime(int stop, int time) {
         // Start time and end time are for the first stop in the trip. Find the time offset for this stop.
         int stopOffset = tripTimes.getDepartureTime(stop) - tripTimes.getDepartureTime(0);
         int beg = startTime + stopOffset; // First time a vehicle passes by this stop.
@@ -75,11 +75,11 @@ public class FrequencyEntry implements Serializable {
         return -1;
     }
 
-    public int prevArrivalTime (int stop, int t) {
+    public int prevArrivalTime(int stop, int t) {
         int stopOffset = tripTimes.getArrivalTime(stop) - tripTimes.getDepartureTime(0);
         int beg = startTime + stopOffset; // First time a vehicle passes by this stop.
         int end = endTime + stopOffset; // Latest a vehicle can pass by this stop.
-        if(t < beg) return -1;
+        if (t < beg) return -1;
         if (exactTimes) {
             // we can't start from end in case end - beg is not a multiple of headway
             int arr;
@@ -103,22 +103,28 @@ public class FrequencyEntry implements Serializable {
      * actually instantiating a TripTimes, to avoid making too many short-lived clones.
      * This delegation is a sign that maybe FrequencyEntry should subclass TripTimes.
      */
-    public TripTimes materialize (int stop, int time, boolean depart) {
+    public TripTimes materialize(int stop, int time, boolean depart) {
         return tripTimes.timeShift(stop, time, depart);
     }
 
-    /** @return the maximum number of trips this frequency entry could represent, given its headway. */
+    /**
+     * @return the maximum number of trips this frequency entry could represent, given its headway.
+     */
     public int numTrips() {
         return (endTime - startTime) / headway;
     }
 
-    /** @return the minimum time in seconds since midnight at which a trip may depart on this frequency definition. */
+    /**
+     * @return the minimum time in seconds since midnight at which a trip may depart on this frequency definition.
+     */
     public int getMinDeparture() {
         // this is simple: the earliest this trip could depart is the time at which it starts plus the dwell at the first stop
         return tripTimes.getDepartureTime(0) - tripTimes.getArrivalTime(0) + startTime;
     }
 
-    /** @return the maximum time in seconds since midnight at which a trip may arrive on this frequency definition. */
+    /**
+     * @return the maximum time in seconds since midnight at which a trip may arrive on this frequency definition.
+     */
     public int getMaxArrival() {
         // The latest this trip could arrive is its last arrival time minus its first arrival time (the length of the trip),
         // plus the end time (the latest it could have arrived at the initial stop)

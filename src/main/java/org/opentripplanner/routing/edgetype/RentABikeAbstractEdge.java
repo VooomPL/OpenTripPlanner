@@ -1,8 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Set;
-
-import org.opentripplanner.routing.bike_rental.BikeRentalStation;
+import com.google.common.collect.Sets;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -11,15 +10,13 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 
-import com.google.common.collect.Sets;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Renting or dropping off a rented bike edge.
- * 
+ *
  * @author laurent
- * 
  */
 public abstract class RentABikeAbstractEdge extends Edge {
 
@@ -53,7 +50,7 @@ public abstract class RentABikeAbstractEdge extends Edge {
         StateEditor s1 = s0.edit(this);
         s1.incrementWeight(options.arriveBy ? options.bikeRentalDropoffCost : options.bikeRentalPickupCost);
         s1.incrementTimeInSeconds(options.arriveBy ? options.bikeRentalDropoffTime : options.bikeRentalPickupTime);
-        s1.beginBikeRenting(((BikeRentalStationVertex)fromv).getVehicleMode());
+        s1.beginBikeRenting(((BikeRentalStationVertex) fromv).getVehicleMode());
         s1.setBikeRentalNetwork(networks);
         s1.setBackMode(s0.getNonTransitMode());
         State s1b = s1.makeState();
@@ -108,7 +105,7 @@ public abstract class RentABikeAbstractEdge extends Edge {
 
     /**
      * @param stationNetworks The station where we want to drop the bike off.
-     * @param rentedNetworks The set of networks of the station we rented the bike from.
+     * @param rentedNetworks  The set of networks of the station we rented the bike from.
      * @return true if the bike can be dropped off here, false if not.
      */
     private boolean hasCompatibleNetworks(Set<String> stationNetworks, Set<String> rentedNetworks) {

@@ -1,43 +1,28 @@
 package org.opentripplanner.common.geometry;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-
-import org.opentripplanner.analyst.request.SampleFactory;
+import org.locationtech.jts.algorithm.CGAlgorithms;
+import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.algorithm.CGAlgorithms;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Polygon;
+import java.util.*;
 
 /**
  * Compute isoline based on a zFunc and a set of initial coverage points P0={(x,y)} to seed the
  * computation.
- * 
+ * <p>
  * This assume we have a z = Fz(x,y) function which can gives a z value for any given point (x,y), z
  * can be undefined for some region.
- * 
+ * <p>
  * There are many tricks to reduce to the minimum the numbers of Fz samplings, explained in the code
  * below.
- * 
+ * <p>
  * It will compute an isoline for a given z0 value. The isoline is composed of a list of n polygons,
  * CW for normal polygons, CCW for "holes". The isoline computation can be called multiple times on
  * the same builder for different z0 values: this will reduce the number of Fz sampling as they are
  * cached in the builder. Please note that the initial covering points must touch all isolines you
  * want to cover.
- * 
+ *
  * @author laurent
  */
 public class RecursiveGridIsolineBuilder {
@@ -233,24 +218,23 @@ public class RecursiveGridIsolineBuilder {
     private boolean debugCrossingEdges = false;
 
     private Geometry debugGeometry = null;
-        
+
     // private List<Coordinate> p0List;
 
     /**
      * Create an object to compute isochrones. One may call several time isochronify on the same
      * IsoChronificator object, this will re-use the z = f(x,y) sampling if possible, as they are
      * kept in cache.
-     * 
+     *
      * @param center Center point (eg origin)
-     * @param fz Function returning the z-value for a xy-coordinate
+     * @param fz     Function returning the z-value for a xy-coordinate
      * @param p0List Initial set of coverage points to seed the heuristics
      */
-    public RecursiveGridIsolineBuilder( double dX, double dY, Coordinate center, ZFunc fz,
-            List<Coordinate> p0List) {
-       
-    	
-    	
-    	this.dX = dX;
+    public RecursiveGridIsolineBuilder(double dX, double dY, Coordinate center, ZFunc fz,
+                                       List<Coordinate> p0List) {
+
+
+        this.dX = dX;
         this.dY = dY;
         /*
          * Center position only purpose is to serve as a reference value to the XY integer indexing,
@@ -351,10 +335,10 @@ public class RecursiveGridIsolineBuilder {
             }
             /**
              * Build the 6 remaining edges (e1..e6) around the 2 squares ABDC and DBFE touching e
-             * 
+             *
              * <pre>
              *   [Horizontal e]     [Vertical e]
-             *   
+             *
              *    C--(e2)--D       D--(e3)--B--(e6)--F
              *    |        |       |        |        |
              *   (e1)     (e3)    (e2)     (e)      (e5)   
@@ -374,10 +358,10 @@ public class RecursiveGridIsolineBuilder {
             GridDot D = getOrCreateDot(iD);
             GridDot E = getOrCreateDot(iE);
             GridDot F = getOrCreateDot(iF);
-            GridEdge[] e2List = new GridEdge[] { new GridEdge(e.A, C, 1, !e.horizontal),
+            GridEdge[] e2List = new GridEdge[]{new GridEdge(e.A, C, 1, !e.horizontal),
                     new GridEdge(C, D, 1, e.horizontal), new GridEdge(e.B, D, 1, !e.horizontal),
                     new GridEdge(e.A, E, 1, !e.horizontal), new GridEdge(E, F, 1, e.horizontal),
-                    new GridEdge(e.B, F, 1, !e.horizontal) };
+                    new GridEdge(e.B, F, 1, !e.horizontal)};
             for (GridEdge e2 : e2List) {
                 if (e2.cut(z0) == 0) {
                     finalNonCuttingEdges.add(e2);
@@ -410,7 +394,7 @@ public class RecursiveGridIsolineBuilder {
             for (GridEdge e : initialEdges) {
                 Coordinate A = getCoordinate(e.A.index);
                 Coordinate B = getCoordinate(e.B.index);
-                debugGeom.add(geomFactory.createLineString(new Coordinate[] { A, B }));
+                debugGeom.add(geomFactory.createLineString(new Coordinate[]{A, B}));
             }
             // for (Coordinate p0 : p0List) {
             // debugGeom.add(geomFactory.createPoint(p0));
@@ -424,7 +408,7 @@ public class RecursiveGridIsolineBuilder {
                 Coordinate C1 = new Coordinate(C.x + (B.y - A.y) * 0.1, C.y + (B.x - A.x) * 0.1);
                 Coordinate C2 = new Coordinate(C.x - (B.y - A.y) * 0.1, C.y - (B.x - A.x) * 0.1);
                 debugGeom
-                        .add(geomFactory.createLineString(new Coordinate[] { A, C, C1, C2, C, B }));
+                        .add(geomFactory.createLineString(new Coordinate[]{A, C, C1, C2, C, B}));
             }
         }
 
@@ -451,35 +435,35 @@ public class RecursiveGridIsolineBuilder {
                 GridEdge e1, e2, e3;
                 Direction d1, d2; // d3: same direction.
                 switch (direction) {
-                default: // Never happen
-                case UP:
-                    e1 = e.A.up;
-                    d1 = Direction.LEFT;
-                    e2 = e.B.up;
-                    d2 = Direction.RIGHT;
-                    e3 = e1.B.right;
-                    break;
-                case DOWN:
-                    e1 = e.A.down;
-                    d1 = Direction.LEFT;
-                    e2 = e.B.down;
-                    d2 = Direction.RIGHT;
-                    e3 = e1.A.right;
-                    break;
-                case LEFT:
-                    e1 = e.A.left;
-                    d1 = Direction.DOWN;
-                    e2 = e.B.left;
-                    d2 = Direction.UP;
-                    e3 = e1.A.up;
-                    break;
-                case RIGHT:
-                    e1 = e.A.right;
-                    d1 = Direction.DOWN;
-                    e2 = e.B.right;
-                    d2 = Direction.UP;
-                    e3 = e1.B.up;
-                    break;
+                    default: // Never happen
+                    case UP:
+                        e1 = e.A.up;
+                        d1 = Direction.LEFT;
+                        e2 = e.B.up;
+                        d2 = Direction.RIGHT;
+                        e3 = e1.B.right;
+                        break;
+                    case DOWN:
+                        e1 = e.A.down;
+                        d1 = Direction.LEFT;
+                        e2 = e.B.down;
+                        d2 = Direction.RIGHT;
+                        e3 = e1.A.right;
+                        break;
+                    case LEFT:
+                        e1 = e.A.left;
+                        d1 = Direction.DOWN;
+                        e2 = e.B.left;
+                        d2 = Direction.UP;
+                        e3 = e1.A.up;
+                        break;
+                    case RIGHT:
+                        e1 = e.A.right;
+                        d1 = Direction.DOWN;
+                        e2 = e.B.right;
+                        d2 = Direction.UP;
+                        e3 = e1.B.up;
+                        break;
                 }
                 boolean ok1 = e1.cut(z0) != 0 && !e1.used;
                 boolean ok2 = e2.cut(z0) != 0 && !e2.used;
@@ -615,7 +599,8 @@ public class RecursiveGridIsolineBuilder {
         }
         // 3. For each hole, determine which shell it fits in.
         for (LinearRing hole : holes) {
-            outer: {
+            outer:
+            {
                 // Probably most of the time, the first shell will be the one
                 for (Polygon shell : shells) {
                     if (shell.contains(hole)) {

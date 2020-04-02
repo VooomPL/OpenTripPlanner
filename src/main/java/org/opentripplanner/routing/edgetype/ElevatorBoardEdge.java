@@ -1,22 +1,22 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 
 /**
  * A relatively high cost edge for boarding an elevator.
- * @author mattwigway
  *
+ * @author mattwigway
  */
 public class ElevatorBoardEdge extends Edge implements ElevatorEdge {
 
@@ -38,9 +38,9 @@ public class ElevatorBoardEdge extends Edge implements ElevatorEdge {
         coords[1] = new Coordinate(to.getX(), to.getY());
         the_geom = GeometryUtils.getGeometryFactory().createLineString(coords);
     }
-    
+
     @Override
-    public State traverse(State s0) { 
+    public State traverse(State s0) {
         RoutingRequest options = s0.getOptions();
 
         StateEditor s1 = s0.edit(this);
@@ -67,7 +67,7 @@ public class ElevatorBoardEdge extends Edge implements ElevatorEdge {
         return "Elevator";
     }
 
-    /** 
+    /**
      * Since board edges always are called Elevator,
      * the name is utterly and completely bogus but is never included
      * in plans..
@@ -76,7 +76,7 @@ public class ElevatorBoardEdge extends Edge implements ElevatorEdge {
     public boolean hasBogusName() {
         return true;
     }
-    
+
     public String toString() {
         return "ElevatorBoardEdge(" + fromv + " -> " + tov + ")";
     }

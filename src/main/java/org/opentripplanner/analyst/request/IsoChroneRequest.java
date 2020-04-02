@@ -1,13 +1,13 @@
 package org.opentripplanner.analyst.request;
 
+import org.locationtech.jts.geom.Coordinate;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.locationtech.jts.geom.Coordinate;
-
 /**
  * A request for an isochrone vector.
- * 
+ *
  * @author laurent
  */
 public class IsoChroneRequest {

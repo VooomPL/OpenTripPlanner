@@ -1,11 +1,10 @@
 package org.opentripplanner.api.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.opentripplanner.common.model.P2;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.opentripplanner.common.model.P2;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ElevationAdapter extends XmlAdapter<String, List<P2<Double>>> {
     @Override
@@ -19,7 +18,7 @@ public class ElevationAdapter extends XmlAdapter<String, List<P2<Double>>> {
             str.append(Math.round(pair.second * 10.0) / 10.0);
             str.append(",");
         }
-        if (str.length() > 0) 
+        if (str.length() > 0)
             str.setLength(str.length() - 1);
         return str.toString();
     }

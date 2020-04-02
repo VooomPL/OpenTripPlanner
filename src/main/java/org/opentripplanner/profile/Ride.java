@@ -4,7 +4,9 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.trippattern.FrequencyEntry;
@@ -12,22 +14,18 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
-
 import java.util.List;
 import java.util.Set;
 
 
-/** 
+/**
  * A Ride is defined by its from-stop and to-stop, as well as the previous ride (from which it transfers).
  * It serves as a container for multiple PatternRides, all of which connect that same pair of Stops.
  * A Ride may be unfinished, which means it does not yet have a destination and contains only unfinished PatternRides.
- *
+ * <p>
  * TODO this could just be a RouteRide key mapped to lists of patternRides with the same characteristics.
  * its constructor would pull out the right fields.
- * 
+ * <p>
  * TODO if patternRides can be added later, and stats and transfers are computed after the fact,
  * then maybe we no longer need a round-based approach.
  * We need to put _groups_ of patternRides into the queue, grouped by back ride and beginning stop.
@@ -36,7 +34,7 @@ public class Ride {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ride.class);
 
-    /* Here we store stop objects rather than indexes. The start and end indexes in the Ride's 
+    /* Here we store stop objects rather than indexes. The start and end indexes in the Ride's
      * constituent PatternRides should correspond to these same stops. */
     final StopCluster from;
     final StopCluster to;
@@ -51,16 +49,20 @@ public class Ride {
     int dub = Integer.MAX_VALUE;
     int pathLength = 0;
 
-    /** Construct a partial ride (resulting from a transfer, waiting to be completed). */
+    /**
+     * Construct a partial ride (resulting from a transfer, waiting to be completed).
+     */
     // TODO add additional parameter for access stats, then recalc bounds in the constructor.
-    public Ride (StopCluster from, Ride previous) {
+    public Ride(StopCluster from, Ride previous) {
         this.from = from;
         this.to = null; // this is a "partial ride" waiting to be completed.
         this.previous = previous;
     }
 
-    /** Construct a partial copy with no PatternRides or Stats and the given arrival StopCluster. */
-    public Ride (Ride other, StopCluster to) {
+    /**
+     * Construct a partial copy with no PatternRides or Stats and the given arrival StopCluster.
+     */
+    public Ride(Ride other, StopCluster to) {
         this.from = other.from;
         this.to = to;
         this.previous = other.previous;
@@ -69,7 +71,9 @@ public class Ride {
         // Bounds will be recomputed when stats are computed.
     }
 
-    /** Extend this incomplete ride to the given stop, creating a container for PatternRides. */
+    /**
+     * Extend this incomplete ride to the given stop, creating a container for PatternRides.
+     */
     public Ride extendTo(StopCluster toStopCluster) {
         return new Ride(this, toStopCluster);
     }
@@ -78,7 +82,9 @@ public class Ride {
         return String.format("Ride from %s to %s (%d patterns on routes %s)", from, to, patternRides.size(), getRoutes());
     }
 
-    /** Output this entire chain of rides. */
+    /**
+     * Output this entire chain of rides.
+     */
     public void dumpRideChain() {
         List<Ride> rides = Lists.newLinkedList();
         Ride ride = this;
@@ -190,12 +196,13 @@ public class Ride {
     }
 
     /* Maybe store transfer distances by stop pair, and look them up. */
+
     /**
      * @param arrivals find arrival times rather than departure times for this Ride.
      * @return a list of sorted departure or arrival times within the window.
      * FIXME this is a hot spot in execution, about 50 percent of runtime.
      */
-    public TIntList getSortedStoptimes (TimeWindow window, boolean arrivals) {
+    public TIntList getSortedStoptimes(TimeWindow window, boolean arrivals) {
         // Using Lists because we don't know the length in advance
         TIntList times = new TIntArrayList();
         // TODO include exact-times frequency trips along with non-frequency trips
@@ -204,7 +211,7 @@ public class Ride {
             for (TripTimes tt : patternRide.pattern.scheduledTimetable.tripTimes) {
                 if (window.servicesRunning.get(tt.serviceCode)) {
                     int t = arrivals ? tt.getArrivalTime(patternRide.toIndex)
-                                     : tt.getDepartureTime(patternRide.fromIndex);
+                            : tt.getDepartureTime(patternRide.fromIndex);
                     if (window.includes(t)) times.add(t);
                 }
             }
@@ -213,7 +220,9 @@ public class Ride {
         return times;
     }
 
-    /** Calculate the wait time stats for boarding all (non-exact) frequency entries in this Ride. */
+    /**
+     * Calculate the wait time stats for boarding all (non-exact) frequency entries in this Ride.
+     */
     private Stats calcStatsForFreqs(TimeWindow window) {
         Stats stats = new Stats(); // all stats fields are initialized to zero
         stats.num = 0; // the total number of seconds that headway boarding is possible
@@ -244,18 +253,18 @@ public class Ride {
      * The Ride must contain some trips, and the window must have a positive duration.
      */
     public Stats calcStatsForBoarding(TimeWindow window) {
-        Stats stats = new Stats ();
+        Stats stats = new Stats();
         stats.min = 0; // You can always arrive just before a train departs.
         TIntList departures = getSortedStoptimes(window, false);
         int last = window.from;
         double avgAccumulated = 0.0;
         /* All departures in the list are known to be running and within the window. */
-        for (TIntIterator it = departures.iterator(); it.hasNext();) {
+        for (TIntIterator it = departures.iterator(); it.hasNext(); ) {
             int dep = it.next();
             int maxWait = dep - last;
             if (maxWait > stats.max) stats.max = maxWait;
             /* Weight the average of each interval by the number of seconds it contains. */
-            avgAccumulated += (maxWait / 2.0) * maxWait; 
+            avgAccumulated += (maxWait / 2.0) * maxWait;
             stats.num += maxWait;
             last = dep;
         }
@@ -266,18 +275,19 @@ public class Ride {
     }
 
     /**
-     * Calculates Stats for the transfer to the given ride from the previous ride. 
+     * Calculates Stats for the transfer to the given ride from the previous ride.
      * This should only be called after all PatternRides have been added to the ride.
      * Distances can be stored in rides, including the first and last distance. But waits must be
      * calculated from full sets of patterns, which are not known until a round is over.
      */
-    public Stats calcStatsForTransfer (TimeWindow window, double walkSpeed) {
+    public Stats calcStatsForTransfer(TimeWindow window, double walkSpeed) {
         TIntList arrivals = previous.getSortedStoptimes(window, true);
         TIntList departures = this.getSortedStoptimes(window, false);
         List<Integer> waits = Lists.newArrayList();
         TIntIterator departureIterator = departures.iterator();
         int departure = departureIterator.next();
-        ARRIVAL : for (TIntIterator arrivalsIterator = arrivals.iterator(); arrivalsIterator.hasNext();) {
+        ARRIVAL:
+        for (TIntIterator arrivalsIterator = arrivals.iterator(); arrivalsIterator.hasNext(); ) {
             int arrival = arrivalsIterator.next();
             // On transfers the access stats should have max=min=avg
             // We use the min, which would be best if min != max since it should only relax the bounds somewhat.
@@ -290,10 +300,12 @@ public class Ride {
         }
         /* Waits list may be empty if no transfers are possible. */
         if (waits.isEmpty()) return null; // Impossible to make this transfer.
-        return new Stats (waits);
+        return new Stats(waits);
     }
 
-    /**  @return the stop at which the rider would board the chain of Rides this Ride belongs to. */
+    /**
+     * @return the stop at which the rider would board the chain of Rides this Ride belongs to.
+     */
     public StopCluster getAccessStopCluster() {
         Ride ride = this;
         while (ride.previous != null) {
@@ -302,7 +314,9 @@ public class Ride {
         return ride.from;
     }
 
-    /** @return the stop from which the rider will walk to the final destination, assuming this is the final Ride in a chain. */
+    /**
+     * @return the stop from which the rider will walk to the final destination, assuming this is the final Ride in a chain.
+     */
     public StopCluster getEgressStopCluster() {
         return this.to;
     }

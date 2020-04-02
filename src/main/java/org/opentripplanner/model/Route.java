@@ -25,7 +25,8 @@ public final class Route extends IdentityBean<FeedScopedId> {
 
     private String textColor;
 
-    @Deprecated private int routeBikesAllowed = 0;
+    @Deprecated
+    private int routeBikesAllowed = 0;
 
     /**
      * 0 = unknown / unspecified, 1 = bikes allowed, 2 = bikes NOT allowed
@@ -129,7 +130,7 @@ public final class Route extends IdentityBean<FeedScopedId> {
 
     /**
      * @param bikesAllowed 0 = unknown / unspecified, 1 = bikes allowed, 2 = bikes
-     *          NOT allowed
+     *                     NOT allowed
      */
     public void setBikesAllowed(int bikesAllowed) {
         this.bikesAllowed = bikesAllowed;

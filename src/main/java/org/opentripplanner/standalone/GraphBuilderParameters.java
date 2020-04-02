@@ -1,13 +1,12 @@
 package org.opentripplanner.standalone;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource;
 import org.opentripplanner.graph_builder.services.osm.CustomNamer;
 import org.opentripplanner.profile.StopClusterMode;
 import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.impl.DefaultFareServiceFactory;
 import org.opentripplanner.routing.services.FareServiceFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -105,14 +104,16 @@ public class GraphBuilderParameters {
      */
     public final boolean fetchElevationUS;
 
-    /** If specified, download NED elevation tiles from the given AWS S3 bucket. */
+    /**
+     * If specified, download NED elevation tiles from the given AWS S3 bucket.
+     */
     public final S3BucketConfig elevationBucket;
 
     /**
      * Unit conversion multiplier for elevation values. No conversion needed if the elevation values
      * are defined in meters in the source data. If, for example, decimetres are used in the source data,
      * this should be set to 0.1.
-    */
+     */
     public final double elevationUnitMultiplier;
 
     /**
@@ -228,8 +229,7 @@ public class GraphBuilderParameters {
         String valueAsString = config.path(propertyName).asText(defaultValue.name());
         try {
             return Enum.valueOf((Class<T>) defaultValue.getClass(), valueAsString);
-        }
-        catch (IllegalArgumentException ignore) {
+        } catch (IllegalArgumentException ignore) {
             List<? extends Enum> legalValues = Arrays.asList(defaultValue.getClass().getEnumConstants());
             throw new IllegalArgumentException("The graph build parameter " + propertyName
                     + " value '" + valueAsString + "' is not in legal. Expected one of " + legalValues + ".");

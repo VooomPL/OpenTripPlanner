@@ -1,16 +1,16 @@
 package org.opentripplanner.routing.core;
 
+import org.opentripplanner.common.model.T2;
+import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Route;
+
 import java.io.Serializable;
 import java.util.HashSet;
 
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.common.model.T2;
-import org.opentripplanner.gtfs.GtfsLibrary;
-
 /**
  * A RouteMatcher is a collection of routes based on IDs, short name and/or agency IDs.
- * 
+ * <p>
  * We currently support route full IDs (agency ID + route ID), agency ID + route name, or route name only.
  * Support for other matching expression can be easily added later on.
  */
@@ -40,15 +40,15 @@ public class RouteMatcher implements Cloneable, Serializable {
 
     /**
      * Build a new RouteMatcher from a string representation.
-     * 
+     *
      * @param routeSpecList A comma-separated list of route spec, each of the format
-     *        [agencyId]_[routeName]_[routeId] Please note that this format is not really intuitive
-     *        as it does not follow the OBA-gtfslib AgencyAndId standard ('agencyID_routeId'). This
-     *        was kept for backward-compatibility purposes. If the original routeName contains some
-     *        "_" each *must* be replaced by a space. If the agency or route ID contains a "_" they
-     *        must be escaped using a backslash.
-     *        TODO why do we want to accept route name strings when we have IDs? Break backward compatibility.
-     *        FIXME this is the only place we are still using underscores as scope separators. Rethink this from scratch, see #1671.
+     *                      [agencyId]_[routeName]_[routeId] Please note that this format is not really intuitive
+     *                      as it does not follow the OBA-gtfslib AgencyAndId standard ('agencyID_routeId'). This
+     *                      was kept for backward-compatibility purposes. If the original routeName contains some
+     *                      "_" each *must* be replaced by a space. If the agency or route ID contains a "_" they
+     *                      must be escaped using a backslash.
+     *                      TODO why do we want to accept route name strings when we have IDs? Break backward compatibility.
+     *                      FIXME this is the only place we are still using underscores as scope separators. Rethink this from scratch, see #1671.
      * @return A RouteMatcher
      * @throws IllegalArgumentException If the string representation is invalid.
      */

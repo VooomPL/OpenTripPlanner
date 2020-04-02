@@ -26,7 +26,7 @@ public class ShapefileStreetSchema {
 
     /**
      * Sets the converter which gets IDs from features.
-     * 
+     *
      * @{see setIdAttribute}
      */
     public void setIdConverter(SimpleFeatureConverter<String> idConverter) {
@@ -59,7 +59,7 @@ public class ShapefileStreetSchema {
     /**
      * The permission converter gets the {@link StreetTraversalPermission} for a street segment and
      * its reverse.
-     * 
+     *
      * @return
      */
     public SimpleFeatureConverter<P2<StreetTraversalPermission>> getPermissionConverter() {
@@ -77,7 +77,7 @@ public class ShapefileStreetSchema {
      * bicycles, the safety factor is the number of miles you would have to bike on an ordinary
      * street to have the same odds of dying as if you biked one mile on this street. For example,
      * if bike lanes reduce risk by a factor of 3, the safety factor would be 0.33...
-     * 
+     *
      * @return
      */
     public void setBicycleSafetyConverter(SimpleFeatureConverter<P2<Double>> safetyConverter) {
@@ -89,8 +89,8 @@ public class ShapefileStreetSchema {
     }
 
     /**
-     * @see setSlopeOverrideConverter
      * @return
+     * @see setSlopeOverrideConverter
      */
     public SimpleFeatureConverter<Boolean> getSlopeOverrideConverter() {
         return slopeOverrideConverter;
@@ -99,7 +99,7 @@ public class ShapefileStreetSchema {
     /**
      * The slope override converter returns true if the slope found from NED is should be ignored
      * (for instance, on bridges and tunnels)
-     * 
+     *
      * @param slopeOverrideConverter
      */
     public void setSlopeOverrideConverter(SimpleFeatureConverter<Boolean> slopeOverrideConverter) {
@@ -107,28 +107,27 @@ public class ShapefileStreetSchema {
     }
 
     /**
-     * @param featureSelector
-     *            A featureSelector returns true if a feature is a street, and false otherwise.
-     *            Useful for centerline files that also have non-streets, such as political
-     *            boundaries or coastlines
+     * @param featureSelector A featureSelector returns true if a feature is a street, and false otherwise.
+     *                        Useful for centerline files that also have non-streets, such as political
+     *                        boundaries or coastlines
      */
     public void setFeatureSelector(SimpleFeatureConverter<Boolean> featureSelector) {
         this.featureSelector = featureSelector;
     }
 
     /**
-     * @see setFeatureSelector
      * @return the current feature selector
+     * @see setFeatureSelector
      */
     public SimpleFeatureConverter<Boolean> getFeatureSelector() {
         return featureSelector;
     }
 
-	public void setNoteConverter(SimpleFeatureConverter<String> noteConverter) {
-		this.noteConverter = noteConverter;
-	}
+    public void setNoteConverter(SimpleFeatureConverter<String> noteConverter) {
+        this.noteConverter = noteConverter;
+    }
 
-	public SimpleFeatureConverter<String> getNoteConverter() {
-		return noteConverter;
-	}
+    public SimpleFeatureConverter<String> getNoteConverter() {
+        return noteConverter;
+    }
 }

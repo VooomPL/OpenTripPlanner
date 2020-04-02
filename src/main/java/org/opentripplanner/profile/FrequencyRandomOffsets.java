@@ -13,7 +13,9 @@ public class FrequencyRandomOffsets {
     public final TIntObjectMap<int[]> offsets = new TIntObjectHashMap<>();
     public final RaptorWorkerData data;
 
-    /** The mersenne twister is a higher quality random number generator than the one included with Java */
+    /**
+     * The mersenne twister is a higher quality random number generator than the one included with Java
+     */
     private MersenneTwister mt = new MersenneTwister();
 
     public FrequencyRandomOffsets(RaptorWorkerData data) {
@@ -28,8 +30,8 @@ public class FrequencyRandomOffsets {
                 });
     }
 
-    public void randomize () {
-        for (TIntObjectIterator<int[]> it = offsets.iterator(); it.hasNext();) {
+    public void randomize() {
+        for (TIntObjectIterator<int[]> it = offsets.iterator(); it.hasNext(); ) {
             it.advance();
             int[] newVal = new int[it.value().length];
 

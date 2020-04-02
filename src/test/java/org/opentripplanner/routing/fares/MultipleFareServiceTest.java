@@ -1,18 +1,16 @@
 package org.opentripplanner.routing.fares;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import junit.framework.TestCase;
-
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.Fare.FareType;
 import org.opentripplanner.routing.core.WrappedCurrency;
 import org.opentripplanner.routing.services.FareService;
 import org.opentripplanner.routing.spt.GraphPath;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
- * 
  * @author laurent
  */
 public class MultipleFareServiceTest extends TestCase {

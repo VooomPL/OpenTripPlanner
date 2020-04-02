@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Responsible for mapping GTFS Transfer into the OTP model. */
+/**
+ * Responsible for mapping GTFS Transfer into the OTP model.
+ */
 class TransferMapper {
     private final RouteMapper routeMapper;
 
@@ -27,7 +29,9 @@ class TransferMapper {
         return MapUtils.mapToList(allTransfers, this::map);
     }
 
-    /** Map from GTFS to OTP model, {@code null} safe.  */
+    /**
+     * Map from GTFS to OTP model, {@code null} safe.
+     */
     Transfer map(org.onebusaway.gtfs.model.Transfer orginal) {
         return orginal == null ? null : mappedTransfers.computeIfAbsent(orginal, this::doMap);
     }

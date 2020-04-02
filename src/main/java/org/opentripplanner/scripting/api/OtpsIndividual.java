@@ -1,19 +1,18 @@
 package org.opentripplanner.scripting.api;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.linearref.LengthIndexedLine;
 import org.opentripplanner.analyst.core.Sample;
 import org.opentripplanner.analyst.request.SampleFactory;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.linearref.LengthIndexedLine;
-
 /**
  * An individual is a point with coordinates, associated with some optional values (string, floats,
  * integers...)
- * 
+ *
  * @author laurent
  */
 public class OtpsIndividual {
@@ -41,7 +40,7 @@ public class OtpsIndividual {
 
     /**
      * @return The original location (lat/lon) of the individual, as created or loaded from input
-     *         data.
+     * data.
      */
     public OtpsLatLon getLocation() {
         return new OtpsLatLon(lat, lon);
@@ -49,11 +48,11 @@ public class OtpsIndividual {
 
     /**
      * @return The snapped location of the individual on the graph (ie a point on the nearest
-     *         walkable/drivable street). This can be useful to output a more precise location for a
-     *         generated grid point, as the returned location is the effective one used for
-     *         path/time computations. Return NULL if the individual has never been evualuated (by a
-     *         call to OtpsSPT.eval). Return the original location if the point can't be snapped
-     *         (too far away from a street).
+     * walkable/drivable street). This can be useful to output a more precise location for a
+     * generated grid point, as the returned location is the effective one used for
+     * path/time computations. Return NULL if the individual has never been evualuated (by a
+     * call to OtpsSPT.eval). Return the original location if the point can't be snapped
+     * (too far away from a street).
      */
     public OtpsLatLon getSnappedLocation() {
         if (cachedSample == null)
@@ -76,9 +75,9 @@ public class OtpsIndividual {
 
     /**
      * Retrieve some data associated with this individual.
-     * 
+     *
      * @param dataName The name of the data. For CSV population, this is the name of the column
-     *        header (case sensitive).
+     *                 header (case sensitive).
      * @return The data as a string.
      */
     public String getStringData(String dataName) {
@@ -92,11 +91,11 @@ public class OtpsIndividual {
 
     /**
      * Retrieve some data associated with this individual.
-     * 
+     *
      * @param dataName The name of the data. For CSV population, this is the name of the column
-     *        header (case sensitive).
+     *                 header (case sensitive).
      * @return The data as a float. Return NULL if the data is empty. Throw a NumberFormatException
-     *         if the data can't be translated from a string.
+     * if the data can't be translated from a string.
      */
     public Double getFloatData(String dataName) {
         String str = getStringData(dataName);
@@ -107,12 +106,12 @@ public class OtpsIndividual {
 
     /**
      * Retrieve some data associated with this individual.
-     * 
+     *
      * @param dataName The name of the data. For CSV population, this is the name of the column
-     *        header (case sensitive).
-     * @param def The default value in case the data is empty.
+     *                 header (case sensitive).
+     * @param def      The default value in case the data is empty.
      * @return The data as a float. Return def if the data is empty. Throw a NumberFormatException
-     *         if the data can't be translated from a string.
+     * if the data can't be translated from a string.
      */
     public Double getFloatData(String dataName, double def) {
         Double val = getFloatData(dataName);
@@ -120,7 +119,7 @@ public class OtpsIndividual {
     }
 
     protected synchronized OtpsEvaluatedIndividual eval(ShortestPathTree spt,
-            SampleFactory sampleFactory) {
+                                                        SampleFactory sampleFactory) {
         Graph sptGraph = spt.getOptions().getRoutingContext().graph;
         if (!isSampleSet || graph != sptGraph) {
             cachedSample = sampleFactory.getSample(lon, lat);

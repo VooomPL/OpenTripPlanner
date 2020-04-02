@@ -8,7 +8,6 @@ import java.util.Objects;
 
 /**
  * @author bdferris
- *
  */
 public final class ServiceCalendarDate implements Serializable {
 

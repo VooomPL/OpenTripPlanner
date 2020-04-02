@@ -2,14 +2,13 @@ package org.opentripplanner.common.model;
 
 /**
  * A starting/ending location for a trip.
- * 
+ *
  * @author novalis
- * 
  */
 public class NamedPlace {
     /**
      * some human-readable text string e.g. W 34th St
-     * */
+     */
     public String name;
 
     /**

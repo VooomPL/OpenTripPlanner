@@ -1,13 +1,13 @@
 package org.opentripplanner.visibility;
 
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-
-
- This port undoubtedly introduced a number of bugs (and removed some features).
-
- Bug reports should be directed to the OpenTripPlanner project, unless they
- can be reproduced in the original VisiLibity.
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity.
  */
 public class LineSegment {
 
@@ -31,17 +31,17 @@ public class LineSegment {
 
     LineSegment(LineSegment line_segment_temp) {
         switch (line_segment_temp.size()) {
-        case 0:
-            endpoints = null;
-            break;
-        case 1:
-            endpoints = new VLPoint[1];
-            endpoints[0] = line_segment_temp.endpoints[0].clone();
-            break;
-        case 2:
-            endpoints = new VLPoint[2];
-            endpoints[0] = line_segment_temp.endpoints[0].clone();
-            endpoints[1] = line_segment_temp.endpoints[1].clone();
+            case 0:
+                endpoints = null;
+                break;
+            case 1:
+                endpoints = new VLPoint[1];
+                endpoints[0] = line_segment_temp.endpoints[0].clone();
+                break;
+            case 2:
+                endpoints = new VLPoint[2];
+                endpoints[0] = line_segment_temp.endpoints[0].clone();
+                endpoints[1] = line_segment_temp.endpoints[1].clone();
         }
     }
 
@@ -113,55 +113,55 @@ public class LineSegment {
     void set_first(VLPoint point_temp, double epsilon) {
         VLPoint second_point_temp;
         switch (size()) {
-        case 0:
-            endpoints = new VLPoint[1];
-            endpoints[0] = point_temp;
-            break;
-        case 1:
-            if (endpoints[0].distance(point_temp) <= epsilon) {
+            case 0:
+                endpoints = new VLPoint[1];
                 endpoints[0] = point_temp;
-                return;
-            }
-            second_point_temp = endpoints[0];
-            endpoints = new VLPoint[2];
-            endpoints[0] = point_temp;
-            endpoints[1] = second_point_temp;
-            break;
-        case 2:
-            if (point_temp.distance(endpoints[1]) > epsilon) {
+                break;
+            case 1:
+                if (endpoints[0].distance(point_temp) <= epsilon) {
+                    endpoints[0] = point_temp;
+                    return;
+                }
+                second_point_temp = endpoints[0];
+                endpoints = new VLPoint[2];
                 endpoints[0] = point_temp;
-                return;
-            }
-            endpoints = new VLPoint[1];
-            endpoints[0] = point_temp;
+                endpoints[1] = second_point_temp;
+                break;
+            case 2:
+                if (point_temp.distance(endpoints[1]) > epsilon) {
+                    endpoints[0] = point_temp;
+                    return;
+                }
+                endpoints = new VLPoint[1];
+                endpoints[0] = point_temp;
         }
     }
 
     void set_second(VLPoint point_temp, double epsilon) {
         VLPoint first_point_temp;
         switch (size()) {
-        case 0:
-            endpoints = new VLPoint[1];
-            endpoints[0] = point_temp;
-            break;
-        case 1:
-            if (endpoints[0].distance(point_temp) <= epsilon) {
+            case 0:
+                endpoints = new VLPoint[1];
                 endpoints[0] = point_temp;
-                return;
-            }
-            first_point_temp = endpoints[0];
-            endpoints = new VLPoint[2];
-            endpoints[0] = first_point_temp;
-            endpoints[1] = point_temp;
-            break;
-        case 2:
-            if (endpoints[0].distance(point_temp) > epsilon) {
+                break;
+            case 1:
+                if (endpoints[0].distance(point_temp) <= epsilon) {
+                    endpoints[0] = point_temp;
+                    return;
+                }
+                first_point_temp = endpoints[0];
+                endpoints = new VLPoint[2];
+                endpoints[0] = first_point_temp;
                 endpoints[1] = point_temp;
-                return;
-            }
-            endpoints = new VLPoint[1];
-            endpoints[0] = point_temp;
-            break;
+                break;
+            case 2:
+                if (endpoints[0].distance(point_temp) > epsilon) {
+                    endpoints[1] = point_temp;
+                    return;
+                }
+                endpoints = new VLPoint[1];
+                endpoints[0] = point_temp;
+                break;
         }
     }
 
@@ -201,7 +201,7 @@ public class LineSegment {
             return (first().distance(line_segment2.first()) <= epsilon && second().distance(
                     line_segment2.second()) <= epsilon)
                     || (first().distance(line_segment2.second()) <= epsilon && second().distance(
-                            line_segment2.first()) <= epsilon);
+                    line_segment2.first()) <= epsilon);
     }
 
     double distance(LineSegment line_segment2) {
@@ -368,13 +368,13 @@ public class LineSegment {
 
     public String toString() {
         switch (size()) {
-        case 0:
-            return "";
-        case 1:
-        case 2:
-            return first() + "\n" + second() + "\n";
-        default:
-            throw new IllegalArgumentException();
+            case 0:
+                return "";
+            case 1:
+            case 2:
+                return first() + "\n" + second() + "\n";
+            default:
+                throw new IllegalArgumentException();
         }
     }
 

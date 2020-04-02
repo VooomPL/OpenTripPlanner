@@ -1,14 +1,6 @@
 package org.opentripplanner.api.resource;
 
-import java.io.InputStream;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
+import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -16,13 +8,19 @@ import org.opentripplanner.api.common.RoutingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.InputStream;
 
 /**
  * Run an uploaded script. This is unsafe, enable it with care.
- * 
+ * <p>
  * TODO Enable role-based permissions.
- * 
+ *
  * @author laurent
  */
 // @RolesAllowed({ "SCRIPTING" })
@@ -36,7 +34,7 @@ public class ScriptResource extends RoutingResource {
     @Path("/run")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadFile(@FormDataParam("scriptfile") InputStream uploadedInputStream,
-            @FormDataParam("scriptfile") FormDataContentDisposition fileDetail) {
+                               @FormDataParam("scriptfile") FormDataContentDisposition fileDetail) {
 
         try {
             if (!otpServer.scriptingService.enableScriptingWebService)

@@ -1,12 +1,12 @@
 package org.opentripplanner.openstreetmap.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.opentripplanner.graph_builder.module.osm.TemplateLibrary;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
 import org.opentripplanner.util.TranslatedString;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A base class for OSM entities containing common methods.
@@ -108,7 +108,9 @@ public class OSMWithTags {
                 || "permissive".equals(value) || "unknown".equals(value));
     }
 
-    /** @return a tag's value, converted to lower case. */
+    /**
+     * @return a tag's value, converted to lower case.
+     */
     public String getTag(String tag) {
         tag = tag.toLowerCase();
         if (tags != null && tags.containsKey(tag)) {
@@ -175,7 +177,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if this element is under construction.
-     * 
+     *
      * @return
      */
     public boolean isUnderConstruction() {
@@ -186,7 +188,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if this tag is explicitly access to this entity.
-     * 
+     *
      * @param tagName
      * @return
      */
@@ -197,7 +199,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if access is generally denied to this element (potentially with exceptions).
-     * 
+     *
      * @return
      */
     public boolean isGeneralAccessDenied() {
@@ -206,7 +208,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if cars are explicitly denied access.
-     * 
+     *
      * @return
      */
     public boolean isMotorcarExplicitlyDenied() {
@@ -215,7 +217,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if cars are explicitly allowed.
-     * 
+     *
      * @return
      */
     public boolean isMotorcarExplicitlyAllowed() {
@@ -243,8 +245,9 @@ public class OSMWithTags {
 
     /**
      * Returns true if bikes are explicitly denied access.
-     * 
+     * <p>
      * bicycle is denied if bicycle:no, bicycle:license or bicycle:use_sidepath
+     *
      * @return
      */
     public boolean isBicycleExplicitlyDenied() {
@@ -253,7 +256,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if bikes are explicitly allowed.
-     * 
+     *
      * @return
      */
     public boolean isBicycleExplicitlyAllowed() {
@@ -262,7 +265,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if pedestrians are explicitly denied access.
-     * 
+     *
      * @return
      */
     public boolean isPedestrianExplicitlyDenied() {
@@ -271,7 +274,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if pedestrians are explicitly allowed.
-     * 
+     *
      * @return
      */
     public boolean isPedestrianExplicitlyAllowed() {
@@ -280,7 +283,7 @@ public class OSMWithTags {
 
     /**
      * Returns true if through traffic is not allowed.
-     * 
+     *
      * @return
      */
     public boolean isThroughTrafficExplicitlyDisallowed() {
@@ -290,7 +293,7 @@ public class OSMWithTags {
                 || "forestry".equals(access) || "agricultural".equals(access);
         return noThruTraffic;
     }
-    
+
     /**
      * @return True if this node / area is a park and ride.
      */

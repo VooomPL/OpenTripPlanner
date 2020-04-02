@@ -1,10 +1,12 @@
 package org.opentripplanner.analyst.core;
 
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.index.strtree.STRtree;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opentripplanner.common.geometry.ReversibleLineStringWrapper;
@@ -17,35 +19,32 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.index.strtree.STRtree;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This index is used in Analyst and does not need to be instantiated if you are not performing
  * Analyst requests.
  */
 public class GeometryIndex implements GeometryIndexService {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(GeometryIndex.class);
     private static final double SEARCH_RADIUS_M = 100; // meters
     private static final double SEARCH_RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(SEARCH_RADIUS_M);
 
     GraphService graphService;
-    
+
     private STRtree pedestrianIndex;
 
     public GeometryIndex(Graph graph) {
-        if (graph == null) { 
+        if (graph == null) {
             String message = "Could not retrieve default Graph from GraphService. Check its configuration.";
             LOG.error(message);
             throw new IllegalStateException(message);
         }
         Map<ReversibleLineStringWrapper, StreetEdge> edges = Maps.newHashMap();
         for (StreetVertex vertex : Iterables.filter(graph.getVertices(), StreetVertex.class)) {
-            for (StreetEdge e: Iterables.filter(vertex.getOutgoing(), StreetEdge.class)) {
+            for (StreetEdge e : Iterables.filter(vertex.getOutgoing(), StreetEdge.class)) {
                 LineString geom = e.getGeometry();
                 if (e.getPermission().allows(StreetTraversalPermission.PEDESTRIAN)) {
                     edges.put(new ReversibleLineStringWrapper(geom), e);
@@ -61,12 +60,12 @@ public class GeometryIndex implements GeometryIndexService {
         pedestrianIndex.build();
         LOG.debug("spatial index size: {}", pedestrianIndex.size());
     }
-    
+
     @SuppressWarnings("rawtypes")
     public List queryPedestrian(Envelope env) {
         return pedestrianIndex.query(env);
     }
-    
+
     @Override
     public BoundingBox getBoundingBox(CoordinateReferenceSystem crs) {
         try {
@@ -78,5 +77,5 @@ public class GeometryIndex implements GeometryIndexService {
             return null;
         }
     }
-    
+
 }

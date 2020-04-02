@@ -1,12 +1,12 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.opentripplanner.common.RepeatingTimePeriod;
 import org.opentripplanner.common.TurnRestrictionType;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A temporary holder for turn restrictions while we have only way/node ids but not yet edge objects

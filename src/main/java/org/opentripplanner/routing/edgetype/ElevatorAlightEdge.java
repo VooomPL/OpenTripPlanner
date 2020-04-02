@@ -1,5 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -8,16 +10,14 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.ElevatorOffboardVertex;
 import org.opentripplanner.routing.vertextype.ElevatorOnboardVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * A relatively low cost edge for alighting from an elevator.
  * All narrative generation is done by the ElevatorAlightEdge (other edges are silent), because
  * it is the only edge that knows where the user is to get off.
- * @author mattwigway
  *
+ * @author mattwigway
  */
 public class ElevatorAlightEdge extends Edge implements ElevatorEdge {
 
@@ -34,7 +34,7 @@ public class ElevatorAlightEdge extends Edge implements ElevatorEdge {
      * dimension, e.g. the ones on the Eiffel Tower.
      */
     private LineString the_geom;
-    
+
     /**
      * @param level It's a float for future expansion.
      */
@@ -48,7 +48,7 @@ public class ElevatorAlightEdge extends Edge implements ElevatorEdge {
         coords[1] = new Coordinate(to.getX(), to.getY());
         the_geom = GeometryUtils.getGeometryFactory().createLineString(coords);
     }
-    
+
     @Override
     public State traverse(State s0) {
         StateEditor s1 = s0.edit(this);
@@ -67,7 +67,7 @@ public class ElevatorAlightEdge extends Edge implements ElevatorEdge {
         return the_geom;
     }
 
-    /** 
+    /**
      * The level from OSM is the name
      */
     @Override
@@ -77,13 +77,14 @@ public class ElevatorAlightEdge extends Edge implements ElevatorEdge {
 
     /**
      * The name is not bogus; it's level n from OSM.
+     *
      * @author mattwigway
      */
-    @Override 
+    @Override
     public boolean hasBogusName() {
         return false;
     }
-    
+
     public String toString() {
         return "ElevatorAlightEdge(" + fromv + " -> " + tov + ")";
     }

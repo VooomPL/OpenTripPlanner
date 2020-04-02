@@ -11,7 +11,6 @@ import java.util.Objects;
  * so as to avoid confusion with java.util.Calendar
  *
  * @author bdferris
- *
  */
 public final class ServiceCalendar implements Serializable {
 

@@ -1,10 +1,5 @@
 package org.opentripplanner.updater.bike_rental;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.prefs.Preferences;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.graph.Graph;
@@ -12,6 +7,10 @@ import org.opentripplanner.updater.JsonConfigurable;
 import org.opentripplanner.util.xml.XmlDataListDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class GenericXmlBikeRentalDataSource implements BikeRentalDataSource, JsonConfigurable {
 
@@ -42,7 +41,7 @@ public abstract class GenericXmlBikeRentalDataSource implements BikeRentalDataSo
     public boolean update() {
         List<BikeRentalStation> newStations = xmlDownloader.download(url, false);
         if (newStations != null) {
-            synchronized(this) {
+            synchronized (this) {
                 stations = newStations;
             }
             return true;
@@ -71,7 +70,7 @@ public abstract class GenericXmlBikeRentalDataSource implements BikeRentalDataSo
     public String toString() {
         return getClass().getName() + "(" + url + ")";
     }
-    
+
     @Override
     public void configure(Graph graph, JsonNode config) {
         String url = config.path("url").asText();

@@ -1,13 +1,13 @@
 package org.opentripplanner.util;
 
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 /**
- *
  * @author mabu
  */
 public enum ResourceBundleSingleton {
@@ -47,11 +47,12 @@ public enum ResourceBundleSingleton {
             return key;
         }
     }
-    
+
     /**
      * Gets {@link Locale} from string. Expects en_US, en_GB, de etc.
-     *
+     * <p>
      * If no valid locale was found defaultLocale (en) is returned.
+     *
      * @param localeSpec String which should be locale (en_US, en_GB, de etc.)
      * @return Locale specified with localeSpec
      */

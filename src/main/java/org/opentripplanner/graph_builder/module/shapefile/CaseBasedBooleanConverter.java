@@ -1,10 +1,10 @@
 package org.opentripplanner.graph_builder.module.shapefile;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.opengis.feature.simple.SimpleFeature;
 import org.opentripplanner.graph_builder.services.shapefile.SimpleFeatureConverter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CaseBasedBooleanConverter implements SimpleFeatureConverter<Boolean> {
     public boolean defaultValue = false;
@@ -22,9 +22,9 @@ public class CaseBasedBooleanConverter implements SimpleFeatureConverter<Boolean
     }
 
     public CaseBasedBooleanConverter(String attributeName,
-            Boolean defaultValue) {
+                                     Boolean defaultValue) {
         this.attributeName = attributeName;
-        this.defaultValue = defaultValue; 
+        this.defaultValue = defaultValue;
     }
 
     public void setAttributeName(String attributeName) {
@@ -36,7 +36,7 @@ public class CaseBasedBooleanConverter implements SimpleFeatureConverter<Boolean
     }
 
     public void setValues(Map<String, Boolean> values) {
-        this.values = values; 
+        this.values = values;
     }
 
     @Override

@@ -1,14 +1,14 @@
 package org.opentripplanner.routing.alertpatch;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 /**
  * Represents a period of time, in terms of seconds in [start, end)
- * @author novalis
  *
+ * @author novalis
  */
 @XmlType
 public class TimePeriod {

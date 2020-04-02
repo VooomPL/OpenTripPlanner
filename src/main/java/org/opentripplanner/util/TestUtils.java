@@ -18,7 +18,7 @@ public class TestUtils {
     public static final int DECEMBER = 11;
 
     public static long dateInSeconds(String timeZoneId,
-            int year, int month, int day, int hour, int minute, int second) {
+                                     int year, int month, int day, int hour, int minute, int second) {
         TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
         GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         calendar.setTimeZone(timeZone);

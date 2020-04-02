@@ -1,13 +1,8 @@
 package org.opentripplanner.profile;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.map.TObjectIntMap;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.api.parameter.QualifiedMode;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
@@ -15,14 +10,10 @@ import org.opentripplanner.api.resource.SimpleIsochrone;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.common.model.T2;
 import org.opentripplanner.common.pqueue.BinHeap;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.TraverseVisitor;
-import org.opentripplanner.routing.core.OptimizeType;
-import org.opentripplanner.routing.core.RoutingContext;
-import org.opentripplanner.routing.core.RoutingRequest;
-import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
@@ -45,7 +36,7 @@ import java.util.Set;
  * For example:
  * riding Train A followed by Bus B between 9AM and 11AM takes between 1.2 and 1.6 hours;
  * riding Train A followed by Bus C takes between 1.4 and 1.8 hours.
- *
+ * <p>
  * Create one instance of ProfileRouter per profile search. It is not intended to be threadsafe or reusable.
  * You MUST call the cleanup method on all ProfileRouter instances that have been used for routing before
  * they are released for garbage collection.
@@ -84,7 +75,9 @@ public class ProfileRouter {
     Multimap<TripPattern, StopAtDistance> fromStops, toStops;
     TimeWindow window; // filters trips used by time of day and service schedule
 
-    /** @return true if the given stop cluster has at least one transfer coming from the given pattern. */
+    /**
+     * @return true if the given stop cluster has at least one transfer coming from the given pattern.
+     */
     private boolean hasTransfers(StopCluster stopCluster, TripPattern pattern) {
         for (ProfileTransfer tr : graph.index.transfersFromStopCluster.get(stopCluster)) {
             if (tr.tp1 == pattern) return true;
@@ -112,7 +105,7 @@ public class ProfileRouter {
     /* Maybe don't even try to accumulate stats and weights on the fly, just enumerate options. */
     /* TODO Or actually use a priority queue based on the min time. */
 
-    public ProfileResponse route () {
+    public ProfileResponse route() {
 
         // Lazy-initialize stop clusters (threadsafe method)
         graph.index.clusterStopsAsNeeded();
@@ -145,7 +138,7 @@ public class ProfileRouter {
         // and that some stops may be accessible by one mode but not another
         fromStopPaths = findClosestStops(false);
         fromStops = findClosestPatterns(fromStopPaths);
-        if ( ! request.analyst) {
+        if (!request.analyst) {
             toStopPaths = findClosestStops(true);
             toStops = findClosestPatterns(toStopPaths);
             // Also look for options connecting origin to destination with no transit.
@@ -162,7 +155,7 @@ public class ProfileRouter {
         Map<StopCluster, Ride> initialRides = Maps.newHashMap(); // One ride per stop cluster
         /* This Multimap will contain multiple entries for the same pattern if it can be reached by multiple modes. */
         for (TripPattern pattern : fromStops.keySet()) {
-            if ( ! request.transitModes.contains(pattern.mode)) {
+            if (!request.transitModes.contains(pattern.mode)) {
                 continue; // FIXME do not even store these patterns when performing access/egress searches
             }
             Collection<StopAtDistance> sds = fromStops.get(pattern);
@@ -179,14 +172,15 @@ public class ProfileRouter {
                 /* Record the access time for this mode in the stats. */
                 ride.accessStats.merge(sd.etime);
                 /* Loop over stop clusters in case stop cluster appears more than once in the pattern. */
-                STOP_INDEX: for (int i = 0; i < pattern.getStops().size(); ++i) {
+                STOP_INDEX:
+                for (int i = 0; i < pattern.getStops().size(); ++i) {
                     if (sd.stopCluster == graph.index.stopClusterForStop.get(pattern.getStops().get(i))) {
                         PatternRide newPatternRide = new PatternRide(pattern, i);
                         /* Only add the PatternRide once per unique (pattern,stopIndex). */
                         // TODO this would be a !contains() call if PatternRides had semantic equality
                         for (PatternRide existingPatternRide : ride.patternRides) {
                             if (existingPatternRide.pattern == newPatternRide.pattern &&
-                                existingPatternRide.fromIndex == newPatternRide.fromIndex) {
+                                    existingPatternRide.fromIndex == newPatternRide.fromIndex) {
                                 continue STOP_INDEX;
                             }
                         }
@@ -200,7 +194,7 @@ public class ProfileRouter {
             queue.insert(ride, 0);
         }
         /* Explore incomplete rides as long as there are any in the queue. */
-        while ( ! queue.empty()) {
+        while (!queue.empty()) {
             /* Get the minimum-time unfinished ride off the queue. */
             Ride ride = queue.extract_min();
             /* Skip this ride if it has been dominated since it was enqueued. */
@@ -212,7 +206,8 @@ public class ProfileRouter {
             Map<StopCluster, Ride> rides = Maps.newHashMap();
             /* Complete partial PatternRides (with only a pattern and a beginning stop) which were enqueued in this
              * partial ride. This is done by scanning through the Pattern, creating rides to all downstream stops. */
-            PR: for (PatternRide pr : ride.patternRides) {
+            PR:
+            for (PatternRide pr : ride.patternRides) {
                 // LOG.info(" {}", pr);
                 List<Stop> stops = pr.pattern.getStops();
                 for (int s = pr.fromIndex + 1; s < stops.size(); ++s) {
@@ -257,16 +252,17 @@ public class ProfileRouter {
                 // Invariant: r1.to should be the same as r1's key in rides
                 // TODO benchmark, this is so not efficient
                 for (ProfileTransfer tr : graph.index.transfersFromStopCluster.get(r1.to)) {
-                    if ( ! request.transitModes.contains(tr.tp2.mode)) continue;
+                    if (!request.transitModes.contains(tr.tp2.mode)) continue;
                     if (r1.containsPattern(tr.tp1)) {
                         // Prune loopy or repetitive paths.
                         if (r1.pathContainsRoute(tr.tp2.route)) continue;
                         if (tr.sc1 != tr.sc2 && r1.pathContainsStop(tr.sc2)) continue;
                         // Optimization: on the last ride of point-to-point searches,
                         // only transfer to patterns that pass near the destination.
-                        if ( ! request.analyst && penultimateRide && ! toStops.containsKey(tr.tp2)) continue;
+                        if (!request.analyst && penultimateRide && !toStops.containsKey(tr.tp2)) continue;
                         // Scan through stops looking for transfer target: stop might appear more than once in a pattern.
-                        TARGET_STOP : for (int i = 0; i < tr.tp2.getStops().size(); ++i) {
+                        TARGET_STOP:
+                        for (int i = 0; i < tr.tp2.getStops().size(); ++i) {
                             StopCluster cluster = graph.index.stopClusterForStop.get(tr.tp2.getStops().get(i));
                             if (cluster == tr.sc2) {
                                 // Save transfer result in an unfinished ride for later exploration.
@@ -274,7 +270,7 @@ public class ProfileRouter {
                                 if (r2 == null) {
                                     r2 = new Ride(tr.sc2, r1);
                                     r2.accessDist = tr.distance;
-                                    r2.accessStats = new Stats((int)(tr.distance / request.walkSpeed));
+                                    r2.accessStats = new Stats((int) (tr.distance / request.walkSpeed));
                                     r2.recomputeBounds();
                                     xferRides.put(tr.sc2, r2);
                                 }
@@ -292,7 +288,7 @@ public class ProfileRouter {
             }
             /* Enqueue new incomplete Rides resulting from transfers if they are not dominated at their from-cluster. */
             for (Ride r : xferRides.values()) {
-                if ( ! dominated(r, r.from)) {
+                if (!dominated(r, r.from)) {
                     // This ride is unfinished, use the previous ride's travel time lower bound as the p-queue key.
                     // Note that we are not adding these transfer results to the retained rides, just enqueuing them.
                     queue.insert(r, r.dlb);
@@ -322,7 +318,7 @@ public class ProfileRouter {
                 Ride rideAtDestination = new Ride(DESTINATION, ride);
                 rideAtDestination.accessStats = egressStats;
                 rideAtDestination.recomputeBounds();
-                if ( ! dominated(rideAtDestination, DESTINATION)) {
+                if (!dominated(rideAtDestination, DESTINATION)) {
                     retainedRides.put(DESTINATION, rideAtDestination);
                 }
             }
@@ -339,14 +335,16 @@ public class ProfileRouter {
             Collection<StopAtDistance> accessPaths = fromStopPaths.get(ride.getAccessStopCluster());
             Collection<StopAtDistance> egressPaths = toStopPaths.get(ride.getEgressStopCluster());
             Option option = new Option(ride, accessPaths, egressPaths);
-            if ( ! option.hasEmptyRides()) options.add(option);
+            if (!option.hasEmptyRides()) options.add(option);
         }
         /* Include the direct (no-transit) biking, driving, and walking options. */
         options.add(new Option(null, directPaths, null));
         return new ProfileResponse(options, request.orderBy, request.limit);
     }
 
-    /** @return the set of qualified modes used to access the chain of rides ending with the given ride. */
+    /**
+     * @return the set of qualified modes used to access the chain of rides ending with the given ride.
+     */
     private Set<QualifiedMode> accessModesForRide(Ride ride) {
         Collection<StopAtDistance> sds = fromStopPaths.get(ride.getAccessStopCluster());
         Set<QualifiedMode> qmodes = Sets.newHashSetWithExpectedSize(sds.size());
@@ -361,7 +359,7 @@ public class ProfileRouter {
      * or relative to the global travel time limit.
      * TODO auto-detect unfinished rides via to==null
      */
-    public boolean dominated (Ride newRide, StopCluster atCluster) {
+    public boolean dominated(Ride newRide, StopCluster atCluster) {
         if (newRide.dlb > MAX_DURATION) return true;
         // Check whether any existing rides at the same location (stop cluster) dominate the new one.
         Set<QualifiedMode> newRideAccessModes = accessModesForRide(newRide);
@@ -370,9 +368,9 @@ public class ProfileRouter {
             // Certain pairs of options should not be presented as alternatives to one another.
             // They are in direct competition with one another and strict dominance applies.
             if (oldRide.pathLength < newRide.pathLength &&
-                oldRide.dlb < newRide.dlb &&
-                oldRide.dub < newRide.dub &&
-                accessModesForRide(oldRide).containsAll(newRideAccessModes)) {
+                    oldRide.dlb < newRide.dlb &&
+                    oldRide.dub < newRide.dub &&
+                    accessModesForRide(oldRide).containsAll(newRideAccessModes)) {
                 return true;
             }
             // Strict dominance does not apply.
@@ -388,7 +386,7 @@ public class ProfileRouter {
      * @param stopClusters a multimap from stop clusters to one or more StopAtDistance objects at the corresponding cluster.
      * @return for each TripPattern that passes through any of the supplied stop clusters, the stop cluster that is
      * closest to the origin or destination point according to the distances in the StopAtDistance objects.
-     *
+     * <p>
      * In short, take a bunch of stop clusters near the origin or destination and return the quickest way to reach each
      * pattern that passes through them.
      * We want stop cluster references rather than indexes within the patterns because when a stop cluster appears more
@@ -421,6 +419,7 @@ public class ProfileRouter {
 
     /**
      * Perform an on-street search around a point with each of several modes to find nearby stops.
+     *
      * @return one or more paths to each reachable stop using the various modes.
      */
     private Multimap<StopCluster, StopAtDistance> findClosestStops(boolean dest) {
@@ -437,6 +436,7 @@ public class ProfileRouter {
 
     /**
      * Perform an on-street search around a point with a specific mode to find nearby stops.
+     *
      * @param dest : whether to search at the destination instead of the origin.
      */
     private Collection<StopAtDistance> findClosestStops(final QualifiedMode qmode, boolean dest) {
@@ -485,26 +485,38 @@ public class ProfileRouter {
         QualifiedMode qmode;
         int minTravelTimeSeconds = 0;
         Map<StopCluster, StopAtDistance> stopClustersFound = Maps.newHashMap();
+
         public StopFinderTraverseVisitor(QualifiedMode qmode, int minTravelTimeSeconds) {
             this.qmode = qmode;
             this.minTravelTimeSeconds = minTravelTimeSeconds;
         }
-        @Override public void visitEdge(Edge edge, State state) { }
-        @Override public void visitEnqueue(State state) { }
+
+        @Override
+        public void visitEdge(Edge edge, State state) {
+        }
+
+        @Override
+        public void visitEnqueue(State state) {
+        }
+
         // Accumulate stops into ret as the search runs.
-        @Override public void visitVertex(State state) {
+        @Override
+        public void visitVertex(State state) {
             Vertex vertex = state.getVertex();
             if (vertex instanceof TransitStop) {
                 StopAtDistance sd = new StopAtDistance(state, qmode);
                 if (qmode.mode == TraverseMode.CAR && sd.etime < minTravelTimeSeconds) return;
-                if (stopClustersFound.containsKey(sd.stopCluster)) return; // record only the closest stop in each cluster
+                if (stopClustersFound.containsKey(sd.stopCluster))
+                    return; // record only the closest stop in each cluster
                 LOG.debug("found stop cluster: {}", sd);
                 stopClustersFound.put(sd.stopCluster, sd);
             }
         }
     }
 
-    /** Look for an option connecting origin to destination without using transit. */
+    /**
+     * Look for an option connecting origin to destination without using transit.
+     */
     private void findDirectOption(QualifiedMode qmode) {
         // Make a normal OTP routing request so we can traverse edges and use GenericAStar
         RoutingRequest rr = new RoutingRequest(new TraverseModeSet());
@@ -591,7 +603,7 @@ public class ProfileRouter {
                     }
                     int propagated_min = ride.dlb + egressWalkTimeSeconds;
                     int propagated_max = ride.dub + egressWalkTimeSeconds;
-                    int propagated_avg = (int)(((long) propagated_min + propagated_max) / 2); // FIXME HACK
+                    int propagated_avg = (int) (((long) propagated_min + propagated_max) / 2); // FIXME HACK
                     int existing_min = minSurface.times.get(vertex);
                     int existing_max = maxSurface.times.get(vertex);
                     int existing_avg = avgSurface.times.get(vertex);

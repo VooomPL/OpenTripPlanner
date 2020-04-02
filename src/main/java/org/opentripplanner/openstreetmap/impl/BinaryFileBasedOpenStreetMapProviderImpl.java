@@ -1,12 +1,11 @@
 package org.opentripplanner.openstreetmap.impl;
 
+import crosby.binary.file.BlockInputStream;
 import org.opentripplanner.openstreetmap.services.OpenStreetMapContentHandler;
 import org.opentripplanner.openstreetmap.services.OpenStreetMapProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
-
-import crosby.binary.file.BlockInputStream;
 
 /**
  * Parser for the OpenStreetMap PBF format. Parses files in three passes:
@@ -42,7 +41,8 @@ public class BinaryFileBasedOpenStreetMapProviderImpl implements OpenStreetMapPr
             (new BlockInputStream(input, parser)).process();
             handler.doneThirdPhaseNodes();
         } catch (Exception ex) {
-            throw new IllegalStateException("error loading OSM from path " + path, ex);        }
+            throw new IllegalStateException("error loading OSM from path " + path, ex);
+        }
     }
 
     public void setPath(File path) {

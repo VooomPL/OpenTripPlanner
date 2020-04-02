@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -7,22 +8,21 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.BikeParkVertex;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
  * Parking a bike edge.
- * 
+ * <p>
  * Note: There is an edge only in the "park" direction. We do not handle (yet) unparking a bike, as
  * you would need to know where you have parked your car, and is probably better handled by the
  * client by issuing two requests (first one from your origin to your bike, second one from your
  * bike to your destination).
- * 
+ * <p>
  * Cost is the time to park a bike, estimated.
- * 
+ * <p>
  * Bike park-and-ride and "OV-fiets mode" development has been funded by GoAbout
  * (https://goabout.com/).
- * 
+ *
  * @author laurent
  * @author GoAbout
  */

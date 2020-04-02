@@ -1,13 +1,9 @@
 package org.opentripplanner.geocoder;
 
+import org.locationtech.jts.geom.Envelope;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opentripplanner.geocoder.Geocoder;
-import org.opentripplanner.geocoder.GeocoderResult;
-import org.opentripplanner.geocoder.GeocoderResults;
-
-import org.locationtech.jts.geom.Envelope;
 
 /**
  * Filter results of a geocoding request by removing elements outside of the covered geographical
@@ -20,7 +16,7 @@ public class GeocoderGeoZoneCropper implements Geocoder {
     private double minLat, minLon, maxLat, maxLon;
 
     public GeocoderGeoZoneCropper(Geocoder decorated, double minLat, double minLon, double maxLat,
-            double maxLon) {
+                                  double maxLon) {
         this.minLat = minLat;
         this.minLon = minLon;
         this.maxLat = maxLat;

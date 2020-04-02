@@ -1,17 +1,15 @@
 package org.opentripplanner.graph_builder.services.osm;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.module.osm.PortlandCustomNamer;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 /**
  * For when CreativeNamePicker/WayPropertySet is just not powerful enough.
- * 
+ *
  * @author novalis
- * 
  */
 public interface CustomNamer {
 
@@ -46,12 +44,12 @@ public interface CustomNamer {
 
             CustomNamer retval;
             switch (type) {
-            case "portland":
-                retval = new PortlandCustomNamer();
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Unknown osmNaming type: '%s'",
-                        type));
+                case "portland":
+                    retval = new PortlandCustomNamer();
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unknown osmNaming type: '%s'",
+                            type));
             }
             // Configure the namer
             retval.configure(config);

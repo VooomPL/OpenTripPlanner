@@ -1,24 +1,18 @@
 package org.opentripplanner.routing.transit_index;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.Trip;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.api.adapters.LineStringAdapter;
 import org.opentripplanner.api.adapters.StopAgencyAndIdAdapter;
 import org.opentripplanner.api.adapters.TripsModelInfo;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.Route;
+import org.opentripplanner.model.Stop;
+import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.json_serialization.EncodedPolylineJSONSerializer;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.PatternInterlineDwell;
@@ -26,26 +20,29 @@ import org.opentripplanner.routing.graph.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
- * 
  * THIS CLASS IS BEING MERGED INTO STOPPATTERN / TRIPPATTERN. It is being kept around for reference
  * and is expected to be removed eventually.
- * 
+ * <p>
  * A "route variant" represents a particular stop pattern on a particular route. For example, the N
  * train has at least four different variants: express (over the Manhattan bridge), and local (via
  * lower Manhattan and the tunnel) x to Astoria and to Coney Island. During construction, it
  * sometimes has a fifth variant: along the D line to Coney Island after 59th St (or from Coney
  * Island to 59th).
- * 
+ * <p>
  * Route names are intended for very general customer information, but sometimes there is a need to
  * know where a particular trip actually goes.
- * 
+ * <p>
  * Route Variant names are guaranteed to be unique (among variants for a single route) but not stable
  * across graph builds especially based on different GTFS inputs. They are
  * machine-generated on a best-effort basis. For instance, if a variant is the
@@ -55,9 +52,8 @@ import org.locationtech.jts.geom.LineString;
  * Whitehall", or even combinations ("from Coney Island via Whitehall"). But if there is no way to
  * create a unique name from start/end/intermediate stops, then the best we can do is to create a
  * "like [trip id]" name, which at least tells you where in the GTFS you can find a related trip.
- * 
+ *
  * @author novalis
- * 
  */
 @XmlRootElement(name = "RouteVariant")
 public class RouteVariant implements Serializable {
@@ -79,7 +75,9 @@ public class RouteVariant implements Serializable {
 
     private ArrayList<Stop> stops;
 
-    /** An unordered list of all segments for this route */
+    /**
+     * An unordered list of all segments for this route
+     */
     @JsonIgnore
     private ArrayList<RouteSegment> segments;
 
@@ -233,7 +231,7 @@ public class RouteVariant implements Serializable {
         }
         return geometry;
     }
-    
+
     /**
      * @param index The index of the segment in the list
      * @return The partial geometry between this segment's stop and the next one.

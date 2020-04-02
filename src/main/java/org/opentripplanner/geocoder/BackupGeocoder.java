@@ -4,7 +4,7 @@ import org.locationtech.jts.geom.Envelope;
 
 /**
  * Multiplexe two geocoders: a master and a backup.
- * 
+ * <p>
  * Try to get results from the master, if no result is found, or an error occurs, switch to the
  * backup. One can chain multiple backup by using again a multiplexer as the backup.
  */

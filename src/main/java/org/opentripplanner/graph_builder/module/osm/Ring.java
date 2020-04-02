@@ -1,21 +1,15 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import org.locationtech.jts.geom.*;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.openstreetmap.model.OSMNode;
 import org.opentripplanner.visibility.VLPoint;
 import org.opentripplanner.visibility.VLPolygon;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Polygon;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Ring {
 
@@ -40,7 +34,7 @@ public class Ring {
      * <p/>
      * Oh, and most people would solve this problem by making a static factory method but that won't
      * work because then all of this class's outer classes would have to be static.
-     * 
+     *
      * @param osmNodes
      * @param javaSucks
      */
@@ -92,7 +86,7 @@ public class Ring {
         for (Ring ring : holes) {
             LinearRing linearRing = factory.createLinearRing(toCoordinates(ring.geometry));
             Polygon polygon = factory.createPolygon(linearRing, new LinearRing[0]);
-            for (Iterator<Polygon> it = polygonHoles.iterator(); it.hasNext();) {
+            for (Iterator<Polygon> it = polygonHoles.iterator(); it.hasNext(); ) {
                 Polygon otherHole = it.next();
                 if (otherHole.relate(polygon, "F***1****")) {
                     polygon = (Polygon) polygon.union(otherHole);

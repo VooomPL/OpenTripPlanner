@@ -1,20 +1,12 @@
 package org.opentripplanner.gtfs.mapping;
 
 import org.junit.Test;
-import org.onebusaway.gtfs.model.AgencyAndId;
-import org.onebusaway.gtfs.model.Route;
-import org.onebusaway.gtfs.model.Stop;
-import org.onebusaway.gtfs.model.Transfer;
-import org.onebusaway.gtfs.model.Trip;
+import org.onebusaway.gtfs.model.*;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TransferMapperTest {
     private static final RouteMapper ROUTE_MAPPER = new RouteMapper(new AgencyMapper());
@@ -101,7 +93,9 @@ public class TransferMapperTest {
         assertEquals(0, result.getTransferType());
     }
 
-    /** Mapping the same object twice, should return the the same instance. */
+    /**
+     * Mapping the same object twice, should return the the same instance.
+     */
     @Test
     public void testMapCache() throws Exception {
         org.opentripplanner.model.Transfer result1 = subject.map(TRANSFER);

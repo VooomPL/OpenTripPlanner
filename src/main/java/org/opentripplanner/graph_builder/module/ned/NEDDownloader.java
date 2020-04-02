@@ -1,8 +1,8 @@
 package org.opentripplanner.graph_builder.module.ned;
 
-import org.locationtech.jts.geom.Envelope;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
+import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.graph_builder.services.ned.NEDTileSource;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
@@ -27,9 +27,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * Downloads tiles from the National Elevation Dataset. 
- * @author novalis
+ * Downloads tiles from the National Elevation Dataset.
  *
+ * @author novalis
  */
 public class NEDDownloader implements NEDTileSource {
 
@@ -40,7 +40,7 @@ public class NEDDownloader implements NEDTileSource {
     private File cacheDirectory;
 
     static String dataset = "ND302XZ"; // 1/3 arcsecond data.
-    
+
     private double _latYStep = 0.16;
 
     private double _lonXStep = 0.16;
@@ -149,7 +149,7 @@ public class NEDDownloader implements NEDTileSource {
                 // Service method
                 RTcall.setOperationName(new QName("edc.usgs.gov", "processAOI"));
 
-                String response = (String) RTcall.invoke(new Object[] { payload });
+                String response = (String) RTcall.invoke(new Object[]{payload});
 
                 Document doc = stringToDoc(response);
                 XPathExpression expr = makeXPathExpression("//ns1:processAOIReturn/text()");
@@ -298,7 +298,8 @@ public class NEDDownloader implements NEDTileSource {
         List<URL> urls = getDownloadURLsCached();
         List<File> files = new ArrayList<File>();
         int tileCount = 0;
-        TILE: for (URL url : urls) {
+        TILE:
+        for (URL url : urls) {
             String tileProgress = String.format("Tile %d/%d", ++tileCount, urls.size());
             String key = getKey(url);
             File tile = getPathToNEDTile(key);
@@ -307,12 +308,14 @@ public class NEDDownloader implements NEDTileSource {
                 log.debug("{} found in NED cache, not downloading: {}", tileProgress, tile);
                 continue;
             }
-            REQUEST: for (int req_attempt = 0; req_attempt < 5; ++req_attempt) {
+            REQUEST:
+            for (int req_attempt = 0; req_attempt < 5; ++req_attempt) {
                 log.info("{} not in NED cache, requesting download: {}", tileProgress, tile);
                 try {
                     sleep(3000);
                     String token = initiateDownload(url);
-                    DOWNLOAD: for (int dl_attempt = 0; dl_attempt < 20; ++dl_attempt) {
+                    DOWNLOAD:
+                    for (int dl_attempt = 0; dl_attempt < 20; ++dl_attempt) {
                         log.info("Waiting to check if tile is ready for download (try {}).", dl_attempt + 1);
                         sleep(30000);
                         if (downloadReady(token)) {
@@ -406,7 +409,7 @@ public class NEDDownloader implements NEDTileSource {
                 throw new NotAZipFileException();
             }
             ZipFile zipFile = new ZipFile(path);
-            for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements();) {
+            for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
                 ZipEntry entry = e.nextElement();
 
                 if (entry.getName().endsWith(".tif")) {
@@ -523,9 +526,8 @@ public class NEDDownloader implements NEDTileSource {
 
 /**
  * Some shit that apparently Java can't be arsed to provide for you.
- * 
+ *
  * @author novalis
- * 
  */
 class EDCNamespaceContext implements NamespaceContext {
     public String getNamespaceURI(String prefix) {

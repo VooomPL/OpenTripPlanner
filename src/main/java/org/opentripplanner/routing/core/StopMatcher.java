@@ -1,15 +1,15 @@
 package org.opentripplanner.routing.core;
 
+import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Stop;
+
 import java.io.Serializable;
 import java.util.HashSet;
 
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.gtfs.GtfsLibrary;
-
 /**
  * A StopMatcher is a collection of stops based on IDs and agency IDs.
- * 
+ * <p>
  * We currently only support full stop IDs (agencyId:stopId).
  * Support for other matching expression (or other types of stop banning) can be easily added later on.
  */
@@ -30,9 +30,10 @@ public class StopMatcher implements Cloneable, Serializable {
     public static StopMatcher emptyMatcher() {
         return new StopMatcher();
     }
-    
+
     /**
-     * Returns whether this matcher is empty 
+     * Returns whether this matcher is empty
+     *
      * @return true when this matcher is empty, false otherwise
      */
     public boolean isEmpty() {
@@ -41,7 +42,7 @@ public class StopMatcher implements Cloneable, Serializable {
 
     /**
      * Build a new StopMatcher from a string representation.
-     * 
+     *
      * @param stopList is a comma-separated list of stops, each of the format [agencyId]:[stopId]
      * @return A StopMatcher
      * @throws IllegalArgumentException if the string representation is invalid.
@@ -73,6 +74,7 @@ public class StopMatcher implements Cloneable, Serializable {
     /**
      * Function to determine whether this StopMatcher matches a particular stop.
      * When a stop has a parent stop, it is also matched when its parent stop is matched.
+     *
      * @param stop is the stop to match using its ID
      * @return true when the stop is matched
      */
@@ -80,40 +82,41 @@ public class StopMatcher implements Cloneable, Serializable {
         // Don't bother with an empty matcher 
         if (this.isEmpty()) {
             return false;
-        }
-        else if (stop != null) {
+        } else if (stop != null) {
             // Check whether stop is matched
             if (matches(stop.getId())) {
-                return true;    
+                return true;
             }
             // Check whether parent stop is matched
-            else if (stop.getParentStation() != null 
+            else if (stop.getParentStation() != null
                     && !stop.getParentStation().isEmpty()) {
                 // This stop has a parent
                 FeedScopedId parentId = new FeedScopedId(stop.getId().getAgencyId(), stop.getParentStation());
                 if (matches(parentId)) {
-                    return true;    
+                    return true;
                 }
             }
         }
         return false;
     }
-    
+
     /**
      * Function to determine whether this StopMatcher matches a particular stop id.
      * Warning: this function does not check for parent stops.
+     *
      * @param stopId is the stop id
-     * @return true when stop id is matched 
+     * @return true when stop id is matched
      */
     private boolean matches(FeedScopedId stopId) {
         if (agencyAndStopIds.contains(stopId)) {
-            return true;    
+            return true;
         }
         return false;
     }
-    
+
     /**
      * Returns string representation of this matcher
+     *
      * @return string representation of this matcher
      */
     public String asString() {

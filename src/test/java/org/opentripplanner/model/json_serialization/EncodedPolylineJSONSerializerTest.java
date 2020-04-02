@@ -1,11 +1,11 @@
 package org.opentripplanner.model.json_serialization;
 
 import com.fasterxml.jackson.core.*;
+import junit.framework.TestCase;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import junit.framework.TestCase;
-import org.junit.Test;
 import org.opentripplanner.common.geometry.GeometryUtils;
 
 import java.io.IOException;
@@ -20,10 +20,12 @@ import java.util.function.Supplier;
  */
 public class EncodedPolylineJSONSerializerTest extends TestCase {
 
-    /** Ensure that serializing and deserializing a line string works. We did once have a situation where on every serialization/deserialization the coordinates would be reversed. */
+    /**
+     * Ensure that serializing and deserializing a line string works. We did once have a situation where on every serialization/deserialization the coordinates would be reversed.
+     */
     @Test
-    public void testJsonSerialization () throws Exception {
-        LineString geom = GeometryUtils.getGeometryFactory().createLineString(new Coordinate[] {
+    public void testJsonSerialization() throws Exception {
+        LineString geom = GeometryUtils.getGeometryFactory().createLineString(new Coordinate[]{
                 new Coordinate(-122.123, 37.363),
                 new Coordinate(-122.125, 37.363),
                 new Coordinate(-122.127, 37.365)
@@ -52,7 +54,7 @@ public class EncodedPolylineJSONSerializerTest extends TestCase {
     public static class FakeJsonGenerator extends JsonGenerator {
         private Consumer<Object> objectConsumer;
 
-        public FakeJsonGenerator (Consumer<Object> objectConsumer) {
+        public FakeJsonGenerator(Consumer<Object> objectConsumer) {
             this.objectConsumer = objectConsumer;
         }
 
@@ -281,7 +283,7 @@ public class EncodedPolylineJSONSerializerTest extends TestCase {
 
         private Supplier<String> stringProducer;
 
-        public FakeJsonParser (Supplier<String> stringProducer) {
+        public FakeJsonParser(Supplier<String> stringProducer) {
             this.stringProducer = stringProducer;
         }
 

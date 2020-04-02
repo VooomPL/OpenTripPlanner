@@ -6,7 +6,7 @@ public class InputClampFilter implements IndividualFilter {
     private double rejectMax = Double.MAX_VALUE;
     public double clampMin = 0;
     public double clampMax = Double.MAX_VALUE;
-    
+
     @Override
     public boolean filter(Individual individual) {
         double input = individual.input;

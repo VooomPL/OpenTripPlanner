@@ -1,8 +1,5 @@
 package org.opentripplanner.analyst.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.SampleGridRenderer.WTWD;
 import org.opentripplanner.common.geometry.DelaunayIsolineBuilder;
@@ -12,9 +9,12 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Compute isochrones out of a shortest path tree request (AccSampling isoline algorithm).
- * 
+ *
  * @author laurent
  */
 public class IsoChroneSPTRendererAccSampling implements IsoChroneSPTRenderer {
@@ -35,7 +35,7 @@ public class IsoChroneSPTRendererAccSampling implements IsoChroneSPTRenderer {
      */
     @Override
     public List<IsochroneData> getIsochrones(IsoChroneRequest isoChroneRequest,
-            RoutingRequest sptRequest) {
+                                             RoutingRequest sptRequest) {
 
         final double offRoadDistanceMeters = isoChroneRequest.offRoadDistanceMeters;
 

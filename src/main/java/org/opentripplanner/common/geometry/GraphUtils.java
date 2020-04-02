@@ -1,16 +1,15 @@
 package org.opentripplanner.common.geometry;
 
-import java.util.Collection;
-
-import org.opensphere.geometry.algorithm.ConcaveHull;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.graph.Vertex;
-
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
+import org.opensphere.geometry.algorithm.ConcaveHull;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.graph.Vertex;
+
+import java.util.Collection;
 
 public class GraphUtils {
 

@@ -17,7 +17,6 @@ import org.opentripplanner.updater.vehicle_sharing.VehiclePositionsDiff;
 
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 public class SharedVehiclesUpdaterTest extends TestCase {

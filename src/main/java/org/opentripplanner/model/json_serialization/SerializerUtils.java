@@ -22,9 +22,9 @@ public class SerializerUtils {
 
     public static ObjectMapper getMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        AnnotationIntrospector aipair = new AnnotationIntrospectorPair (
-            new JaxbAnnotationIntrospector(),
-            new JacksonAnnotationIntrospector()
+        AnnotationIntrospector aipair = new AnnotationIntrospectorPair(
+                new JaxbAnnotationIntrospector(),
+                new JacksonAnnotationIntrospector()
         );
         mapper.setAnnotationIntrospector(aipair);
         //REMOVE: mapper.configure(SerializationConfig.Feature.USE_ANNOTATIONS, true);

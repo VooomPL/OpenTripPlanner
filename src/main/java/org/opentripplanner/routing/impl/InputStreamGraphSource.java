@@ -17,7 +17,6 @@ import java.io.*;
 /**
  * The primary implementation of the GraphSource interface. The graph is loaded from a serialized
  * graph from a given source.
- * 
  */
 public class InputStreamGraphSource implements GraphSource {
 
@@ -29,7 +28,7 @@ public class InputStreamGraphSource implements GraphSource {
      * Delay before starting to load a graph after the last modification time. In case of writing,
      * we expect graph last modification time to be updated at at least that frequency. If not, you
      * can either increase this value, or use an atomic move when copying the file.
-     * */
+     */
     private static final long LOAD_DELAY_SEC = 10;
 
     private Router router;
@@ -57,7 +56,7 @@ public class InputStreamGraphSource implements GraphSource {
 
     /**
      * @return A GraphSource loading graph from an embedded classpath resources (a graph bundled
-     *         inside a pre-packaged WAR for example).
+     * inside a pre-packaged WAR for example).
      */
     public static InputStreamGraphSource newClasspathGraphSource(String routerId, File path) {
         return new InputStreamGraphSource(routerId, new ClasspathStreams(path));
@@ -142,7 +141,7 @@ public class InputStreamGraphSource implements GraphSource {
 
     /**
      * Check if a graph has been modified since the last time it has been loaded.
-     * 
+     *
      * @param lastModified Time of last modification of current loaded data.
      * @return True if the input data has been modified and need to be reloaded.
      */

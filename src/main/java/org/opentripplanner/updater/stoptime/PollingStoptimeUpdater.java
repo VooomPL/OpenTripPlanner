@@ -1,19 +1,20 @@
 package org.opentripplanner.updater.stoptime;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.updater.*;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.updater.GraphUpdaterManager;
+import org.opentripplanner.updater.GtfsRealtimeFuzzyTripMatcher;
+import org.opentripplanner.updater.JsonConfigurable;
+import org.opentripplanner.updater.PollingGraphUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import java.util.List;
 
 /**
  * Update OTP stop time tables from some (realtime) source
- *
+ * <p>
  * Usage example ('rt' name is an example) in file 'Graph.properties':
  *
  * <pre>
@@ -23,7 +24,6 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate;
  * rt.url = http://host.tld/path
  * rt.feedId = TA
  * </pre>
- *
  */
 public class PollingStoptimeUpdater extends PollingGraphUpdater {
     private static final Logger LOG = LoggerFactory.getLogger(PollingStoptimeUpdater.class);

@@ -15,9 +15,9 @@ public class SlopeCosts {
      * percentage to the 'flat' distance and get 1190m.
      */
     public final double effectiveWalkFactor;
-    
+
     SlopeCosts(double slopeSpeedFactor, double slopeWorkFactor, double slopeSafetyCost,
-                      double maxSlope, double lengthMultiplier, boolean flattened, double effectiveWalkFactor) {
+               double maxSlope, double lengthMultiplier, boolean flattened, double effectiveWalkFactor) {
         this.slopeSpeedFactor = slopeSpeedFactor;
         this.slopeWorkFactor = slopeWorkFactor;
         this.slopeSafetyCost = slopeSafetyCost;

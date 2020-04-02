@@ -14,10 +14,10 @@ import java.util.List;
 
 /**
  * Model a transit trip so that assertions can be made against it
- *
+ * <p>
  * Similar to DefaultFareServiceImpl.Ride - could be merged
  * Cherry-picked from MTA code
- * */
+ */
 public class Ride {
 
     private String startZone;
@@ -105,10 +105,10 @@ public class Ride {
         Ride ride = null;
         for (State state : path.states) {
             Edge edge = state.getBackEdge();
-            if ( ! (edge instanceof HopEdge))
+            if (!(edge instanceof HopEdge))
                 continue;
             HopEdge hEdge = (HopEdge) edge;
-            if (ride == null || ! state.getRoute().equals(ride.route)) {
+            if (ride == null || !state.getRoute().equals(ride.route)) {
                 ride = new Ride();
                 rides.add(ride);
                 ride.startZone = hEdge.getBeginStop().getZoneId();
@@ -128,7 +128,7 @@ public class Ride {
                 }
             }
             ride.lastStop = hEdge.getEndStop();
-            ride.endZone  = ride.lastStop.getZoneId();
+            ride.endZone = ride.lastStop.getZoneId();
             ride.zones.add(ride.endZone);
             ride.endTime = state.getTimeSeconds();
             ride.alightType = BoardAlightType.DEFAULT;

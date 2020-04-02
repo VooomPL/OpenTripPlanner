@@ -2,11 +2,11 @@ package org.opentripplanner.geocoder.bano;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.locationtech.jts.geom.Envelope;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 import org.geojson.Point;
+import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.geocoder.Geocoder;
 import org.opentripplanner.geocoder.GeocoderResult;
 import org.opentripplanner.geocoder.GeocoderResults;
@@ -25,9 +25,9 @@ import java.util.List;
 /**
  * A geocoder using the data.gouv.fr API of BANO (Base Nationale d'Adresse Ouverte), the official
  * open-data address source covering the whole of France.
- *
+ * <p>
  * The returned data is rather simple to use, as it returns a GeoJSON features collection.
- * 
+ * <p>
  * Obviously, this geocoder will only work in France.
  *
  * @author laurent
@@ -47,6 +47,7 @@ public class BanoGeocoder implements Geocoder {
     }
 
     /**
+     *
      */
     @Override
     public GeocoderResults geocode(String address, Envelope bbox) {

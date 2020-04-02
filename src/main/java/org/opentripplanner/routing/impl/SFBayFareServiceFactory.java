@@ -4,7 +4,7 @@ import org.opentripplanner.routing.services.FareService;
 
 public class SFBayFareServiceFactory extends DefaultFareServiceFactory {
     @Override
-    public FareService makeFareService() { 
+    public FareService makeFareService() {
         return new SFBayFareServiceImpl(regularFareRules.values());
     }
 }

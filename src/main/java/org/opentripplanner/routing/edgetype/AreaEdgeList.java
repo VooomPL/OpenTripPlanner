@@ -1,5 +1,12 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.*;
+import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.vertextype.IntersectionVertex;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -8,24 +15,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opentripplanner.common.geometry.GeometryUtils;
-import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.vertextype.IntersectionVertex;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-
 /**
  * This is a representation of a set of contiguous OSM areas, used for various tasks related to edge splitting, such as start/endpoint snapping and
  * adding new edges during transit linking.
- * 
+ *
  * @author novalis
  */
 public class AreaEdgeList implements Serializable {
@@ -78,9 +71,10 @@ public class AreaEdgeList implements Serializable {
 
         @SuppressWarnings("unchecked")
         HashSet<IntersectionVertex> verticesCopy = (HashSet<IntersectionVertex>) vertices.clone();
-        VERTEX: for (IntersectionVertex v : verticesCopy) {
-            LineString newGeometry = geometryFactory.createLineString(new Coordinate[] {
-                    newVertex.getCoordinate(), v.getCoordinate() });
+        VERTEX:
+        for (IntersectionVertex v : verticesCopy) {
+            LineString newGeometry = geometryFactory.createLineString(new Coordinate[]{
+                    newVertex.getCoordinate(), v.getCoordinate()});
 
             // ensure that new edge does not leave the bounds of the original area, or
             // fall into any holes
@@ -98,12 +92,12 @@ public class AreaEdgeList implements Serializable {
     }
 
     private void createSegments(IntersectionVertex from, IntersectionVertex to,
-            List<NamedArea> areas, Graph graph) {
+                                List<NamedArea> areas, Graph graph) {
 
         GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
 
-        LineString line = geometryFactory.createLineString(new Coordinate[] { from.getCoordinate(),
-                to.getCoordinate() });
+        LineString line = geometryFactory.createLineString(new Coordinate[]{from.getCoordinate(),
+                to.getCoordinate()});
 
         List<NamedArea> intersects = new ArrayList<NamedArea>();
         for (NamedArea area : areas) {

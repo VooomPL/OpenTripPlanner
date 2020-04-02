@@ -1,29 +1,19 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.io.File;
-import java.util.zip.GZIPInputStream;
-import java.net.URLDecoder;
-
 import org.junit.Test;
-
-
-
+import org.opentripplanner.openstreetmap.impl.*;
 import org.opentripplanner.openstreetmap.model.OSMMap;
 import org.opentripplanner.openstreetmap.model.OSMNode;
 import org.opentripplanner.openstreetmap.model.OSMWay;
-import org.opentripplanner.openstreetmap.impl.AnyFileBasedOpenStreetMapProviderImpl;
-import org.opentripplanner.openstreetmap.impl.BinaryFileBasedOpenStreetMapProviderImpl;
-import org.opentripplanner.openstreetmap.impl.FileBasedOpenStreetMapProviderImpl;
-import org.opentripplanner.openstreetmap.impl.OpenStreetMapParser;
-import org.opentripplanner.openstreetmap.impl.StreamedFileBasedOpenStreetMapProviderImpl;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+
+import static org.junit.Assert.*;
 
 public class OpenStreetMapParserTest {
     @Test

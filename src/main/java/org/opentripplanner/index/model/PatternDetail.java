@@ -1,11 +1,10 @@
 package org.opentripplanner.index.model;
 
-import java.util.Collection;
-
+import com.beust.jcommander.internal.Lists;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.edgetype.TripPattern;
 
-import com.beust.jcommander.internal.Lists;
+import java.util.Collection;
 
 public class PatternDetail extends PatternShort {
 
@@ -13,14 +12,14 @@ public class PatternDetail extends PatternShort {
     public FeedScopedId routeId;
     public Collection<StopShort> stops = Lists.newArrayList();
     public Collection<TripShort> trips = Lists.newArrayList();
-    
+
     // Include all known headsigns
-    
+
     public PatternDetail(TripPattern pattern) {
-        super (pattern);
+        super(pattern);
         routeId = pattern.route.getId();
         stops = StopShort.list(pattern.getStops());
         trips = TripShort.list(pattern.getTrips());
     }
-    
+
 }

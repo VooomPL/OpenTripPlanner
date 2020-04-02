@@ -1,23 +1,18 @@
 package org.opentripplanner;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.transit.realtime.GtfsRealtime.FeedEntity;
+import com.google.transit.realtime.GtfsRealtime.FeedMessage;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import junit.framework.TestCase;
-
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.model.Itinerary;
 import org.opentripplanner.api.model.Leg;
 import org.opentripplanner.api.model.TripPlan;
 import org.opentripplanner.api.resource.GraphPathToTripPlanConverter;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.graph_builder.module.GtfsFeedId;
 import org.opentripplanner.graph_builder.module.GtfsModule;
-import org.opentripplanner.graph_builder.model.GtfsBundle;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
@@ -30,11 +25,16 @@ import org.opentripplanner.standalone.Router;
 import org.opentripplanner.updater.alerts.AlertsUpdateHandler;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 
-import com.google.transit.realtime.GtfsRealtime.FeedEntity;
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-/** Common base class for many test classes which need to load a GTFS feed in preparation for tests. */
+/**
+ * Common base class for many test classes which need to load a GTFS feed in preparation for tests.
+ */
 public abstract class GtfsTest extends TestCase {
 
     public Graph graph;
@@ -46,7 +46,9 @@ public abstract class GtfsTest extends TestCase {
 
     public abstract String getFeedName();
 
-    public boolean isLongDistance() { return false; }
+    public boolean isLongDistance() {
+        return false;
+    }
 
     private String agencyId;
 
@@ -90,19 +92,20 @@ public abstract class GtfsTest extends TestCase {
             }
             timetableSnapshotSource.applyTripUpdates(graph, fullDataset, updates, feedId.getId());
             alertsUpdateHandler.update(feedMessage);
-        } catch (Exception exception) {}
+        } catch (Exception exception) {
+        }
     }
 
     public Leg plan(long dateTime, String fromVertex, String toVertex, String onTripId,
-             boolean wheelchairAccessible, boolean preferLeastTransfers, TraverseMode preferredMode,
-             String excludedRoute, String excludedStop) {
+                    boolean wheelchairAccessible, boolean preferLeastTransfers, TraverseMode preferredMode,
+                    String excludedRoute, String excludedStop) {
         return plan(dateTime, fromVertex, toVertex, onTripId, wheelchairAccessible,
                 preferLeastTransfers, preferredMode, excludedRoute, excludedStop, 1)[0];
     }
 
     public Leg[] plan(long dateTime, String fromVertex, String toVertex, String onTripId,
-               boolean wheelchairAccessible, boolean preferLeastTransfers, TraverseMode preferredMode,
-               String excludedRoute, String excludedStop, int legCount) {
+                      boolean wheelchairAccessible, boolean preferLeastTransfers, TraverseMode preferredMode,
+                      String excludedRoute, String excludedStop, int legCount) {
         return plan(dateTime, fromVertex, toVertex, onTripId, wheelchairAccessible, preferLeastTransfers,
                 preferredMode, excludedRoute, excludedStop, legCount, null);
     }
@@ -113,7 +116,7 @@ public abstract class GtfsTest extends TestCase {
         final TraverseMode mode = preferredMode != null ? preferredMode : TraverseMode.TRANSIT;
         RoutingRequest routingRequest = opt == null ? new RoutingRequest() : opt;
         routingRequest.setNumItineraries(1);
-        
+
         routingRequest.setArriveBy(dateTime < 0);
         routingRequest.dateTime = Math.abs(dateTime);
         if (fromVertex != null && !fromVertex.isEmpty()) {
@@ -146,7 +149,7 @@ public abstract class GtfsTest extends TestCase {
 
         List<GraphPath> paths = new GraphPathFinder(router).getPaths(routingRequest);
         if (paths.isEmpty())
-            return new Leg[] { null };
+            return new Leg[]{null};
         TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, routingRequest);
         // Stored in instance field for use in individual tests
         itinerary = tripPlan.itinerary.get(0);
@@ -157,7 +160,7 @@ public abstract class GtfsTest extends TestCase {
     }
 
     public void validateLeg(Leg leg, long startTime, long endTime, String toStopId, String fromStopId,
-                     String alert) {
+                            String alert) {
         assertEquals(startTime, leg.startTime.getTimeInMillis());
         assertEquals(endTime, leg.endTime.getTimeInMillis());
         assertEquals(toStopId, leg.to.stopId.getId());

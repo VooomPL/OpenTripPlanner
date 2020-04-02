@@ -11,10 +11,10 @@ public class GraphConnectivity extends GraphBuilderAnnotation {
 
     final Vertex vertex;
     final int size;
-    
-    public GraphConnectivity(Vertex vertex, int size){
-    	this.vertex = vertex;
-    	this.size = size;
+
+    public GraphConnectivity(Vertex vertex, int size) {
+        this.vertex = vertex;
+        this.size = size;
     }
 
     @Override

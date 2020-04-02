@@ -4,13 +4,13 @@ import java.util.Currency;
 import java.util.Locale;
 
 /**
- * A Bean wrapper class for java.util.Currency 
- * @author novalis
+ * A Bean wrapper class for java.util.Currency
  *
+ * @author novalis
  */
 public class WrappedCurrency {
     private Currency value;
-    
+
     public WrappedCurrency() {
         value = null;
     }
@@ -18,7 +18,7 @@ public class WrappedCurrency {
     public WrappedCurrency(Currency value) {
         this.value = value;
     }
-    
+
     public WrappedCurrency(String name) {
         value = Currency.getInstance(name);
     }
@@ -26,15 +26,15 @@ public class WrappedCurrency {
     public int getDefaultFractionDigits() {
         return value.getDefaultFractionDigits();
     }
-    
+
     public String getCurrencyCode() {
         return value.getCurrencyCode();
     }
-    
+
     public String getSymbol() {
         return value.getSymbol();
     }
-    
+
     public String getSymbol(Locale l) {
         return value.getSymbol(l);
     }
@@ -42,7 +42,7 @@ public class WrappedCurrency {
     public String toString() {
         return value.toString();
     }
-    
+
     public boolean equals(Object o) {
         if (o instanceof WrappedCurrency) {
             WrappedCurrency c = (WrappedCurrency) o;
@@ -50,7 +50,7 @@ public class WrappedCurrency {
         }
         return false;
     }
-    
+
     public Currency getCurrency() {
         return value;
     }

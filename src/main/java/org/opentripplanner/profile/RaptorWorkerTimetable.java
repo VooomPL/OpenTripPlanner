@@ -15,24 +15,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * A RaptorWorkerTimetable is used by a RaptorWorker to perform large numbers of RAPTOR searches very quickly
  * within a specific time window. It is used heavily in one-to-many profile routing, where we're interested in seeing
  * how access to opportunities varies over time.
- *
+ * <p>
  * This is an alternative representation of all the TripTimes in a single TripPattern that are running during a
  * particular time range on a particular day. It packs the times a bit closer together and pre-filters the TripTimes based on
  * whether they are running at all during the time window eliminates run-time checks that need to be performed when we
  * search for the soonest departure. Note: we're not sure this actually provides a major speedup compared to operating
  * directly on TripPatterns and TripTimes.
- *
+ * <p>
  * Unlike in "normal" OTP searches, we assume non-overtaking (FIFO) vehicle behavior within a single TripPattern,
  * which is generally the case in clean input data. One key difference here is that profile routing and spatial analysis
  * do not need to take real-time (GTFS-RT) updates into account since they are intended to be generic results
@@ -51,34 +47,54 @@ public class RaptorWorkerTimetable implements Serializable {
 
     /* Times for frequency-based trips are stored in parallel arrays (a column store). */
 
-    /** Times (0-based) for frequency trips */
+    /**
+     * Times (0-based) for frequency trips
+     */
     int[][] frequencyTrips;
 
-    /** Headways (seconds) for frequency trips, parallel to above. Note that frequency trips are unsorted. */
+    /**
+     * Headways (seconds) for frequency trips, parallel to above. Note that frequency trips are unsorted.
+     */
     int[] headwaySecs;
 
-    /** Start times (seconds since noon - 12h) for frequency trips */
+    /**
+     * Start times (seconds since noon - 12h) for frequency trips
+     */
     int[] startTimes;
 
-    /** End times for frequency trips */
+    /**
+     * End times for frequency trips
+     */
     int[] endTimes;
 
-    /** Indices of stops in parent data */
+    /**
+     * Indices of stops in parent data
+     */
     public int[] stopIndices;
 
-    /** parent raptorworkerdata of this timetable */
+    /**
+     * parent raptorworkerdata of this timetable
+     */
     public RaptorWorkerData raptorData;
 
-    /** Mode of this pattern, see constants in com.conveyal.gtfs.model.Route */
+    /**
+     * Mode of this pattern, see constants in com.conveyal.gtfs.model.Route
+     */
     public int mode;
 
-    /** Index of this pattern in RaptorData */
+    /**
+     * Index of this pattern in RaptorData
+     */
     public int dataIndex;
 
-    /** for debugging, the ID of the route this represents */
+    /**
+     * for debugging, the ID of the route this represents
+     */
     public transient String routeId;
 
-    /** slack required when boarding a transit vehicle */
+    /**
+     * slack required when boarding a transit vehicle
+     */
     public static final int MIN_BOARD_TIME_SECONDS = 60;
 
     public RaptorWorkerTimetable(int nTrips, int nStops) {
@@ -89,7 +105,7 @@ public class RaptorWorkerTimetable implements Serializable {
 
     /**
      * Return the trip index within the pattern of the soonest departure at the given stop number, requiring at least
-     * MIN_BOARD_TIME_SECONDS seconds of slack. 
+     * MIN_BOARD_TIME_SECONDS seconds of slack.
      */
     public int findDepartureAfter(int stop, int time) {
         for (int trip = 0; trip < timesPerTrip.length; trip++) {
@@ -100,15 +116,15 @@ public class RaptorWorkerTimetable implements Serializable {
         return -1;
     }
 
-    public int getArrival (int trip, int stop) {
+    public int getArrival(int trip, int stop) {
         return timesPerTrip[trip][stop * 2];
     }
 
-    public int getDeparture (int trip, int stop) {
+    public int getDeparture(int trip, int stop) {
         return timesPerTrip[trip][stop * 2 + 1];
     }
 
-    public int getFrequencyDeparture (int trip, int stop, int time, int previousPattern, FrequencyRandomOffsets offsets) {
+    public int getFrequencyDeparture(int trip, int stop, int time, int previousPattern, FrequencyRandomOffsets offsets) {
         return getFrequencyDeparture(trip, stop, time, previousPattern, offsets, null);
     }
 
@@ -117,7 +133,7 @@ public class RaptorWorkerTimetable implements Serializable {
      * with the given boarding assumption. (Note that the boarding assumption specified may be overridden
      * by transfer rules).
      */
-    public int getFrequencyDeparture (int trip, int stop, int time, int previousPattern, FrequencyRandomOffsets offsets, BoardingAssumption assumption) {
+    public int getFrequencyDeparture(int trip, int stop, int time, int previousPattern, FrequencyRandomOffsets offsets, BoardingAssumption assumption) {
         int timeToReachStop = frequencyTrips[trip][stop * 2 + 1];
 
         // figure out if there is an applicable transfer rule
@@ -183,9 +199,7 @@ public class RaptorWorkerTimetable implements Serializable {
                 // after it first came, you have to wait 25 minutes, or headway - time already elapsed
                 // time already elapsed is 35 % 30 = 5 minutes in this case.
                 time += headwaySecs[trip] - (time - minTime) % headwaySecs[trip];
-        }
-
-        else {
+        } else {
             // move time forward if the frequency has not yet started.
             // we do this before we add the wait time, because this is the earliest possible
             // time a vehicle could reach the stop. The assumption is that the vehicle leaves
@@ -195,23 +209,25 @@ public class RaptorWorkerTimetable implements Serializable {
                 time = timeToReachStop + startTimes[trip];
 
             switch (assumption) {
-            case BEST_CASE:
-                // do nothing
-                break;
-            case WORST_CASE:
-                time += headwaySecs[trip];
-                break;
-            case HALF_HEADWAY:
-                time += headwaySecs[trip] / 2;
-                break;
-            case FIXED:
-                if (transferRule == null) throw new IllegalArgumentException("Cannot use boarding assumption FIXED without a transfer rule");
-                time += transferRule.transferTimeSeconds;
-                break;
-            case PROPORTION:
-                if (transferRule == null) throw new IllegalArgumentException("Cannot use boarding assumption PROPORTION without a transfer rule");
-                time += (int) (transferRule.waitProportion * headwaySecs[trip]);
-                break;
+                case BEST_CASE:
+                    // do nothing
+                    break;
+                case WORST_CASE:
+                    time += headwaySecs[trip];
+                    break;
+                case HALF_HEADWAY:
+                    time += headwaySecs[trip] / 2;
+                    break;
+                case FIXED:
+                    if (transferRule == null)
+                        throw new IllegalArgumentException("Cannot use boarding assumption FIXED without a transfer rule");
+                    time += transferRule.transferTimeSeconds;
+                    break;
+                case PROPORTION:
+                    if (transferRule == null)
+                        throw new IllegalArgumentException("Cannot use boarding assumption PROPORTION without a transfer rule");
+                    time += (int) (transferRule.waitProportion * headwaySecs[trip]);
+                    break;
             }
         }
 
@@ -222,26 +238,30 @@ public class RaptorWorkerTimetable implements Serializable {
     }
 
     /**
-     * Get the travel time (departure to arrival) on frequency trip trip, from stop from to stop to.  
+     * Get the travel time (departure to arrival) on frequency trip trip, from stop from to stop to.
      */
-    public int getFrequencyTravelTime (int trip, int from, int to) {
+    public int getFrequencyTravelTime(int trip, int from, int to) {
         return frequencyTrips[trip][to * 2] - frequencyTrips[trip][from * 2 + 1];
     }
 
     /**
      * Get the number of frequency trips on this pattern (i.e. the number of trips in trips.txt, not the number of trips by vehicles)
      */
-    public int getFrequencyTripCount () {
+    public int getFrequencyTripCount() {
         return headwaySecs.length;
     }
 
-    /** Does this timetable have any frequency trips? */
-    public boolean hasFrequencyTrips () {
+    /**
+     * Does this timetable have any frequency trips?
+     */
+    public boolean hasFrequencyTrips() {
         return this.headwaySecs != null && this.headwaySecs.length > 0;
     }
 
-    /** does this timetable have any scheduled trips? */
-    public boolean hasScheduledTrips () {
+    /**
+     * does this timetable have any scheduled trips?
+     */
+    public boolean hasScheduledTrips() {
         return this.timesPerTrip != null && this.timesPerTrip.length > 0;
     }
 
@@ -249,13 +269,14 @@ public class RaptorWorkerTimetable implements Serializable {
      * This is a factory function rather than a constructor to avoid calling the super constructor for rejected patterns.
      * BannedRoutes is formatted as agencyid_routeid.
      */
-    public static RaptorWorkerTimetable forPattern (Graph graph, TripPattern pattern, TimeWindow window, Scenario scenario, TaskStatistics ts) {
+    public static RaptorWorkerTimetable forPattern(Graph graph, TripPattern pattern, TimeWindow window, Scenario scenario, TaskStatistics ts) {
 
         // Filter down the trips to only those running during the window
         // This filtering can reduce number of trips and run time by 80 percent
         BitSet servicesRunning = window.servicesRunning;
         List<TripTimes> tripTimes = Lists.newArrayList();
-        TT: for (TripTimes tt : pattern.scheduledTimetable.tripTimes) {
+        TT:
+        for (TripTimes tt : pattern.scheduledTimetable.tripTimes) {
             if (servicesRunning.get(tt.serviceCode) &&
                     tt.getArrivalTime(0) < window.to &&
                     tt.getDepartureTime(tt.getNumStops() - 1) >= window.from) {
@@ -277,11 +298,12 @@ public class RaptorWorkerTimetable implements Serializable {
 
         // find frequency trips
         List<FrequencyEntry> freqs = Lists.newArrayList();
-        FREQUENCIES: for (FrequencyEntry fe : pattern.scheduledTimetable.frequencyEntries) {
+        FREQUENCIES:
+        for (FrequencyEntry fe : pattern.scheduledTimetable.frequencyEntries) {
             if (servicesRunning.get(fe.tripTimes.serviceCode) &&
                     fe.getMinDeparture() < window.to &&
                     fe.getMaxArrival() > window.from
-                    ) {
+            ) {
                 // this frequency entry has the potential to be used
 
                 if (fe.exactTimes) {
@@ -369,7 +391,9 @@ public class RaptorWorkerTimetable implements Serializable {
         return rwtt;
     }
 
-    /** Create a raptor worker timetable for an added pattern */
+    /**
+     * Create a raptor worker timetable for an added pattern
+     */
     public static RaptorWorkerTimetable forAddedPattern(AddTripPattern atp, TimeWindow window, TaskStatistics ts) {
         if (atp.temporaryStops.length < 2 || atp.timetables.isEmpty())
             return null;
@@ -427,7 +451,7 @@ public class RaptorWorkerTimetable implements Serializable {
         return rwtt;
     }
 
-    private static int[] timesForPatternTimetable (AddTripPattern atp, AddTripPattern.PatternTimetable pt) {
+    private static int[] timesForPatternTimetable(AddTripPattern atp, AddTripPattern.PatternTimetable pt) {
         int[] times = new int[atp.temporaryStops.length * 2];
         for (int s = 0; s < atp.temporaryStops.length; s++) {
             // for a timetable route,
@@ -443,7 +467,9 @@ public class RaptorWorkerTimetable implements Serializable {
         return times;
     }
 
-    /** The assumptions made when boarding a frequency vehicle: best case (no wait), worst case (full headway) and half headway (in some sense the average). */
+    /**
+     * The assumptions made when boarding a frequency vehicle: best case (no wait), worst case (full headway) and half headway (in some sense the average).
+     */
     public static enum BoardingAssumption {
         BEST_CASE, WORST_CASE, HALF_HEADWAY, FIXED, PROPORTION, RANDOM;
 

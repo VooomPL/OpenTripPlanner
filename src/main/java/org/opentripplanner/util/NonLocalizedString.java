@@ -5,7 +5,7 @@ import java.util.Locale;
 
 /**
  * This is to support strings which can't be localized.
- *
+ * <p>
  * It just returns string it is given in constructor.
  *
  * @author mabu
@@ -19,7 +19,7 @@ public class NonLocalizedString implements I18NString, Serializable {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof NonLocalizedString && this.name.equals(((NonLocalizedString)other).name);
+        return other instanceof NonLocalizedString && this.name.equals(((NonLocalizedString) other).name);
     }
 
     @Override

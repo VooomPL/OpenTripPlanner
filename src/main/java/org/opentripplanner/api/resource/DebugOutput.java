@@ -1,18 +1,15 @@
 package org.opentripplanner.api.resource;
 
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.opentripplanner.routing.graph.Graph;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Holds information to be included in the REST Response for debugging and profiling purposes.
- *
+ * <p>
  * startedCalculating is called in the routingContext constructor.
  * finishedCalculating and finishedRendering are all called in PlanGenerator.generate().
  * finishedPrecalculating and foundPaths are called in the SPTService implementations.
@@ -48,28 +45,38 @@ public class DebugOutput {
         startedCalculating = finishedPrecalculating = System.currentTimeMillis();
     }
 
-    /** Record the time when we finished heuristic pre-calculation. */
+    /**
+     * Record the time when we finished heuristic pre-calculation.
+     */
     public void finishedPrecalculating() {
         finishedPrecalculating = System.currentTimeMillis();
     }
 
-    /** Record the time when a path was found. */
+    /**
+     * Record the time when a path was found.
+     */
     public void foundPath() {
         foundPaths.add(System.currentTimeMillis());
     }
 
-    /** Record the time when we finished calculating paths for this request. */
+    /**
+     * Record the time when we finished calculating paths for this request.
+     */
     public void finishedCalculating() {
         finishedCalculating = System.currentTimeMillis();
     }
 
-    /** Record the time when we finished converting paths into itineraries. */
+    /**
+     * Record the time when we finished converting paths into itineraries.
+     */
     public void finishedRendering() {
         finishedRendering = System.currentTimeMillis();
         computeSummary();
     }
 
-    /** Summarize and calculate elapsed times. */
+    /**
+     * Summarize and calculate elapsed times.
+     */
     private void computeSummary() {
         precalculationTime = finishedPrecalculating - startedCalculating;
         pathCalculationTime = finishedCalculating - finishedPrecalculating;

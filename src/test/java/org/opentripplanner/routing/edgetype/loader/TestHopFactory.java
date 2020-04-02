@@ -1,28 +1,27 @@
 package org.opentripplanner.routing.edgetype.loader;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import junit.framework.TestCase;
-
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.edgetype.PatternHop;
+import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.util.TestUtils;
+
+import java.io.File;
+import java.util.List;
 
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
@@ -101,7 +100,7 @@ public class TestHopFactory extends TestCase {
         Vertex stop_e = graph.getVertex(feedId + ":E");
 
         RoutingRequest options = new RoutingRequest();
-        options.dateTime = TestUtils.dateInSeconds("America/New_York", 2009, 8, 7, 0, 0, 0); 
+        options.dateTime = TestUtils.dateInSeconds("America/New_York", 2009, 8, 7, 0, 0, 0);
 
         ShortestPathTree spt;
         GraphPath path;

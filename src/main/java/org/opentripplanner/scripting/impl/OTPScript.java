@@ -1,6 +1,7 @@
 package org.opentripplanner.scripting.impl;
 
 /**
+ *
  */
 public interface OTPScript {
 

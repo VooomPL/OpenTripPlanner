@@ -251,10 +251,10 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
         } else if (!(relation.isTag("type", "restriction"))
                 && !(relation.isTag("type", "route") && relation.isTag("route", "road"))
                 && !(relation.isTag("type", "multipolygon") && OSMFilter
-                        .isOsmEntityRoutable(relation))
+                .isOsmEntityRoutable(relation))
                 && !(relation.isTag("type", "level_map"))
                 && !(relation.isTag("type", "public_transport") && relation.isTag(
-                        "public_transport", "stop_area"))) {
+                "public_transport", "stop_area"))) {
             return;
         }
 
@@ -360,7 +360,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
             OSMLevel wayLevel = getLevelForWay(way);
 
             // For each segment of the way
-            for (int i = 0; i < way.getNodeRefs().size() - 1; i++) {                
+            for (int i = 0; i < way.getNodeRefs().size() - 1; i++) {
                 OSMNode nA = nodesById.get(way.getNodeRefs().get(i));
                 OSMNode nB = nodesById.get(way.getNodeRefs().get(i + 1));
                 if (nA == null || nB == null) {
@@ -372,9 +372,9 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
                 if (ringSegments.size() == 0)
                     continue;
                 LineString seg = GeometryUtils.makeLineString(nA.lon, nA.lat, nB.lon, nB.lat);
-                
+
                 for (RingSegment ringSegment : ringSegments) {
-                	boolean wayWasSplit = false;
+                    boolean wayWasSplit = false;
 
                     // Skip if both segments share a common node
                     if (ringSegment.nA.getId() == nA.getId()
@@ -382,7 +382,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
                             || ringSegment.nB.getId() == nA.getId()
                             || ringSegment.nB.getId() == nB.getId())
                         continue;
-                    
+
                     // Skip if area and way are from "incompatible" levels
                     OSMLevel areaLevel = getLevelForWay(ringSegment.area.parent);
                     if (!wayLevel.equals(areaLevel))
@@ -407,85 +407,81 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
                                 ringSegment.nB, intersection);
                         continue;
                     }
-                    
+
                     // if the intersection is extremely close to one of the nodes of the road or the parking lot, just use that node
                     // rather than splitting anything. See issue 1605.
                     OSMNode splitNode;
                     double epsilon = 0.0000001;
-                    
+
                     // note that the if . . . else if structure of this means that if a node at one end of a (way|ring) segment is snapped,
                     // the node at the other end cannot be, which is fine because the only time that could happen anyhow
                     // would be if the nodes were duplicates.
                     // prefer inserting into the ring segment to inserting into the way, so as to reduce graph complexity
                     if (checkIntersectionDistance(p, nA, epsilon)) {
-                    	// insert node A into the ring segment
+                        // insert node A into the ring segment
                         splitNode = nA;
-                        
+
                         if (ringSegment.ring.nodes.contains(splitNode))
-                        	// This node is already a part of this ring (perhaps we inserted it previously). No need to connect again.
-                        	// Note that this may not be a safe assumption to make in all cases; suppose a way were to cross exactly over a node *twice*,
-                        	// we would only add it the first time.
-                        	continue;
-                        
+                            // This node is already a part of this ring (perhaps we inserted it previously). No need to connect again.
+                            // Note that this may not be a safe assumption to make in all cases; suppose a way were to cross exactly over a node *twice*,
+                            // we would only add it the first time.
+                            continue;
+
                         if (checkDistance(ringSegment.nA, nA, epsilon) || checkDistance(ringSegment.nB, nA, epsilon))
-                                LOG.info("Node {} in way {} is coincident but disconnected with area {}",
-                                    	nA.getId(), way.getId(), ringSegment.area.parent.getId());
-                    }
-                    else if (checkIntersectionDistance(p, nB, epsilon)) {
-                    	// insert node B into the ring segment
+                            LOG.info("Node {} in way {} is coincident but disconnected with area {}",
+                                    nA.getId(), way.getId(), ringSegment.area.parent.getId());
+                    } else if (checkIntersectionDistance(p, nB, epsilon)) {
+                        // insert node B into the ring segment
                         splitNode = nB;
-                        
+
                         if (ringSegment.ring.nodes.contains(splitNode))
-                        	continue;
-                        
+                            continue;
+
                         if (checkDistance(ringSegment.nA, nB, epsilon) || checkDistance(ringSegment.nB, nB, epsilon))
                             LOG.info("Node {} in way {} is coincident but disconnected with area {}",
-                                	nB.getId(), way.getId(), ringSegment.area.parent.getId());
-                    }
-                    else if (checkIntersectionDistance(p, ringSegment.nA, epsilon)) {
-                    	// insert node A into the road, if it's not already there
-                    	
-                    	// don't insert the same node twice. This is not always safe; suppose a way crosses over the same node in the parking area twice.
-                    	// but we assume it doesn't (and even if it does, it's not a huge deal, as it is still connected elsewhere on the same way).
-                    	if (way.getNodeRefs().contains(ringSegment.nA.getId()))
-                    		continue;
-                    	
-                    	way.addNodeRef(ringSegment.nA.getId(), i + 1);
-                    	
+                                    nB.getId(), way.getId(), ringSegment.area.parent.getId());
+                    } else if (checkIntersectionDistance(p, ringSegment.nA, epsilon)) {
+                        // insert node A into the road, if it's not already there
+
+                        // don't insert the same node twice. This is not always safe; suppose a way crosses over the same node in the parking area twice.
+                        // but we assume it doesn't (and even if it does, it's not a huge deal, as it is still connected elsewhere on the same way).
+                        if (way.getNodeRefs().contains(ringSegment.nA.getId()))
+                            continue;
+
+                        way.addNodeRef(ringSegment.nA.getId(), i + 1);
+
                         if (checkDistance(ringSegment.nA, nA, epsilon) || checkDistance(ringSegment.nA, nB, epsilon))
                             LOG.info("Node {} in area {} is coincident but disconnected with way {}",
-                                	ringSegment.nA.getId(), way.getId(), ringSegment.area.parent.getId(), way.getId());
-                    	
-                    	// restart loop over way segments as we may have more intersections
+                                    ringSegment.nA.getId(), way.getId(), ringSegment.area.parent.getId(), way.getId());
+
+                        // restart loop over way segments as we may have more intersections
                         // as we haven't modified the ring, there is no need to modify the spatial index, so breaking here is fine 
-                    	i--;
-                    	break;
-                    }
-                    else if (checkIntersectionDistance(p, ringSegment.nB, epsilon)) {
-                    	// insert node B into the road, if it's not already there
-                    	
-                    	if (way.getNodeRefs().contains(ringSegment.nB.getId()))
-                    		continue;
-                    	
-                    	way.addNodeRef(ringSegment.nB.getId(), i + 1);
-                    	
+                        i--;
+                        break;
+                    } else if (checkIntersectionDistance(p, ringSegment.nB, epsilon)) {
+                        // insert node B into the road, if it's not already there
+
+                        if (way.getNodeRefs().contains(ringSegment.nB.getId()))
+                            continue;
+
+                        way.addNodeRef(ringSegment.nB.getId(), i + 1);
+
                         if (checkDistance(ringSegment.nB, nA, epsilon) || checkDistance(ringSegment.nB, nB, epsilon))
                             LOG.info("Node {} in area {} is coincident but disconnected with way {}",
-                                	ringSegment.nB.getId(), way.getId(), ringSegment.area.parent.getId(), way.getId());
-                    	
-                    	i--;
-                    	break;
-                    }
-                    else {
-                    	// create a node
-                    	splitNode = createVirtualNode(p.getCoordinate());
+                                    ringSegment.nB.getId(), way.getId(), ringSegment.area.parent.getId(), way.getId());
+
+                        i--;
+                        break;
+                    } else {
+                        // create a node
+                        splitNode = createVirtualNode(p.getCoordinate());
                         nCreatedNodes++;
                         LOG.debug(
                                 "Adding virtual {}, intersection of {} ({}--{}) and area {} ({}--{}) at {}.",
                                 splitNode, way, nA, nB, ringSegment.area.parent, ringSegment.nA,
                                 ringSegment.nB, p);
                         way.addNodeRef(splitNode.getId(), i + 1);
-                        
+
                         /*
                          * If we split the way, re-start the way segments loop as the newly created segments
                          * could be intersecting again (in case one segment cut many others).
@@ -519,8 +515,8 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
                     // if we split the way, backtrack over it again to check for additional splits
                     // otherwise, we just continue the loop over ring segments
                     if (wayWasSplit) {
-                    	i--;
-                    	break;
+                        i--;
+                        break;
                     }
                 }
             }
@@ -528,9 +524,9 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
         LOG.info("Created {} virtual intersection nodes.", nCreatedNodes);
     }
 
-	/**
+    /**
      * Create a virtual OSM node, using a negative unique ID.
-     * 
+     *
      * @param c The location of the node to create.
      * @return The created node.
      */
@@ -570,7 +566,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
     }
 
     private void markNodesForKeeping(Collection<OSMWay> osmWays, Set<Long> nodeSet) {
-        for (Iterator<OSMWay> it = osmWays.iterator(); it.hasNext();) {
+        for (Iterator<OSMWay> it = osmWays.iterator(); it.hasNext(); ) {
             OSMWay way = it.next();
             // Since the way is kept, update nodes-with-neighbors
             List<Long> nodes = way.getNodeRefs();
@@ -584,7 +580,8 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
      * Create areas from single ways.
      */
     private void processSingleWayAreas() {
-        AREA: for (OSMWay way : singleWayAreas) {
+        AREA:
+        for (OSMWay way : singleWayAreas) {
             if (processedAreas.contains(way)) {
                 continue;
             }
@@ -594,8 +591,8 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
                 }
             }
             try {
-                newArea(new Area(way, Arrays.asList(way), Collections.<OSMWay> emptyList(), nodesById));
-            } catch (Area.AreaConstructionException|Ring.RingConstructionException e) {
+                newArea(new Area(way, Arrays.asList(way), Collections.<OSMWay>emptyList(), nodesById));
+            } catch (Area.AreaConstructionException | Ring.RingConstructionException e) {
                 // this area cannot be constructed, but we already have all the
                 // necessary nodes to construct it. So, something must be wrong with
                 // the area; we'll mark it as processed so that we don't retry.
@@ -613,7 +610,8 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
      * the used ways.
      */
     private void processMultipolygonRelations() {
-        RELATION: for (OSMRelation relation : relationsById.values()) {
+        RELATION:
+        for (OSMRelation relation : relationsById.values()) {
             if (processedAreas.contains(relation)) {
                 continue;
             }
@@ -650,7 +648,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
             processedAreas.add(relation);
             try {
                 newArea(new Area(relation, outerWays, innerWays, nodesById));
-            } catch (Area.AreaConstructionException|Ring.RingConstructionException e) {
+            } catch (Area.AreaConstructionException | Ring.RingConstructionException e) {
                 continue;
             }
 
@@ -664,7 +662,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
                 if (way == null) {
                     continue;
                 }
-                String[] relationCopyTags = { "highway", "name", "ref" };
+                String[] relationCopyTags = {"highway", "name", "ref"};
                 for (String tag : relationCopyTags) {
                     if (relation.hasTag(tag) && !way.hasTag(tag)) {
                         way.addTag(tag, relation.getTag(tag));
@@ -683,7 +681,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
 
     /**
      * Handler for a new Area (single way area or multipolygon relations)
-     * 
+     *
      * @param area
      */
     private void newArea(Area area) {
@@ -723,7 +721,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
 
     /**
      * Store turn restrictions.
-     * 
+     *
      * @param relation
      */
     private void processRestriction(OSMRelation relation) {
@@ -740,7 +738,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
         }
         if (from == -1 || to == -1 || via == -1) {
             LOG.warn(addBuilderAnnotation(new TurnRestrictionBad(relation.getId(),
-                "One of from|via|to edges are empty in relation")));
+                    "One of from|via|to edges are empty in relation")));
             return;
         }
 
@@ -760,28 +758,28 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
         TurnRestrictionTag tag;
         if (relation.isTag("restriction", "no_right_turn")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.NO_TURN, Direction.RIGHT,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "no_left_turn")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.NO_TURN, Direction.LEFT,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "no_straight_on")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.NO_TURN, Direction.STRAIGHT,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "no_u_turn")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.NO_TURN, Direction.U,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "only_straight_on")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.ONLY_TURN, Direction.STRAIGHT,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "only_right_turn")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.ONLY_TURN, Direction.RIGHT,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "only_left_turn")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.ONLY_TURN, Direction.LEFT,
-                relation.getId());
+                    relation.getId());
         } else if (relation.isTag("restriction", "only_u_turn")) {
             tag = new TurnRestrictionTag(via, TurnRestrictionType.ONLY_TURN, Direction.U,
-                relation.getId());
+                    relation.getId());
         } else {
             LOG.warn(addBuilderAnnotation(new TurnRestrictionUnknown(relation.getId(), relation.getTag("restriction"))));
             return;
@@ -807,7 +805,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
 
     /**
      * Process an OSM level map.
-     * 
+     *
      * @param relation
      */
     private void processLevelMap(OSMRelation relation) {
@@ -834,7 +832,7 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
 
     /**
      * Handle route=road relations.
-     * 
+     *
      * @param relation
      */
     private void processRoad(OSMRelation relation) {
@@ -869,13 +867,13 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
 
     /**
      * Process an OSM public transport stop area relation.
-     * 
+     * <p>
      * This goes through all public_transport=stop_area relations and adds the parent (either an
      * area or multipolygon relation) as the key and a Set of transit stop nodes that should be
      * included in the parent area as the value into stopsInAreas. This improves
      * TransitToTaggedStopsGraphBuilder by enabling us to have unconnected stop nodes within the
      * areas by creating relations .
-     * 
+     *
      * @param relation
      * @author hannesj
      * @see "http://wiki.openstreetmap.org/wiki/Tag:public_transport%3Dstop_area"
@@ -920,26 +918,28 @@ public class OSMDatabase implements OpenStreetMapContentHandler {
         annotations.add(annotation);
         return annotation.getMessage();
     }
-    
+
     /**
      * Check if a point is within an epsilon of a node.
+     *
      * @param p
      * @param n
      * @param epsilon
      * @return
      */
     private static boolean checkIntersectionDistance(Point p, OSMNode n, double epsilon) {
-    	return Math.abs(p.getY() - n.lat) < epsilon && Math.abs(p.getX() - n.lon) < epsilon;
+        return Math.abs(p.getY() - n.lat) < epsilon && Math.abs(p.getX() - n.lon) < epsilon;
     }
-    
+
     /**
      * Check if two nodes are within an epsilon.
+     *
      * @param a
      * @param b
      * @param epsilon
      * @return
      */
     private static boolean checkDistance(OSMNode a, OSMNode b, double epsilon) {
-    	return Math.abs(a.lat - b.lat) < epsilon && Math.abs(a.lon - b.lon) < epsilon;
-	}
+        return Math.abs(a.lat - b.lat) < epsilon && Math.abs(a.lon - b.lon) < epsilon;
+    }
 }

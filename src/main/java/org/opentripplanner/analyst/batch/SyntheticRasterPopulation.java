@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 
 public class SyntheticRasterPopulation extends RasterPopulation {
 
-    private static Logger LOG = LoggerFactory.getLogger(SyntheticRasterPopulation.class); 
+    private static Logger LOG = LoggerFactory.getLogger(SyntheticRasterPopulation.class);
 
     public String name = "synthetic grid coverage";
     public double resolutionMeters = 250; // deprecated
     public String crsCode = "EPSG:4326";
     public boolean boundsFromGraph = false; // use graph envelope, overriding any specified bounds
-    
+
     @Override
     public void createIndividuals() {
         try {

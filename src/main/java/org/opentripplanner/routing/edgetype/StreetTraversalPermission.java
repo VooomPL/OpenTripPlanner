@@ -1,11 +1,11 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.EnumSet;
-
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
+
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Who can traverse a street in a single direction.
@@ -62,7 +62,7 @@ public enum StreetTraversalPermission {
     public boolean allows(StreetTraversalPermission perm) {
         return (code & perm.code) != 0;
     }
-    
+
     /**
      * Returns true if any of the specified modes are allowed to use this street.
      */
@@ -76,7 +76,7 @@ public enum StreetTraversalPermission {
         }
         return false;
     }
-    
+
     /**
      * Returns true if the given mode is allowed to use this street.
      */
@@ -97,7 +97,7 @@ public enum StreetTraversalPermission {
     public boolean allowsAnything() {
         return !this.allowsNothing();
     }
-    
+
     /**
      * Returns true if there no modes are by this permission.
      */

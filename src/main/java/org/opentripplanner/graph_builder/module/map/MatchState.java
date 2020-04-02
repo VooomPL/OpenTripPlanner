@@ -1,19 +1,18 @@
 package org.opentripplanner.graph_builder.module.map;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.linearref.LinearLocation;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class MatchState {
     private static final RoutingRequest traverseOptions = new RoutingRequest(TraverseMode.CAR);
@@ -78,7 +77,7 @@ public abstract class MatchState {
 
     /* computes the distance, in meters, along a geometry */
     protected static double distanceAlongGeometry(Geometry geometry, LinearLocation startIndex,
-            LinearLocation endIndex) {
+                                                  LinearLocation endIndex) {
 
         if (endIndex == null) {
             endIndex = LinearLocation.getEndLocation(geometry);
@@ -107,7 +106,7 @@ public abstract class MatchState {
         return total;
     }
 
-    
+
     protected static double distance(Coordinate from, Coordinate to) {
         return SphericalDistanceLibrary.fastDistance(from, to);
     }

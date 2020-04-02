@@ -1,20 +1,20 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Locale;
-
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+
+import java.util.Locale;
 
 /**
  * A transit vehicle's journey between departure at one stop and arrival at the next.
@@ -49,7 +49,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
         double distance = 0;
         LineString line = getGeometry();
         for (int i = 0; i < line.getNumPoints() - 1; i++) {
-            Point p0 = line.getPointN(i), p1 = line.getPointN(i+1);
+            Point p0 = line.getPointN(i), p1 = line.getPointN(i + 1);
             distance += SphericalDistanceLibrary.distance(p0.getCoordinate(), p1.getCoordinate());
         }
         return distance;
@@ -58,11 +58,11 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
     public TraverseMode getMode() {
         return GtfsLibrary.getTraverseMode(getPattern().route);
     }
-    
+
     public String getName() {
         return GtfsLibrary.getRouteName(getPattern().route);
     }
-    
+
     @Override
     public String getName(Locale locale) {
         return this.getName();
@@ -70,7 +70,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
 
     public State optimisticTraverse(State state0) {
         RoutingRequest options = state0.getOptions();
-        
+
         // Ignore this edge if either of its stop is banned hard
         if (!options.bannedStopsHard.isEmpty()) {
             if (options.bannedStopsHard.matches(((PatternStopVertex) fromv).getStop())
@@ -80,11 +80,11 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
         }
 
         int runningTime = (int) timeLowerBound(options);
-    	StateEditor s1 = state0.edit(this);
-    	s1.incrementTimeInSeconds(runningTime);
-    	s1.setBackMode(getMode());
-    	s1.incrementWeight(runningTime);
-    	return s1.makeState();
+        StateEditor s1 = state0.edit(this);
+        s1.incrementTimeInSeconds(runningTime);
+        s1.setBackMode(getMode());
+        s1.incrementWeight(runningTime);
+        return s1.makeState();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
             Coordinate c1 = new Coordinate(begin.getLon(), begin.getLat());
             Coordinate c2 = new Coordinate(end.getLon(), end.getLat());
 
-            geometry = GeometryUtils.getGeometryFactory().createLineString(new Coordinate[] { c1, c2 });
+            geometry = GeometryUtils.getGeometryFactory().createLineString(new Coordinate[]{c1, c2});
         }
         return geometry;
     }
@@ -169,7 +169,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
     }
 
     public String toString() {
-    	return "PatternHop(" + getFromVertex() + ", " + getToVertex() + ")";
+        return "PatternHop(" + getFromVertex() + ", " + getToVertex() + ")";
     }
 
     /**

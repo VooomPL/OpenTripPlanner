@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Class which creates "Travel by" options list from supported transit modes and which extra modes are supported (bike sharing, bike & ride, park & ride)
- *
+ * <p>
  * This list is then returned to the client which shows it in UI.
  * Created by mabu on 28.7.2015.
  */
@@ -29,19 +29,19 @@ public final class TravelOptionsMaker {
     }
 
     public static List<TravelOption> makeOptions(HashSet<TraverseMode> transitModes, boolean hasBikeSharing,
-        boolean hasBikeRide, boolean hasParkRide) {
+                                                 boolean hasBikeRide, boolean hasParkRide) {
         List<TravelOption> travelOptions = new ArrayList<>(16);
 
         //Adds Transit, and all the transit modes
         if (!transitModes.isEmpty()) {
             travelOptions.add(new TravelOption(
-                String.join(",", TraverseMode.TRANSIT.toString(), TraverseMode.WALK.toString()),
-                TraverseMode.TRANSIT.toString()));
+                    String.join(",", TraverseMode.TRANSIT.toString(), TraverseMode.WALK.toString()),
+                    TraverseMode.TRANSIT.toString()));
 
-            for (TraverseMode transitMode: transitModes) {
+            for (TraverseMode transitMode : transitModes) {
                 travelOptions.add(new TravelOption(
-                    String.join(",", transitMode.toString(), TraverseMode.WALK.toString()),
-                    transitMode.toString()));
+                        String.join(",", transitMode.toString(), TraverseMode.WALK.toString()),
+                        transitMode.toString()));
             }
         }
 
@@ -55,25 +55,24 @@ public final class TravelOptionsMaker {
         if (!transitModes.isEmpty()) {
             //Adds bicycle transit mode
             travelOptions.add(new TravelOption(
-                String.join(",", TraverseMode.TRANSIT.toString(), TraverseMode.BICYCLE.toString()),
-                String.join("_", TraverseMode.TRANSIT.toString(), TraverseMode.BICYCLE.toString())));
+                    String.join(",", TraverseMode.TRANSIT.toString(), TraverseMode.BICYCLE.toString()),
+                    String.join("_", TraverseMode.TRANSIT.toString(), TraverseMode.BICYCLE.toString())));
             if (hasBikeSharing) {
                 travelOptions.add(new TravelOption(String.join(",", TraverseMode.TRANSIT.toString(),
-                    TraverseMode.WALK.toString(), "BICYCLE_RENT"), "TRANSIT_BICYCLERENT"));
+                        TraverseMode.WALK.toString(), "BICYCLE_RENT"), "TRANSIT_BICYCLERENT"));
             }
             if (hasParkRide) {
                 travelOptions.add(new TravelOption(String.join(",", "CAR_PARK", TraverseMode.WALK.toString(), TraverseMode.TRANSIT.toString()),
-                    "PARKRIDE"));
+                        "PARKRIDE"));
             }
             if (hasBikeRide) {
                 travelOptions.add(new TravelOption(String.join(",", "BICYCLE_PARK", TraverseMode.WALK.toString(), TraverseMode.TRANSIT.toString()),
-                    "BIKERIDE"));
+                        "BIKERIDE"));
             }
         }
 
 
-
-        return  travelOptions;
+        return travelOptions;
     }
 
 }

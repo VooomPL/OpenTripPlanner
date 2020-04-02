@@ -3,12 +3,12 @@ package org.opentripplanner.updater;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
-import org.opentripplanner.util.TimeToStringConverter;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.trippattern.TripTimes;
+import org.opentripplanner.util.TimeToStringConverter;
 
 import java.text.ParseException;
 import java.util.BitSet;
@@ -16,7 +16,7 @@ import java.util.BitSet;
 /**
  * This class is used for matching TripDescriptors without trip_ids to scheduled GTFS data and to
  * feed back that information into a new TripDescriptor with proper trip_id.
- *
+ * <p>
  * The class should only be used if we know that the feed producer is unable to produce trip_ids
  * in the GTFS-RT feed.
  */
@@ -59,7 +59,7 @@ public class GtfsRealtimeFuzzyTripMatcher {
         if (matchedTrip == null) {
             // Check if the trip is carried over from previous day
             date = date.previous();
-            time += 24*60*60;
+            time += 24 * 60 * 60;
             matchedTrip = getTrip(route, direction, time, date);
         }
 
@@ -71,7 +71,7 @@ public class GtfsRealtimeFuzzyTripMatcher {
         return trip.toBuilder().setTripId(matchedTrip.getId().getId()).build();
     }
 
-    public Trip getTrip (Route route, int direction, int startTime, ServiceDate date) {
+    public Trip getTrip(Route route, int direction, int startTime, ServiceDate date) {
         BitSet services = index.servicesRunning(date);
         for (TripPattern pattern : index.patternsForRoute.get(route)) {
             if (pattern.directionId != direction) continue;

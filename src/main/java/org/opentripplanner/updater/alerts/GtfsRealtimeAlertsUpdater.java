@@ -1,8 +1,7 @@
 package org.opentripplanner.updater.alerts;
 
-import java.io.InputStream;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.AlertPatchServiceImpl;
 import org.opentripplanner.routing.services.AlertPatchService;
@@ -14,11 +13,11 @@ import org.opentripplanner.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
+import java.io.InputStream;
 
 /**
  * GTFS-RT alerts updater
- *
+ * <p>
  * Usage example ('myalert' name is an example) in file 'Graph.properties':
  *
  * <pre>

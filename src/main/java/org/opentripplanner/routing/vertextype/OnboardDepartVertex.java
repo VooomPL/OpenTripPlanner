@@ -7,7 +7,7 @@ import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * A vertex acting as a starting point for planning a trip while onboard an existing trip.
- * 
+ *
  * @author laurent
  */
 public class OnboardDepartVertex extends Vertex implements TemporaryVertex {

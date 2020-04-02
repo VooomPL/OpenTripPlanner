@@ -1,24 +1,23 @@
 package org.opentripplanner.routing.edgetype;
 
-import org.opentripplanner.model.Trip;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
-
 import java.util.Locale;
 
-/** 
+/**
  * This represents the connection between a street vertex and a transit vertex
- * where going from the street to the vehicle is immediate -- such as at a 
+ * where going from the street to the vehicle is immediate -- such as at a
  * curbside bus stop.
  */
 public class StreetTransitLink extends Edge {
@@ -31,8 +30,8 @@ public class StreetTransitLink extends Edge {
     private TransitStop transitStop;
 
     public StreetTransitLink(StreetVertex fromv, TransitStop tov, boolean wheelchairAccessible) {
-    	super(fromv, tov);
-    	transitStop = tov;
+        super(fromv, tov);
+        transitStop = tov;
         this.wheelchairAccessible = wheelchairAccessible;
     }
 
@@ -51,7 +50,7 @@ public class StreetTransitLink extends Edge {
     }
 
     public LineString getGeometry() {
-        Coordinate[] coordinates = new Coordinate[] { fromv.getCoordinate(), tov.getCoordinate()};
+        Coordinate[] coordinates = new Coordinate[]{fromv.getCoordinate(), tov.getCoordinate()};
         return GeometryUtils.getGeometryFactory().createLineString(coordinates);
     }
 
@@ -77,8 +76,8 @@ public class StreetTransitLink extends Edge {
         // legitimate StreetTransitLink > StreetTransitLink sequence, so only forbid two StreetTransitLinks to be taken
         // if they are for the same stop.
         if (
-            s0.backEdge instanceof StreetTransitLink &&
-                ((StreetTransitLink) s0.backEdge).transitStop == this.transitStop
+                s0.backEdge instanceof StreetTransitLink &&
+                        ((StreetTransitLink) s0.backEdge).transitStop == this.transitStop
         ) {
             return null;
         }
@@ -130,7 +129,7 @@ public class StreetTransitLink extends Edge {
         s1.setBackMode(TraverseMode.LEG_SWITCH);
         return s1.makeState();
     }
-    
+
     // anecdotally, the lower bound search is about 2x faster when you don't reach stops
     // and therefore don't even consider boarding
     @Override

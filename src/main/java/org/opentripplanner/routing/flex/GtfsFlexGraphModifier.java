@@ -13,43 +13,21 @@ import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.PatternHop;
 import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.opentripplanner.routing.edgetype.flex.FlexTransitBoardAlight;
-import org.opentripplanner.routing.edgetype.flex.TemporaryDirectPatternHop;
-import org.opentripplanner.routing.edgetype.flex.TemporaryPartialPatternHop;
-import org.opentripplanner.routing.edgetype.flex.TemporaryPreAlightEdge;
-import org.opentripplanner.routing.edgetype.flex.TemporaryPreBoardEdge;
-import org.opentripplanner.routing.edgetype.flex.TemporaryStreetTransitLink;
+import org.opentripplanner.routing.edgetype.flex.*;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
-import org.opentripplanner.routing.vertextype.PatternArriveVertex;
-import org.opentripplanner.routing.vertextype.PatternDepartVertex;
-import org.opentripplanner.routing.vertextype.PatternStopVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TemporaryVertex;
-import org.opentripplanner.routing.vertextype.TransitStop;
-import org.opentripplanner.routing.vertextype.TransitStopArrive;
-import org.opentripplanner.routing.vertextype.TransitStopDepart;
-import org.opentripplanner.routing.vertextype.flex.TemporaryPatternArriveVertex;
-import org.opentripplanner.routing.vertextype.flex.TemporaryPatternDepartVertex;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStop;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStopArrive;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStopDepart;
+import org.opentripplanner.routing.vertextype.*;
+import org.opentripplanner.routing.vertextype.flex.*;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,10 +67,10 @@ public abstract class GtfsFlexGraphModifier {
     /**
      * Create a new {@link FlexPatternHop} with a new "to" location (from the route to a new destination).
      *
-     * @param opt Options for the graph search
-     * @param state State at which the original FlexPatternHop was found during the graph search
-     * @param hop Original pattern hop to modify
-     * @param to New "to" location
+     * @param opt    Options for the graph search
+     * @param state  State at which the original FlexPatternHop was found during the graph search
+     * @param hop    Original pattern hop to modify
+     * @param to     New "to" location
      * @param toStop Stop for new "to" location
      * @return new pattern hop
      */
@@ -101,10 +79,10 @@ public abstract class GtfsFlexGraphModifier {
     /**
      * Create a new {@link FlexPatternHop} with a new "from" location (from a new destination to the route).
      *
-     * @param opt Options for the graph search
-     * @param state Options for the graph search
-     * @param hop Original pattern hop to modify
-     * @param from New "from" location
+     * @param opt      Options for the graph search
+     * @param state    Options for the graph search
+     * @param hop      Original pattern hop to modify
+     * @param from     New "from" location
      * @param fromStop Stop for new "from" location
      * @return new pattern hop
      */
@@ -116,10 +94,10 @@ public abstract class GtfsFlexGraphModifier {
      * existence of this method implies that searches from the origin should take place prior
      * to searches from the destination.
      *
-     * @param opt Options for the graph search
-     * @param state ptions for the graph search
-     * @param hop Temporary pattern hop to modify
-     * @param to New "to" location
+     * @param opt    Options for the graph search
+     * @param state  ptions for the graph search
+     * @param hop    Temporary pattern hop to modify
+     * @param to     New "to" location
      * @param toStop Stop for new "to" location
      * @return new pattern hop
      */
@@ -134,13 +112,14 @@ public abstract class GtfsFlexGraphModifier {
      * Subclasses can specify where the new temporary stop should be created, given a nearby
      * PatternHop.
      *
-     * @param s State at which PatternHop was found
+     * @param s   State at which PatternHop was found
      * @param hop PatternHop found during graph search
      * @return location for new stop
      */
     public abstract StreetVertex getLocationForTemporaryStop(State s, FlexPatternHop hop);
 
-    public void vertexVisitor(State state) {}
+    public void vertexVisitor(State state) {
+    }
 
     /**
      * Create temporary edges and vertices from the origin into the transit network.
@@ -173,7 +152,7 @@ public abstract class GtfsFlexGraphModifier {
         if (TraverseMode.CAR.equals(getMode())) {
             modifyRequestForCarAccess(rr);
         }
-        for(Pair<State, FlexPatternHop> p : getClosestPatternHops(rr)) {
+        for (Pair<State, FlexPatternHop> p : getClosestPatternHops(rr)) {
             State s = p.getKey();
             FlexPatternHop hop = p.getValue();
             TemporaryTransitStop flagTransitStop = getTemporaryStop(s, hop);
@@ -298,7 +277,7 @@ public abstract class GtfsFlexGraphModifier {
                 }
                 continue;
             }
-            createAlightEdge(rr, transitStopArrive,  patternArriveVertex, newHop);
+            createAlightEdge(rr, transitStopArrive, patternArriveVertex, newHop);
         }
 
         TemporaryPatternArriveVertex patternArriveVertex = createPatternArriveVertex(rr, originalPatternHop, flagStop);
@@ -351,10 +330,10 @@ public abstract class GtfsFlexGraphModifier {
 
     private void addStateToPatternHopStateMap(Edge edge, State s, Map<FlexPatternHop, State> patternHopStateMap) {
         Collection<FlexPatternHop> hops = graph.flexIndex.getHopsForEdge(edge);
-        for(FlexPatternHop hop : hops){
-            if(patternHopStateMap.containsKey(hop)){
+        for (FlexPatternHop hop : hops) {
+            if (patternHopStateMap.containsKey(hop)) {
                 State oldState = patternHopStateMap.get(hop);
-                if(oldState.getBackState().getWeight() < s.getBackState().getWeight()) {
+                if (oldState.getBackState().getWeight() < s.getBackState().getWeight()) {
                     continue;
                 }
             }

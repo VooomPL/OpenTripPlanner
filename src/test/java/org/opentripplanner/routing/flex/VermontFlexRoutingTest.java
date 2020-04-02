@@ -179,7 +179,7 @@ public class VermontFlexRoutingTest {
 
         FutureTask<Boolean> task2 = new FutureTask<>(() -> {
             boolean success = true;
-            while(!thread1SetupComplete.get());
+            while (!thread1SetupComplete.get()) ;
             LOG.info("Thread 2 starting");
             RoutingRequest options = buildRequest("44.4214596,-72.019371", "44.4277732,-72.01203514",
                     "2018-05-23", "1:37pm");
@@ -219,9 +219,9 @@ public class VermontFlexRoutingTest {
     }
 
     private RoutingRequest buildRequest(String from, String to, String date, String time, boolean arriveBy,
-                                               int maxWalkDistance, double callAndRideReluctance, double walkReluctance,
-                                               double waitAtBeginningFactor, int transferPenalty,
-                                               boolean ignoreDrtAdvanceMinBooking) {
+                                        int maxWalkDistance, double callAndRideReluctance, double walkReluctance,
+                                        double waitAtBeginningFactor, int transferPenalty,
+                                        boolean ignoreDrtAdvanceMinBooking) {
         RoutingRequest options = new RoutingRequest();
         options.setArriveBy(arriveBy);
         // defaults in vermont router-config.json

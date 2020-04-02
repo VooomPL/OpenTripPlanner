@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * A conveyor for an isochrone.
- * 
+ *
  * @author laurent
  */
 public class IsochroneData implements Serializable {

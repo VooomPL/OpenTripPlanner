@@ -11,12 +11,7 @@ import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.vertextype.BarrierVertex;
-import org.opentripplanner.routing.vertextype.IntersectionVertex;
-import org.opentripplanner.routing.vertextype.OsmVertex;
-import org.opentripplanner.routing.vertextype.SplitterVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
+import org.opentripplanner.routing.vertextype.*;
 import org.opentripplanner.util.BitSetUtils;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
@@ -32,9 +27,8 @@ import java.util.Optional;
 
 /**
  * This represents a street segment.
- * 
+ *
  * @author novalis
- * 
  */
 public class StreetEdge extends Edge implements Cloneable {
 
@@ -57,7 +51,9 @@ public class StreetEdge extends Edge implements Cloneable {
     // TODO(flamholz): do something smarter with the car speed here.
     public static final float DEFAULT_CAR_SPEED = 11.2f;
 
-    /** If you have more than 8 flags, increase flags to short or int */
+    /**
+     * If you have more than 8 flags, increase flags to short or int
+     */
     private static final int BACK_FLAG_INDEX = 0;
     private static final int ROUNDABOUT_FLAG_INDEX = 1;
     private static final int HASBOGUSNAME_FLAG_INDEX = 2;
@@ -66,7 +62,9 @@ public class StreetEdge extends Edge implements Cloneable {
     private static final int SLOPEOVERRIDE_FLAG_INDEX = 5;
     private static final int WHEELCHAIR_ACCESSIBLE_FLAG_INDEX = 6;
 
-    /** back, roundabout, stairs, ... */
+    /**
+     * back, roundabout, stairs, ...
+     */
     private byte flags;
 
     /**
@@ -84,16 +82,18 @@ public class StreetEdge extends Edge implements Cloneable {
     protected float bicycleSafetyFactor;
 
     private int[] compactGeometry;
-    
+
     private I18NString name;
 
     private StreetTraversalPermission permission;
 
-    /** The OSM way ID from whence this came - needed to reference traffic data */
+    /**
+     * The OSM way ID from whence this came - needed to reference traffic data
+     */
     public long wayId;
 
     private int streetClass = CLASS_OTHERPATH;
-    
+
     /**
      * The speed (meters / sec) at which an automobile can traverse
      * this street segment.
@@ -106,7 +106,9 @@ public class StreetEdge extends Edge implements Cloneable {
      */
     private byte inAngle;
 
-    /** The angle at the start of the edge geometry. Internal representation like that of inAngle. */
+    /**
+     * The angle at the start of the edge geometry. Internal representation like that of inAngle.
+     */
     private byte outAngle;
 
     public StreetEdge(StreetVertex v1, StreetVertex v2, LineString geometry,
@@ -160,13 +162,14 @@ public class StreetEdge extends Edge implements Cloneable {
 
     /**
      * Checks permissions of the street edge if specified modes are allowed to travel.
-     *
+     * <p>
      * Barriers aren't taken into account. So it can happen that canTraverse returns True.
      * But doTraverse returns false. Since there are barriers on a street.
-     *
+     * <p>
      * This is because this function is used also on street when searching for start/stop.
      * Those streets are then split. On splitted streets can be possible to drive with a CAR because
      * it is only blocked from one way.
+     *
      * @param modes
      * @return
      */
@@ -176,7 +179,7 @@ public class StreetEdge extends Edge implements Cloneable {
 
     /**
      * Checks if edge is accessible for wheelchair if needed according to tags or if slope is too big.
-     *
+     * <p>
      * Then it checks if street can be traversed according to street permissions and start/end barriers.
      * This is done with intersection of street and barrier permissions in {@link #canTraverseIncludingBarrier(TraverseMode)}
      *
@@ -201,13 +204,14 @@ public class StreetEdge extends Edge implements Cloneable {
      * If it is it creates intersection of street edge permissions
      * and from/to barriers.
      * Then it checks if mode is allowed to traverse the edge.
-     *
+     * <p>
      * By default CAR isn't allowed to traverse barrier but foot and bicycle are.
      * This can be changed with different tags
-     *
+     * <p>
      * If start/end isn't bollard it just checks the street permissions.
-     *
+     * <p>
      * It is used in {@link #canTraverse(RoutingRequest, TraverseMode)}
+     *
      * @param mode
      * @return
      */
@@ -247,7 +251,9 @@ public class StreetEdge extends Edge implements Cloneable {
         return Optional.ofNullable(editor).map(StateEditor::makeState).orElse(null);
     }
 
-    /** return a StateEditor rather than a State so that we can make parking/mode switch modifications for kiss-and-ride. */
+    /**
+     * return a StateEditor rather than a State so that we can make parking/mode switch modifications for kiss-and-ride.
+     */
     private StateEditor doTraverse(State s0, RoutingRequest options, TraverseMode traverseMode) {
         boolean walkingBike = options.walkingBike;
         boolean backWalkingBike = s0.isBackWalkingBike();
@@ -278,8 +284,8 @@ public class StreetEdge extends Edge implements Cloneable {
         }
 
         // Automobiles have variable speeds depending on the edge type
-        double speed = calculateSpeed(options, traverseMode,s0.getCurrentVehicle(), s0.getTimeInMillis());
-        
+        double speed = calculateSpeed(options, traverseMode, s0.getCurrentVehicle(), s0.getTimeInMillis());
+
         double time = getDistanceInMeters() / speed;
         double weight;
         // TODO(flamholz): factor out this bike, wheelchair and walking specific logic to somewhere central.
@@ -288,35 +294,35 @@ public class StreetEdge extends Edge implements Cloneable {
         } else if (traverseMode.equals(TraverseMode.BICYCLE)) {
             time = getSlopeSpeedEffectiveLength() / speed;
             switch (options.optimize) {
-            case SAFE:
-                weight = bicycleSafetyFactor * getDistanceInMeters() / speed;
-                break;
-            case GREENWAYS:
-                weight = bicycleSafetyFactor * getDistanceInMeters() / speed;
-                if (bicycleSafetyFactor <= GREENWAY_SAFETY_FACTOR) {
-                    // greenways are treated as even safer than they really are
-                    weight *= 0.66;
-                }
-                break;
-            case FLAT:
-                /* see notes in StreetVertex on speed overhead */
-                weight = getDistanceInMeters() / speed + getSlopeWorkCostEffectiveLength();
-                break;
-            case QUICK:
-                weight = getSlopeSpeedEffectiveLength() / speed;
-                break;
-            case TRIANGLE:
-                double quick = getSlopeSpeedEffectiveLength();
-                double safety = bicycleSafetyFactor * getDistanceInMeters();
-                // TODO This computation is not coherent with the one for FLAT
-                double slope = getSlopeWorkCostEffectiveLength();
-                weight = quick * options.triangleTimeFactor + slope
-                        * options.triangleSlopeFactor + safety
-                        * options.triangleSafetyFactor;
-                weight /= speed;
-                break;
-            default:
-                weight = getDistanceInMeters() / speed;
+                case SAFE:
+                    weight = bicycleSafetyFactor * getDistanceInMeters() / speed;
+                    break;
+                case GREENWAYS:
+                    weight = bicycleSafetyFactor * getDistanceInMeters() / speed;
+                    if (bicycleSafetyFactor <= GREENWAY_SAFETY_FACTOR) {
+                        // greenways are treated as even safer than they really are
+                        weight *= 0.66;
+                    }
+                    break;
+                case FLAT:
+                    /* see notes in StreetVertex on speed overhead */
+                    weight = getDistanceInMeters() / speed + getSlopeWorkCostEffectiveLength();
+                    break;
+                case QUICK:
+                    weight = getSlopeSpeedEffectiveLength() / speed;
+                    break;
+                case TRIANGLE:
+                    double quick = getSlopeSpeedEffectiveLength();
+                    double safety = bicycleSafetyFactor * getDistanceInMeters();
+                    // TODO This computation is not coherent with the one for FLAT
+                    double slope = getSlopeWorkCostEffectiveLength();
+                    weight = quick * options.triangleTimeFactor + slope
+                            * options.triangleSlopeFactor + safety
+                            * options.triangleSafetyFactor;
+                    weight /= speed;
+                    break;
+                default:
+                    weight = getDistanceInMeters() / speed;
             }
         } else {
             if (walkingBike) {
@@ -356,7 +362,7 @@ public class StreetEdge extends Edge implements Cloneable {
         /* Handle no through traffic areas. */
         if (this.isNoThruTraffic()) {
             // Record transition into no-through-traffic area.
-            if (backEdge instanceof StreetEdge && !((StreetEdge)backEdge).isNoThruTraffic()) {
+            if (backEdge instanceof StreetEdge && !((StreetEdge) backEdge).isNoThruTraffic()) {
                 s1.setEnteredNoThroughTrafficArea();
             }
             // If we transitioned into a no-through-traffic area at some point, check if we are exiting it.
@@ -412,11 +418,11 @@ public class StreetEdge extends Edge implements Cloneable {
 
                 realTurnCost = options.getIntersectionTraversalCostModel().computeTraversalCost(
                         traversedVertex, backPSE, this, traverseMode, options, (float) backSpeed,
-                        (float) speed);                
+                        (float) speed);
             } else {
                 // In case this is a temporary edge not connected to an IntersectionVertex
                 LOG.debug("Not computing turn cost for edge {}", this);
-                realTurnCost = 0; 
+                realTurnCost = 0;
             }
 
 
@@ -424,7 +430,7 @@ public class StreetEdge extends Edge implements Cloneable {
             roundedTime += turnTime;
             weight += options.turnReluctance * realTurnCost;
         }
-        
+
 
         if (walkingBike || TraverseMode.BICYCLE.equals(traverseMode)) {
             if (!(backWalkingBike || TraverseMode.BICYCLE.equals(backMode))) {
@@ -446,20 +452,20 @@ public class StreetEdge extends Edge implements Cloneable {
                 if (options.softPreTransitLimiting) {
                     weight += calculateOverageWeight(s0.getPreTransitTime(), s1.getPreTransitTime(),
                             options.maxPreTransitTime, options.preTransitPenalty,
-                                    options.preTransitOverageRate);
+                            options.preTransitOverageRate);
                 } else return null;
             }
         }
-        
+
         /* Apply a strategy for avoiding walking too far, either soft (weight increases) or hard limiting (pruning). */
         if (s1.weHaveWalkedTooFar(options)) {
 
             // if we're using a soft walk-limit
-            if( options.softWalkLimiting ){
+            if (options.softWalkLimiting) {
                 // just slap a penalty for the overage onto s1
                 weight += calculateOverageWeight(s0.getTraverseDistanceInMeters(), s1.getTraverseDistance(),
                         options.getMaxWalkDistance(), options.softWalkPenalty,
-                                options.softWalkOverageRate);
+                        options.softWalkOverageRate);
             } else {
                 // else, it's a hard limit; bail
                 LOG.debug("Too much walking. Bailing.");
@@ -475,12 +481,12 @@ public class StreetEdge extends Edge implements Cloneable {
     }
 
     private double calculateOverageWeight(double firstValue, double secondValue, double maxValue,
-            double softPenalty, double overageRate) {
+                                          double softPenalty, double overageRate) {
         // apply penalty if we stepped over the limit on this traversal
         boolean applyPenalty = false;
         double overageValue;
 
-        if(firstValue <= maxValue && secondValue > maxValue){
+        if (firstValue <= maxValue && secondValue > maxValue) {
             applyPenalty = true;
             overageValue = secondValue - maxValue;
         } else {
@@ -499,7 +505,7 @@ public class StreetEdge extends Edge implements Cloneable {
 
         return getCarSpeed();
     }
-    
+
     /**
      * Calculate the speed appropriately given the RoutingRequest and traverseMode and the current wall clock time.
      * Note: this is not strictly symmetrical, because in a forward search we get the speed based on the
@@ -509,12 +515,12 @@ public class StreetEdge extends Edge implements Cloneable {
     public double calculateSpeed(RoutingRequest options, TraverseMode traverseMode, VehicleDescription currentVehicle, long timeMillis) {
         double optionsMaxSpeed = options.getSpeed(traverseMode);
         double maxVehicleSpeed = Double.POSITIVE_INFINITY;
-        if(currentVehicle != null){
+        if (currentVehicle != null) {
             maxVehicleSpeed = currentVehicle.getSpeedInMetersPerSecond();
         }
         double streetMaxSpeed = calculateCarSpeed(options);
 
-        return Double.min(optionsMaxSpeed,Double.min(maxVehicleSpeed,streetMaxSpeed));
+        return Double.min(optionsMaxSpeed, Double.min(maxVehicleSpeed, streetMaxSpeed));
     }
 
     @Override
@@ -565,7 +571,7 @@ public class StreetEdge extends Edge implements Cloneable {
             throw new RuntimeException(e);
         }
     }
-    
+
     public boolean canTurnOnto(Edge e, State state, TraverseMode mode) {
         for (TurnRestriction turnRestriction : getTurnRestrictions(state.getOptions().rctx.graph)) {
             /* FIXME: This is wrong for trips that end in the middle of turnRestriction.to
@@ -588,149 +594,154 @@ public class StreetEdge extends Edge implements Cloneable {
         return true;
     }
 
-	@Override
-	public String getName() {
-		return this.name.toString();
-	}
+    @Override
+    public String getName() {
+        return this.name.toString();
+    }
 
-	/**
-	* Gets non-localized I18NString (Used when splitting edges)
-	* @return non-localized Name
-	*/
-	public I18NString getRawName() {
-		return this.name;
-	}
+    /**
+     * Gets non-localized I18NString (Used when splitting edges)
+     *
+     * @return non-localized Name
+     */
+    public I18NString getRawName() {
+        return this.name;
+    }
 
-	public String getName(Locale locale) {
-		return this.name.toString(locale);
-	}
+    public String getName(Locale locale) {
+        return this.name.toString(locale);
+    }
 
-	public void setName(I18NString name) {
-		this.name = name;
-	}
+    public void setName(I18NString name) {
+        this.name = name;
+    }
 
-	public LineString getGeometry() {
-		return CompactLineString.uncompactLineString(fromv.getLon(), fromv.getLat(), tov.getLon(), tov.getLat(), compactGeometry, isBack());
-	}
+    public LineString getGeometry() {
+        return CompactLineString.uncompactLineString(fromv.getLon(), fromv.getLat(), tov.getLon(), tov.getLat(), compactGeometry, isBack());
+    }
 
-	private void setGeometry(LineString geometry) {
-		this.compactGeometry = CompactLineString.compactLineString(fromv.getLon(), fromv.getLat(), tov.getLon(), tov.getLat(), isBack() ? (LineString)geometry.reverse() : geometry, isBack());
-	}
+    private void setGeometry(LineString geometry) {
+        this.compactGeometry = CompactLineString.compactLineString(fromv.getLon(), fromv.getLat(), tov.getLon(), tov.getLat(), isBack() ? (LineString) geometry.reverse() : geometry, isBack());
+    }
 
-	public void shareData(StreetEdge reversedEdge) {
-	    if (Arrays.equals(compactGeometry, reversedEdge.compactGeometry)) {
-	        compactGeometry = reversedEdge.compactGeometry;
-	    } else {
-	        LOG.warn("Can't share geometry between {} and {}", this, reversedEdge);
-	    }
-	}
+    public void shareData(StreetEdge reversedEdge) {
+        if (Arrays.equals(compactGeometry, reversedEdge.compactGeometry)) {
+            compactGeometry = reversedEdge.compactGeometry;
+        } else {
+            LOG.warn("Can't share geometry between {} and {}", this, reversedEdge);
+        }
+    }
 
-	public boolean isWheelchairAccessible() {
-		return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
-	}
+    public boolean isWheelchairAccessible() {
+        return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
+    }
 
-	public void setWheelchairAccessible(boolean wheelchairAccessible) {
+    public void setWheelchairAccessible(boolean wheelchairAccessible) {
         flags = BitSetUtils.set(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX, wheelchairAccessible);
-	}
+    }
 
-	public StreetTraversalPermission getPermission() {
-		return permission;
-	}
+    public StreetTraversalPermission getPermission() {
+        return permission;
+    }
 
-	public void setPermission(StreetTraversalPermission permission) {
-		this.permission = permission;
-	}
+    public void setPermission(StreetTraversalPermission permission) {
+        this.permission = permission;
+    }
 
-	public int getStreetClass() {
-		return streetClass;
-	}
+    public int getStreetClass() {
+        return streetClass;
+    }
 
-	public void setStreetClass(int streetClass) {
-		this.streetClass = streetClass;
-	}
+    public void setStreetClass(int streetClass) {
+        this.streetClass = streetClass;
+    }
 
-	/**
-	 * Marks that this edge is the reverse of the one defined in the source
-	 * data. Does NOT mean fromv/tov are reversed.
-	 */
-	public boolean isBack() {
-	    return BitSetUtils.get(flags, BACK_FLAG_INDEX);
-	}
+    /**
+     * Marks that this edge is the reverse of the one defined in the source
+     * data. Does NOT mean fromv/tov are reversed.
+     */
+    public boolean isBack() {
+        return BitSetUtils.get(flags, BACK_FLAG_INDEX);
+    }
 
-	public void setBack(boolean back) {
-            flags = BitSetUtils.set(flags, BACK_FLAG_INDEX, back);
-	}
+    public void setBack(boolean back) {
+        flags = BitSetUtils.set(flags, BACK_FLAG_INDEX, back);
+    }
 
-	public boolean isRoundabout() {
-            return BitSetUtils.get(flags, ROUNDABOUT_FLAG_INDEX);
-	}
+    public boolean isRoundabout() {
+        return BitSetUtils.get(flags, ROUNDABOUT_FLAG_INDEX);
+    }
 
-	public void setRoundabout(boolean roundabout) {
-	    flags = BitSetUtils.set(flags, ROUNDABOUT_FLAG_INDEX, roundabout);
-	}
+    public void setRoundabout(boolean roundabout) {
+        flags = BitSetUtils.set(flags, ROUNDABOUT_FLAG_INDEX, roundabout);
+    }
 
-	public boolean hasBogusName() {
-	    return BitSetUtils.get(flags, HASBOGUSNAME_FLAG_INDEX);
-	}
+    public boolean hasBogusName() {
+        return BitSetUtils.get(flags, HASBOGUSNAME_FLAG_INDEX);
+    }
 
-	public void setHasBogusName(boolean hasBogusName) {
-	    flags = BitSetUtils.set(flags, HASBOGUSNAME_FLAG_INDEX, hasBogusName);
-	}
+    public void setHasBogusName(boolean hasBogusName) {
+        flags = BitSetUtils.set(flags, HASBOGUSNAME_FLAG_INDEX, hasBogusName);
+    }
 
-	public boolean isNoThruTraffic() {
-            return BitSetUtils.get(flags, NOTHRUTRAFFIC_FLAG_INDEX);
-	}
+    public boolean isNoThruTraffic() {
+        return BitSetUtils.get(flags, NOTHRUTRAFFIC_FLAG_INDEX);
+    }
 
-	public void setNoThruTraffic(boolean noThruTraffic) {
-	    flags = BitSetUtils.set(flags, NOTHRUTRAFFIC_FLAG_INDEX, noThruTraffic);
-	}
+    public void setNoThruTraffic(boolean noThruTraffic) {
+        flags = BitSetUtils.set(flags, NOTHRUTRAFFIC_FLAG_INDEX, noThruTraffic);
+    }
 
-	/**
-	 * This street is a staircase
-	 */
-	public boolean isStairs() {
-            return BitSetUtils.get(flags, STAIRS_FLAG_INDEX);
-	}
+    /**
+     * This street is a staircase
+     */
+    public boolean isStairs() {
+        return BitSetUtils.get(flags, STAIRS_FLAG_INDEX);
+    }
 
-	public void setStairs(boolean stairs) {
-	    flags = BitSetUtils.set(flags, STAIRS_FLAG_INDEX, stairs);
-	}
+    public void setStairs(boolean stairs) {
+        flags = BitSetUtils.set(flags, STAIRS_FLAG_INDEX, stairs);
+    }
 
-	public float getCarSpeed() {
-		return carSpeed;
-	}
+    public float getCarSpeed() {
+        return carSpeed;
+    }
 
-	public void setCarSpeed(float carSpeed) {
-		this.carSpeed = carSpeed;
-	}
+    public void setCarSpeed(float carSpeed) {
+        this.carSpeed = carSpeed;
+    }
 
-	public boolean isSlopeOverride() {
-	    return BitSetUtils.get(flags, SLOPEOVERRIDE_FLAG_INDEX);
-	}
+    public boolean isSlopeOverride() {
+        return BitSetUtils.get(flags, SLOPEOVERRIDE_FLAG_INDEX);
+    }
 
-	public void setSlopeOverride(boolean slopeOverride) {
-	    flags = BitSetUtils.set(flags, SLOPEOVERRIDE_FLAG_INDEX, slopeOverride);
-	}
+    public void setSlopeOverride(boolean slopeOverride) {
+        flags = BitSetUtils.set(flags, SLOPEOVERRIDE_FLAG_INDEX, slopeOverride);
+    }
 
     /**
      * Return the azimuth of the first segment in this edge in integer degrees clockwise from South.
      * TODO change everything to clockwise from North
      */
-	public int getInAngle() {
-		return (int) Math.round(this.inAngle * 180 / 128.0);
-	}
+    public int getInAngle() {
+        return (int) Math.round(this.inAngle * 180 / 128.0);
+    }
 
-    /** Return the azimuth of the last segment in this edge in integer degrees clockwise from South. */
-	public int getOutAngle() {
-		return (int) Math.round(this.outAngle * 180 / 128.0);
-	}
+    /**
+     * Return the azimuth of the last segment in this edge in integer degrees clockwise from South.
+     */
+    public int getOutAngle() {
+        return (int) Math.round(this.outAngle * 180 / 128.0);
+    }
 
     protected List<TurnRestriction> getTurnRestrictions(Graph graph) {
         return graph.getTurnRestrictions(this);
     }
 
-    /** calculate the length of this street segement from its geometry */
-    protected void calculateLengthFromGeometry () {
+    /**
+     * calculate the length of this street segement from its geometry
+     */
+    protected void calculateLengthFromGeometry() {
         double accumulatedMeters = 0;
 
         LineString geom = getGeometry();
@@ -742,7 +753,9 @@ public class StreetEdge extends Edge implements Cloneable {
         length_mm = (int) (accumulatedMeters * 1000);
     }
 
-    /** Split this street edge and return the resulting street edges */
+    /**
+     * Split this street edge and return the resulting street edges
+     */
     public P2<StreetEdge> split(SplitterVertex v, boolean destructive) {
         P2<LineString> geoms = GeometryUtils.splitGeometryAtPoint(getGeometry(), v.getCoordinate());
 
@@ -770,8 +783,7 @@ public class StreetEdge extends Edge implements Cloneable {
                 double frac = (double) e1.length_mm / (e1.length_mm + e2.length_mm);
                 e1.length_mm = (int) (length_mm * frac);
                 e2.length_mm = length_mm - e1.length_mm;
-            }
-            else {
+            } else {
                 // cast before the divide so that the sum is promoted
                 double frac = (double) e2.length_mm / (e1.length_mm + e2.length_mm);
                 e2.length_mm = (int) (length_mm * frac);
@@ -796,7 +808,7 @@ public class StreetEdge extends Edge implements Cloneable {
                 throw new IllegalStateException("Split street is longer than original street!");
             }
 
-            for (StreetEdge e : new StreetEdge[] { e1, e2 }) {
+            for (StreetEdge e : new StreetEdge[]{e1, e2}) {
                 e.setBicycleSafetyFactor(getBicycleSafetyFactor());
                 e.setHasBogusName(hasBogusName());
                 e.setStairs(isStairs());
@@ -821,11 +833,11 @@ public class StreetEdge extends Edge implements Cloneable {
      * Get the starting OSM node ID of this edge. Note that this information is preserved when an
      * edge is split, so both edges will have the same starting and ending nodes.
      */
-    public long getStartOsmNodeId () {
+    public long getStartOsmNodeId() {
         if (fromv instanceof OsmVertex)
             return ((OsmVertex) fromv).nodeId;
-        // get information from the splitter vertex so this edge gets the same traffic information it got before
-        // it was split.
+            // get information from the splitter vertex so this edge gets the same traffic information it got before
+            // it was split.
         else if (fromv instanceof SplitterVertex)
             return ((SplitterVertex) fromv).previousNodeId;
         else
@@ -836,7 +848,7 @@ public class StreetEdge extends Edge implements Cloneable {
      * Get the ending OSM node ID of this edge. Note that this information is preserved when an
      * edge is split, so both edges will have the same starting and ending nodes.
      */
-    public long getEndOsmNodeId () {
+    public long getEndOsmNodeId() {
         if (tov instanceof OsmVertex)
             return ((OsmVertex) tov).nodeId;
             // get information from the splitter vertex so this edge gets the same traffic information it got before

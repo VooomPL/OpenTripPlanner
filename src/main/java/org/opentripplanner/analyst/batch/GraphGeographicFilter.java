@@ -1,10 +1,6 @@
 package org.opentripplanner.analyst.batch;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
+import org.locationtech.jts.geom.*;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -13,11 +9,8 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GraphGeographicFilter implements IndividualFilter {
 
@@ -36,16 +29,16 @@ public class GraphGeographicFilter implements IndividualFilter {
     private boolean useOnlyStops = true;
     private static GeometryFactory gf = new GeometryFactory();
     private Geometry hull;
-    
+
     public void findHull() {
         LOG.info("finding hull of graph...");
         LOG.debug("using only stops? {}", useOnlyStops);
         if (bufferMeters < prototypeRoutingRequest.maxWalkDistance)
             LOG.warn("geographic filter buffer is smaller than max walk distance, this will probably yield incorrect results.");
-        Graph graph= graphService.getRouter(prototypeRoutingRequest.routerId).graph;
+        Graph graph = graphService.getRouter(prototypeRoutingRequest.routerId).graph;
         List<Geometry> geometries = new ArrayList<Geometry>();
         for (Vertex v : graph.getVertices()) {
-            if (useOnlyStops && ! (v instanceof TransitStop))
+            if (useOnlyStops && !(v instanceof TransitStop))
                 continue;
             Point pt = gf.createPoint(v.getCoordinate());
             Geometry geom = crudeProjectedBuffer(pt, bufferMeters);
@@ -58,7 +51,7 @@ public class GraphGeographicFilter implements IndividualFilter {
         // may lead to false rejections
         // DouglasPeuckerSimplifier simplifier = new DouglasPeuckerSimplifier();
     }
-    
+
     private Geometry crudeProjectedBuffer(Point pt, double distanceMeters) {
         final double mPerDegreeLat = 111111.111111;
         double lat = pt.getY();
@@ -69,7 +62,7 @@ public class GraphGeographicFilter implements IndividualFilter {
         env.expandBy(lonExpand, latExpand);
         return gf.toGeometry(env);
     }
-    
+
     @Override
     public boolean filter(Individual individual) {
         Coordinate coord = new Coordinate(individual.lon, individual.lat);

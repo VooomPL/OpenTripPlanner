@@ -1,19 +1,18 @@
 package org.opentripplanner.analyst.request;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.Weigher;
 import org.opentripplanner.analyst.core.TemplateTile;
 import org.opentripplanner.analyst.core.Tile;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.Weigher;
+public class TileCache extends CacheLoader<TileRequest, Tile>
+        implements Weigher<TileRequest, Tile> {
 
-public class TileCache extends CacheLoader<TileRequest, Tile> 
-    implements  Weigher<TileRequest, Tile> { 
-    
     private static final Logger LOG = LoggerFactory.getLogger(TileCache.class);
 
     private Graph graph;
@@ -40,14 +39,16 @@ public class TileCache extends CacheLoader<TileRequest, Tile>
         //return new DynamicTile(req, sampleFactory);
     }
 
-    /** delegate to the tile LoadingCache */
+    /**
+     * delegate to the tile LoadingCache
+     */
     public Tile get(TileRequest req) throws Exception {
         return tileCache.get(req);
     }
-    
+
     @Override
     public int weigh(TileRequest req, Tile tile) {
         return tile.getSamples().length;
     }
-    
+
 }

@@ -13,23 +13,23 @@ import gnu.trove.map.hash.TObjectIntHashMap;
  * and such a custom serializer, can have significant effects on the speed of serialization and size of the resulting
  * serialized data. In order to apply the 80/20 rule it's helpful to have a list of how often various classes are
  * serialized in your application.
- *
+ * <p>
  * This class works by wrapping one method in the Kryo framework that is called for every serialized instance: the
  * method that looks up the serializer for a given class. It counts how many times each class is looked up, and can
  * print out a summary of those frequencies as well as the serializer that was associated with each class.
- *
+ * <p>
  * Note that if you have already registered serializers that are non-recursive, e.g. they write out all the values
  * in an internal int array within an ArrayList implementation, those internal fields will of course not be counted.
- *
+ * <p>
  * We could achieve the same thing by extending the ReferenceResolver in the same way, but here in ClassResolver we have
  * easy access to the map of Class-Serializer associations.
- *
+ * <p>
  * To use this you need to specify a custom class resolver when creating Kryo:
  * Kryo kryo = new Kryo(new InstanceCountingClassResolver(), new MapReferenceResolver(), new DefaultStreamFactory());
  * kryo.setRegistrationRequired(false);
  * [...]
  * ((InstanceCountingClassResolver)kryo.getClassResolver()).summarize();
- *
+ * <p>
  * Created by abyrd on 2018-08-29
  */
 public class InstanceCountingClassResolver extends DefaultClassResolver {

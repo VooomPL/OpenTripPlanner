@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
 
 /**
  * Enqueues a bunch of messages to simulate an Analyst Cluster job
- *
+ * <p>
  * $ aws s3 ls analyst-demo-graphs
  * $ aws sqs list-queues
  */

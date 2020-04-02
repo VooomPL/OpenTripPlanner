@@ -9,7 +9,7 @@ public class WorkerObservation {
     public final String graphAffinity;
     public final long lastSeen;
 
-    public WorkerObservation (String workerId, String graphAffinity) {
+    public WorkerObservation(String workerId, String graphAffinity) {
         this.workerId = workerId;
         this.graphAffinity = graphAffinity;
         this.lastSeen = System.currentTimeMillis();

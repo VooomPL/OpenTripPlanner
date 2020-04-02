@@ -1,16 +1,12 @@
 package org.opentripplanner.profile;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.apache.commons.math3.util.FastMath;
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.analyst.PointSet;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.SampleGridRenderer;
-import org.opentripplanner.common.geometry.AccumulativeGridSampler;
-import org.opentripplanner.common.geometry.DelaunayIsolineBuilder;
-import org.opentripplanner.common.geometry.SparseMatrixZSampleGrid;
-import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
-import org.opentripplanner.common.geometry.ZSampleGrid;
 import org.opentripplanner.analyst.request.SampleGridRenderer.WTWD;
+import org.opentripplanner.common.geometry.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +18,7 @@ import static org.apache.commons.math3.util.FastMath.toRadians;
  * reach that PointSet. Eventually we may want to just define a standard grid PointSet for each study area in such a way
  * that all streets within each grid cell contribute to its travel time value, then use that grid directly when making
  * isolines. This would allow us to drop the separate grid accumulation step.
- *
+ * <p>
  * The reason why we need this functionality is that we are now producing travel time stats directly for pointsets as targets
  * of a repeated RAPTOR search, without saving accompanying travel time values for the street vertices along the way.
  */
@@ -42,10 +38,11 @@ public abstract class IsochroneGenerator {
      * If your PointSet is dense enough (e.g. every block in a city) then this should yield a decent surface and
      * isochrones.
      * FIXME code duplication, this is ripped off from TimeSurface and should probably replace the version there as it is more generic.
+     *
      * @param walkSpeed the walk speed in meters per second
      * @return a grid suitable for making isochrones, based on an arbitrary PointSet and times to reach all those points.
      */
-    public static ZSampleGrid makeGrid (PointSet pointSet, int[] times, double walkSpeed) {
+    public static ZSampleGrid makeGrid(PointSet pointSet, int[] times, double walkSpeed) {
         final double D0 = WALK_DISTANCE_GRID_SIZE_RATIO * GRID_SIZE_METERS; // offroad walk distance roughly grid size
         final double V0 = walkSpeed; // off-road walk speed in m/sec
         Coordinate coordinateOrigin = pointSet.getCoordinate(0); // Use the first feature as the center of the projection
@@ -77,11 +74,12 @@ public abstract class IsochroneGenerator {
     /**
      * Make isochrones from a grid. This more general function should probably be reused by SurfaceResource.
      * FIXME code duplication: function ripped off from SurfaceResource
+     *
      * @param spacingMinutes the number of minutes between isochrones
      * @return a list of evenly-spaced isochrones
      */
     public static List<IsochroneData> getIsochronesAccumulative(ZSampleGrid<WTWD> grid,
-                                                          int spacingMinutes, int cutoffMinutes, int nMax) {
+                                                                int spacingMinutes, int cutoffMinutes, int nMax) {
 
         DelaunayIsolineBuilder<WTWD> isolineBuilder = new DelaunayIsolineBuilder<>(
                 grid.delaunayTriangulate(), new WTWD.IsolineMetric());

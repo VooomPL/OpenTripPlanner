@@ -1,9 +1,9 @@
 package org.opentripplanner.routing.edgetype;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -14,8 +14,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+import static org.junit.Assert.*;
 
 public class PlainStreetEdgeTest {
 
@@ -30,7 +29,7 @@ public class PlainStreetEdgeTest {
         v0 = vertex("maple_0th", 0.0, 0.0); // label, X, Y
         v1 = vertex("maple_1st", 2.0, 2.0);
         v2 = vertex("maple_2nd", 1.0, 2.0);
-        
+
         proto = new RoutingRequest();
         proto.setDummyRoutingContext(graph);
         proto.carSpeed = 15.0f;
@@ -41,20 +40,20 @@ public class PlainStreetEdgeTest {
         proto.turnReluctance = (1.0);
         proto.setModes(TraverseModeSet.allModes());
     }
-    
+
     @Test
     public void testInAndOutAngles() {
         // An edge heading straight West
         StreetEdge e1 = edge(v1, v2, 1.0, StreetTraversalPermission.ALL);
-        
+
         // Edge has same first and last angle.
         assertEquals(90, e1.getInAngle());
         assertEquals(90, e1.getOutAngle());
-        
+
         // 2 new ones
         StreetVertex u = vertex("test1", 2.0, 1.0);
         StreetVertex v = vertex("test2", 2.0, 2.0);
-        
+
         // Second edge, heading straight North
         StreetEdge e2 = edge(u, v, 1.0, StreetTraversalPermission.ALL);
 
@@ -71,17 +70,17 @@ public class PlainStreetEdgeTest {
         RoutingRequest options = proto.clone();
         options.setMode(TraverseMode.WALK);
         options.setRoutingContext(graph, v1, v2);
-        
+
         State s0 = new State(options);
         State s1 = e1.traverse(s0);
-        
+
         // Should use the speed on the edge.
         double expectedWeight = e1.getDistanceInMeters() / options.walkSpeed;
         long expectedDuration = (long) Math.ceil(expectedWeight);
         assertEquals(expectedDuration, s1.getElapsedTimeSeconds(), 0.0);
         assertEquals(expectedWeight, s1.getWeight(), 0.0);
     }
-    
+
     @Test
     public void testTraverseAsCar() {
         StreetEdge e1 = edge(v1, v2, 100.0, StreetTraversalPermission.ALL);
@@ -90,34 +89,34 @@ public class PlainStreetEdgeTest {
         RoutingRequest options = proto.clone();
         options.setMode(TraverseMode.CAR);
         options.setRoutingContext(graph, v1, v2);
-        
+
         State s0 = new State(options);
         State s1 = e1.traverse(s0);
-        
+
         // Should use the speed on the edge.
         double expectedWeight = e1.getDistanceInMeters() / e1.getCarSpeed();
         long expectedDuration = (long) Math.ceil(expectedWeight);
         assertEquals(expectedDuration, s1.getElapsedTimeSeconds(), 0.0);
         assertEquals(expectedWeight, s1.getWeight(), 0.0);
     }
-    
+
     @Test
     public void testModeSetCanTraverse() {
         StreetEdge e = edge(v1, v2, 1.0, StreetTraversalPermission.ALL);
-        
+
         TraverseModeSet modes = TraverseModeSet.allModes();
         assertTrue(e.canTraverse(modes));
-        
+
         modes = new TraverseModeSet(TraverseMode.BICYCLE, TraverseMode.WALK);
         assertTrue(e.canTraverse(modes));
-        
+
         e = edge(v1, v2, 1.0, StreetTraversalPermission.CAR);
         assertFalse(e.canTraverse(modes));
-        
+
         modes = new TraverseModeSet(TraverseMode.CAR, TraverseMode.WALK);
         assertTrue(e.canTraverse(modes));
     }
-    
+
     /**
      * Test the traversal of two edges with different traverse modes, with a focus on cycling.
      * This test will fail unless the following three conditions are met:
@@ -263,13 +262,13 @@ public class PlainStreetEdgeTest {
 
     /**
      * Create an edge. If twoWay, create two edges (back and forth).
-     * 
+     *
      * @param vA
      * @param vB
      * @param length
      */
     private StreetEdge edge(StreetVertex vA, StreetVertex vB, double length,
-            StreetTraversalPermission perm) {
+                            StreetTraversalPermission perm) {
         String labelA = vA.getLabel();
         String labelB = vB.getLabel();
         String name = String.format("%s_%s", labelA, labelB);

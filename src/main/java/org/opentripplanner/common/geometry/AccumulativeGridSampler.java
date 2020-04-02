@@ -1,25 +1,24 @@
 package org.opentripplanner.common.geometry;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.common.geometry.ZSampleGrid.ZSamplePoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class to fill-in a ZSampleGrid from a given loosely-defined set of sampling points.
- * 
+ * <p>
  * The process is customized by an "accumulative" metric which gives the behavior of cumulating
  * several values onto one sampling point.
- * 
+ * <p>
  * To use this class, create an instance giving an AccumulativeMetric implementation as parameter.
  * Then for each source sample, call "addSample" with the its TZ value. At the end, call close() to
  * close the sample grid (ie add grid node at the edge to make sure borders are correctly defined,
  * the definition of correct is left to the client).
- * 
+ *
  * @author laurent
  */
 public class AccumulativeGridSampler<TZ> {
@@ -28,19 +27,19 @@ public class AccumulativeGridSampler<TZ> {
      * An accumulative metric give the behavior of combining several samples to a regular sample
      * grid, ie how we should weight and add several TZ values from inside a cell to compute the
      * cell corner TZ values.
-     * 
-     * @author laurent
+     *
      * @param <TZ>
+     * @author laurent
      */
     public interface AccumulativeMetric<TZ> {
         /**
          * Callback function to handle a new added sample.
-         * 
-         * @param C0 The initial position of the sample, as given in the addSample() call.
-         * @param Cs The position of the sample on the grid, never farther away than (dX,dY)
-         * @param z The z value of the initial sample, as given in the addSample() call.
-         * @param zS The previous z value of the sample. Can be null if this is the first time, it's
-         *        up to the caller to initialize the z value.
+         *
+         * @param C0           The initial position of the sample, as given in the addSample() call.
+         * @param Cs           The position of the sample on the grid, never farther away than (dX,dY)
+         * @param z            The z value of the initial sample, as given in the addSample() call.
+         * @param zS           The previous z value of the sample. Can be null if this is the first time, it's
+         *                     up to the caller to initialize the z value.
          * @param offRoadSpeed The offroad speed to assume.
          * @return The modified z value for the sample.
          */
@@ -49,7 +48,7 @@ public class AccumulativeGridSampler<TZ> {
         /**
          * Callback function to handle a "closing" sample (that is a sample post-created to surround
          * existing samples and provide nice and smooth edges for the algorithm).
-         * 
+         *
          * @param point The point to set Z.
          * @return True if the point "close" the set.
          */

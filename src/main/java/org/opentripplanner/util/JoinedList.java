@@ -1,19 +1,16 @@
 package org.opentripplanner.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
-/** Treat multiple lists as a single list */
+/**
+ * Treat multiple lists as a single list
+ */
 public class JoinedList<E> implements List<E> {
 
     private List<E>[] lists;
     private int totalSize;
 
-    public JoinedList(List<E> ... lists) {
+    public JoinedList(List<E>... lists) {
         this.lists = lists;
         totalSize = 0;
         for (List<E> list : lists) {
@@ -104,15 +101,16 @@ public class JoinedList<E> implements List<E> {
     public Iterator<E> iterator() {
         return new JoinedListIterator();
     }
-    
+
     class JoinedListIterator implements ListIterator<E> {
 
         private int listIndex;
         private ListIterator<E> iterator;
-        JoinedListIterator(){
+
+        JoinedListIterator() {
             listIndex = 0;
         }
-        
+
         @Override
         public boolean hasNext() {
             if (iterator == null) {
@@ -184,7 +182,7 @@ public class JoinedList<E> implements List<E> {
         public void set(E arg0) {
             throw new UnsupportedOperationException();
         }
-        
+
     }
 
     @Override

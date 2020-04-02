@@ -1,13 +1,12 @@
 package org.opentripplanner.graph_builder.module.map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -16,15 +15,15 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.routing.vertextype.StreetVertex;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import java.util.Locale;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
+
+import java.util.List;
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TestStreetMatcher {
     static GeometryFactory gf = new GeometryFactory();
@@ -84,7 +83,7 @@ public class TestStreetMatcher {
 
     @Test
     public void testStreetMatcher() {
-        
+
         LineString geometry = geometry(-122.385689, 47.669484, -122.387384, 47.669470);
 
         StreetMatcher matcher = new StreetMatcher(graph);
@@ -109,7 +108,7 @@ public class TestStreetMatcher {
 
         geometry = geometry(-122.384756, 47.669260, -122.384777, 47.667454, -122.383554, 47.666789,
                 -122.3825, 47.666);
-         match = matcher.match(geometry);
+        match = matcher.match(geometry);
         assertNotNull(match);
         System.out.println(match);
         assertEquals(4, match.size());
@@ -158,9 +157,9 @@ public class TestStreetMatcher {
         private static final long serialVersionUID = 1L;
 
         public SimpleEdge(StreetVertex v1, StreetVertex v2) {
-            super(v1, v2, null, (NonLocalizedString)null, 0, null, false);
+            super(v1, v2, null, (NonLocalizedString) null, 0, null, false);
         }
-        
+
         @Override
         public State traverse(State s0) {
             double d = getDistanceInMeters();
@@ -189,8 +188,8 @@ public class TestStreetMatcher {
 
         @Override
         public LineString getGeometry() {
-            return gf.createLineString(new Coordinate[] { fromv.getCoordinate(),
-                    tov.getCoordinate() });
+            return gf.createLineString(new Coordinate[]{fromv.getCoordinate(),
+                    tov.getCoordinate()});
         }
 
         @Override
@@ -207,7 +206,7 @@ public class TestStreetMatcher {
         public boolean canTraverse(TraverseModeSet modes) {
             return true;
         }
-        
+
         @Override
         public StreetTraversalPermission getPermission() {
             return StreetTraversalPermission.ALL;
@@ -221,7 +220,7 @@ public class TestStreetMatcher {
         public String toString() {
             return "SimpleEdge(" + fromv + ", " + tov + ")";
         }
-        
+
         @Override
         public int getStreetClass() {
             return StreetEdge.CLASS_STREET;
@@ -252,7 +251,8 @@ public class TestStreetMatcher {
         }
 
         @Override
-        public void setCarSpeed(float carSpeed) {}
+        public void setCarSpeed(float carSpeed) {
+        }
 
     }
 }

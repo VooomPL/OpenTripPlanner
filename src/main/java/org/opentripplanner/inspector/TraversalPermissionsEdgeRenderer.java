@@ -1,19 +1,18 @@
 package org.opentripplanner.inspector;
 
-import java.awt.Color;
-
 import org.opentripplanner.inspector.EdgeVertexTileRenderer.EdgeVertexRenderer;
 import org.opentripplanner.inspector.EdgeVertexTileRenderer.EdgeVisualAttributes;
 import org.opentripplanner.inspector.EdgeVertexTileRenderer.VertexVisualAttributes;
 import org.opentripplanner.routing.edgetype.*;
-import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.*;
 
+import java.awt.*;
+
 /**
  * Render traversal permissions for each edge by color and label (walk, bicycle, car, stairs).
- * 
+ *
  * @author laurent
  */
 public class TraversalPermissionsEdgeRenderer implements EdgeVertexRenderer {
@@ -33,7 +32,7 @@ public class TraversalPermissionsEdgeRenderer implements EdgeVertexRenderer {
     private static final Color PARK_AND_RIDE_COLOR_VERTEX = Color.RED;
 
     private static final Color BARRIER_COLOR_VERTEX = new Color(0.5803922f, 0.21568628f,
-        0.24313726f);
+            0.24313726f);
 
     @Override
     public boolean renderEdge(Edge e, EdgeVisualAttributes attrs) {

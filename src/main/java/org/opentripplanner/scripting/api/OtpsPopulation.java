@@ -1,21 +1,16 @@
 package org.opentripplanner.scripting.api;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.csvreader.CsvReader;
 import org.opentripplanner.analyst.batch.Individual;
 import org.opentripplanner.analyst.batch.Population;
 
-import com.csvreader.CsvReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * A population is a collection of individuals.
- * 
+ * <p>
  * Example of use (python script loading a CSV file):
  * <pre>
  *   spt = ...
@@ -24,7 +19,7 @@ import com.csvreader.CsvReader;
  *   for r in result:
  *       print r.getTime()
  * </pre>
- * 
+ *
  * @author laurent
  */
 public class OtpsPopulation implements Iterable<OtpsIndividual> {
@@ -48,9 +43,9 @@ public class OtpsPopulation implements Iterable<OtpsIndividual> {
     /**
      * Set data header keys. Only useful for population you create yourself programmatically. For
      * CSV population this will be set automatically according to the CSV headers.
-     * 
+     *
      * @param headers The data header, in order. Later used as a key to retrieve individual data
-     *        value.
+     *                value.
      */
     public void setHeaders(String[] headers) {
         dataIndex = new HashMap<>();
@@ -70,7 +65,7 @@ public class OtpsPopulation implements Iterable<OtpsIndividual> {
 
     /**
      * Add a new data-less individual to the collection.
-     * 
+     *
      * @param lat Latitude of the individual location
      * @param lon Longitude of the individual location
      */
@@ -80,9 +75,9 @@ public class OtpsPopulation implements Iterable<OtpsIndividual> {
 
     /**
      * Add a new individual with some data attached to it.
-     * 
-     * @param lat Latitude of the individual location
-     * @param lon Longitude of the individual location
+     *
+     * @param lat  Latitude of the individual location
+     * @param lon  Longitude of the individual location
      * @param data An array of data to store in the individual
      */
     public void addIndividual(double lat, double lon, String[] data) {
@@ -99,7 +94,7 @@ public class OtpsPopulation implements Iterable<OtpsIndividual> {
     // TODO Specify the CRS to use
     // TODO Use a Map<String, Object> for optional parameters?
     protected static OtpsPopulation loadFromCSV(String filename, String latColName,
-            String lonColName) throws IOException {
+                                                String lonColName) throws IOException {
         OtpsPopulation ret = new OtpsPopulation();
         CsvReader reader = new CsvReader(filename, ',', Charset.forName("UTF8"));
         reader.readHeaders();

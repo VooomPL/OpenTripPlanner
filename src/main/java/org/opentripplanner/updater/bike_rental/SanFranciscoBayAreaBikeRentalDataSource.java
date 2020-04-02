@@ -43,7 +43,7 @@ public class SanFranciscoBayAreaBikeRentalDataSource extends GenericJsonBikeRent
         brstation.id = stationNode.path("id").toString();
         brstation.x = stationNode.path("longitude").asDouble();
         brstation.y = stationNode.path("latitude").asDouble();
-        brstation.name =  new NonLocalizedString(stationNode.path("stationName").asText());
+        brstation.name = new NonLocalizedString(stationNode.path("stationName").asText());
         brstation.bikesAvailable = stationNode.path("availableBikes").asInt();
         brstation.spacesAvailable = stationNode.path("availableDocks").asInt();
 

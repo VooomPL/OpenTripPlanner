@@ -1,8 +1,8 @@
 package org.opentripplanner.routing.vertextype;
 
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
-import org.junit.Test;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.graph_builder.module.osm.OSMFilter;
 import org.opentripplanner.openstreetmap.model.OSMNode;
@@ -29,30 +29,30 @@ public class BarrierVertexTest {
         String label = "simpleBarrier";
         BarrierVertex bv = new BarrierVertex(graph, label, simpleBarier.lon, simpleBarier.lat, 0);
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, bv.getBarrierPermissions());
 
         simpleBarier.addTag("foot", "yes");
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, bv.getBarrierPermissions());
         simpleBarier.addTag("bicycle", "yes");
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, bv.getBarrierPermissions());
         simpleBarier.addTag("access", "no");
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, bv.getBarrierPermissions());
 
         simpleBarier.addTag("motor_vehicle", "no");
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, bv.getBarrierPermissions());
 
         simpleBarier.addTag("bicycle", "no");
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(simpleBarier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN, bv.getBarrierPermissions());
 
         OSMNode complexBarrier = new OSMNode();
@@ -60,7 +60,7 @@ public class BarrierVertexTest {
         complexBarrier.addTag("access", "no");
 
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(complexBarrier, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(complexBarrier, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.NONE, bv.getBarrierPermissions());
 
         OSMNode noBikeBollard = new OSMNode();
@@ -68,7 +68,7 @@ public class BarrierVertexTest {
         noBikeBollard.addTag("bicycle", "no");
 
         bv.setBarrierPermissions(OSMFilter
-            .getPermissionsForEntity(noBikeBollard, BarrierVertex.defaultBarrierPermissions));
+                .getPermissionsForEntity(noBikeBollard, BarrierVertex.defaultBarrierPermissions));
         assertEquals(StreetTraversalPermission.PEDESTRIAN, bv.getBarrierPermissions());
     }
 
@@ -78,7 +78,7 @@ public class BarrierVertexTest {
      * @param vA
      * @param vB
      * @param length
-     * @param back true if this is a reverse edge
+     * @param back   true if this is a reverse edge
      */
     private StreetEdge edge(StreetVertex vA, StreetVertex vB, double length, boolean back) {
         String labelA = vA.getLabel();
@@ -92,7 +92,6 @@ public class BarrierVertexTest {
         StreetTraversalPermission perm = StreetTraversalPermission.ALL;
         return new StreetEdge(vA, vB, geom, name, length, perm, back);
     }
-
 
 
     @Test

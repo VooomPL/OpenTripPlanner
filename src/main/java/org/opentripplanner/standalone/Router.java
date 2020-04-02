@@ -1,7 +1,7 @@
 package org.opentripplanner.standalone;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -37,8 +37,8 @@ public class Router {
     public double[] timeouts = {5, 4, 2};
 
     /**
-     *  Separate logger for incoming requests. This should be handled with a Logback logger rather than something
-     *  simple like a PrintStream because requests come in multi-threaded.
+     * Separate logger for incoming requests. This should be handled with a Logback logger rather than something
+     * simple like a PrintStream because requests come in multi-threaded.
      */
     public Logger requestLogger = null;
 
@@ -56,10 +56,14 @@ public class Router {
     // A RoutingRequest containing default parameters that will be cloned when handling each request
     public RoutingRequest defaultRoutingRequest;
 
-    /** A graphical window that is used for visualizing search progress (debugging). */
+    /**
+     * A graphical window that is used for visualizing search progress (debugging).
+     */
     public GraphVisualizer graphVisualizer = null;
 
-    /** Storage for non-destructive alternatives analysis scenarios. */
+    /**
+     * Storage for non-destructive alternatives analysis scenarios.
+     */
     public ScenarioStore scenarioStore = new ScenarioStore();
 
     public Router(String id, Graph graph) {
@@ -76,6 +80,7 @@ public class Router {
 
     /**
      * Start up a new router once it has been created.
+     *
      * @param config The configuration (loaded from Graph.properties for example).
      */
     public void startup(JsonNode config) {
@@ -175,7 +180,9 @@ public class Router {
         }
     }
 
-    /** Shut down this router when evicted or (auto-)reloaded. Stop any real-time updater threads. */
+    /**
+     * Shut down this router when evicted or (auto-)reloaded. Stop any real-time updater threads.
+     */
     public void shutdown() {
         GraphUpdaterConfigurator.shutdownGraph(this.graph);
     }

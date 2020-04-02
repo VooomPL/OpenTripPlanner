@@ -1,15 +1,5 @@
 package org.opentripplanner.analyst.core;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
-import java.awt.image.WritableRaster;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.Map;
-
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -18,22 +8,30 @@ import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.analyst.request.RenderRequest;
 import org.opentripplanner.analyst.request.TileRequest;
 import org.opentripplanner.api.parameter.Style;
-import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**  
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
+import java.awt.image.WritableRaster;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
+
+/**
  * Analyst 8-bit tile format:
  * Seconds are converted to minutes.
  * Minutes are clamped to +-120
  * Unreachable pixels are set to Byte.MIN_VALUE (-128)
  * Result is stored in image pixel as a signed byte.
- * 
+ * <p>
  * So:
- *  -119 to +119 are interpreted literally,
- *  +120 means >= +120,
- *  -120 means <= -120,
- *  -128 means "unreachable".
+ * -119 to +119 are interpreted literally,
+ * +120 means >= +120,
+ * -120 means <= -120,
+ * -128 means "unreachable".
  */
 public abstract class Tile {
 
@@ -41,11 +39,11 @@ public abstract class Tile {
     private static final Logger LOG = LoggerFactory.getLogger(Tile.class);
 
     /**
-     *  Creates an interpolated 8-bit color map from the supplied array of color values.
-     *  Each row in the input array is a 5-element array consisting of:
-     *  colorIndex, red, green, blue, alpha
-     *  Color indexes must be in increasing order. Negative indexes will be stored as signed
-     *  bytes, so -1 is 0xFF etc. 
+     * Creates an interpolated 8-bit color map from the supplied array of color values.
+     * Each row in the input array is a 5-element array consisting of:
+     * colorIndex, red, green, blue, alpha
+     * Color indexes must be in increasing order. Negative indexes will be stored as signed
+     * bytes, so -1 is 0xFF etc.
      */
     private static IndexColorModel interpolatedColorMap(int[][] breaks) {
         byte[][] vals = new byte[4][256];
@@ -56,92 +54,92 @@ public abstract class Tile {
                 int i1 = br1[0];
                 int steps = i1 - i0;
                 for (int channel = 0; channel < 4; ++channel) {
-                    int v0 = br0[channel+1];
-                    int v1 = br1[channel+1];
+                    int v0 = br0[channel + 1];
+                    int v1 = br1[channel + 1];
                     float delta = (v1 - v0) / (float) steps;
                     for (int i = 0; i < steps; i++) {
-                        int v = v0 + (int)(delta * i);
+                        int v = v0 + (int) (delta * i);
                         // handle negative indexes
                         int byte_i = 0x000000FF & (i0 + i);
-                        vals[channel][byte_i] = (byte)v;
+                        vals[channel][byte_i] = (byte) v;
                     }
                 }
             }
             br0 = br1;
         }
-        return new IndexColorModel(8, 256, vals[0], vals[1], vals[2], vals[3]);        
+        return new IndexColorModel(8, 256, vals[0], vals[1], vals[2], vals[3]);
     }
 
     /*
      * Pixels are travel times in minutes, stored as signed bytes. This allows us to represent
      * times and time differences with absolute values up to 2 hours.
      */
-    private static final IndexColorModel ICM_SMOOTH_COLOR_15 = interpolatedColorMap( new int[][] { 
-        {0,     0,   0,   0,  0},  
-        {15,  100, 100, 100, 80},  
-        {30,    0, 200,   0, 80},  
-        {45,    0,   0, 200, 80},
-        {60,  200, 200,   0, 80},
-        {75,  200,   0,   0, 80},
-        {90,  200,   0, 200, 50},
-        {120, 200,   0, 200,  0} 
-    }); 
-    
-    private static final IndexColorModel ICM_STEP_COLOR_15 = interpolatedColorMap( new int[][] { 
-        {-128, 100, 100, 100, 200}, // for unreachable places 
-        {0,   100, 100, 100,  0},  
-        {15,  100, 100, 100, 90},  
-        {15,    0, 140,   0, 10},  
-        {30,    0, 140,   0, 90},  
-        {30,    0,   0, 140, 10},  
-        {45,    0,   0, 140, 90},
-        {45,  140, 140,   0, 10},
-        {60,  140, 140,   0, 90},
-        {60,  140,   0,   0, 10},
-        {75,  140,   0,   0, 90},
-        {75,  140,   0, 140, 10},
-        {90,  140,   0, 140, 90},
-        {90,  100, 100, 100, 50},
-        {121, 100, 100, 100, 200} 
+    private static final IndexColorModel ICM_SMOOTH_COLOR_15 = interpolatedColorMap(new int[][]{
+            {0, 0, 0, 0, 0},
+            {15, 100, 100, 100, 80},
+            {30, 0, 200, 0, 80},
+            {45, 0, 0, 200, 80},
+            {60, 200, 200, 0, 80},
+            {75, 200, 0, 0, 80},
+            {90, 200, 0, 200, 50},
+            {120, 200, 0, 200, 0}
     });
-    
-    private static final IndexColorModel ICM_DIFFERENCE_15 = interpolatedColorMap( new int[][] { 
-        {-128,   0,   0, 0,   0},
-        {-127, 150,   0, 0,  80},
-        {-60,  150,   0, 0,  80},  
-        {-15,  150, 150, 0, 80},
-        {0, 150,  150,   0,  0},
-        {0,    0,   0,   0,  0},
-        {15,   0,   0, 150, 80},
-        {45,   0, 150,   0, 90},
-        {60, 100, 150, 100, 99},
-        {127, 50, 150,  50, 99}
+
+    private static final IndexColorModel ICM_STEP_COLOR_15 = interpolatedColorMap(new int[][]{
+            {-128, 100, 100, 100, 200}, // for unreachable places
+            {0, 100, 100, 100, 0},
+            {15, 100, 100, 100, 90},
+            {15, 0, 140, 0, 10},
+            {30, 0, 140, 0, 90},
+            {30, 0, 0, 140, 10},
+            {45, 0, 0, 140, 90},
+            {45, 140, 140, 0, 10},
+            {60, 140, 140, 0, 90},
+            {60, 140, 0, 0, 10},
+            {75, 140, 0, 0, 90},
+            {75, 140, 0, 140, 10},
+            {90, 140, 0, 140, 90},
+            {90, 100, 100, 100, 50},
+            {121, 100, 100, 100, 200}
+    });
+
+    private static final IndexColorModel ICM_DIFFERENCE_15 = interpolatedColorMap(new int[][]{
+            {-128, 0, 0, 0, 0},
+            {-127, 150, 0, 0, 80},
+            {-60, 150, 0, 0, 80},
+            {-15, 150, 150, 0, 80},
+            {0, 150, 150, 0, 0},
+            {0, 0, 0, 0, 0},
+            {15, 0, 0, 150, 80},
+            {45, 0, 150, 0, 90},
+            {60, 100, 150, 100, 99},
+            {127, 50, 150, 50, 99}
     });
 
     // SAMENESS bands (northern lights color scheme)
-    private static final IndexColorModel ICM_SAMENESS_5 = interpolatedColorMap( new int[][] { 
-        {-20,  80,  80,  80,   0},
-        {-15, 100,   0, 100,  80},
-        {-10,   0,   0, 150,  80},  
-        {-5,    0, 150,   0,  80},
-        { 0,    0, 150,   0, 150},
-        { 5,    0, 150,   0,  80},
-        { 10,   0,   0, 150,  80},
-        { 15, 100,   0, 100,  80},
-        { 20,  80,  80,  80,   0},
-        {-20,   0,   0,   0,   0} // wrap around to hide inaccessible areas
+    private static final IndexColorModel ICM_SAMENESS_5 = interpolatedColorMap(new int[][]{
+            {-20, 80, 80, 80, 0},
+            {-15, 100, 0, 100, 80},
+            {-10, 0, 0, 150, 80},
+            {-5, 0, 150, 0, 80},
+            {0, 0, 150, 0, 150},
+            {5, 0, 150, 0, 80},
+            {10, 0, 0, 150, 80},
+            {15, 100, 0, 100, 80},
+            {20, 80, 80, 80, 0},
+            {-20, 0, 0, 0, 0} // wrap around to hide inaccessible areas
     });
 
-    private static final IndexColorModel ICM_GRAY_60 = interpolatedColorMap( new int[][] { 
-        {-128, 0, 0, 0, 255}, // black out neg/missing/unreachable
-        {   0, 0, 0, 0, 255},
-        {  60, 0, 0, 0,   0},
-        { 120, 0, 0, 0,   0}
+    private static final IndexColorModel ICM_GRAY_60 = interpolatedColorMap(new int[][]{
+            {-128, 0, 0, 0, 255}, // black out neg/missing/unreachable
+            {0, 0, 0, 0, 255},
+            {60, 0, 0, 0, 0},
+            {120, 0, 0, 0, 0}
     });
 
-    private static final IndexColorModel ICM_MASK_60 = interpolatedColorMap( new int[][] { 
-        { 0, 0, 0, 0, 255},
-        {60, 0, 0, 0,   0}
+    private static final IndexColorModel ICM_MASK_60 = interpolatedColorMap(new int[][]{
+            {0, 0, 0, 0, 255},
+            {60, 0, 0, 0, 0}
     });
 
 //  int[][] breaks = { 
@@ -172,64 +170,65 @@ public abstract class Tile {
 //      {255,   0, 100, 100,  0}
 //  }; 
 
-    public static final Map<Style, IndexColorModel> modelsByStyle; 
+    public static final Map<Style, IndexColorModel> modelsByStyle;
+
     static {
         modelsByStyle = new EnumMap<Style, IndexColorModel>(Style.class);
         modelsByStyle.put(Style.COLOR30, ICM_STEP_COLOR_15);
         modelsByStyle.put(Style.DIFFERENCE, ICM_DIFFERENCE_15);
-        modelsByStyle.put(Style.TRANSPARENT, ICM_GRAY_60); 
+        modelsByStyle.put(Style.TRANSPARENT, ICM_GRAY_60);
         modelsByStyle.put(Style.MASK, ICM_MASK_60);
         modelsByStyle.put(Style.BOARDINGS, buildBoardingColorMap());
     }
-    
+
     /* INSTANCE */
     final GridGeometry2D gg;
     final int width, height;
-    
+
     Tile(TileRequest req) {
         GridEnvelope2D gridEnv = new GridEnvelope2D(0, 0, req.width, req.height);
-        this.gg = new GridGeometry2D(gridEnv, (org.opengis.geometry.Envelope)(req.bbox));
+        this.gg = new GridGeometry2D(gridEnv, (org.opengis.geometry.Envelope) (req.bbox));
         // TODO: check that gg intersects graph area 
         LOG.debug("preparing tile for {}", gg.getEnvelope2D());
         // Envelope2D worldEnv = gg.getEnvelope2D();
         this.width = gridEnv.width;
         this.height = gridEnv.height;
     }
-    
+
     private static IndexColorModel buildOldDefaultColorMap() {
-    	Color[] palette = new Color[256];
-    	final int ALPHA = 0x60FFFFFF; // ARGB
-    	for (int i = 0; i < 28; i++) {
-    		// Note: HSB = Hue / Saturation / Brightness
-        	palette[i + 00] =  new Color(ALPHA & Color.HSBtoRGB(0.333f, i * 0.037f, 0.8f), true); // Green
-        	palette[i + 30] =  new Color(ALPHA & Color.HSBtoRGB(0.666f, i * 0.037f, 0.8f), true); // Blue
-        	palette[i + 60] =  new Color(ALPHA & Color.HSBtoRGB(0.144f, i * 0.037f, 0.8f), true); // Yellow
-        	palette[i + 90] =  new Color(ALPHA & Color.HSBtoRGB(0.000f, i * 0.037f, 0.8f), true); // Red
-        	palette[i + 120] = new Color(ALPHA & Color.HSBtoRGB(0.000f, 0.000f, (29 - i) * 0.0172f), true); // Black
+        Color[] palette = new Color[256];
+        final int ALPHA = 0x60FFFFFF; // ARGB
+        for (int i = 0; i < 28; i++) {
+            // Note: HSB = Hue / Saturation / Brightness
+            palette[i + 00] = new Color(ALPHA & Color.HSBtoRGB(0.333f, i * 0.037f, 0.8f), true); // Green
+            palette[i + 30] = new Color(ALPHA & Color.HSBtoRGB(0.666f, i * 0.037f, 0.8f), true); // Blue
+            palette[i + 60] = new Color(ALPHA & Color.HSBtoRGB(0.144f, i * 0.037f, 0.8f), true); // Yellow
+            palette[i + 90] = new Color(ALPHA & Color.HSBtoRGB(0.000f, i * 0.037f, 0.8f), true); // Red
+            palette[i + 120] = new Color(ALPHA & Color.HSBtoRGB(0.000f, 0.000f, (29 - i) * 0.0172f), true); // Black
         }
-    	for (int i = 28; i < 30; i++) {
-        	palette[i + 00] =  new Color(ALPHA & Color.HSBtoRGB(0.333f, (30 - i) * 0.333f, 0.8f), true); // Green
-        	palette[i + 30] =  new Color(ALPHA & Color.HSBtoRGB(0.666f, (30 - i) * 0.333f, 0.8f), true); // Blue
-        	palette[i + 60] =  new Color(ALPHA & Color.HSBtoRGB(0.144f, (30 - i) * 0.333f, 0.8f), true); // Yellow
-        	palette[i + 90] =  new Color(ALPHA & Color.HSBtoRGB(0.000f, (30 - i) * 0.333f, 0.8f), true); // Red
-        	palette[i + 120] = new Color(ALPHA & Color.HSBtoRGB(0.000f, 0.000f, (29 - i) * 0.0172f), true); // Black
-    	}
+        for (int i = 28; i < 30; i++) {
+            palette[i + 00] = new Color(ALPHA & Color.HSBtoRGB(0.333f, (30 - i) * 0.333f, 0.8f), true); // Green
+            palette[i + 30] = new Color(ALPHA & Color.HSBtoRGB(0.666f, (30 - i) * 0.333f, 0.8f), true); // Blue
+            palette[i + 60] = new Color(ALPHA & Color.HSBtoRGB(0.144f, (30 - i) * 0.333f, 0.8f), true); // Yellow
+            palette[i + 90] = new Color(ALPHA & Color.HSBtoRGB(0.000f, (30 - i) * 0.333f, 0.8f), true); // Red
+            palette[i + 120] = new Color(ALPHA & Color.HSBtoRGB(0.000f, 0.000f, (29 - i) * 0.0172f), true); // Black
+        }
         for (int i = 150; i < palette.length; i++) {
-        	palette[i] = new Color(0x00000000, true);
+            palette[i] = new Color(0x00000000, true);
         }
         byte[] r = new byte[256];
         byte[] g = new byte[256];
         byte[] b = new byte[256];
         byte[] a = new byte[256];
         for (int i = 0; i < palette.length; i++) {
-        	r[i] = (byte)palette[i].getRed();
-        	g[i] = (byte)palette[i].getGreen();
-        	b[i] = (byte)palette[i].getBlue();
-        	a[i] = (byte)palette[i].getAlpha();
+            r[i] = (byte) palette[i].getRed();
+            g[i] = (byte) palette[i].getGreen();
+            b[i] = (byte) palette[i].getBlue();
+            a[i] = (byte) palette[i].getAlpha();
         }
         return new IndexColorModel(8, 256, r, g, b, a);
     }
-    
+
     private static IndexColorModel buildBoardingColorMap() {
         byte[] r = new byte[256];
         byte[] g = new byte[256];
@@ -252,13 +251,13 @@ public abstract class Tile {
         else
             return new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
     }
-    
+
     final byte UNREACHABLE = Byte.MIN_VALUE;
 
     public BufferedImage generateImage(TimeSurface surf, RenderRequest renderRequest) {
         long t0 = System.currentTimeMillis();
         BufferedImage image = getEmptyImage(renderRequest.style);
-        byte[] imagePixelData = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+        byte[] imagePixelData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         int i = 0;
         for (Sample s : getSamples()) {
             byte pixel;
@@ -295,7 +294,7 @@ public abstract class Tile {
             double intercept, RenderRequest renderRequest) {
         long t0 = System.currentTimeMillis();
         BufferedImage image = getEmptyImage(renderRequest.style);
-        byte[] imagePixelData = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+        byte[] imagePixelData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         int i = 0;
         for (Sample s : getSamples()) {
             byte pixel = UNREACHABLE;
@@ -303,7 +302,7 @@ public abstract class Tile {
                 long t1 = s.eval(surfA);
                 long t2 = s.eval(surfB);
                 if (t1 != Long.MAX_VALUE && t2 != Long.MAX_VALUE) {
-                    double t = (k1 * t1 + k2 * t2) / 60 + intercept; 
+                    double t = (k1 * t1 + k2 * t2) / 60 + intercept;
                     if (t < -120)
                         t = -120;
                     else if (t > 120)
@@ -321,7 +320,7 @@ public abstract class Tile {
 
     public GridCoverage2D getGridCoverage2D(BufferedImage image) {
         GridCoverage2D gridCoverage = new GridCoverageFactory()
-            .create("isochrone", image, gg.getEnvelope2D());
+                .create("isochrone", image, gg.getEnvelope2D());
         return gridCoverage;
     }
 
@@ -339,13 +338,13 @@ public abstract class Tile {
         // These params control spacing of colour bar.
         int startVal = 0;
         int finalVal = 150;
-        int labelSpacing = 30; 
+        int labelSpacing = 30;
         if (style == Style.DIFFERENCE) {
             startVal = -120;
             finalVal = 120;
             labelSpacing = 30;
         }
-	int bandsTotal = finalVal - startVal;
+        int bandsTotal = finalVal - startVal;
 
         WritableRaster raster = model.createCompatibleWritableRaster(width, height);
         byte[] pixels = ((DataBufferByte) raster.getDataBuffer()).getData();

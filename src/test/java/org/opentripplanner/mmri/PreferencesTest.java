@@ -1,8 +1,8 @@
 package org.opentripplanner.mmri;
 
-import static org.opentripplanner.routing.core.TraverseMode.BUS;
-
 import org.opentripplanner.api.model.Leg;
+
+import static org.opentripplanner.routing.core.TraverseMode.BUS;
 
 public class PreferencesTest extends MmriTest {
     @Override

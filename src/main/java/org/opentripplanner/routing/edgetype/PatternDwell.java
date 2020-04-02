@@ -1,6 +1,6 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Locale;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -10,19 +10,19 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.PatternArriveVertex;
 import org.opentripplanner.routing.vertextype.PatternDepartVertex;
 
-import org.locationtech.jts.geom.LineString;
+import java.util.Locale;
 
 
 /**
- *  Models waiting in a station on a vehicle.  The vehicle is not permitted to change 
- *  names during this time -- PatternInterlineDwell represents that case.
+ * Models waiting in a station on a vehicle.  The vehicle is not permitted to change
+ * names during this time -- PatternInterlineDwell represents that case.
  */
 public class PatternDwell extends TablePatternEdge implements OnboardEdge, DwellEdge {
-    
+
     private static final long serialVersionUID = 1L;
 
     private int stopIndex;
-    
+
     public PatternDwell(PatternArriveVertex from, PatternDepartVertex to, int stopIndex, TripPattern tripPattern) {
         super(from, to);
         this.stopIndex = stopIndex;
@@ -35,7 +35,7 @@ public class PatternDwell extends TablePatternEdge implements OnboardEdge, Dwell
     public double getDistanceInMeters() {
         return 0;
     }
-        
+
     public TraverseMode getMode() {
         return GtfsLibrary.getTraverseMode(getPattern().route);
     }
@@ -69,7 +69,7 @@ public class PatternDwell extends TablePatternEdge implements OnboardEdge, Dwell
         s1.incrementWeight(dwellTime);
         return s1.makeState();
     }
-    
+
     @Override
     public double timeLowerBound(RoutingRequest options) {
         return getPattern().scheduledTimetable.getBestDwellTime(stopIndex);

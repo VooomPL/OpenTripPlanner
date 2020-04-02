@@ -1,22 +1,18 @@
 package org.opentripplanner.visibility;
 
-import java.util.PriorityQueue;
-import java.util.HashSet;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-
-
- This port undoubtedly introduced a number of bugs (and removed some features).
-
- Bug reports should be directed to the OpenTripPlanner project, unless they
- can be reproduced in the original VisiLibity
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity
  */
 public class VisibilityPolygon extends VLPolygon {
     private static Logger log = LoggerFactory.getLogger(VisibilityPolygon.class);
@@ -25,17 +21,17 @@ public class VisibilityPolygon extends VLPolygon {
     public boolean is_spike(VLPoint observer, VLPoint point1, VLPoint point2, VLPoint point3, double epsilon) {
 
         return (
-        // Make sure observer not colocated with any of the points.
-        observer.distance(point1) > epsilon && observer.distance(point2) > epsilon
-                && observer.distance(point3) > epsilon
-                // Test whether there is a spike with point2 as the tip
-                && ((observer.distance(point2) >= observer.distance(point1) && observer
+                // Make sure observer not colocated with any of the points.
+                observer.distance(point1) > epsilon && observer.distance(point2) > epsilon
+                        && observer.distance(point3) > epsilon
+                        // Test whether there is a spike with point2 as the tip
+                        && ((observer.distance(point2) >= observer.distance(point1) && observer
                         .distance(point2) >= observer.distance(point3)) || (observer
                         .distance(point2) <= observer.distance(point1) && observer.distance(point2) <= observer
                         .distance(point3)))
-        // && the pike is sufficiently sharp,
-        && Math.max(point2.distance(new Ray(observer, point1)),
-                point2.distance(new Ray(observer, point3))) <= epsilon);
+                        // && the pike is sufficiently sharp,
+                        && Math.max(point2.distance(new Ray(observer, point1)),
+                        point2.distance(new Ray(observer, point3))) <= epsilon);
         // Formerly used
         // Math.abs( Polygon(point1, point2, point3).area() ) < epsilon
     }
@@ -45,8 +41,8 @@ public class VisibilityPolygon extends VLPolygon {
         // While the top three vertices form a spike.
         while (vertices.size() >= 3
                 && is_spike(observer, vertices.get(vertices.size() - 3),
-                        vertices.get(vertices.size() - 2), vertices.get(vertices.size() - 1),
-                        epsilon)) {
+                vertices.get(vertices.size() - 2), vertices.get(vertices.size() - 1),
+                epsilon)) {
             vertices.set(vertices.size() - 2, vertices.get(vertices.size() - 1));
             vertices.remove(vertices.size() - 1);
         }
@@ -57,7 +53,7 @@ public class VisibilityPolygon extends VLPolygon {
         // wrap-around. While the there's a spike at the wrap-around,
         while (vertices.size() >= 3
                 && is_spike(observer, vertices.get(vertices.size() - 2),
-                        vertices.get(vertices.size() - 1), vertices.get(0), epsilon)) {
+                vertices.get(vertices.size() - 1), vertices.get(0), epsilon)) {
             // Chop off the tip of the spike.
             vertices.remove(vertices.size() - 1);
         }
@@ -154,7 +150,7 @@ public class VisibilityPolygon extends VLPolygon {
             for (int j = 0; j < polygon.n(); j++) {
                 ppoint1 = new PolarPoint(observer, polygon.get(j));
                 ppoint2 = new PolarPoint(observer, polygon.get(j + 1));
-                log.debug("contemplating " +  ppoint1 + " and " +  ppoint1);
+                log.debug("contemplating " + ppoint1 + " and " + ppoint1);
 
                 // If the observer is in the relative interior of the edge.
                 if (observer.in_relative_interior_of(new LineSegment(ppoint1, ppoint2), epsilon)) {
@@ -231,8 +227,8 @@ public class VisibilityPolygon extends VLPolygon {
                                 && ppoint2.bearing.equals(ANGLE_ZERO)
                                 && ppoint1.bearing.compareTo(ANGLE_PI) > 0) {
                             ppoint2.set_bearing_to_2pi();
-                        // Filter out edges which run 'against the grain'.
-                        } else if ((ppoint1.bearing.equals(ANGLE_ZERO) && 
+                            // Filter out edges which run 'against the grain'.
+                        } else if ((ppoint1.bearing.equals(ANGLE_ZERO) &&
                                 ppoint2.bearing.compareTo(ANGLE_PI) > 0)
                                 || ppoint1.bearing.compareTo(ppoint2.bearing) >= 0) {
                             continue;
@@ -359,7 +355,7 @@ public class VisibilityPolygon extends VLPolygon {
 
             // TYPE 1: current_vertex is the _second_vertex_ of active_edge.
             if (current_vertex.incident_edge.equals(active_edge) && !current_vertex.is_first) {
-                log.debug( "type 1");
+                log.debug("type 1");
 
                 if (!q1.isEmpty()) {
                     // If the next vertex in q1 is contiguous.
@@ -381,12 +377,12 @@ public class VisibilityPolygon extends VLPolygon {
                     // lex. order sense, the bearing of the second point of the
                     // edge at the front of q2.
                     if ((current_vertex.bearing.get() <= e.second.bearing.get())
-                    // For robustness.
+                            // For robustness.
                             && new Ray(observer, current_vertex.bearing).distance(e.second) >= epsilon
-                    /*
-                     * was && std::min( distance(Ray(observer, current_vertex.bearing), e.second),
-                     * distance(Ray(observer, e.second.bearing), current_vertex) ) >= epsilon
-                     */
+                        /*
+                         * was && std::min( distance(Ray(observer, current_vertex.bearing), e.second),
+                         * distance(Ray(observer, e.second.bearing), current_vertex) ) >= epsilon
+                         */
                     ) {
                         // Find intersection point k of ray (through
                         // current_vertex) with edge e.
@@ -424,7 +420,7 @@ public class VisibilityPolygon extends VLPolygon {
                         active_edge.first, active_edge.second), epsilon);
                 if (xing.size() == 0
                         || (active_edge.first.distance(observer) <= epsilon && active_edge.second.bearing
-                                .compareTo(current_vertex.bearing) <= 0)
+                        .compareTo(current_vertex.bearing) <= 0)
                         || active_edge.second.compareTo(current_vertex) < 0) {
 
                     k_range = Double.POSITIVE_INFINITY;
@@ -481,8 +477,8 @@ public class VisibilityPolygon extends VLPolygon {
             }
 
         } //
-          //
-          // -------END MAIN LOOP-------//
+        //
+        // -------END MAIN LOOP-------//
 
         // The VisibilityPolygon should have a minimal representation
         chop_spikes_at_wrap_around(observer, epsilon);

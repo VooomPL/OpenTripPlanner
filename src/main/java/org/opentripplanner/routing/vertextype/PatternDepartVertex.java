@@ -10,12 +10,16 @@ public class PatternDepartVertex extends PatternStopVertex {
 
     private static final long serialVersionUID = 20140101;
 
-    /** constructor for table trip patterns */
+    /**
+     * constructor for table trip patterns
+     */
     public PatternDepartVertex(Graph g, TripPattern pattern, int stopIndex) {
         super(g, makeLabel(pattern, stopIndex), pattern, pattern.stopPattern.stops[stopIndex]);
     }
 
-    /** constructor for temporary trip patterns */
+    /**
+     * constructor for temporary trip patterns
+     */
     public PatternDepartVertex(Graph g, TripPattern pattern, int stopIndex, Stop stop) {
         super(g, makeTemporaryLabel(pattern, stopIndex), pattern, stop);
     }

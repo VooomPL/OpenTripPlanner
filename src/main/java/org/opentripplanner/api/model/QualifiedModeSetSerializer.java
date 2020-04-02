@@ -15,13 +15,16 @@ import java.io.IOException;
  */
 public class QualifiedModeSetSerializer extends JsonSerializer<QualifiedModeSet> {
 
-    @Override public void serialize(QualifiedModeSet qualifiedModeSet, JsonGenerator jsonGenerator,
-            SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+    @Override
+    public void serialize(QualifiedModeSet qualifiedModeSet, JsonGenerator jsonGenerator,
+                          SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
         jsonGenerator.writeString(qualifiedModeSet.toString());
     }
 
-    /** Create a module including the serializer and deserializer for qualified mode sets */
-    public static SimpleModule makeModule () {
+    /**
+     * Create a module including the serializer and deserializer for qualified mode sets
+     */
+    public static SimpleModule makeModule() {
         Version moduleVersion = new Version(1, 0, 0, null, null, null);
         SimpleModule module = new SimpleModule("QualifiedModeSet", moduleVersion);
         module.addSerializer(QualifiedModeSet.class, new QualifiedModeSetSerializer());

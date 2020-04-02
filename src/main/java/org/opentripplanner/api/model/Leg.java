@@ -1,22 +1,17 @@
 package org.opentripplanner.api.model;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import org.opentripplanner.model.FeedScopedId;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.api.model.alertpatch.LocalizedAlert;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.*;
 
- /**
+/**
  * One leg of a trip -- that is, a temporally continuous piece of the journey that takes place on a
  * particular vehicle (or on foot).
  */
@@ -27,12 +22,12 @@ public class Leg {
      * The date and time this leg begins.
      */
     public Calendar startTime = null;
-    
+
     /**
      * The date and time this leg ends.
      */
     public Calendar endTime = null;
-    
+
     /**
      * For transit leg, the offset from the scheduled departure-time of the boarding stop in this leg.
      * "scheduled time of departure at boarding stop" = startTime - departureDelay
@@ -47,24 +42,24 @@ public class Leg {
      * Whether there is real-time data about this Leg
      */
     public Boolean realTime = false;
-    
+
     /**
      * Is this a frequency-based trip with non-strict departure times?
      */
     public Boolean isNonExactFrequency = null;
-    
+
     /**
-     * The best estimate of the time between two arriving vehicles. This is particularly important 
-     * for non-strict frequency trips, but could become important for real-time trips, strict 
+     * The best estimate of the time between two arriving vehicles. This is particularly important
+     * for non-strict frequency trips, but could become important for real-time trips, strict
      * frequency trips, and scheduled trips with empirical headways.
      */
     public Integer headway = null;
-    
+
     /**
      * The distance traveled while traversing the leg in meters.
      */
     public Double distance = null;
-    
+
     /**
      * Is this leg a traversing pathways?
      */
@@ -111,7 +106,7 @@ public class Leg {
      */
     @JsonSerialize
     public Integer routeType = null;
-    
+
     /**
      * For transit legs, the ID of the route.
      * For non-transit legs, null.
@@ -130,7 +125,7 @@ public class Leg {
     @JsonSerialize
     public Boolean interlineWithPreviousLeg;
 
-    
+
     /**
      * For transit leg, the trip's short name (if one exists). For non-transit legs, null.
      */
@@ -142,7 +137,7 @@ public class Leg {
      */
     @JsonSerialize
     public String tripBlockId = null;
-    
+
     /**
      * For transit legs, the headsign of the bus or train being used. For non-transit legs, null.
      */
@@ -155,13 +150,13 @@ public class Leg {
      */
     @JsonSerialize
     public String agencyId = null;
-    
+
     /**
      * For transit legs, the ID of the trip.
      * For non-transit legs, null.
      */
     public FeedScopedId tripId = null;
-    
+
     /**
      * For transit legs, the service date of the trip.
      * For non-transit legs, null.
@@ -169,17 +164,17 @@ public class Leg {
     @JsonSerialize
     public String serviceDate = null;
 
-     /**
-      * For transit leg, the route's branding URL (if one exists). For non-transit legs, null.
-      */
-     @JsonSerialize
-     public String routeBrandingUrl = null;
+    /**
+     * For transit leg, the route's branding URL (if one exists). For non-transit legs, null.
+     */
+    @JsonSerialize
+    public String routeBrandingUrl = null;
 
-     /**
+    /**
      * The Place where the leg originates.
      */
     public Place from = null;
-    
+
     /**
      * The Place where the leg begins.
      */
@@ -190,7 +185,7 @@ public class Leg {
      * For non-transit legs, null.
      * This field is optional i.e. it is always null unless "showIntermediateStops" parameter is set to "true" in the planner request.
      */
-    @JsonProperty(value="intermediateStops")
+    @JsonProperty(value = "intermediateStops")
     public List<Place> stop;
 
     /**
@@ -199,9 +194,9 @@ public class Leg {
     public EncodedPolylineBean legGeometry;
 
     /**
-     * A series of turn by turn instructions used for walking, biking and driving. 
+     * A series of turn by turn instructions used for walking, biking and driving.
      */
-    @JsonProperty(value="steps")
+    @JsonProperty(value = "steps")
     public List<WalkStep> walkSteps;
 
     @JsonSerialize
@@ -222,9 +217,9 @@ public class Leg {
     @JsonSerialize
     public Boolean rentedBike;
 
-     /**
-      * True if this is a call-and-ride leg.
-      */
+    /**
+     * True if this is a call-and-ride leg.
+     */
     @JsonSerialize
     public Boolean callAndRide;
 
@@ -232,44 +227,47 @@ public class Leg {
     @JsonSerialize
     public Calendar flexCallAndRideMaxStartTime = null;
 
-     /* For call-n-ride leg, supply minimum end time based on calculation. */
+    /* For call-n-ride leg, supply minimum end time based on calculation. */
     @JsonSerialize
     public Calendar flexCallAndRideMinEndTime = null;
 
-    /** trip.drt_advance_book_min if this is a demand-response leg */
+    /**
+     * trip.drt_advance_book_min if this is a demand-response leg
+     */
     @JsonSerialize
     public double flexDrtAdvanceBookMin;
 
-     /**
-      *  Agency message if this is leg has a demand-response pickup and the Trip has
-      *  `drt_pickup_message` defined.
-      */
-     @JsonSerialize
-     public String flexDrtPickupMessage;
+    /**
+     * Agency message if this is leg has a demand-response pickup and the Trip has
+     * `drt_pickup_message` defined.
+     */
+    @JsonSerialize
+    public String flexDrtPickupMessage;
 
-     /**
-      * Agency message if this is leg has a demand-response dropoff and the Trip has
-      * `drt_drop_off_message` defined.
-      */
-     @JsonSerialize
-     public String flexDrtDropOffMessage;
+    /**
+     * Agency message if this is leg has a demand-response dropoff and the Trip has
+     * `drt_drop_off_message` defined.
+     */
+    @JsonSerialize
+    public String flexDrtDropOffMessage;
 
-     /**
-      * Agency message if this is leg has a flag stop pickup and the Trip has
-      * `continuous_pickup_message` defined.
-      */
-     @JsonSerialize
-     public String flexFlagStopPickupMessage;
+    /**
+     * Agency message if this is leg has a flag stop pickup and the Trip has
+     * `continuous_pickup_message` defined.
+     */
+    @JsonSerialize
+    public String flexFlagStopPickupMessage;
 
-     /**
-      * Agency message if this is leg has a flag stop dropoff and the Trip has
-      * `continuous_drop_off_message` defined.
-      */
-     @JsonSerialize
-     public String flexFlagStopDropOffMessage;
+    /**
+     * Agency message if this is leg has a flag stop dropoff and the Trip has
+     * `continuous_drop_off_message` defined.
+     */
+    @JsonSerialize
+    public String flexFlagStopDropOffMessage;
 
     /**
      * Whether this leg is a transit leg or not.
+     *
      * @return Boolean true if the leg is a transit leg
      */
     public Boolean isTransitLeg() {
@@ -279,13 +277,13 @@ public class Leg {
         else if (mode.equals(TraverseMode.BICYCLE.toString())) return false;
         else return true;
     }
-    
-    /** 
+
+    /**
      * The leg's duration in seconds
      */
     @JsonSerialize
     public double getDuration() {
-        return endTime.getTimeInMillis()/1000.0 - startTime.getTimeInMillis()/1000.0;
+        return endTime.getTimeInMillis() / 1000.0 - startTime.getTimeInMillis() / 1000.0;
     }
 
     public void addAlert(Alert alert, Locale locale) {

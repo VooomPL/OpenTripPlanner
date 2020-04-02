@@ -1,9 +1,9 @@
 package org.opentripplanner.util.xml;
 
+import junit.framework.TestCase;
+
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 public class TestXmlDataListDownloader extends TestCase {
 

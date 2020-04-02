@@ -233,7 +233,7 @@ public class GraphServiceTest extends TestCase {
     }
 
     @Test
-    public final void testGraphServiceMemoryRouterConfig () throws IOException {
+    public final void testGraphServiceMemoryRouterConfig() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode buildConfig = MissingNode.getInstance();
         ObjectNode routerConfig = mapper.createObjectNode();

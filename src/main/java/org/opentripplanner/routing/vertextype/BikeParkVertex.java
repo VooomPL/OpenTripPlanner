@@ -8,16 +8,15 @@ import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * A vertex for a bike park.
- * 
+ * <p>
  * Connected to streets by StreetBikeParkLink. Transition for parking the bike is handled by
  * BikeParkEdge.
- * 
+ * <p>
  * Bike park-and-ride and "OV-fiets mode" development has been funded by GoAbout
  * (https://goabout.com/).
- * 
+ *
  * @author laurent
  * @author GoAbout
- * 
  */
 public class BikeParkVertex extends Vertex {
 

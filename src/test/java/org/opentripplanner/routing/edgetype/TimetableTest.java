@@ -1,26 +1,19 @@
 package org.opentripplanner.routing.edgetype;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
-import static org.opentripplanner.util.TestUtils.AUGUST;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-
 import com.google.common.collect.Iterables;
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.gtfs.GtfsContext;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.ConstantsForTests;
-import org.opentripplanner.gtfs.GtfsContext;
-import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
@@ -32,13 +25,17 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
 import org.opentripplanner.util.TestUtils;
 
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static org.junit.Assert.*;
+import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
+import static org.opentripplanner.util.TestUtils.AUGUST;
 
 public class TimetableTest {
-    
+
     private static Graph graph;
     private AStar aStar = new AStar();
     private static GtfsContext context;
@@ -47,7 +44,7 @@ public class TimetableTest {
     private static Timetable timetable;
     private static TimeZone timeZone = TimeZone.getTimeZone("America/New_York");
     private static ServiceDate serviceDate = new ServiceDate(2009, 8, 7);
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
 
@@ -72,7 +69,7 @@ public class TimetableTest {
                 }
             }
         }
-        
+
         pattern = patternIndex.get(new FeedScopedId("agency", "1.1"));
         timetable = pattern.scheduledTimetable;
     }
@@ -103,7 +100,7 @@ public class TimetableTest {
         tripUpdateBuilder = TripUpdate.newBuilder();
         tripUpdateBuilder.setTrip(tripDescriptorBuilder);
         tripUpdate = tripUpdateBuilder.build();
-        TripTimes updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        TripTimes updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNull(updatedTripTimes);
 
         // update trip with bad data
@@ -117,7 +114,7 @@ public class TimetableTest {
         stopTimeUpdateBuilder.setStopSequence(0);
         stopTimeUpdateBuilder.setScheduleRelationship(StopTimeUpdate.ScheduleRelationship.SKIPPED);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNull(updatedTripTimes);
 
         // update trip with non-increasing data
@@ -137,7 +134,7 @@ public class TimetableTest {
         stopTimeEventBuilder.setTime(TestUtils.dateInSeconds(
                 "America/New_York", 2009, AUGUST, 7, 0, 10, 0));
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNull(updatedTripTimes);
 
         //---
@@ -171,11 +168,11 @@ public class TimetableTest {
         stopTimeEventBuilder.setTime(TestUtils.dateInSeconds(
                 "America/New_York", 2009, AUGUST, 7, 0, 2, 0));
         tripUpdate = tripUpdateBuilder.build();
-        assertEquals(20*60, timetable.getTripTimes(trip_1_1_index).getArrivalTime(2));
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        assertEquals(20 * 60, timetable.getTripTimes(trip_1_1_index).getArrivalTime(2));
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         timetable.setTripTimes(trip_1_1_index, updatedTripTimes);
-        assertEquals(20*60 + 120, timetable.getTripTimes(trip_1_1_index).getArrivalTime(2));
+        assertEquals(20 * 60 + 120, timetable.getTripTimes(trip_1_1_index).getArrivalTime(2));
 
         //---
         options.setRoutingContext(graph, stop_a, stop_c);
@@ -192,7 +189,7 @@ public class TimetableTest {
         tripUpdateBuilder = TripUpdate.newBuilder();
         tripUpdateBuilder.setTrip(tripDescriptorBuilder);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         timetable.setTripTimes(trip_1_1_index, updatedTripTimes);
 
@@ -224,7 +221,7 @@ public class TimetableTest {
         stopTimeEventBuilder = stopTimeUpdateBuilder.getArrivalBuilder();
         stopTimeEventBuilder.setDelay(0);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         timetable.setTripTimes(trip_1_1_index, updatedTripTimes);
 
@@ -242,7 +239,7 @@ public class TimetableTest {
         stopTimeEventBuilder = stopTimeUpdateBuilder.getArrivalBuilder();
         stopTimeEventBuilder.setDelay(1);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         timetable.setTripTimes(trip_1_1_index, updatedTripTimes);
 
@@ -260,7 +257,7 @@ public class TimetableTest {
         stopTimeEventBuilder = stopTimeUpdateBuilder.getDepartureBuilder();
         stopTimeEventBuilder.setDelay(-1);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         timetable.setTripTimes(trip_1_1_index, updatedTripTimes);
 
@@ -278,7 +275,7 @@ public class TimetableTest {
         stopTimeEventBuilder = stopTimeUpdateBuilder.getDepartureBuilder();
         stopTimeEventBuilder.setDelay(-1);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNotNull(updatedTripTimes);
         timetable.setTripTimes(trip_1_1_index, updatedTripTimes);
 
@@ -302,7 +299,7 @@ public class TimetableTest {
         stopTimeEventBuilder = stopTimeUpdateBuilder.getDepartureBuilder();
         stopTimeEventBuilder.setDelay(-1);
         tripUpdate = tripUpdateBuilder.build();
-        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate);
         assertNull(updatedTripTimes);
     }
 }

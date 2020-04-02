@@ -34,10 +34,9 @@ import static java.lang.Math.min;
  * Links unconnected entries to platforms. The entries may be stairs or walk paths in OSM
  * arriving inside the platform area. The end vertex of the entry is linked to all vertices in
  * the ring defining the platform.
- *
+ * <p>
  * An implementation of the Ray-casting algorithm is used to decide if the endpoint of the entry
  * is inside the platform area.
- *
  */
 public class PlatformLinker {
 
@@ -99,9 +98,9 @@ public class PlatformLinker {
         boolean isCandidate = false;
         Vertex start = null;
         for (Edge e : ov.getIncoming()) {
-            if (e instanceof StreetEdge && ! (e instanceof AreaEdge)) {
+            if (e instanceof StreetEdge && !(e instanceof AreaEdge)) {
                 StreetEdge se = (StreetEdge) e;
-                if (Arrays.asList(1,2,3).contains(se.getPermission().code)) {
+                if (Arrays.asList(1, 2, 3).contains(se.getPermission().code)) {
                     isCandidate = true;
                     start = se.getFromVertex();
                     break;
@@ -122,8 +121,8 @@ public class PlatformLinker {
     }
 
     private void makePlatformEdges(Area area, OsmVertex from, OsmVertex to, AreaEdgeList edgeList) {
-        Coordinate[] coordinates = new Coordinate[] { from.getCoordinate(),
-                to.getCoordinate() };
+        Coordinate[] coordinates = new Coordinate[]{from.getCoordinate(),
+                to.getCoordinate()};
         GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
         LineString line = geometryFactory.createLineString(coordinates);
 

@@ -1,10 +1,10 @@
 package org.opentripplanner.graph_builder.module.osm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Specifies a class of OSM tagged entities (e.g. ways) by a list of tags and their values (which may be wildcards).
@@ -37,7 +37,7 @@ public class OSMSpecifier {
 
     /**
      * Calculates a pair of scores expressing how well an OSM entity's tags match this specifier.
-     *
+     * <p>
      * Tags in this specifier are matched against those for the left and right side of the OSM way separately. See:
      * http://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right
      * TODO: we should probably support forward/backward as well.
@@ -65,12 +65,12 @@ public class OSMSpecifier {
             int leftTagScore = getTagScore(value, leftMatchValue);
             leftScore += leftTagScore;
             if (leftTagScore > 0) {
-                leftMatches ++;
+                leftMatches++;
             }
             int rightTagScore = getTagScore(value, rightMatchValue);
             rightScore += rightTagScore;
             if (rightTagScore > 0) {
-                rightMatches ++;
+                rightMatches++;
             }
         }
         int allMatchLeftBonus = (leftMatches == kvpairs.size()) ? 10 : 0;

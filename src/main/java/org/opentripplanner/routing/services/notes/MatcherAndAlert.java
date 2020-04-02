@@ -1,12 +1,12 @@
 package org.opentripplanner.routing.services.notes;
 
-import java.io.Serializable;
-
 import org.opentripplanner.routing.alertpatch.Alert;
+
+import java.io.Serializable;
 
 /**
  * A container for a pair (note matcher, note).
- * 
+ *
  * @author laurent
  */
 public class MatcherAndAlert implements Serializable {

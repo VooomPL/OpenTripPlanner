@@ -9,8 +9,8 @@ public class Sample {
 
     public final int d0, d1; // TODO change from times to distances.
     public final Vertex v0, v1;
-    
-    public Sample (Vertex v0, int d0, Vertex v1, int d1) {
+
+    public Sample(Vertex v0, int d0, Vertex v1, int d1) {
         this.v0 = v0;
         this.d0 = d0;
         this.v1 = v1;
@@ -23,10 +23,10 @@ public class Sample {
         int m0 = 255;
         int m1 = 255;
         if (s0 != null)
-            m0 = (s0.getNumBoardings()); 
+            m0 = (s0.getNumBoardings());
         if (s1 != null)
-            m1 = (s1.getNumBoardings()); 
-        return (byte) ((m0 < m1) ? m0 : m1); 
+            m1 = (s1.getNumBoardings());
+        return (byte) ((m0 < m1) ? m0 : m1);
     }
 
     /**
@@ -40,10 +40,10 @@ public class Sample {
         long m1 = Long.MAX_VALUE;
         double walkSpeed = spt.getOptions().walkSpeed;
         if (s0 != null)
-            m0 = (int)(s0.getActiveTime() + d0 / walkSpeed);
+            m0 = (int) (s0.getActiveTime() + d0 / walkSpeed);
         if (s1 != null)
-            m1 = (int)(s1.getActiveTime() + d1 / walkSpeed);
-        return (m0 < m1) ? m0 : m1; 
+            m1 = (int) (s1.getActiveTime() + d1 / walkSpeed);
+        return (m0 < m1) ? m0 : m1;
     }
 
     public double evalWalkDistance(ShortestPathTree spt) {
@@ -80,6 +80,6 @@ public class Sample {
     public String toString() {
         return String.format("Sample: %s at %d meters or %s at %d meters\n", v0, d0, v1, d1);
     }
-    
+
 }
 

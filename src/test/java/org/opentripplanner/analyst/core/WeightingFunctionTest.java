@@ -12,7 +12,7 @@ public class WeightingFunctionTest extends TestCase {
     }
 
     @Test
-    public static void testSharp () {
+    public static void testSharp() {
         int[] output = new WeightingFunction.SharpCutoff().apply(weights);
 
         // should be by minute
@@ -32,7 +32,7 @@ public class WeightingFunctionTest extends TestCase {
     }
 
     @Test
-    public static void testLogistic () {
+    public static void testLogistic() {
         double slope = -2.0 / 60;
         int[] output = new WeightingFunction.Logistic(slope).apply(weights);
 

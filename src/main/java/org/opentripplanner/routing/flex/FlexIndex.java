@@ -7,22 +7,17 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.graph_builder.module.map.StreetMatcher;
-import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.PatternHop;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TemporaryPartialStreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,8 +53,8 @@ public class FlexIndex {
         for (TripPattern pattern : graph.index.patternForId.values()) {
             if (pattern.hasFlexService()) {
                 LOG.debug("Matching {}", pattern);
-                for(PatternHop ph : pattern.getPatternHops()) {
-                    if (!ph.hasFlexService() || ! (ph instanceof FlexPatternHop)) {
+                for (PatternHop ph : pattern.getPatternHops()) {
+                    if (!ph.hasFlexService() || !(ph instanceof FlexPatternHop)) {
                         continue;
                     }
                     FlexPatternHop patternHop = (FlexPatternHop) ph;
@@ -70,8 +65,7 @@ public class FlexIndex {
                     if (isSinglePoint(patternHop.getGeometry())) {
                         Coordinate pt = patternHop.getGeometry().getCoordinate();
                         edges = findClosestEdges(graph, pt);
-                    }
-                    else {
+                    } else {
                         edges = matcher.match(patternHop.getGeometry());
                     }
 
@@ -115,12 +109,12 @@ public class FlexIndex {
             return Collections.emptyList();
         }
         Map<Double, List<StreetEdge>> edgeDistanceMap = new TreeMap<>();
-        for(Edge edge : edges){
-            if(edge instanceof StreetEdge){
+        for (Edge edge : edges) {
+            if (edge instanceof StreetEdge) {
                 LineString line = edge.getGeometry();
                 double dist = SphericalDistanceLibrary.fastDistance(pointLocation, line);
                 double roundOff = (double) Math.round(dist * 100) / 100;
-                if(!edgeDistanceMap.containsKey(roundOff))
+                if (!edgeDistanceMap.containsKey(roundOff))
                     edgeDistanceMap.put(roundOff, new ArrayList<>());
                 edgeDistanceMap.get(roundOff).add((StreetEdge) edge);
             }

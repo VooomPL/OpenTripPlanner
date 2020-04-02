@@ -1,16 +1,15 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.io.Serializable;
-
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.util.I18NString;
 
+import java.io.Serializable;
+
 /**
  * A named area is a subset of an area with a certain set of properties
- * (name, safety, etc). Its originalEdges may include some edges which are 
+ * (name, safety, etc). Its originalEdges may include some edges which are
  * crossable (because they separate it from another contiguous and
  * routeable area).
- * 
  */
 public class NamedArea implements Serializable {
     private static final long serialVersionUID = 3570078249065754760L;

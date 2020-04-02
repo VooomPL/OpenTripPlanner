@@ -1,11 +1,5 @@
 package org.opentripplanner.routing.services.notes;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -13,24 +7,30 @@ import org.opentripplanner.routing.graph.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * This service manage street edge notes. An edge note is an free-format alert (text) attached to an
  * edge, which is returned in the itinerary when this edge is used, and which *does not have any
  * impact on routing*. The last restriction is necessary as the edge do not know which notes it is
  * attached to (this to prevent having to store note lists in the edge, which is memory consuming as
  * only few edges will have notes).
- * 
+ * <p>
  * The service owns a list of StreetNotesSource, with a single static one used for graph building.
  * "Dynamic" notes can be returned by classes implementing StreetNoteSource, added to this service
  * during startup.
- * 
+ * <p>
  * Typical notes are: Toll (driving), unpaved surface (walk,bike), wheelchair notes...
- * 
+ * <p>
  * Each note is attached to a matcher, whose responsibility is to determine if the note is relevant
  * for an edge, based on the itinerary state at this edge (the state after the edge has been
  * traversed, ie "state back edge"). Usually matcher will match note based on the mode (cycling,
  * driving) or if a wheelchair access is requested.
- * 
+ *
  * @author laurent
  */
 public class StreetNotesService implements Serializable {
@@ -87,7 +87,7 @@ public class StreetNotesService implements Serializable {
     /**
      * Add a new note source. The list is not transient so any source added before the graph is
      * saved will be serialized!
-     * 
+     *
      * @param source
      */
     public void addNotesSource(StreetNotesSource source) {
@@ -96,7 +96,7 @@ public class StreetNotesService implements Serializable {
 
     /**
      * Return the set of notes applicable for this state / backedge pair.
-     * 
+     *
      * @param state
      * @return The set of notes or null if empty.
      */

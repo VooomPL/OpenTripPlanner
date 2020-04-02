@@ -8,10 +8,7 @@ import org.onebusaway.gtfs.model.Trip;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TripMapperTest {
 
@@ -107,7 +104,9 @@ public class TripMapperTest {
         assertEquals(0, result.getTripBikesAllowed());
     }
 
-    /** Mapping the same object twice, should return the the same instance. */
+    /**
+     * Mapping the same object twice, should return the the same instance.
+     */
     @Test
     public void testMapCache() throws Exception {
         org.opentripplanner.model.Trip result1 = subject.map(TRIP);

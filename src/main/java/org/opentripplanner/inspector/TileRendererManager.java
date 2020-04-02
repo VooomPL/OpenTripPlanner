@@ -1,31 +1,27 @@
 package org.opentripplanner.inspector;
 
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.geotools.geometry.Envelope2D;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.util.AffineTransformation;
 import org.opentripplanner.analyst.request.TileRequest;
 import org.opentripplanner.api.resource.GraphInspectorTileResource;
 import org.opentripplanner.inspector.TileRenderer.TileRenderContext;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.services.GraphService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.util.AffineTransformation;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Process slippy map tile rendering requests. Get the tile renderer for the given layer, setup a
  * tile rendering context (bounding box, image graphic context, affine transform, etc...) and call
  * the renderer to paint the tile.
- * 
+ *
+ * @author laurent
  * @see GraphInspectorTileResource
  * @see TileRenderer
- * 
- * @author laurent
- * 
  */
 public class TileRendererManager {
 
@@ -93,10 +89,11 @@ public class TileRendererManager {
 
     /**
      * Gets all renderers
-     * 
+     * <p>
      * Used to return list of renderers to client.
      * Could be also used to show legend.
-     * @return 
+     *
+     * @return
      */
     public Map<String, TileRenderer> getRenderers() {
         return renderers;

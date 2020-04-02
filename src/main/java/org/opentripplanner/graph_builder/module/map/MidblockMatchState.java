@@ -1,18 +1,17 @@
 package org.opentripplanner.graph_builder.module.map;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Vertex;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.locationtech.jts.util.AssertionFailedException;
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Vertex;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class MidblockMatchState extends MatchState {
 
@@ -29,8 +28,8 @@ public class MidblockMatchState extends MatchState {
     private LocationIndexedLine indexedEdge;
 
     public MidblockMatchState(MatchState parent, Geometry routeGeometry, Edge edge,
-            LinearLocation routeIndex, LinearLocation edgeIndex, double error,
-            double distanceAlongRoute) {
+                              LinearLocation routeIndex, LinearLocation edgeIndex, double error,
+                              double distanceAlongRoute) {
         super(parent, edge, distanceAlongRoute);
 
         this.routeGeometry = routeGeometry;
@@ -111,7 +110,7 @@ public class MidblockMatchState extends MatchState {
                         if (Double.isNaN(routeProjectedEndIndex.getSegmentFraction())) {
                             // can't go forward
                             routeProjectedEndIndex = routeIndex; // this is bad, but not terrible
-                                                                 // since we are advancing along the edge
+                            // since we are advancing along the edge
                         }
                     } catch (AssertionFailedException e) {
                         routeProjectedEndIndex = routeIndex;
@@ -127,13 +126,13 @@ public class MidblockMatchState extends MatchState {
                 double travelError = Math.abs(travelAlongEdge - travelAlongRoute);
 
                 double error = positionError + travelError;
-                
+
                 if (error > MAX_ERROR) {
                     // we're not going to bother with states which are
                     // totally wrong
                     return nextStates;
                 }
-                
+
                 for (Edge e : getOutgoingMatchableEdges(toVertex)) {
                     double cost = error + NEW_SEGMENT_PENALTY;
                     if (!carsCanTraverse(e)) {

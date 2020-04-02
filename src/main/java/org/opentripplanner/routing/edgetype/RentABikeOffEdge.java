@@ -1,18 +1,17 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Set;
-
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Vertex;
 
+import java.util.Set;
+
 /**
  * Dropping off a rented bike edge.
- * 
+ * <p>
  * Cost is the time to dropoff a bike.
- * 
+ *
  * @author laurent
- * 
  */
 public class RentABikeOffEdge extends RentABikeAbstractEdge {
 

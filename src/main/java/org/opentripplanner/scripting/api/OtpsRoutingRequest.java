@@ -1,18 +1,18 @@
 package org.opentripplanner.scripting.api;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.core.RouteMatcher;
 import org.opentripplanner.routing.core.RoutingRequest;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Routing request options: date/time, modes, max walk distance...
- * 
+ * <p>
  * Example of code (python script):
- * 
+ *
  * <pre>
  *   router = otp.getRouter()
  *   req = otp.createRequest()
@@ -22,7 +22,7 @@ import org.opentripplanner.routing.core.RoutingRequest;
  *   spt = router.plan(req)
  *   ...
  * </pre>
- * 
+ *
  * @author laurent
  */
 public class OtpsRoutingRequest {

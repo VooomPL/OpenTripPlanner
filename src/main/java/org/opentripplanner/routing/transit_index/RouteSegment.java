@@ -13,20 +13,21 @@ import java.io.Serializable;
  * We can use this if we patch the graph to remove the stop from the
  * trip/pattern.
  */
-public class RouteSegment implements Serializable  {
-	private static final long serialVersionUID = -3486047425509893460L;
-	public Edge hopIn;
-	public Edge hopOut;
-	public Edge board;
-	public Edge alight;
-	public Edge dwell;
-	public FeedScopedId stop;
-	public RouteSegment(FeedScopedId stop) {
-		this.stop = stop;
-	}
+public class RouteSegment implements Serializable {
+    private static final long serialVersionUID = -3486047425509893460L;
+    public Edge hopIn;
+    public Edge hopOut;
+    public Edge board;
+    public Edge alight;
+    public Edge dwell;
+    public FeedScopedId stop;
 
-	@JsonSerialize(using= GeometrySerializer.class)
-	public Geometry getGeometry() {
-	    return hopOut.getGeometry();
-	}
+    public RouteSegment(FeedScopedId stop) {
+        this.stop = stop;
+    }
+
+    @JsonSerialize(using = GeometrySerializer.class)
+    public Geometry getGeometry() {
+        return hopOut.getGeometry();
+    }
 }

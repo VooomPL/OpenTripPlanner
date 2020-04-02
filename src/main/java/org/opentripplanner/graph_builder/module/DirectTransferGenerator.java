@@ -12,19 +12,15 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link org.opentripplanner.graph_builder.services.GraphBuilderModule} module that links up the stops of a transit network among themselves. This is necessary for
  * routing in long-distance mode.
- *
+ * <p>
  * It will use the street network if OSM data has already been loaded into the graph.
  * Otherwise it will use straight-line distance between stops.
- *
+ * <p>
  * TODO make tests for this that are sensitive to the presence of trip patterns
  */
 public class DirectTransferGenerator implements GraphBuilderModule {
@@ -41,7 +37,7 @@ public class DirectTransferGenerator implements GraphBuilderModule {
         return Arrays.asList("street to transit");
     }
 
-    public DirectTransferGenerator (double radiusMeters) {
+    public DirectTransferGenerator(double radiusMeters) {
         this.radiusMeters = radiusMeters;
     }
 

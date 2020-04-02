@@ -8,13 +8,13 @@ import java.util.Map;
 
 /**
  * A fundamental tool for tracking arrival time distributions.
- *
+ * <p>
  * What we want is a sparse NxM matrix of primitive integers which amounts to a histogram of arrivals a 0...M minutes
  * at each of N stops or stop clusters.
- *
+ * <p>
  * This will lose some detail though since times are usually in seconds. So an alternative is to store bags of ints
  * per stop.
- *
+ * <p>
  * We may also need to store the min and max entry for each bag to avoid constantly sorting them.
  * We may want to store the multiset as a parallel array of counts and values if there are a lot of duplicates.
  * That is less likely if we are working in seconds rather than minutes.

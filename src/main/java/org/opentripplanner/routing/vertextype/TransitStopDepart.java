@@ -1,8 +1,8 @@
 package org.opentripplanner.routing.vertextype;
 
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
-import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.routing.graph.Graph;
 
 /* Note that this is not a subclass of TransitStop, to avoid it being linked to the street network */

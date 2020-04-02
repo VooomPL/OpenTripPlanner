@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * Geurs, Karst T, and Bert van Wee. "Accessibility Evaluation of Land-use and Transport
  * Strategies: Review and Research Directions." Journal of Transport Geography 12, no. 2
  * (2004): 127–140. http://www.sciencedirect.com/science/article/pii/S0966692303000607, 133.
- * 
+ * <p>
  * The equation is A_i = \sum{D_j e^{-\Beta c_{ij}}}, where A_i is the accessibility at location i,
  * D_j is the attractiveness of location j, \Beta is the cost sensitivity parameter, and c_{ij} is
  * the cost of going from i to j (Geurs and Wee 2004, 133).
@@ -22,18 +22,19 @@ public class DecayAccumulator implements Accumulator {
      * See Geurs and Wee 2004, 133. (Note that Geurs and Wee 2004 call it beta, but it's the same
      * variable)
      */
-    public double lambda; 
+    public double lambda;
 
     /**
      * This is a convenience function to set the cost sensitivity with more real-world values.
      * The value passed in is multiplied by 60 and the reciprocal is taken.
+     *
      * @param halfLifeMinutes
      */
     public void setHalfLifeMinutes(int halfLifeMinutes) {
         float halfLifeSeconds = halfLifeMinutes * 60;
-        lambda = 1.0/halfLifeSeconds;
+        lambda = 1.0 / halfLifeSeconds;
     }
-    
+
     @Override
     public void accumulate(double amount, ResultSet current, ResultSet accumulated) {
         if (current.population != accumulated.population) {

@@ -57,8 +57,10 @@ public class CircularList<T> implements Iterable<T> {
         T element;
     }
 
-    /** Insert an element at the tail of the circular list (the position just previous to the head). */
-    public void insertAtTail (T element) {
+    /**
+     * Insert an element at the tail of the circular list (the position just previous to the head).
+     */
+    public void insertAtTail(T element) {
         Node<T> newNode = new Node<>();
         newNode.element = element;
         if (head == null) {
@@ -74,20 +76,26 @@ public class CircularList<T> implements Iterable<T> {
     }
 
 
-    /** Insert a new element at the head of the circular list. */
-    public void insertAtHead (T element) {
+    /**
+     * Insert a new element at the head of the circular list.
+     */
+    public void insertAtHead(T element) {
         // Add at tail and then back the head up one element, wrapping around to the tail.
         insertAtTail(element);
         head = head.prev;
     }
 
-    /** Get the element at the head of the list without removing it. */
-    public T peek () {
+    /**
+     * Get the element at the head of the list without removing it.
+     */
+    public T peek() {
         return head.element;
     }
 
-    /** Take an element off the head of the list, removing it from the list. */
-    public T pop () {
+    /**
+     * Take an element off the head of the list, removing it from the list.
+     */
+    public T pop() {
         if (head == null) {
             return null;
         }
@@ -120,7 +128,7 @@ public class CircularList<T> implements Iterable<T> {
      * Advances through the circular list returning the first element for which the predicate evaluates to true.
      * If there is no such element, returns null leaving the head of the list back in the same place.
      */
-    public T advanceToElement (Predicate<T> predicate) {
+    public T advanceToElement(Predicate<T> predicate) {
         Node<T> start = head;
 
         if (head == null)
@@ -138,7 +146,7 @@ public class CircularList<T> implements Iterable<T> {
     /**
      * Remove an item from this circular list.
      */
-    public boolean remove (T obj) {
+    public boolean remove(T obj) {
         // handle the zero-length and one-length case
         if (head == null) return false;
 
@@ -146,8 +154,7 @@ public class CircularList<T> implements Iterable<T> {
             if (head.element.equals(obj)) {
                 head = null;
                 return true;
-            }
-            else return false;
+            } else return false;
         }
 
         Node<T> start = head;

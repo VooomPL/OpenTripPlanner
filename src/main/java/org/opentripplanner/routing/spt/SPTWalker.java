@@ -19,7 +19,7 @@ import java.util.Set;
  * Walk over a SPT tree to geometrically visit all nodes and edge geometry. For each geometry longer
  * than the provided base length d0, split it in several steps of equal length and shorter than d0.
  * For each walk step call the visitor callback.
- * 
+ *
  * @author laurent
  */
 public class SPTWalker {
@@ -36,13 +36,13 @@ public class SPTWalker {
 
         /**
          * Note: The same state can be visited several times (from different edges).
-         * 
-         * @param e The edge being visited (filtered from a previous call to accept)
-         * @param c The coordinate of the point alongside the edge geometry.
-         * @param s0 The state at the begin vertex of this edge
-         * @param s1 The state at the end vertex of this edge
-         * @param d0 Curvilinear coordinate of c on [s0-s1], in meters
-         * @param d1 Curvilinear coordinate of c on [s1-s0], in meters
+         *
+         * @param e     The edge being visited (filtered from a previous call to accept)
+         * @param c     The coordinate of the point alongside the edge geometry.
+         * @param s0    The state at the begin vertex of this edge
+         * @param s1    The state at the end vertex of this edge
+         * @param d0    Curvilinear coordinate of c on [s0-s1], in meters
+         * @param d1    Curvilinear coordinate of c on [s1-s0], in meters
          * @param speed The assumed speed on the edge
          */
         public void visit(Edge e, Coordinate c, State s0, State s1, double d0, double d1, double speed);

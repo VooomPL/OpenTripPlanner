@@ -1,9 +1,9 @@
 package org.opentripplanner.profile;
 
-import org.locationtech.jts.geom.Coordinate;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.util.FastMath;
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.analyst.ResultSet;
 import org.opentripplanner.analyst.SampleSet;
 import org.opentripplanner.analyst.TimeSurface;
@@ -26,19 +26,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.apache.commons.math3.util.FastMath.toRadians;
 
 /**
  * Stores travel times propagated to the search targets (all vertices in the street network or a set of points of
  * interest) in one-to-many repeated raptor profile routing.
- *
+ * <p>
  * Each raptor call finds minimum travel times to each transit stop. Those must be propagated out to the final targets,
  * giving minimum travel times to each street vertex (or each destination opportunity in accessibility analysis).
  * Those results are then merged into the summary statistics per target over the whole time window
  * (over many RAPTOR calls). This class handles the storage and merging of those summary statistics.
- *
+ * <p>
  * Currently this includes minimum, maximum, and average earliest-arrival travel time for each target.
  * We could conceivably retain all the propagated times for every departure minute instead of collapsing them down into
  * three numbers. If they were all sorted, we could read off any quantile, including the median travel time.
@@ -47,7 +46,7 @@ import static org.apache.commons.math3.util.FastMath.toRadians;
  * We could also conceivably store travel time histograms per destination, but this entails a loss of information due
  * to binning into minutes. These binned times could not be used to apply a smooth sigmoid cutoff which we usually
  * do at one-second resolution.
- *
+ * <p>
  * When exploring single-point (one-to-many) query results it would be great to have all these stored or produced on
  * demand for visualization.
  */
@@ -87,7 +86,7 @@ public class PropagatedTimesStore {
     }
 
     /**
-     * @param times for search (varying departure time), an array of travel times to each destination.
+     * @param times             for search (varying departure time), an array of travel times to each destination.
      * @param includeInAverages for each iteration, whether that iteration should be included in average calculations.
      *                          In RaptorWorker's Monte Carlo code we also include minima and maxima, which should
      *                          not be included in averages.
@@ -117,7 +116,8 @@ public class PropagatedTimesStore {
         }
 
         // loop over targets on the outside so we can bootstrap
-        TARGETS: for (int target = 0; target < nTargets; target++) {
+        TARGETS:
+        for (int target = 0; target < nTargets; target++) {
             // compute the average
             int sum = 0;
             int count = 0;
@@ -125,7 +125,8 @@ public class PropagatedTimesStore {
             TIntList timeList = new TIntArrayList();
             TIntList avgList = new TIntArrayList();
 
-            ITERATIONS: for (int i = 0; i < times.length; i++) {
+            ITERATIONS:
+            for (int i = 0; i < times.length; i++) {
                 if (times[i][target] == RaptorWorker.UNREACHED)
                     continue ITERATIONS;
 
@@ -172,53 +173,53 @@ public class PropagatedTimesStore {
 
             // TODO: correctly handle partial accessibility for bootstrap and percentile options.
             switch (confidenceCalculationMethod) {
-            case BOOTSTRAP:
-                // now bootstrap out a 95% confidence interval on the time
-                int[] bootMeans = new int[N_BOOTSTRAPS];
+                case BOOTSTRAP:
+                    // now bootstrap out a 95% confidence interval on the time
+                    int[] bootMeans = new int[N_BOOTSTRAPS];
 
-                nextRandom += N_BOOTSTRAPS * count % randomNumbers.length; // prevent overflow
+                    nextRandom += N_BOOTSTRAPS * count % randomNumbers.length; // prevent overflow
 
-                final int randOff = nextRandom;
-                final int finalCount = count;
+                    final int randOff = nextRandom;
+                    final int finalCount = count;
 
-                IntStream.range(0, N_BOOTSTRAPS).parallel().forEach(boot -> {
-                    int bsum = 0;
+                    IntStream.range(0, N_BOOTSTRAPS).parallel().forEach(boot -> {
+                        int bsum = 0;
 
-                    // sample from the Monte Carlo distribution with replacement
-                    for (int iter = 0; iter < finalCount; iter++) {
-                        bsum += avgList
-                                .get(randomNumbers[(randOff + boot * iter) % randomNumbers.length] % avgList.size());
-                        //bsum += timeList.get(random.nextInt(count));
-                    }
+                        // sample from the Monte Carlo distribution with replacement
+                        for (int iter = 0; iter < finalCount; iter++) {
+                            bsum += avgList
+                                    .get(randomNumbers[(randOff + boot * iter) % randomNumbers.length] % avgList.size());
+                            //bsum += timeList.get(random.nextInt(count));
+                        }
 
-                     bootMeans[boot] = bsum / finalCount;
-                });
+                        bootMeans[boot] = bsum / finalCount;
+                    });
 
-                Arrays.sort(bootMeans);
-                // 2.5 percentile of distribution of means
-                mins[target] = bootMeans[N_BOOTSTRAPS / 40];
-                // 97.5 percentile of distribution of means
-                maxs[target] = bootMeans[N_BOOTSTRAPS - N_BOOTSTRAPS / 40];
-                break;
-            case PERCENTILE:
-                timeList.sort();
-                mins[target] = timeList.get(timeList.size() / 40);
-                maxs[target] = timeList.get(39 * timeList.size() / 40);
-                break;
-            case NONE:
-                mins[target] = maxs[target] = avgs[target];
-                break;
-            case MIN_MAX:
-            default:
-                mins[target] = timeList.min();
+                    Arrays.sort(bootMeans);
+                    // 2.5 percentile of distribution of means
+                    mins[target] = bootMeans[N_BOOTSTRAPS / 40];
+                    // 97.5 percentile of distribution of means
+                    maxs[target] = bootMeans[N_BOOTSTRAPS - N_BOOTSTRAPS / 40];
+                    break;
+                case PERCENTILE:
+                    timeList.sort();
+                    mins[target] = timeList.get(timeList.size() / 40);
+                    maxs[target] = timeList.get(39 * timeList.size() / 40);
+                    break;
+                case NONE:
+                    mins[target] = maxs[target] = avgs[target];
+                    break;
+                case MIN_MAX:
+                default:
+                    mins[target] = timeList.min();
 
-                // worst case: if it is sometimes unreachable, worst case is unreachable; otherwise use the max from the
-                // time list.
-                // NB not using count here as it doesn't count iterations that are not included in averages
-                if (timeList.size() == times.length)
-                    maxs[target] = timeList.max();
+                    // worst case: if it is sometimes unreachable, worst case is unreachable; otherwise use the max from the
+                    // time list.
+                    // NB not using count here as it doesn't count iterations that are not included in averages
+                    if (timeList.size() == times.length)
+                        maxs[target] = timeList.max();
 
-                break;
+                    break;
             }
         }
     }
@@ -231,8 +232,8 @@ public class PropagatedTimesStore {
         ResultEnvelope envelope = new ResultEnvelope();
         // max times == worst case accessibility
         envelope.worstCase = new ResultSet(maxs, ss.pset, includeTimes, includeHistograms, includeIsochrones);
-        envelope.avgCase   = new ResultSet(avgs, ss.pset, includeTimes, includeHistograms, includeIsochrones);
-        envelope.bestCase  = new ResultSet(mins, ss.pset, includeTimes, includeHistograms, includeIsochrones);
+        envelope.avgCase = new ResultSet(avgs, ss.pset, includeTimes, includeHistograms, includeIsochrones);
+        envelope.bestCase = new ResultSet(mins, ss.pset, includeTimes, includeHistograms, includeIsochrones);
         return envelope;
     }
 
@@ -260,7 +261,7 @@ public class PropagatedTimesStore {
      * This assumes that the target indexes in this router/propagatedTimesStore are vertex indexes, not pointset indexes.
      * TODO parameter for a pointset or a vertex lookup table, so we can handle both.
      */
-    public ResultEnvelope makeIsochronesForVertices () {
+    public ResultEnvelope makeIsochronesForVertices() {
         ResultEnvelope envelope = new ResultEnvelope();
         envelope.bestCase = makeIsochroneForVertices(mins);
         envelope.avgCase = makeIsochroneForVertices(avgs);
@@ -273,7 +274,7 @@ public class PropagatedTimesStore {
      * This assumes that the target indexes in this router/propagatedTimesStore are vertex indexes, not pointset indexes.
      * Called three times on min/avg/max to create the three elements of a ResultEnvelope.
      */
-    private ResultSet makeIsochroneForVertices (int[] times) {
+    private ResultSet makeIsochroneForVertices(int[] times) {
 
         final int spacing = 5;
         final int nMax = 24;
@@ -312,7 +313,7 @@ public class PropagatedTimesStore {
      * FIXME this may be why we're getting hole-punching failures.
      * TODO: rewrite the isoline code to use only primitive collections and operate on a scalar field.
      */
-    public SparseMatrixZSampleGrid<WTWD> makeSampleGridForVertices (int[] times, final double gridSizeMeters) {
+    public SparseMatrixZSampleGrid<WTWD> makeSampleGridForVertices(int[] times, final double gridSizeMeters) {
         SparseMatrixZSampleGrid<WTWD> grid;
         long t0 = System.currentTimeMillis();
         // Off-road max distance MUST be APPROX EQUALS to the grid precision
@@ -364,19 +365,21 @@ public class PropagatedTimesStore {
     }
 
     public static enum ConfidenceCalculationMethod {
-        /** Do not calculate confidence intervals */
+        /**
+         * Do not calculate confidence intervals
+         */
         NONE,
 
         /**
          * Calculate confidence intervals around the mean using the bootstrap. Note that this calculates
          * the confidence that the mean is in fact the mean of all possible schedules, not the confidence
          * that a particular but unknown schedule will behave a certain way.
-         *
+         * <p>
          * This is absolutely the correct approach in systems that are specified as frequencies both
          * in the model and operationally, because the parameter of interest is the average accessibility
          * afforded by every realization of transfer and wait time. This yields nice tiny confidence
          * intervals around the mean, and allows us easily to measure changes in average accessibility.
-         *
+         * <p>
          * However, when you have a system that will eventually be scheduled, you are interested not
          * in the distribution of the average accessibility over all possible schedules, but rather
          * the distribution of the accessibility afforded by a particular but unknown schedule. This

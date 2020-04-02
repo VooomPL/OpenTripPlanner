@@ -20,7 +20,9 @@ public class Deduplicator implements Serializable {
     private final Map<BitSet, BitSet> canonicalBitSets = Maps.newHashMap();
     private final Map<StringArray, StringArray> canonicalStringArrays = Maps.newHashMap();
 
-    /** Free up any memory used by the deduplicator. */
+    /**
+     * Free up any memory used by the deduplicator.
+     */
     public void reset() {
         canonicalIntArrays.clear();
         canonicalDoubleArrays.clear();
@@ -29,7 +31,9 @@ public class Deduplicator implements Serializable {
         canonicalStringArrays.clear();
     }
 
-    /** Used to deduplicate time and stop sequence arrays. The same times may occur in many trips. */
+    /**
+     * Used to deduplicate time and stop sequence arrays. The same times may occur in many trips.
+     */
     public int[] deduplicateIntArray(int[] original) {
         if (original == null) return null;
         IntArray intArray = new IntArray(original);
@@ -82,48 +86,61 @@ public class Deduplicator implements Serializable {
         return canonical.array;
     }
 
-    /** A wrapper for a primitive int array. This is insane but necessary in Java. */
+    /**
+     * A wrapper for a primitive int array. This is insane but necessary in Java.
+     */
     private class IntArray implements Serializable {
         private static final long serialVersionUID = 20140524L;
         final int[] array;
+
         IntArray(int[] array) {
             this.array = array;
         }
+
         @Override
-        public boolean equals (Object other) {
+        public boolean equals(Object other) {
             if (other instanceof IntArray) {
                 return Arrays.equals(array, ((IntArray) other).array);
             } else return false;
         }
+
         @Override
         public int hashCode() {
             return Arrays.hashCode(array);
         }
     }
 
-    /** A wrapper for a primitive double array. This is insane but necessary in Java. */
+    /**
+     * A wrapper for a primitive double array. This is insane but necessary in Java.
+     */
     private class DoubleArray implements Serializable {
         private static final long serialVersionUID = 20140524L;
         final double[] array;
+
         DoubleArray(double[] array) {
             this.array = array;
         }
+
         @Override
-        public boolean equals (Object other) {
+        public boolean equals(Object other) {
             if (other instanceof DoubleArray) {
                 return Arrays.equals(array, ((DoubleArray) other).array);
             } else return false;
         }
+
         @Override
         public int hashCode() {
             return Arrays.hashCode(array);
         }
     }
 
-    /** A wrapper for a String array. Optionally, the individual Strings may be deduplicated too. */
+    /**
+     * A wrapper for a String array. Optionally, the individual Strings may be deduplicated too.
+     */
     private class StringArray implements Serializable {
         private static final long serialVersionUID = 20140524L;
         final String[] array;
+
         StringArray(String[] array, boolean deduplicateStrings) {
             if (deduplicateStrings) {
                 this.array = new String[array.length];
@@ -132,12 +149,14 @@ public class Deduplicator implements Serializable {
                 }
             } else this.array = array;
         }
+
         @Override
-        public boolean equals (Object other) {
+        public boolean equals(Object other) {
             if (other instanceof StringArray) {
                 return Arrays.equals(array, ((StringArray) other).array);
             } else return false;
         }
+
         @Override
         public int hashCode() {
             return Arrays.hashCode(array);

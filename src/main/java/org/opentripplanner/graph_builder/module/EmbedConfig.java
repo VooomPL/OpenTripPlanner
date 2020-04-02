@@ -41,7 +41,7 @@ public class EmbedConfig implements GraphBuilderModule {
 
     }
 
-    private String serializedConfiguration(JsonNode config) throws JsonProcessingException{
+    private String serializedConfiguration(JsonNode config) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
         return config.isMissingNode() ? null : writer.writeValueAsString(config);

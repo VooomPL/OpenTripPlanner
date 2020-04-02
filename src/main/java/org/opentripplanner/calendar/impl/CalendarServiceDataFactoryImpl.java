@@ -1,26 +1,14 @@
 /* This file is based on code copied from project OneBusAway, see the LICENSE file for further information. */
 package org.opentripplanner.calendar.impl;
 
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.ServiceCalendar;
-import org.opentripplanner.model.ServiceCalendarDate;
+import org.opentripplanner.model.*;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.LocalizedServiceId;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.OtpTransitService;
-import org.opentripplanner.model.CalendarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * We perform initial date calculations in the timezone of the host jvm, which
@@ -47,7 +35,8 @@ public class CalendarServiceDataFactoryImpl {
 
     public static CalendarServiceData createCalendarSrvDataWithoutDatesForLocalizedSrvId(OtpTransitService transitService) {
         return (new CalendarServiceDataFactoryImpl(transitService) {
-            @Override void addDatesForLocalizedServiceId(
+            @Override
+            void addDatesForLocalizedServiceId(
                     FeedScopedId serviceId, List<ServiceDate> serviceDates, CalendarServiceData data
             ) {
                 // Skip creation of datesForLocalizedServiceId
@@ -94,7 +83,7 @@ public class CalendarServiceDataFactoryImpl {
         return data;
     }
 
-    void addDatesForLocalizedServiceId (
+    void addDatesForLocalizedServiceId(
             FeedScopedId serviceId, List<ServiceDate> serviceDates, CalendarServiceData data) {
         List<String> tripAgencyIds = transitService.getTripAgencyIdsReferencingServiceId(serviceId);
         Set<TimeZone> timeZones = new HashSet<>();
@@ -115,7 +104,7 @@ public class CalendarServiceDataFactoryImpl {
     }
 
     private Set<ServiceDate> getServiceDatesForServiceId(FeedScopedId serviceId,
-            TimeZone serviceIdTimeZone) {
+                                                         TimeZone serviceIdTimeZone) {
         Set<ServiceDate> activeDates = new HashSet<>();
         ServiceCalendar c = transitService.getCalendarForServiceId(serviceId);
 
@@ -140,7 +129,7 @@ public class CalendarServiceDataFactoryImpl {
     }
 
     private void addDatesFromCalendar(ServiceCalendar calendar, TimeZone timeZone,
-            Set<ServiceDate> activeDates) {
+                                      Set<ServiceDate> activeDates) {
 
         // We calculate service dates relative to noon so as to avoid any weirdness
         // relative to DST.
@@ -159,27 +148,27 @@ public class CalendarServiceDataFactoryImpl {
             boolean active = false;
 
             switch (day) {
-            case java.util.Calendar.MONDAY:
-                active = calendar.getMonday() == 1;
-                break;
-            case java.util.Calendar.TUESDAY:
-                active = calendar.getTuesday() == 1;
-                break;
-            case java.util.Calendar.WEDNESDAY:
-                active = calendar.getWednesday() == 1;
-                break;
-            case java.util.Calendar.THURSDAY:
-                active = calendar.getThursday() == 1;
-                break;
-            case java.util.Calendar.FRIDAY:
-                active = calendar.getFriday() == 1;
-                break;
-            case java.util.Calendar.SATURDAY:
-                active = calendar.getSaturday() == 1;
-                break;
-            case java.util.Calendar.SUNDAY:
-                active = calendar.getSunday() == 1;
-                break;
+                case java.util.Calendar.MONDAY:
+                    active = calendar.getMonday() == 1;
+                    break;
+                case java.util.Calendar.TUESDAY:
+                    active = calendar.getTuesday() == 1;
+                    break;
+                case java.util.Calendar.WEDNESDAY:
+                    active = calendar.getWednesday() == 1;
+                    break;
+                case java.util.Calendar.THURSDAY:
+                    active = calendar.getThursday() == 1;
+                    break;
+                case java.util.Calendar.FRIDAY:
+                    active = calendar.getFriday() == 1;
+                    break;
+                case java.util.Calendar.SATURDAY:
+                    active = calendar.getSaturday() == 1;
+                    break;
+                case java.util.Calendar.SUNDAY:
+                    active = calendar.getSunday() == 1;
+                    break;
             }
 
             if (active) {
@@ -191,22 +180,22 @@ public class CalendarServiceDataFactoryImpl {
     }
 
     private void addAndRemoveDatesFromCalendarDate(ServiceCalendarDate calendarDate,
-            Set<ServiceDate> activeDates) {
+                                                   Set<ServiceDate> activeDates) {
         ServiceDate serviceDate = calendarDate.getDate();
         Date targetDate = calendarDate.getDate().getAsDate();
         Calendar c = Calendar.getInstance();
         c.setTime(targetDate);
 
         switch (calendarDate.getExceptionType()) {
-        case ServiceCalendarDate.EXCEPTION_TYPE_ADD:
-            addServiceDate(activeDates, serviceDate);
-            break;
-        case ServiceCalendarDate.EXCEPTION_TYPE_REMOVE:
-            activeDates.remove(serviceDate);
-            break;
-        default:
-            LOG.warn("unknown CalendarDate exception type: " + calendarDate.getExceptionType());
-            break;
+            case ServiceCalendarDate.EXCEPTION_TYPE_ADD:
+                addServiceDate(activeDates, serviceDate);
+                break;
+            case ServiceCalendarDate.EXCEPTION_TYPE_REMOVE:
+                activeDates.remove(serviceDate);
+                break;
+            default:
+                LOG.warn("unknown CalendarDate exception type: " + calendarDate.getExceptionType());
+                break;
         }
     }
 

@@ -14,7 +14,9 @@ import java.util.Locale;
  * a single geographic point into the street network.
  */
 public class SampleEdge extends Edge implements TemporaryEdge {
-    /** length in meters */
+    /**
+     * length in meters
+     */
     private final int length;
 
     public SampleEdge(SampleVertex fromv, Vertex v0, int distance) {

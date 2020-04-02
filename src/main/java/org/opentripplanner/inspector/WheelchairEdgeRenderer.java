@@ -6,7 +6,7 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TransitVertex;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Render important information for debugging wheelchair access (street slopes and transit stop accessibility)
@@ -47,14 +47,14 @@ public class WheelchairEdgeRenderer implements EdgeVertexRenderer {
     @Override
     public boolean renderVertex(Vertex v, EdgeVertexTileRenderer.VertexVisualAttributes attrs) {
         if (v instanceof TransitVertex) {
-            if(((TransitVertex) v).getStop().getWheelchairBoarding() == 0)
+            if (((TransitVertex) v).getStop().getWheelchairBoarding() == 0)
                 attrs.color = NO_WHEELCHAIR_INFORMATION_COLOR;
-            if(((TransitVertex) v).getStop().getWheelchairBoarding() == 1)
+            if (((TransitVertex) v).getStop().getWheelchairBoarding() == 1)
                 attrs.color = YES_WHEELCHAIR_COLOR;
-            if(((TransitVertex) v).getStop().getWheelchairBoarding() == 2)
+            if (((TransitVertex) v).getStop().getWheelchairBoarding() == 2)
                 attrs.color = NO_WHEELCHAIR_COLOR;
             attrs.label = v.getName();
-        } else  {
+        } else {
             return false;
         }
         return true;

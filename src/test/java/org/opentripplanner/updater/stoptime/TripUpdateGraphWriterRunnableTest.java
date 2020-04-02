@@ -1,14 +1,14 @@
 package org.opentripplanner.updater.stoptime;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import org.junit.Test;
 import org.opentripplanner.routing.graph.Graph;
 
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class TripUpdateGraphWriterRunnableTest {
     @Test

@@ -1,21 +1,20 @@
 package org.opentripplanner.updater.bike_rental;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.opentripplanner.routing.bike_rental.BikeRentalStation;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.updater.JsonConfigurable;
+import org.opentripplanner.util.HttpUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opentripplanner.updater.JsonConfigurable;
-import org.opentripplanner.routing.bike_rental.BikeRentalStation;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.util.HttpUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -38,8 +37,7 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
      * Construct superclass
      *
      * @param jsonPath JSON path to get from enclosing elements to nested rental list.
-     *        Separate path levels with '/' For example "d/list"
-     *
+     *                 Separate path levels with '/' For example "d/list"
      */
     public GenericJsonBikeRentalDataSource(String jsonPath) {
         jsonParsePath = jsonPath;
@@ -48,10 +46,9 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
     }
 
     /**
-     *
-     * @param jsonPath path to get from enclosing elements to nested rental list.
-     *        Separate path levels with '/' For example "d/list"
-     * @param headerName header name
+     * @param jsonPath    path to get from enclosing elements to nested rental list.
+     *                    Separate path levels with '/' For example "d/list"
+     * @param headerName  header name
      * @param headerValue header value
      */
     public GenericJsonBikeRentalDataSource(String jsonPath, String headerName, String headerValue) {
@@ -62,7 +59,6 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
 
     /**
      * Construct superclass where rental list is on the top level of JSON code
-     *
      */
     public GenericJsonBikeRentalDataSource() {
         jsonParsePath = "";
@@ -72,12 +68,12 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
     public boolean update() {
         try {
             InputStream data = null;
-        	
-        	URL url2 = new URL(url);
-        	
+
+            URL url2 = new URL(url);
+
             String proto = url2.getProtocol();
             if (proto.equals("http") || proto.equals("https")) {
-            	data = HttpUtils.getData(url, headerName, headerValue);
+                data = HttpUtils.getData(url, headerName, headerValue);
             } else {
                 // Local file probably, try standard java
                 data = url2.openStream();
@@ -114,13 +110,13 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
         if (!jsonParsePath.equals("")) {
             String delimiter = "/";
             String[] parseElement = jsonParsePath.split(delimiter);
-            for(int i =0; i < parseElement.length ; i++) {
+            for (int i = 0; i < parseElement.length; i++) {
                 rootNode = rootNode.path(parseElement[i]);
             }
 
             if (rootNode.isMissingNode()) {
                 throw new IllegalArgumentException("Could not find jSON elements " + jsonParsePath);
-              }
+            }
         }
 
         for (int i = 0; i < rootNode.size(); i++) {
@@ -133,27 +129,25 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
             if (brstation != null)
                 out.add(brstation);
         }
-        synchronized(this) {
+        synchronized (this) {
             stations = out;
         }
     }
 
     private String convertStreamToString(java.io.InputStream is) {
         java.util.Scanner scanner = null;
-        String result="";
+        String result = "";
         try {
-           
+
             scanner = new java.util.Scanner(is).useDelimiter("\\A");
             result = scanner.hasNext() ? scanner.next() : "";
             scanner.close();
-        }
-        finally
-        {
-           if(scanner!=null)
-               scanner.close();
+        } finally {
+            if (scanner != null)
+                scanner.close();
         }
         return result;
-        
+
     }
 
     @Override
@@ -164,9 +158,9 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
     public String getUrl() {
         return url;
     }
-    
+
     public void setUrl(String url) {
-    	this.url = url;
+        this.url = url;
     }
 
     public abstract BikeRentalStation makeStation(JsonNode rentalStationNode);
@@ -181,7 +175,7 @@ public abstract class GenericJsonBikeRentalDataSource implements BikeRentalDataS
      * from the JSON coming in from the update source.
      */
     @Override
-    public void configure (Graph graph, JsonNode jsonNode) {
+    public void configure(Graph graph, JsonNode jsonNode) {
         String url = jsonNode.path("url").asText(); // path() returns MissingNode not null.
         if (url == null) {
             throw new IllegalArgumentException("Missing mandatory 'url' configuration.");

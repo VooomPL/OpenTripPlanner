@@ -1,15 +1,13 @@
 package org.opentripplanner.visibility;
 
-import java.lang.Math;
-
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-
-
- This port undoubtedly introduced a number of bugs (and removed some features).
-
- Bug reports should be directed to the OpenTripPlanner project, unless they
- can be reproduced in the original VisiLibity.
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity.
  */
 class Angle implements Comparable<Angle>, Cloneable {
     double angle_radians;

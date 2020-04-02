@@ -6,8 +6,8 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopTime;
 import org.opentripplanner.model.StopPattern;
+import org.opentripplanner.model.StopTime;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.trippattern.FrequencyEntry;
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Skip stops and associated dwell times.
- *
+ * <p>
  * Skipped stops are no longer served by the matched trips, and and dwell time at a skipped stop is removed from the schedule.
  * If stops are skipped at the start of a trip, the start of the trip is simply removed; the remaining times are not shifted.
  */
@@ -30,7 +30,9 @@ public class SkipStop extends TripPatternFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkipStop.class);
 
-    /** Stops to skip. Note that setting this to null as a wildcard is not supported, obviously */
+    /**
+     * Stops to skip. Note that setting this to null as a wildcard is not supported, obviously
+     */
     public Collection<String> stopId;
 
     @Override
@@ -94,8 +96,7 @@ public class SkipStop extends TripPatternFilter {
                 // this trip should not be modified
                 allTripsMatched = false;
                 originalClone.scheduledTimetable.addTripTimes(tt);
-            }
-            else {
+            } else {
                 // This trip should be modified
                 anyTripsMatched = true;
                 modified.scheduledTimetable.addTripTimes(omitStops(tt, skippedStops.toArray()));
@@ -106,8 +107,7 @@ public class SkipStop extends TripPatternFilter {
             if (!matches(fe.tripTimes.trip)) {
                 allTripsMatched = false;
                 originalClone.scheduledTimetable.addFrequencyEntry(fe);
-            }
-            else {
+            } else {
                 anyTripsMatched = true;
                 TripTimes newtt = omitStops(fe.tripTimes, skippedStops.toArray());
                 FrequencyEntry newfe = new FrequencyEntry(fe.startTime, fe.endTime, fe.headway, fe.exactTimes, newtt);
@@ -128,7 +128,7 @@ public class SkipStop extends TripPatternFilter {
         return ret;
     }
 
-    public TripTimes omitStops (TripTimes tt, int... stopsToSkip) {
+    public TripTimes omitStops(TripTimes tt, int... stopsToSkip) {
         TIntSet skipped = new TIntHashSet(stopsToSkip);
 
         List<StopTime> newSts = Lists.newArrayList();

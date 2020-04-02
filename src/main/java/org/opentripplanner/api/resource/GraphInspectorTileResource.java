@@ -1,7 +1,13 @@
 package org.opentripplanner.api.resource;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import org.geotools.geometry.Envelope2D;
+import org.opentripplanner.analyst.core.SlippyTile;
+import org.opentripplanner.analyst.request.TileRequest;
+import org.opentripplanner.api.common.RoutingResource;
+import org.opentripplanner.api.parameter.MIMEImageFormat;
+import org.opentripplanner.inspector.TileRenderer;
+import org.opentripplanner.standalone.OTPServer;
+import org.opentripplanner.standalone.Router;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
@@ -12,25 +18,17 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.geotools.geometry.Envelope2D;
-import org.opentripplanner.analyst.core.SlippyTile;
-import org.opentripplanner.analyst.request.TileRequest;
-import org.opentripplanner.api.common.RoutingResource;
-import org.opentripplanner.api.parameter.MIMEImageFormat;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 
 import static org.opentripplanner.api.resource.ServerInfo.Q;
-
-import org.opentripplanner.inspector.TileRenderer;
-import org.opentripplanner.standalone.OTPServer;
-import org.opentripplanner.standalone.Router;
 
 /**
  * Slippy map tile API for rendering various graph information for inspection/debugging purpose
  * (bike safety factor, connectivity...).
- * 
+ * <p>
  * One can easily add a new layer by adding the following kind of code to a leaflet map:
- * 
+ *
  * <pre>
  *   var bikesafety = new L.TileLayer(
  *      'http://localhost:8080/otp/routers/default/inspector/tile/bike-safety/{z}/{x}/{y}.png',
@@ -38,15 +36,13 @@ import org.opentripplanner.standalone.Router;
  *   var map = L.map(...);
  *   L.control.layers(null, { "Bike safety": bikesafety }).addTo(map);
  * </pre>
- * 
+ * <p>
  * Tile rendering goes through TileRendererManager which select the appropriate renderer for the
  * given layer.
- * 
+ *
+ * @author laurent
  * @see TileRendererManager
  * @see TileRenderer
- * 
- * @author laurent
- * 
  */
 @Path("/routers/{routerId}/inspector")
 public class GraphInspectorTileResource extends RoutingResource {
@@ -72,7 +68,8 @@ public class GraphInspectorTileResource extends RoutingResource {
     @PathParam("ext")
     String ext;
 
-    @GET @Path("/tile/{layer}/{z}/{x}/{y}.{ext}")
+    @GET
+    @Path("/tile/{layer}/{z}/{x}/{y}.{ext}")
     @Produces("image/*")
     public Response tileGet() throws Exception {
 
@@ -94,12 +91,14 @@ public class GraphInspectorTileResource extends RoutingResource {
 
     /**
      * Gets all layer names
-     * 
+     * <p>
      * Used in fronted to create layer chooser
-     * @return 
+     *
+     * @return
      */
-    @GET @Path("layers")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q })
+    @GET
+    @Path("layers")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q})
     public InspectorLayersList getLayers() {
 
         Router router = otpServer.getRouter(routerId);

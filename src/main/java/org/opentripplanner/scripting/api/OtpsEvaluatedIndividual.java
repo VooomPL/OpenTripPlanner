@@ -2,12 +2,11 @@ package org.opentripplanner.scripting.api;
 
 /**
  * This class encapsulate both an individual and evaluated values (time...).
- * 
+ * <p>
  * Objects are returned by the eval method of the SPT.
- * 
- * @see OtpsSPT.eval()
- * 
+ *
  * @author laurent
+ * @see OtpsSPT.eval()
  */
 public class OtpsEvaluatedIndividual {
 
@@ -20,7 +19,7 @@ public class OtpsEvaluatedIndividual {
     private double walkDistance;
 
     protected OtpsEvaluatedIndividual(OtpsIndividual individual, long time, int boardings,
-            double walkDistance) {
+                                      double walkDistance) {
         this.individual = individual;
         this.time = time;
         this.boardings = boardings;
@@ -29,7 +28,7 @@ public class OtpsEvaluatedIndividual {
 
     /**
      * @return The time, in seconds, for this evualuated individual. Return null/None if no time is
-     *         available (position not snapped or out of time range).
+     * available (position not snapped or out of time range).
      */
     public Long getTime() {
         if (time == Long.MAX_VALUE)
@@ -39,8 +38,8 @@ public class OtpsEvaluatedIndividual {
 
     /**
      * @return The number of boardings to get to this point (this is the number of transfers +1).
-     *         Return 0 for walk only path. Return null/None if no information is available at this
-     *         point (position not snapped or out of evaluated time range).
+     * Return 0 for walk only path. Return null/None if no information is available at this
+     * point (position not snapped or out of evaluated time range).
      */
     public Integer getBoardings() {
         if (boardings == 255) // TODO Use a constant
@@ -50,7 +49,7 @@ public class OtpsEvaluatedIndividual {
 
     /**
      * @return The distance in meters walked to get to this point. Return null/None if no
-     *         information is available at this point.
+     * information is available at this point.
      */
     public Double getWalkDistance() {
         if (Double.isNaN(walkDistance))

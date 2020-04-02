@@ -1,11 +1,11 @@
 package org.opentripplanner.routing.bike_rental;
 
+import org.opentripplanner.routing.bike_park.BikePark;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.opentripplanner.routing.bike_park.BikePark;
 
 public class BikeRentalStationService implements Serializable {
     private static final long serialVersionUID = -1288992939159246764L;

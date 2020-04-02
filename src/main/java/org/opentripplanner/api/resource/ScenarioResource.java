@@ -26,28 +26,38 @@ public class ScenarioResource {
 
     private ScenarioStore scenarioStore;
 
-    /** Choose short or long form of results. */
-    @QueryParam("detail") private boolean detail = false;
+    /**
+     * Choose short or long form of results.
+     */
+    @QueryParam("detail")
+    private boolean detail = false;
 
-    /** Include GTFS entities referenced by ID in the result. */
-    @QueryParam("refs") private boolean refs = false;
+    /**
+     * Include GTFS entities referenced by ID in the result.
+     */
+    @QueryParam("refs")
+    private boolean refs = false;
 
     public ScenarioResource(@Context OTPServer otpServer, @PathParam("routerId") String routerId) {
         Router router = otpServer.getRouter(routerId);
         scenarioStore = router.scenarioStore;
     }
 
-    /** Return a list of all scenarios defined for this router. */
+    /**
+     * Return a list of all scenarios defined for this router.
+     */
     @GET
-    public javax.ws.rs.core.Response getScenarioDescriptions () {
+    public javax.ws.rs.core.Response getScenarioDescriptions() {
         return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.OK)
                 .entity(scenarioStore.getDescriptions()).build();
     }
 
-    /** Return specific scenario defined for this router by ID. */
+    /**
+     * Return specific scenario defined for this router by ID.
+     */
     @GET
     @Path("/{scenarioId}")
-    public javax.ws.rs.core.Response getScenario (@PathParam("scenarioId") String scenarioId) {
+    public javax.ws.rs.core.Response getScenario(@PathParam("scenarioId") String scenarioId) {
         Scenario scenario = scenarioStore.scenarios.get(scenarioId);
         if (scenario == null) {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).entity(MSG_404).build();

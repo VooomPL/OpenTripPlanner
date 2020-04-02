@@ -1,15 +1,13 @@
 package org.opentripplanner.visibility;
 
-import java.lang.Math;
-
 /**
- Ported by David Turner from Visilibity, by Karl J. Obermeyer
-
-
- This port undoubtedly introduced a number of bugs (and removed some features).
-
- Bug reports should be directed to the OpenTripPlanner project, unless they
- can be reproduced in the original VisiLibity
+ * Ported by David Turner from Visilibity, by Karl J. Obermeyer
+ * <p>
+ * <p>
+ * This port undoubtedly introduced a number of bugs (and removed some features).
+ * <p>
+ * Bug reports should be directed to the OpenTripPlanner project, unless they
+ * can be reproduced in the original VisiLibity
  */
 public class VLPoint implements Comparable<VLPoint>, Cloneable {
 
@@ -45,7 +43,7 @@ public class VLPoint implements Comparable<VLPoint>, Cloneable {
                 * (line_segment_temp.second().x - line_segment_temp.first().x) + (line_segment_temp
                 .second().y - y) * (line_segment_temp.second().y - line_segment_temp.first().y))
                 / (Math.pow(line_segment_temp.second().x - line_segment_temp.first().x, 2) + Math
-                        .pow(line_segment_temp.second().y - line_segment_temp.first().y, 2));
+                .pow(line_segment_temp.second().y - line_segment_temp.first().y, 2));
         // std::cout << "\E[1;37;40m" << "Theta is: " << theta << "\x1b[0m"
         // << std::endl;
         if ((0.0 <= theta) && (theta <= 1.0))
@@ -180,9 +178,7 @@ public class VLPoint implements Comparable<VLPoint>, Cloneable {
         this.x = x;
     }
 
-    public boolean in(VLPolygon polygon_temp)
-
-    {
+    public boolean in(VLPolygon polygon_temp) {
         return in(polygon_temp, 0);
     }
 
@@ -202,9 +198,9 @@ public class VLPoint implements Comparable<VLPoint>, Cloneable {
             if ((((polygon_temp.get(i).y <= y) && (y < polygon_temp.get(j).y)) || ((polygon_temp
                     .get(j).y <= y) && (y < polygon_temp.get(i).y)))
                     && (x < (polygon_temp.get(j).x - polygon_temp.get(i).x)
-                            * (y - polygon_temp.get(i).y)
-                            / (polygon_temp.get(j).y - polygon_temp.get(i).y)
-                            + polygon_temp.get(i).x))
+                    * (y - polygon_temp.get(i).y)
+                    / (polygon_temp.get(j).y - polygon_temp.get(i).y)
+                    + polygon_temp.get(i).x))
                 c = !c;
         }
         return c;

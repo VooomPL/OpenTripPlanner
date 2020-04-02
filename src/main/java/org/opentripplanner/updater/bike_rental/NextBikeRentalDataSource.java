@@ -1,10 +1,10 @@
 package org.opentripplanner.updater.bike_rental;
 
-import java.util.HashSet;
-import java.util.Map;
-
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.util.NonLocalizedString;
+
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * NextBike bike rental data source.
@@ -53,7 +53,7 @@ public class NextBikeRentalDataSource extends GenericXmlBikeRentalDataSource {
         } else {
             brstation.bikesAvailable = Integer.parseInt(numBikes);
         }
-        
+
         return brstation;
     }
 }

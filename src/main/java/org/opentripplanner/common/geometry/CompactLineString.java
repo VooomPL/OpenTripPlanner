@@ -1,10 +1,10 @@
 package org.opentripplanner.common.geometry;
 
-import java.io.Serializable;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+
+import java.io.Serializable;
 
 /**
  * Compact line string. To optimize storage, we use the following tricks:
@@ -17,11 +17,11 @@ import org.locationtech.jts.geom.LineString;
  * from the previous point, and variable length coding (most of the delta coordinates will thus fits
  * in 1 or 2 bytes).</li>
  * </ul>
- * 
+ * <p>
  * This trick alone saves around 20% of memory compared to the bulky JTS LineString, which is split
  * on many objects (Coordinates, cached Envelope, Geometry itself). Performance hit should be low as
  * we do not need the geometry during a path search.
- * 
+ *
  * @author laurent
  */
 public final class CompactLineString implements Serializable {
@@ -56,18 +56,18 @@ public final class CompactLineString implements Serializable {
     /**
      * Public factory to create a compact line string. Optimize for straight-line only line string
      * (w/o intermediate end-points).
-     * 
-     * @param xa X coordinate of end point A
-     * @param ya Y coordinate of end point A
-     * @param xb X coordinate of end point B
-     * @param yb Y coordinate of end point B
+     *
+     * @param xa         X coordinate of end point A
+     * @param ya         Y coordinate of end point A
+     * @param xb         X coordinate of end point B
+     * @param yb         Y coordinate of end point B
      * @param lineString The geometry to compact. Please be aware that we ignore first and last
-     *        coordinate in the line string, they need to be exactly the same as A and B.
-     * @param reverse True if A and B are inverted (B is start, A is end).
+     *                   coordinate in the line string, they need to be exactly the same as A and B.
+     * @param reverse    True if A and B are inverted (B is start, A is end).
      * @return
      */
     public static int[] compactLineString(double xa, double ya, double xb, double yb,
-            LineString lineString, boolean reverse) {
+                                          LineString lineString, boolean reverse) {
         if (lineString == null)
             return null;
         if (lineString.getCoordinates().length == 2)
@@ -107,7 +107,7 @@ public final class CompactLineString implements Serializable {
 
     /**
      * Same as the other version, but in a var-len int packed form (Dlugosz coding).
-     * 
+     *
      * @param x0
      * @param y0
      * @param x1
@@ -116,7 +116,7 @@ public final class CompactLineString implements Serializable {
      * @return
      */
     public static byte[] compackLineString(double x0, double y0, double x1, double y1,
-            LineString lineString, boolean reverse) {
+                                           LineString lineString, boolean reverse) {
         int[] coords = compactLineString(x0, y0, x1, y1, lineString, reverse);
         if (coords == STRAIGHT_LINE)
             return STRAIGHT_LINE_PACKED;
@@ -125,17 +125,17 @@ public final class CompactLineString implements Serializable {
 
     /**
      * Construct a LineString based on external end-points and compacted int version.
-     * 
+     *
      * @param xa
      * @param ya
      * @param xb
      * @param yb
-     * @param coords Compact version of coordinates
+     * @param coords  Compact version of coordinates
      * @param reverse True if A and B and the compacted geometry is reversed.
      * @return
      */
     public static LineString uncompactLineString(double xa, double ya, double xb, double yb,
-            int[] coords, boolean reverse) {
+                                                 int[] coords, boolean reverse) {
         int size = coords == null ? 2 : (coords.length / 2) + 2;
         Coordinate[] c = new Coordinate[size];
         double x0 = reverse ? xb : xa;
@@ -163,7 +163,7 @@ public final class CompactLineString implements Serializable {
 
     /**
      * Same as the other version, but in a var-len int packed form (Dlugosz coding).
-     * 
+     *
      * @param x0
      * @param y0
      * @param x1
@@ -172,7 +172,7 @@ public final class CompactLineString implements Serializable {
      * @return
      */
     public static LineString uncompackLineString(double x0, double y0, double x1, double y1,
-            byte[] packedCoords, boolean reverse) {
+                                                 byte[] packedCoords, boolean reverse) {
         return uncompactLineString(x0, y0, x1, y1, DlugoszVarLenIntPacker.unpack(packedCoords), reverse);
     }
 }

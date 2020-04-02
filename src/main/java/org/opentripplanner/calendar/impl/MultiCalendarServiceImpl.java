@@ -2,16 +2,15 @@ package org.opentripplanner.calendar.impl;
 
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.LocalizedServiceId;
-import org.opentripplanner.model.OtpTransitService;
 
 /**
  * This is actually kind of a hack, and assumes that there is only one copy of CalendarServiceData
  * in the universe.
- * 
+ *
  * @author novalis
- * 
  */
 public class MultiCalendarServiceImpl extends CalendarServiceImpl {
 

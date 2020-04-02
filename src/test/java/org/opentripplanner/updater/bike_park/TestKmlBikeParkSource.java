@@ -1,10 +1,9 @@
 package org.opentripplanner.updater.bike_park;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.opentripplanner.routing.bike_park.BikePark;
+
+import java.util.List;
 
 public class TestKmlBikeParkSource extends TestCase {
 

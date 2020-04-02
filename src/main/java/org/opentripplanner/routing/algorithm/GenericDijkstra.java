@@ -1,21 +1,17 @@
 package org.opentripplanner.routing.algorithm;
 
-import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
-import org.opentripplanner.routing.algorithm.strategies.SkipEdgeStrategy;
-import org.opentripplanner.routing.algorithm.strategies.SkipTraverseResultStrategy;
-import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
-import org.opentripplanner.routing.core.State;
+import org.opentripplanner.common.pqueue.BinHeap;
+import org.opentripplanner.routing.algorithm.strategies.*;
 import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.common.pqueue.BinHeap;
 import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 
 /**
  * Find the shortest path between graph vertices using Dijkstra's algorithm.
- *
+ * <p>
  * TODO do we need this since we have GenericAStar and trivial remaining weight heuristic?
  * It is used in pruning Area edges and in finding the distance to transit stops.
  */
@@ -80,20 +76,20 @@ public class GenericDijkstra {
             }
 
             if (searchTerminationStrategy != null &&
-                searchTerminationStrategy.shouldSearchTerminate(initialState.getVertex(), null, u, spt, options)) {
+                    searchTerminationStrategy.shouldSearchTerminate(initialState.getVertex(), null, u, spt, options)) {
                 break;
             }
 
             for (Edge edge : options.arriveBy ? u_vertex.getIncoming() : u_vertex.getOutgoing()) {
                 if (skipEdgeStrategy != null &&
-                    skipEdgeStrategy.shouldSkipEdge(initialState.getVertex(), null, u, edge, spt, options)) {
+                        skipEdgeStrategy.shouldSkipEdge(initialState.getVertex(), null, u, edge, spt, options)) {
                     continue;
                 }
                 // Iterate over traversal results. When an edge leads nowhere (as indicated by
                 // returning NULL), the iteration is over.
                 for (State v = edge.traverse(u); v != null; v = v.getNextResult()) {
                     if (skipTraverseResultStrategy != null &&
-                        skipTraverseResultStrategy.shouldSkipTraversalResult(initialState.getVertex(), null, u, v, spt, options)) {
+                            skipTraverseResultStrategy.shouldSkipTraversalResult(initialState.getVertex(), null, u, v, spt, options)) {
                         continue;
                     }
                     if (traverseVisitor != null) {

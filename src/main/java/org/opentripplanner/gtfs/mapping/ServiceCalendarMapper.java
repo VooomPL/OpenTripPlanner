@@ -9,7 +9,9 @@ import java.util.Map;
 
 import static org.opentripplanner.gtfs.mapping.AgencyAndIdMapper.mapAgencyAndId;
 
-/** Responsible for mapping GTFS ServiceCalendar into the OTP model. */
+/**
+ * Responsible for mapping GTFS ServiceCalendar into the OTP model.
+ */
 class ServiceCalendarMapper {
     private Map<org.onebusaway.gtfs.model.ServiceCalendar, ServiceCalendar> mappedCalendars = new HashMap<>();
 
@@ -18,7 +20,9 @@ class ServiceCalendarMapper {
         return MapUtils.mapToList(allServiceCalendars, this::map);
     }
 
-    /** Map from GTFS to OTP model, {@code null} safe.  */
+    /**
+     * Map from GTFS to OTP model, {@code null} safe.
+     */
     ServiceCalendar map(org.onebusaway.gtfs.model.ServiceCalendar orginal) {
         return orginal == null ? null : mappedCalendars.computeIfAbsent(orginal, this::doMap);
     }

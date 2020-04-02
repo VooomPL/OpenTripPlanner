@@ -3,13 +3,13 @@ package org.opentripplanner.updater.street_notes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import org.locationtech.jts.geom.Geometry;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -34,19 +34,17 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.prefs.Preferences;
 
 /**
  * A graph updater that reads a WFS-interface and updates a DynamicStreetNotesSource.
  * Useful when reading geodata from legacy/external sources, which are not based on OSM
  * and where data has to be matched to the street network.
- *
+ * <p>
  * Classes that extend this class should provide getNote which parses the WFS features
  * into notes. Also the implementing classes should be added to the GraphUpdaterConfigurator
  *
- * @see WinkkiPollingGraphUpdater
- *
  * @author hannesj
+ * @see WinkkiPollingGraphUpdater
  */
 public abstract class WFSNotePollingGraphUpdater extends PollingGraphUpdater {
     protected Graph graph;
@@ -124,7 +122,7 @@ public abstract class WFSNotePollingGraphUpdater extends PollingGraphUpdater {
      * as the requirements for different updaters can be vastly different dependent on the data source.
      */
     @Override
-    protected void runPolling() throws IOException{
+    protected void runPolling() throws IOException {
         LOG.info("Run WFS polling updater with hashcode: {}", this.hashCode());
 
         notesForEdge = HashMultimap.create();
@@ -132,7 +130,7 @@ public abstract class WFSNotePollingGraphUpdater extends PollingGraphUpdater {
 
         FeatureIterator<SimpleFeature> features = featureSource.getFeatures(query).features();
 
-        while ( features.hasNext()){
+        while (features.hasNext()) {
             SimpleFeature feature = features.next();
             if (feature.getDefaultGeometry() == null) continue;
 
@@ -142,7 +140,7 @@ public abstract class WFSNotePollingGraphUpdater extends PollingGraphUpdater {
             Geometry geom = (Geometry) feature.getDefaultGeometry();
             Geometry searchArea = geom.buffer(SEARCH_RADIUS_DEG);
             Collection<Edge> edges = graph.streetIndex.getEdgesForEnvelope(searchArea.getEnvelopeInternal());
-            for(Edge edge: edges){
+            for (Edge edge : edges) {
                 if (edge instanceof StreetEdge && !searchArea.disjoint(edge.getGeometry())) {
                     addNote(edge, alert, NOTE_MATCHER);
                 }

@@ -5,15 +5,15 @@ import org.opentripplanner.routing.graph.Graph;
 
 /**
  * This vertex is created from all barrier tags.
- *
+ * <p>
  * Currently only barrier=bollard is supported.
  * Node barrier=bollard implies access=no, foot=yes, bicycle=yes
- *
+ * <p>
  * On this vertex geometry is split and two new edges are created.
- *
+ * <p>
  * If start/end vertex of {@link org.opentripplanner.routing.edgetype.StreetEdge} is BarrierVertex
  * edge isn't traversable with CAR.
- *
+ * <p>
  * Created by mabu on 11.5.2015.
  */
 public class BarrierVertex extends OsmVertex {

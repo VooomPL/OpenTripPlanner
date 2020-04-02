@@ -2,8 +2,6 @@ package org.opentripplanner.standalone;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
-import java.security.Principal;
-import java.util.Map;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -14,16 +12,18 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
+import java.security.Principal;
+import java.util.Map;
 
-/** 
+/**
  * This ContainerRequestFilter adds basic authentication support to the Grizzly + Jersey server.
  * Basic authentication is insecure by itself, but short of more complex solutions like oauth it is the best
  * option when coupled with transport-layer security (secure sockets).
- *
+ * <p>
  * It seems wasteful to encrypt all communication with the server, but TLS uses very efficient symmetric-key
  * encryption on the messages themselves. Only the TLS handshake uses compute-intensive public key encryption,
  * which establishes a shared key.
- *
+ * <p>
  * In Jersey 2 this filter should configure the SecurityContext which will be passed through to the web resources.
  */
 @Priority(Priorities.AUTHENTICATION)
@@ -38,16 +38,16 @@ public class AuthFilter implements ContainerRequestFilter {
     }
 
     /* Throw an exception if a user is unauthenticated. requestContext.abortWith()? */
-    private static void unauthenticated (String user) {
+    private static void unauthenticated(String user) {
         String message = String.format("Incorrect password for OpenTripPlanner user '%s'", user);
         throw new WebApplicationException(Response.status(Status.UNAUTHORIZED)
-            .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"OpenTripPlanner\"")
-            .entity(message)
-            .build());
+                .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"OpenTripPlanner\"")
+                .entity(message)
+                .build());
     }
 
     /* Throw an exception if user attempts to do basic auth over an unencrypted connection. */
-    private static void unencrypted () {
+    private static void unencrypted() {
         throw new WebApplicationException(Response.status(Status.UNAUTHORIZED)
                 .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"OpenTripPlanner\"")
                 .entity("OpenTripPlanner refuses to do basic auth without transport layer security (HTTPS).")
@@ -61,7 +61,7 @@ public class AuthFilter implements ContainerRequestFilter {
         String auth = containerRequest.getHeaderString(HttpHeaders.AUTHORIZATION);
         if (auth != null) {
             if (auth.startsWith("Basic ") || auth.startsWith("basic ")) {
-                if ( ! containerRequest.getSecurityContext().isSecure()) unencrypted();
+                if (!containerRequest.getSecurityContext().isSecure()) unencrypted();
                 auth = auth.replaceFirst("[Bb]asic ", "");
                 String[] split = new String(BaseEncoding.base64().decode(auth)).split(":", 2);
                 if (split.length != 2) return;
@@ -70,13 +70,13 @@ public class AuthFilter implements ContainerRequestFilter {
                 if (pass.equals(passwords.get(user))) {
                     containerRequest.setSecurityContext(makeSecurityContext(user, user));
                 } else {
-                    unauthenticated (user);
+                    unauthenticated(user);
                 }
             }
         }
     }
 
-    public static SecurityContext makeSecurityContext (final String name, final String... roles) {
+    public static SecurityContext makeSecurityContext(final String name, final String... roles) {
         return new SecurityContext() {
             @Override
             public Principal getUserPrincipal() {
@@ -99,7 +99,9 @@ public class AuthFilter implements ContainerRequestFilter {
             }
 
             @Override
-            public String getAuthenticationScheme() { return SecurityContext.BASIC_AUTH; }
+            public String getAuthenticationScheme() {
+                return SecurityContext.BASIC_AUTH;
+            }
 
             @Override
             public boolean isSecure() {

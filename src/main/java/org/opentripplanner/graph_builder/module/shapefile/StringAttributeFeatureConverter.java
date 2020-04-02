@@ -7,9 +7,8 @@ import org.opengis.feature.simple.SimpleFeature;
  * specification of a default value, which is useful if you are reading from data sources that might
  * contain blank (or null) values (e.g., if you're reading street name values, you might want to
  * default to "Unnamed street" instead of null or " ").
- * 
+ *
  * @author nicholasbs
- * 
  */
 public class StringAttributeFeatureConverter extends AttributeFeatureConverter<String> {
 

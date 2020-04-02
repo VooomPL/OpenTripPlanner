@@ -1,7 +1,7 @@
 package org.opentripplanner.routing.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.services.GraphSource;
@@ -9,8 +9,7 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 /**
  * An implementation of GraphSource that store a transient graph in memory.

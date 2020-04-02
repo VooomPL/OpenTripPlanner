@@ -14,29 +14,29 @@ public class MavenVersion implements Serializable {
     private static final long serialVersionUID = VERSION.getUID();
 
     /* Info derived from version string */
-    public final String version; 
+    public final String version;
     public final int major;
     public final int minor;
     public final int incremental;
     public final String qualifier;
-    
+
     /* Other info from git-commit-id-plugin via maven-version.properties */
     public final String commit;
     public final String describe;
     public final String commit_time;
     public final String build_time;
-    
+
     private static MavenVersion fromProperties() {
         final String FILE = "maven-version.properties";
         try {
             Properties props = new java.util.Properties();
             InputStream in = MavenVersion.class.getClassLoader().getResourceAsStream(FILE);
             props.load(in);
-            MavenVersion version = new MavenVersion(props.getProperty("project.version"), 
-                                                    props.getProperty("git.commit.id"),
-                                                    props.getProperty("git.commit.id.describe"),
-                                                    props.getProperty("git.commit.time"),
-                                                    props.getProperty("git.build.time"));
+            MavenVersion version = new MavenVersion(props.getProperty("project.version"),
+                    props.getProperty("git.commit.id"),
+                    props.getProperty("git.commit.id.describe"),
+                    props.getProperty("git.commit.time"),
+                    props.getProperty("git.build.time"));
             LOG.debug("Parsed Maven artifact version: {}", version.toStringVerbose());
             return version;
         } catch (Exception e) {
@@ -44,8 +44,8 @@ public class MavenVersion implements Serializable {
             return new MavenVersion();
         }
     }
-    
-    private MavenVersion () {
+
+    private MavenVersion() {
         // JAXB Marshalling requires classes to have a 0-arg constructor and mutable fields.
         // otherwise it throws a com.sun.xml.bind.v2.runtime.IllegalAnnotationsException.
         // It is protecting you against yourself, since you might someday want to
@@ -58,10 +58,10 @@ public class MavenVersion implements Serializable {
         // maven-version.properties file.
         this("0.0.0-ParseFailure", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN");
     }
-    
-    public MavenVersion (String version, String commit, String describe, String commit_time, String build_time) {
+
+    public MavenVersion(String version, String commit, String describe, String commit_time, String build_time) {
         this.version = version;
-        String [] fields = version.split("\\-");
+        String[] fields = version.split("\\-");
         if (fields.length > 1)
             qualifier = fields[1];
         else
@@ -84,14 +84,14 @@ public class MavenVersion implements Serializable {
         this.commit_time = commit_time;
         this.build_time = build_time;
     }
-    
+
     public long getUID() {
         return (long) hashCode();
     }
 
     public String toString() {
-        return String.format("MavenVersion(%d, %d, %d, %s, %s)", 
-               major, minor, incremental, qualifier, commit);
+        return String.format("MavenVersion(%d, %d, %d, %s, %s)",
+                major, minor, incremental, qualifier, commit);
     }
 
     public String toStringVerbose() {
@@ -107,18 +107,18 @@ public class MavenVersion implements Serializable {
         return String.format(format, version, major, minor, incremental, qualifier, commit);
     }
 
-    public int hashCode () {
+    public int hashCode() {
         return (qualifier.equals("SNAPSHOT") ? -1 : +1) *
                 (1000000 * major + 1000 * minor + incremental);
     }
 
-    public boolean equals (Object other) {
-        if ( ! (other instanceof MavenVersion))
+    public boolean equals(Object other) {
+        if (!(other instanceof MavenVersion))
             return false;
         MavenVersion that = (MavenVersion) other;
         return this.major == that.major &&
-               this.minor == that.minor &&
-               this.incremental == that.incremental &&
-               this.qualifier.equals(that.qualifier);
+                this.minor == that.minor &&
+                this.incremental == that.incremental &&
+                this.qualifier.equals(that.qualifier);
     }
 }

@@ -10,19 +10,27 @@ import java.util.Collection;
 @SuppressWarnings("unchecked")
 public class PathDiscardingRaptorStateStore implements RaptorStateStore {
 
-    /** Maps from stops to arrival times by transit _or_ by transfer from another stop, one map per round. */
+    /**
+     * Maps from stops to arrival times by transit _or_ by transfer from another stop, one map per round.
+     */
     // suppressing warnings because generic arrays don't work in Java . . .
     @SuppressWarnings("rawtypes")
     private TObjectIntMap[] matrix;
 
-    /** The best time to reach each stop in any round by transit only, not by transfer from another stop. */
+    /**
+     * The best time to reach each stop in any round by transit only, not by transfer from another stop.
+     */
     public TObjectIntMap<TransitStop> bestStops;
 
-    /** The maximum acceptable clock time in seconds since midnight. All arrivals after this time will be ignored. */
+    /**
+     * The maximum acceptable clock time in seconds since midnight. All arrivals after this time will be ignored.
+     */
 
     public int maxTime;
 
-    /** Current round? TODO rename var */
+    /**
+     * Current round? TODO rename var
+     */
     int current = 0;
 
     @Override
@@ -44,7 +52,7 @@ public class PathDiscardingRaptorStateStore implements RaptorStateStore {
 
     @Override
     public void proceed() {
-        for (TObjectIntIterator<TransitStop> it = matrix[current].iterator(); it.hasNext();) {
+        for (TObjectIntIterator<TransitStop> it = matrix[current].iterator(); it.hasNext(); ) {
             it.advance();
 
             if (it.value() < matrix[current + 1].get(it.key()))
@@ -53,29 +61,31 @@ public class PathDiscardingRaptorStateStore implements RaptorStateStore {
         current++;
     }
 
-    public int getTime (TransitStop t) {
+    public int getTime(TransitStop t) {
         return bestStops.get(t);
     }
 
-    public int getPrev (TransitStop t) {
+    public int getPrev(TransitStop t) {
         return matrix[current - 1].get(t);
     }
 
     /**
      * Restart the search from the first round. Used when running repeated RAPTOR searches using the dynamic programming
      * algorithm.
-     * 
+     * <p>
      * TODO write up the dynamic programming algorithm.
      */
-    public void restart () {
+    public void restart() {
         current = 0;
     }
 
-    public TObjectIntIterator<TransitStop> iterator () {
+    public TObjectIntIterator<TransitStop> iterator() {
         return bestStops.iterator();
     }
 
-    /** Create a new store with the given number of rounds. Remember to include the initial walk as a "round" */
+    /**
+     * Create a new store with the given number of rounds. Remember to include the initial walk as a "round"
+     */
     public PathDiscardingRaptorStateStore(int rounds) {
         this(rounds, Integer.MAX_VALUE);
     }
@@ -92,7 +102,7 @@ public class PathDiscardingRaptorStateStore implements RaptorStateStore {
         bestStops = new TObjectIntHashMap<TransitStop>(1000, 0.75f, Integer.MAX_VALUE);
     }
 
-    public Collection<TransitStop> getTouchedStopsIncludingTransfers () {
+    public Collection<TransitStop> getTouchedStopsIncludingTransfers() {
         return matrix[current].keySet();
     }
 }

@@ -41,12 +41,12 @@ public class PlannerResource extends RoutingResource {
     // parameters in the outgoing response. This is a TriMet requirement.
     // Jersey uses @Context to inject internal types and @InjectParam or @Resource for DI objects.
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q})
     public Response plan(@Context UriInfo uriInfo, @Context Request grizzlyRequest) {
 
         /*
          * TODO: add Lang / Locale parameter, and thus get localized content (Messages & more...)
-         * TODO: from/to inputs should be converted / geocoded / etc... here, and maybe send coords 
+         * TODO: from/to inputs should be converted / geocoded / etc... here, and maybe send coords
          *       or vertex ids to planner (or error back to user)
          * TODO: org.opentripplanner.routing.module.PathServiceImpl has COOORD parsing. Abstract that
          *       out so it's used here too...
@@ -73,7 +73,7 @@ public class PlannerResource extends RoutingResource {
 
         } catch (Exception e) {
             PlannerError error = new PlannerError(e);
-            if(!PlannerError.isPlanningError(e.getClass()))
+            if (!PlannerError.isPlanningError(e.getClass()))
                 LOG.warn("Error while planning path: ", e);
             response.setError(error);
         } finally {

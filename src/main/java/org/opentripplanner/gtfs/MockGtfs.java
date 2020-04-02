@@ -1,8 +1,8 @@
 package org.opentripplanner.gtfs;
 
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.gtfs.mapping.AgencyAndIdMapper;
 import org.opentripplanner.gtfs.mapping.GTFSToOtpTransitServiceMapper;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.OtpTransitService;
 
 import java.io.File;

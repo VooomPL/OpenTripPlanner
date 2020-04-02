@@ -1,11 +1,5 @@
 package org.opentripplanner.scripting.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import org.apache.bsf.BSFException;
 import org.apache.bsf.BSFManager;
 import org.opentripplanner.scripting.api.OtpsEntryPoint;
@@ -13,7 +7,14 @@ import org.opentripplanner.standalone.OTPServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 /**
+ *
  */
 public class BSFOTPScript implements OTPScript {
 

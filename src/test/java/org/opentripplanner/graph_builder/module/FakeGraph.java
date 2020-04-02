@@ -1,11 +1,11 @@
 package org.opentripplanner.graph_builder.module;
 
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.graph_builder.linking.SimpleStreetSplitter;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.graph_builder.module.osm.DefaultWayPropertySetSource;
 import org.opentripplanner.graph_builder.module.osm.OpenStreetMapModule;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.openstreetmap.impl.AnyFileBasedOpenStreetMapProviderImpl;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TransitStop;
@@ -20,8 +20,10 @@ import java.util.HashMap;
  */
 public class FakeGraph {
 
-    /** Build a graph in Columbus, OH with no transit */
-    public static Graph buildGraphNoTransit () {
+    /**
+     * Build a graph in Columbus, OH with no transit
+     */
+    public static Graph buildGraphNoTransit() {
         Graph gg = new Graph();
 
         OpenStreetMapModule loader = new OpenStreetMapModule();
@@ -44,7 +46,7 @@ public class FakeGraph {
     /**
      * Add many transit lines to a lot of stops. This is only used by InitialStopsTest.
      */
-    public static void addTransitMultipleLines (Graph g) {
+    public static void addTransitMultipleLines(Graph g) {
         GtfsModule gtfs = new GtfsModule(Arrays.asList(new GtfsBundle(getFileForResource("addTransitMultipleLines.gtfs.zip"))));
         gtfs.buildGraph(g, new HashMap<>());
     }
@@ -52,12 +54,14 @@ public class FakeGraph {
     /**
      * This introduces a 1MB test resource but is only used by TestIntermediatePlaces.
      */
-    public static void addPerpendicularRoutes (Graph graph) {
+    public static void addPerpendicularRoutes(Graph graph) {
         GtfsModule gtfs = new GtfsModule(Arrays.asList(new GtfsBundle(getFileForResource("addPerpendicularRoutes.gtfs.zip"))));
         gtfs.buildGraph(graph, new HashMap<>());
     }
 
-    /** Add a regular grid of stops to the graph */
+    /**
+     * Add a regular grid of stops to the graph
+     */
     public static void addRegularStopGrid(Graph g) {
         int count = 0;
         for (double lat = 39.9058; lat < 40.0281; lat += 0.005) {
@@ -77,8 +81,10 @@ public class FakeGraph {
         }
     }
 
-    /** add some extra stops to the graph */
-    public static void addExtraStops (Graph g) {
+    /**
+     * add some extra stops to the graph
+     */
+    public static void addExtraStops(Graph g) {
         int count = 0;
         double lon = -83;
         for (double lat = 40; lat < 40.01; lat += 0.005) {
@@ -130,8 +136,10 @@ public class FakeGraph {
         }
     }
 
-    /** link the stops in the graph */
-    public static void link (Graph g) {
+    /**
+     * link the stops in the graph
+     */
+    public static void link(Graph g) {
         SimpleStreetSplitter linker = new SimpleStreetSplitter(g);
         linker.link();
     }

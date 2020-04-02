@@ -1,13 +1,12 @@
 package org.opentripplanner.updater.bike_rental;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.util.NonLocalizedString;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 /**
  * Implementation of a BikeRentalDataSource for the generic JCDecaux Open-Data API.
- * 
+ *
  * @link https://developer.jcdecaux.com
  * @see BikeRentalDataSource
  */
@@ -19,9 +18,9 @@ public class JCDecauxBikeRentalDataSource extends GenericJsonBikeRentalDataSourc
 
     /**
      * JSON JCDecaux API v1 format:
-     * 
+     *
      * <pre>
-     * [ { 
+     * [ {
      *     "number" : 94,
      *     "name" : "00094-PETIT PORT",
      *     "address" : "PETIT PORT - BD DU PETIT PORT",

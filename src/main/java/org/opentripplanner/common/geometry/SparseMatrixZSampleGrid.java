@@ -1,16 +1,16 @@
 package org.opentripplanner.common.geometry;
 
+import org.locationtech.jts.geom.Coordinate;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.locationtech.jts.geom.Coordinate;
-
 /**
  * A generic indexed grid of Z samples.
- * 
+ * <p>
  * Internally use a SparseMatrix to store samples.
- * 
+ *
  * @author laurent
  */
 public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
@@ -53,25 +53,25 @@ public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
             return SparseMatrixZSampleGrid.this.getCoordinates(this);
         }
 
-		@Override
-		public int getX() {
-			return this.x;
-		}
+        @Override
+        public int getX() {
+            return this.x;
+        }
 
-		@Override
-		public int getY() {
-			return this.y;
-		}
+        @Override
+        public int getY() {
+            return this.y;
+        }
 
-		@Override
-		public TZ getZ() {
-			return this.z;
-		}
+        @Override
+        public TZ getZ() {
+            return this.z;
+        }
 
-		@Override
-		public void setZ(TZ z) {
-			this.z = z;
-		}
+        @Override
+        public void setZ(TZ z) {
+            this.z = z;
+        }
     }
 
     private final class GridDelaunayEdge implements DelaunayEdge<TZ> {
@@ -94,15 +94,15 @@ public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
             this.A = A;
             this.B = B;
             switch (type) {
-            case TYPE_HORIZONTAL:
-                A.eRight = this;
-                break;
-            case TYPE_VERTICAL:
-                A.eUp = this;
-                break;
-            case TYPE_DIAGONAL:
-                A.eUpRight = this;
-                break;
+                case TYPE_HORIZONTAL:
+                    A.eRight = this;
+                    break;
+                case TYPE_VERTICAL:
+                    A.eUp = this;
+                    break;
+                case TYPE_DIAGONAL:
+                    A.eUpRight = this;
+                    break;
             }
             this.type = type;
         }
@@ -158,12 +158,12 @@ public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
     /**
      * @param chunkSize SparseMatrix chunk side (eg 8 or 16). See SparseMatrix.
      * @param totalSize Total estimated size for pre-allocating.
-     * @param dX X grid size, same units as center coordinates.
-     * @param dY Y grid size, same units as center coordinates.
-     * @param center Center position of the grid. Do not need to be precise.
+     * @param dX        X grid size, same units as center coordinates.
+     * @param dY        Y grid size, same units as center coordinates.
+     * @param center    Center position of the grid. Do not need to be precise.
      */
     public SparseMatrixZSampleGrid(int chunkSize, int totalSize, double dX, double dY,
-            Coordinate center) {
+                                   Coordinate center) {
         this.center = center;
         this.dX = dX;
         this.dY = dY;
@@ -234,15 +234,15 @@ public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
 
     @Override
     public int[] getLowerLeftIndex(Coordinate C) {
-        return new int[] { (int) Math.round((C.x - center.x - dX / 2) / dX),
-                (int) Math.round((C.y - center.y - dY / 2) / dY) };
+        return new int[]{(int) Math.round((C.x - center.x - dX / 2) / dX),
+                (int) Math.round((C.y - center.y - dY / 2) / dY)};
     }
-    
+
     @Override
     public Coordinate getCenter() {
         return center;
     }
-    
+
     @Override
     public Coordinate getCellSize() {
         return new Coordinate(dX, dY);
@@ -267,7 +267,7 @@ public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
     public int getYMax() {
         return allSamples.yMax;
     }
-    
+
     @Override
     public int size() {
         return allSamples.size();
@@ -312,24 +312,24 @@ public final class SparseMatrixZSampleGrid<TZ> implements ZSampleGrid<TZ>,
         // 2. Link edges
         for (GridDelaunayEdge e : triangulation) {
             switch (e.type) {
-            case GridDelaunayEdge.TYPE_HORIZONTAL:
-                e.ccw1 = e.B.eUp;
-                e.ccw2 = e.A.eUpRight;
-                e.cw1 = e.A.down == null ? null : e.A.down.eUpRight;
-                e.cw2 = e.A.down == null ? null : e.A.down.eUp;
-                break;
-            case GridDelaunayEdge.TYPE_VERTICAL:
-                e.ccw1 = e.A.left == null ? null : e.A.left.eUpRight;
-                e.ccw2 = e.A.left == null ? null : e.A.left.eRight;
-                e.cw1 = e.B.eRight;
-                e.cw2 = e.A.eUpRight;
-                break;
-            case GridDelaunayEdge.TYPE_DIAGONAL:
-                e.ccw1 = e.A.up == null ? null : e.A.up.eRight;
-                e.ccw2 = e.A.eUp;
-                e.cw1 = e.A.right == null ? null : e.A.right.eUp;
-                e.cw2 = e.A.eRight;
-                break;
+                case GridDelaunayEdge.TYPE_HORIZONTAL:
+                    e.ccw1 = e.B.eUp;
+                    e.ccw2 = e.A.eUpRight;
+                    e.cw1 = e.A.down == null ? null : e.A.down.eUpRight;
+                    e.cw2 = e.A.down == null ? null : e.A.down.eUp;
+                    break;
+                case GridDelaunayEdge.TYPE_VERTICAL:
+                    e.ccw1 = e.A.left == null ? null : e.A.left.eUpRight;
+                    e.ccw2 = e.A.left == null ? null : e.A.left.eRight;
+                    e.cw1 = e.B.eRight;
+                    e.cw2 = e.A.eUpRight;
+                    break;
+                case GridDelaunayEdge.TYPE_DIAGONAL:
+                    e.ccw1 = e.A.up == null ? null : e.A.up.eRight;
+                    e.ccw2 = e.A.eUp;
+                    e.cw1 = e.A.right == null ? null : e.A.right.eUp;
+                    e.cw2 = e.A.eRight;
+                    break;
             }
         }
     }

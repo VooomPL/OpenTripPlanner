@@ -1,10 +1,9 @@
 package org.opentripplanner.api.adapters;
 
-import java.util.ArrayList;
+import org.opentripplanner.model.Stop;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.opentripplanner.model.Stop;
+import java.util.ArrayList;
 
 public class StopAgencyAndIdArrayListAdapter extends
         XmlAdapter<ArrayList<AgencyAndIdType>, ArrayList<Stop>> {

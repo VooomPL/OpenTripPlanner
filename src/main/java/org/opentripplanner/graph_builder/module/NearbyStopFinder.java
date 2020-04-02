@@ -5,7 +5,6 @@ import com.beust.jcommander.internal.Sets;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-
 import org.opentripplanner.api.resource.CoordinateArrayListSequence;
 import org.opentripplanner.api.resource.SimpleIsochrone;
 import org.opentripplanner.common.geometry.GeometryUtils;
@@ -28,7 +27,9 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * These library functions are used by the streetless and streetful stop linkers, and in profile transfer generation.
@@ -41,7 +42,7 @@ public class NearbyStopFinder {
     private static Logger LOG = LoggerFactory.getLogger(NearbyStopFinder.class);
     private static GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
 
-    public  final boolean useStreets;
+    public final boolean useStreets;
     private Graph graph;
     private double radiusMeters;
 
@@ -56,11 +57,12 @@ public class NearbyStopFinder {
      * network or straight line distance based on the presence of OSM street data in the graph.
      */
     public NearbyStopFinder(Graph graph, double radiusMeters) {
-        this (graph, radiusMeters, graph.hasStreets);
+        this(graph, radiusMeters, graph.hasStreets);
     }
 
     /**
      * Construct a NearbyStopFinder for the given graph and search radius.
+     *
      * @param useStreets if true, search via the street network instead of using straight-line distance.
      */
     public NearbyStopFinder(Graph graph, double radiusMeters, boolean useStreets) {
@@ -85,7 +87,7 @@ public class NearbyStopFinder {
      * This is intentional: we don't want to return the next stop down the line for trip patterns that pass through the
      * origin vertex.
      */
-    public Set<StopAtDistance> findNearbyStopsConsideringPatterns (Vertex vertex) {
+    public Set<StopAtDistance> findNearbyStopsConsideringPatterns(Vertex vertex) {
 
         /* Track the closest stop on each pattern passing nearby. */
         SimpleIsochrone.MinMap<TripPattern, StopAtDistance> closestStopForPattern =
@@ -117,7 +119,7 @@ public class NearbyStopFinder {
      * If the origin vertex is a TransitStop, the result will include it; this characteristic is essential for
      * associating the correct stop with each trip pattern in the vicinity.
      */
-    public List<StopAtDistance> findNearbyStops (Vertex vertex) {
+    public List<StopAtDistance> findNearbyStops(Vertex vertex) {
         return useStreets ? findNearbyStopsViaStreets(vertex) : findNearbyStopsEuclidean(vertex);
     }
 
@@ -126,7 +128,7 @@ public class NearbyStopFinder {
      * Return all stops within a certain radius of the given vertex, using network distance along streets.
      * If the origin vertex is a TransitStop, the result will include it.
      */
-    public List<StopAtDistance> findNearbyStopsViaStreets (Vertex originVertex) {
+    public List<StopAtDistance> findNearbyStopsViaStreets(Vertex originVertex) {
 
         RoutingRequest routingRequest = new RoutingRequest(TraverseMode.WALK);
         routingRequest.clampInitialWait = (0L);
@@ -146,7 +148,7 @@ public class NearbyStopFinder {
         }
         /* Add the origin vertex if needed. The SPT does not include the initial state. FIXME shouldn't it? */
         if (originVertex instanceof TransitStop) {
-            stopsFound.add(new StopAtDistance((TransitStop)originVertex, 0));
+            stopsFound.add(new StopAtDistance((TransitStop) originVertex, 0));
         }
         routingRequest.cleanup();
         return stopsFound;
@@ -157,13 +159,13 @@ public class NearbyStopFinder {
      * Return all stops within a certain radius of the given vertex, using straight-line distance independent of streets.
      * If the origin vertex is a TransitStop, the result will include it.
      */
-    public List<StopAtDistance> findNearbyStopsEuclidean (Vertex originVertex) {
+    public List<StopAtDistance> findNearbyStopsEuclidean(Vertex originVertex) {
         List<StopAtDistance> stopsFound = Lists.newArrayList();
         Coordinate c0 = originVertex.getCoordinate();
         for (TransitStop ts1 : streetIndex.getNearbyTransitStops(c0, radiusMeters)) {
             double distance = SphericalDistanceLibrary.distance(c0, ts1.getCoordinate());
             if (distance < radiusMeters) {
-                Coordinate coordinates[] = new Coordinate[] {c0, ts1.getCoordinate()};
+                Coordinate coordinates[] = new Coordinate[]{c0, ts1.getCoordinate()};
                 StopAtDistance sd = new StopAtDistance(ts1, distance);
                 sd.geom = geometryFactory.createLineString(coordinates);
                 stopsFound.add(sd);
@@ -178,9 +180,9 @@ public class NearbyStopFinder {
     public static class StopAtDistance implements Comparable<StopAtDistance> {
 
         public TransitStop tstop;
-        public double      dist;
-        public LineString  geom;
-        public List<Edge>  edges;
+        public double dist;
+        public LineString geom;
+        public List<Edge> edges;
 
         public StopAtDistance(TransitStop tstop, double dist) {
             this.tstop = tstop;
@@ -201,10 +203,10 @@ public class NearbyStopFinder {
     /**
      * Given a State at a TransitStop, bundle the TransitStop together with information about how far away it is
      * and the geometry of the path leading up to the given State.
-     *
+     * <p>
      * TODO this should probably be merged with similar classes in Profile routing.
      */
-    public static StopAtDistance stopAtDistanceForState (State state) {
+    public static StopAtDistance stopAtDistanceForState(State state) {
         double distance = 0.0;
         GraphPath graphPath = new GraphPath(state, false);
         CoordinateArrayListSequence coordinates = new CoordinateArrayListSequence();

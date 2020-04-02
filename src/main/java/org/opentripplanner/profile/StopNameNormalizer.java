@@ -2,7 +2,6 @@ package org.opentripplanner.profile;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,45 +13,45 @@ import java.util.List;
 public class StopNameNormalizer {
 
     static final String[][] STREET_TYPES = {
-        {"DR", "DRIVE"},
-        {"RD", "ROAD"},
-        {"ST", "STREET", "S"},
-        {"AV", "AVE", "AVENUE"},
-        {"BV", "BLVD", "BOULEVARD"},
-        {"CL", "CI", "CIR", "CIRCLE"},
-        {"CT", "COURT"},
-        {"WY", "WAY"},
-        {"TE", "TERRACE"},
-        {"PL", "PLACE"},
-        {"LN", "LA", "LANE"},
-        {"PK", "PI", "PIKE"},
-        {"PW", "PKWY", "PARKWAY"},
-        {"RN", "RUN"},
-        {"HW", "HWY", "HIGHWAY"}
+            {"DR", "DRIVE"},
+            {"RD", "ROAD"},
+            {"ST", "STREET", "S"},
+            {"AV", "AVE", "AVENUE"},
+            {"BV", "BLVD", "BOULEVARD"},
+            {"CL", "CI", "CIR", "CIRCLE"},
+            {"CT", "COURT"},
+            {"WY", "WAY"},
+            {"TE", "TERRACE"},
+            {"PL", "PLACE"},
+            {"LN", "LA", "LANE"},
+            {"PK", "PI", "PIKE"},
+            {"PW", "PKWY", "PARKWAY"},
+            {"RN", "RUN"},
+            {"HW", "HWY", "HIGHWAY"}
     };
 
     static final String[][] QUADRANTS = {
-        {"NW", "NORTHWEST"},
-        {"NE", "NORTHEAST"},
-        {"SW", "SOUTHWEST"},
-        {"SE", "SOUTHEAST"},
-        {"N", "NORTH"},
-        {"S", "SOUTH"},
-        {"E", "EAST"},
-        {"W", "WEST"}
+            {"NW", "NORTHWEST"},
+            {"NE", "NORTHEAST"},
+            {"SW", "SOUTHWEST"},
+            {"SE", "SOUTHEAST"},
+            {"N", "NORTH"},
+            {"S", "SOUTH"},
+            {"E", "EAST"},
+            {"W", "WEST"}
     };
 
     static final String[][] QUALIFIERS = {
-        {"NB", "N/B", "NORTHBOUND"},
-        {"SB", "S/B", "SOUTHBOUND"},
-        {"EB", "E/B", "EASTBOUND"},
-        {"WB", "W/B", "WESTBOUND"},
-        {"NS", "N/S", "NEARSIDE"},
-        {"FS", "F/S", "FARSIDE"},
-        {"OPP", "OPPOSITE"}
+            {"NB", "N/B", "NORTHBOUND"},
+            {"SB", "S/B", "SOUTHBOUND"},
+            {"EB", "E/B", "EASTBOUND"},
+            {"WB", "W/B", "WESTBOUND"},
+            {"NS", "N/S", "NEARSIDE"},
+            {"FS", "F/S", "FARSIDE"},
+            {"OPP", "OPPOSITE"}
     };
 
-    public static String normalize (String name) {
+    public static String normalize(String name) {
         // Separate the two halves of an intersection. "AT" sometimes appears too.
         String[] parts = name.toUpperCase().split("[&@]", 2);
         List<String> normalizedParts = Lists.newArrayList();
@@ -67,7 +66,8 @@ public class StopNameNormalizer {
             }
 
             // 1. Strip out quadrant
-            QD: for (int i = 0; i < words.length; i++) {
+            QD:
+            for (int i = 0; i < words.length; i++) {
                 String word = words[i];
                 for (String[] q : QUADRANTS) {
                     for (String qn : q) {
@@ -81,7 +81,8 @@ public class StopNameNormalizer {
             }
 
             // 2. Strip out road type
-            ST: for (int i = 0; i < words.length; i++) {
+            ST:
+            for (int i = 0; i < words.length; i++) {
                 String word = words[i];
                 for (String[] st : STREET_TYPES) {
                     for (String stn : st) {
@@ -108,13 +109,13 @@ public class StopNameNormalizer {
             }
 
             // 4. Remove all "BAY N"
-            for (int i = 0; i < words.length-1; i++) {
+            for (int i = 0; i < words.length - 1; i++) {
                 String word = words[i];
                 // TODO improve the below -- it doesn't catch lettered bays
                 // Integer number = Ints.tryParse(words[i + 1]);
                 if ("BAY".equals(word)) {
                     words[i] = null;
-                    words[i+1] = null;
+                    words[i + 1] = null;
                 }
             }
 

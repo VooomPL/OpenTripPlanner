@@ -1,6 +1,6 @@
 /**
  * What is this package doing here?
- *
+ * <p>
  * In 2013, significant improvements were made to OTP as part of a precommercial procurement project
  * in The Netherlands called MMRI ("MultiModale ReisInformatie" => "multimodal travel information").
  * This project is itself part of a larger project called "Better Benutten" => "better utilization".

@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 public class AdjustHeadway extends TripFilter {
     public static final long serialVersionUID = 1L;
 
-    /** The new headway, in seconds */
+    /**
+     * The new headway, in seconds
+     */
     public int headway;
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjustHeadway.class);
@@ -30,8 +32,7 @@ public class AdjustHeadway extends TripFilter {
     public FrequencyEntry apply(Trip trip, TripPattern tp, FrequencyEntry fe) {
         if (matches(trip)) {
             return new FrequencyEntry(fe.startTime, fe.endTime, headway, fe.exactTimes, fe.tripTimes);
-        }
-        else {
+        } else {
             return fe;
         }
     }

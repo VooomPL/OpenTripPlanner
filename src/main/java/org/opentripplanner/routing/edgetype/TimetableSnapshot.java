@@ -1,26 +1,25 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.*;
-import java.util.Map.Entry;
-
+import com.google.common.base.Preconditions;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import java.util.*;
+import java.util.Map.Entry;
 
 // this is only currently in edgetype because that's where Trippattern is.
 // move these classes elsewhere.
 
 /**
  * Part of concurrency control for stoptime updates.
- *
+ * <p>
  * All updates should be performed on a snapshot before it is handed off to any searches.
  * A single snapshot should be used for an entire search, and should remain unchanged
  * for that duration to provide a consistent view not only of trips that have been boarded, but of
  * relative arrival and departure times of other trips that have not necessarily been boarded.
- *
+ * <p>
  * At this point, only one writing thread at a time is supported.
  */
 public class TimetableSnapshot {
@@ -31,7 +30,7 @@ public class TimetableSnapshot {
             return t1.serviceDate.compareTo(t2.serviceDate);
         }
     }
-    
+
     /**
      * Class to use as key in HashMap containing feed id, trip id and service date
      */
@@ -39,7 +38,7 @@ public class TimetableSnapshot {
         private final String feedId;
         private final String tripId;
         private final ServiceDate serviceDate;
-        
+
         public TripIdAndServiceDate(final String feedId, final String tripId, final ServiceDate serviceDate) {
             this.feedId = feedId;
             this.tripId = tripId;
@@ -82,7 +81,7 @@ public class TimetableSnapshot {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TimetableSnapshot.class);
-    
+
     // Use HashMap not Map so we can clone.
     // if this turns out to be slow/spacious we can use an array with integer pattern indexes
     // The SortedSet members are copy-on-write
@@ -101,7 +100,7 @@ public class TimetableSnapshot {
      * </p>
      */
     private HashMap<TripIdAndServiceDate, TripPattern> lastAddedTripPattern = new HashMap<>();
-    
+
     /**
      * Boolean value indicating that timetable snapshot is read only if true. Once it is true, it shouldn't
      * be possible to change it to false anymore.
@@ -113,7 +112,7 @@ public class TimetableSnapshot {
      * of the last commit if true.
      */
     private boolean dirty = false;
-    
+
     /**
      * A set of all timetables which have been modified and are waiting to be indexed. When
      * <code>dirty</code> is <code>null</code>, it indicates that the snapshot is read-only.
@@ -127,8 +126,8 @@ public class TimetableSnapshot {
     public Timetable resolve(TripPattern pattern, ServiceDate serviceDate) {
         SortedSet<Timetable> sortedTimetables = timetables.get(pattern);
 
-        if(sortedTimetables != null && serviceDate != null) {
-            for(Timetable timetable : sortedTimetables) {
+        if (sortedTimetables != null && serviceDate != null) {
+            for (Timetable timetable : sortedTimetables) {
                 if (timetable != null && timetable.isValidFor(serviceDate)) {
                     LOG.trace("returning modified timetable");
                     return timetable;
@@ -138,14 +137,14 @@ public class TimetableSnapshot {
 
         return pattern.scheduledTimetable;
     }
-    
+
     /**
      * Get the last <b>added</b> trip pattern given a trip id (without agency) and a service date as
      * a result of a call to {@link #update(String feedId, TripPattern, TripTimes, ServiceDate)} with trip times of
      * a trip that didn't exist yet in the trip pattern.
      *
-     * @param feedId feed id the trip id belongs to
-     * @param tripId trip id (without agency)
+     * @param feedId      feed id the trip id belongs to
+     * @param tripId      trip id (without agency)
      * @param serviceDate service date
      * @return last added trip pattern; null if trip never was added to a trip pattern
      */
@@ -158,29 +157,29 @@ public class TimetableSnapshot {
     /**
      * Update the trip times of one trip in a timetable of a trip pattern. If the trip of the trip
      * times does not exist yet in the timetable, add it.
-     * 
-     * @param pattern trip pattern
+     *
+     * @param pattern          trip pattern
      * @param updatedTripTimes updated trip times
-     * @param serviceDate service day for which this update is valid
+     * @param serviceDate      service day for which this update is valid
      * @return whether or not the update was actually applied
      */
     public boolean update(String feedId, TripPattern pattern, TripTimes updatedTripTimes, ServiceDate serviceDate) {
         // Preconditions
         Preconditions.checkNotNull(pattern);
         Preconditions.checkNotNull(serviceDate);
-        
+
         if (readOnly) {
             throw new ConcurrentModificationException("This TimetableSnapshot is read-only.");
         }
-        
+
         Timetable tt = resolve(pattern, serviceDate);
         // we need to perform the copy of Timetable here rather than in Timetable.update()
         // to avoid repeatedly copying in case several updates are applied to the same timetable
-        if ( ! dirtyTimetables.contains(tt)) {
+        if (!dirtyTimetables.contains(tt)) {
             Timetable old = tt;
             tt = new Timetable(tt, serviceDate);
             SortedSet<Timetable> sortedTimetables = timetables.get(pattern);
-            if(sortedTimetables == null) {
+            if (sortedTimetables == null) {
                 sortedTimetables = new TreeSet<Timetable>(new SortedTimetableComparator());
             } else {
                 SortedSet<Timetable> temp =
@@ -188,14 +187,14 @@ public class TimetableSnapshot {
                 temp.addAll(sortedTimetables);
                 sortedTimetables = temp;
             }
-            if(old.serviceDate != null)
+            if (old.serviceDate != null)
                 sortedTimetables.remove(old);
             sortedTimetables.add(tt);
             timetables.put(pattern, sortedTimetables);
             dirtyTimetables.add(tt);
             dirty = true;
         }
-        
+
         // Assume all trips in a pattern are from the same feed, which should be the case.
         // Find trip index
         int tripIndex = tt.getTripIndex(updatedTripTimes.trip.getId());
@@ -210,9 +209,9 @@ public class TimetableSnapshot {
             // Set updated trip times of trip
             tt.setTripTimes(tripIndex, updatedTripTimes);
         }
-        
+
         // The time tables are finished during the commit
-        
+
         return true;
     }
 
@@ -224,6 +223,7 @@ public class TimetableSnapshot {
      * the same timetable in rapid succession. This compromise is expressed by the
      * maxSnapshotFrequency property of StoptimeUpdater. The indexing could be made much more
      * efficient as well.
+     *
      * @return an immutable copy of this TimetableSnapshot with all updates applied
      */
     public TimetableSnapshot commit() {
@@ -235,7 +235,7 @@ public class TimetableSnapshot {
         if (readOnly) {
             throw new ConcurrentModificationException("This TimetableSnapshot is read-only.");
         }
-        
+
         TimetableSnapshot ret = new TimetableSnapshot();
         if (!force && !this.isDirty()) return null;
         for (Timetable tt : dirtyTimetables) {
@@ -299,29 +299,29 @@ public class TimetableSnapshot {
         }
 
         boolean modified = false;
-        for (Iterator<TripPattern> it = timetables.keySet().iterator(); it.hasNext();){
+        for (Iterator<TripPattern> it = timetables.keySet().iterator(); it.hasNext(); ) {
             TripPattern pattern = it.next();
             SortedSet<Timetable> sortedTimetables = timetables.get(pattern);
             SortedSet<Timetable> toKeepTimetables =
                     new TreeSet<Timetable>(new SortedTimetableComparator());
-            for(Timetable timetable : sortedTimetables) {
-                if(serviceDate.compareTo(timetable.serviceDate) < 0) {
+            for (Timetable timetable : sortedTimetables) {
+                if (serviceDate.compareTo(timetable.serviceDate) < 0) {
                     toKeepTimetables.add(timetable);
                 } else {
                     modified = true;
                 }
             }
 
-            if(toKeepTimetables.isEmpty()) {
+            if (toKeepTimetables.isEmpty()) {
                 it.remove();
             } else {
                 timetables.put(pattern, toKeepTimetables);
             }
         }
-        
+
         // Also remove last added trip pattern for days that are purged
         for (Iterator<Entry<TripIdAndServiceDate, TripPattern>> iterator = lastAddedTripPattern
-                .entrySet().iterator(); iterator.hasNext();) {
+                .entrySet().iterator(); iterator.hasNext(); ) {
             TripIdAndServiceDate tripIdAndServiceDate = iterator.next().getKey();
             if (serviceDate.compareTo(tripIdAndServiceDate.getServiceDate()) >= 0) {
                 iterator.remove();

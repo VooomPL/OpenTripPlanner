@@ -6,17 +6,13 @@ import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrateg
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.StreetTransitLink;
+import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.flex.TemporaryPartialPatternHop;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.vertextype.PatternArriveVertex;
-import org.opentripplanner.routing.vertextype.PatternDepartVertex;
-import org.opentripplanner.routing.vertextype.PatternStopVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TransitStop;
+import org.opentripplanner.routing.vertextype.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +66,7 @@ public class FlagStopGraphModifier extends GtfsFlexGraphModifier {
         Vertex initVertex = rr.arriveBy ? rr.rctx.toVertex : rr.rctx.fromVertex;
 
         Vertex v;
-        if(s.getVertex() == initVertex){
+        if (s.getVertex() == initVertex) {
             //the origin/destination lies along a flag stop route
             LOG.debug("the origin/destination lies along a flag stop route.");
             v = initVertex;

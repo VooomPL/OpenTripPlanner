@@ -12,7 +12,7 @@ import java.util.Set;
  */
 // we use the property "type" to determine what type of modification it is. The string values are defined here.
 // Each class's getType should return the same value.
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(name = "remove-trip", value = RemoveTrip.class),
         @JsonSubTypes.Type(name = "adjust-headway", value = AdjustHeadway.class),
@@ -24,11 +24,15 @@ import java.util.Set;
 })
 public abstract class Modification implements Serializable {
 
-    /** Distinguish between modification types when a list of Modifications are serialized out as JSON. */
+    /**
+     * Distinguish between modification types when a list of Modifications are serialized out as JSON.
+     */
     public abstract String getType();
 
-    /** Do nothing */
-    public final void setType (String type) {
+    /**
+     * Do nothing
+     */
+    public final void setType(String type) {
         /* do nothing */
     }
 

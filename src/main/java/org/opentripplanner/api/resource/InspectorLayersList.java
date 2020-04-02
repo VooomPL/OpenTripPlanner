@@ -1,18 +1,17 @@
 package org.opentripplanner.api.resource;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.opentripplanner.inspector.TileRenderer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.opentripplanner.inspector.TileRenderer;
-
 /**
- *
  * @author mabu
  */
 public class InspectorLayersList {
-    
+
     public List<InspectorLayer> layers;
 
     InspectorLayersList(Map<String, TileRenderer> renderers) {
@@ -25,7 +24,7 @@ public class InspectorLayersList {
     }
 
     private static class InspectorLayer {
-        
+
         @JsonSerialize
         String key;
         @JsonSerialize
@@ -37,5 +36,5 @@ public class InspectorLayersList {
         }
     }
 
-   
+
 }

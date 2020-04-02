@@ -4,7 +4,7 @@ import org.apache.commons.math3.util.FastMath;
 
 /**
  * A weighting function, expressing how influential something is according to its distance from you.
- *
+ * <p>
  * Perhaps this could be a FunctionalInterface so implementations can be defined using Java 8 shorthand, but it
  * currently has two functions. The separation into two functions was to allow optimizations for simple hard-cutoff
  * functions, where you can avoid doing a multiplication to determine the final result. I'm not sure eliminating
@@ -18,7 +18,7 @@ public abstract class WeightingFunction {
      * Weight the counts (binned by second, so countsPerSecond[i] is destinations reachable in i - i + seconds)
      * and return the output of this weighting function as a _cumulative distribution_.
      */
-    public abstract int[] apply (int[] countsPerSecond);
+    public abstract int[] apply(int[] countsPerSecond);
 
     /**
      * The logistic function, a commonly used sigmoid (s-shaped function).
@@ -41,7 +41,7 @@ public abstract class WeightingFunction {
         // lookup table for weights
         double[] weights;
 
-        public Logistic (double steepness) {
+        public Logistic(double steepness) {
             this.k = steepness;
 
             // ln(1/epsilon - 1) / -k is the value at which the weight takes on the value epsilon
@@ -51,7 +51,7 @@ public abstract class WeightingFunction {
             // make a lookup table for the weights, once everything has been normalized by the cutoff
             weights = new double[rolloffMax - rolloffMin + 1];
             for (int i = rolloffMin; i <= rolloffMax; i++) {
-                weights[i - rolloffMin] = 1 / (1 + Math.exp( -k * (i - x0)));
+                weights[i - rolloffMin] = 1 / (1 + Math.exp(-k * (i - x0)));
             }
         }
 
@@ -62,7 +62,8 @@ public abstract class WeightingFunction {
          * second where the weight is effectively 1. We store a cumulative sum up to that point.
          * We then run through the next
          */
-        @Override public int[] apply(int[] countsPerSecond) {
+        @Override
+        public int[] apply(int[] countsPerSecond) {
             int len = countsPerSecond.length / 60;
 
             // the frontier is the highest index for which the weight is effectively 1
@@ -113,7 +114,8 @@ public abstract class WeightingFunction {
      */
     public static class SharpCutoff extends WeightingFunction {
 
-        @Override public int[] apply(int[] countsPerSecond) {
+        @Override
+        public int[] apply(int[] countsPerSecond) {
             int len = countsPerSecond.length / 60;
 
             int[] ret = new int[len];

@@ -1,13 +1,10 @@
 package org.opentripplanner.routing.algorithm;
 
-import java.io.File;
-
 import junit.framework.TestCase;
-
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.graph.Graph;
@@ -16,10 +13,12 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.util.TestUtils;
 
+import java.io.File;
+
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
 public class TestAStar extends TestCase {
-    
+
     AStar aStar = new AStar();
 
     public void testBasic() throws Exception {
@@ -72,18 +71,18 @@ public class TestAStar extends TestCase {
         long startTime = TestUtils.dateInSeconds("America/Los_Angeles", 2009, 11, 1, 12, 34, 25);
         options.dateTime = startTime;
         // one hour is more than enough time
-        options.worstTime = startTime + 60 * 60; 
+        options.worstTime = startTime + 60 * 60;
         options.setRoutingContext(graph, start, end);
 
         ShortestPathTree spt = aStar.getShortestPathTree(options);
         GraphPath path = spt.getPath(end, true);
         assertNotNull(path);
-        
+
         // but one minute is not enough
-        options.worstTime = startTime + 60; 
+        options.worstTime = startTime + 60;
         spt = aStar.getShortestPathTree(options);
         path = spt.getPath(end, true);
-        assertNull(path);        
+        assertNull(path);
     }
 
 }

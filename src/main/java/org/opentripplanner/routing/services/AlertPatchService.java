@@ -1,10 +1,10 @@
 package org.opentripplanner.routing.services;
 
-import java.util.Collection;
-import java.util.Set;
-
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
+
+import java.util.Collection;
+import java.util.Set;
 
 public interface AlertPatchService {
     Collection<AlertPatch> getAllAlertPatches();

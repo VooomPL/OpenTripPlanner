@@ -1,8 +1,5 @@
 package org.opentripplanner.graph_builder.module.bike;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.bike_rental.BikeRentalStationService;
@@ -13,6 +10,9 @@ import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 import org.opentripplanner.updater.bike_rental.BikeRentalDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * This graph builder allow one to statically build bike rental stations using the same source as

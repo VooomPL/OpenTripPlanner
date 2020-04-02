@@ -1,11 +1,10 @@
 package org.opentripplanner.api.model;
 
-import java.util.*;
-
-import javafx.util.Pair;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.TraverseMode;
+
+import java.util.*;
 
 /**
  * An Itinerary is one complete way of getting from the start location to the end location.
@@ -83,30 +82,32 @@ public class Itinerary {
     public List<Leg> legs = new ArrayList<Leg>();
 
     /**
-     * This itinerary has a greater slope than the user requested (but there are no possible 
-     * itineraries with a good slope). 
+     * This itinerary has a greater slope than the user requested (but there are no possible
+     * itineraries with a good slope).
      */
     public boolean tooSloped = false;
 
-    /** 
+    /**
      * adds leg to array list
+     *
      * @param leg
      */
     public void addLeg(Leg leg) {
-        if(leg != null)
+        if (leg != null)
             legs.add(leg);
     }
 
-    /** 
-     * remove the leg from the list of legs 
+    /**
+     * remove the leg from the list of legs
+     *
      * @param leg object to be removed
      */
     public void removeLeg(Leg leg) {
-        if(leg != null) {
+        if (leg != null) {
             legs.remove(leg);
         }
     }
-    
+
     public void fixupDates(CalendarServiceData service) {
         TimeZone startTimeZone = null;
         TimeZone timeZone = null;
@@ -120,8 +121,8 @@ public class Itinerary {
             } else {
                 timeZone = service.getTimeZoneForAgencyId(leg.agencyId);
                 if (startTimeZone == null) {
-                    startTimeZone = timeZone; 
-                 }
+                    startTimeZone = timeZone;
+                }
             }
         }
         if (timeZone != null) {

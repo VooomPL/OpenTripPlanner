@@ -1,11 +1,7 @@
 package org.opentripplanner.routing.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.FareAttribute;
-import org.opentripplanner.model.FareRule;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.OtpTransitService;
+import org.opentripplanner.model.*;
 import org.opentripplanner.routing.bike_rental.TimeBasedBikeRentalFareServiceFactory;
 import org.opentripplanner.routing.core.Fare.FareType;
 import org.opentripplanner.routing.core.FareRuleSet;
@@ -24,7 +20,6 @@ import java.util.Map;
  * http://groups.google.com/group/gtfs-changes/msg/4f81b826cb732f3b
  *
  * @author novalis
- *
  */
 public class DefaultFareServiceFactory implements FareServiceFactory {
 
@@ -44,7 +39,7 @@ public class DefaultFareServiceFactory implements FareServiceFactory {
     }
 
     protected void fillFareRules(String agencyId, Collection<FareAttribute> fareAttributes,
-            Collection<FareRule> fareRules, Map<FeedScopedId, FareRuleSet> fareRuleSet) {
+                                 Collection<FareRule> fareRules, Map<FeedScopedId, FareRuleSet> fareRuleSet) {
         /*
          * Create an empty FareRuleSet for each FareAttribute, as some FareAttribute may have no
          * rules attached to them.
@@ -98,7 +93,7 @@ public class DefaultFareServiceFactory implements FareServiceFactory {
     /**
      * Build a specific FareServiceFactory given the config node, or fallback to the default if none
      * specified.
-     *
+     * <p>
      * Accept different formats. Examples:
      *
      * <pre>
@@ -132,11 +127,11 @@ public class DefaultFareServiceFactory implements FareServiceFactory {
             /* Composite */
             String combinationStrategy = config.path("combinationStrategy").asText();
             switch (combinationStrategy) {
-            case "additive":
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown fare combinationStrategy: "
-                        + combinationStrategy);
+                case "additive":
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown fare combinationStrategy: "
+                            + combinationStrategy);
             }
             type = "composite:" + combinationStrategy;
         } else if (config.has("type")) {
@@ -150,33 +145,35 @@ public class DefaultFareServiceFactory implements FareServiceFactory {
 
         FareServiceFactory retval;
         switch (type) {
-        case "default":
-            retval = new DefaultFareServiceFactory();
-            break;
-        case "composite:additive":
-            retval = new MultipleFareServiceFactory.AddingMultipleFareServiceFactory();
-            break;
-        case "bike-rental-time-based":
-            retval = new TimeBasedBikeRentalFareServiceFactory();
-            break;
-        case "dutch":
-            retval = new DutchFareServiceFactory();
-            break;
-        case "san-francisco":
-            retval = new SFBayFareServiceFactory();
-            break;
-        case "new-york":
-            retval = new NycFareServiceFactory();
-            break;
-        case "seattle":
-            retval = new SeattleFareServiceFactory();
-            break;
-        default:
-            throw new IllegalArgumentException(String.format("Unknown fare type: '%s'", type));
+            case "default":
+                retval = new DefaultFareServiceFactory();
+                break;
+            case "composite:additive":
+                retval = new MultipleFareServiceFactory.AddingMultipleFareServiceFactory();
+                break;
+            case "bike-rental-time-based":
+                retval = new TimeBasedBikeRentalFareServiceFactory();
+                break;
+            case "dutch":
+                retval = new DutchFareServiceFactory();
+                break;
+            case "san-francisco":
+                retval = new SFBayFareServiceFactory();
+                break;
+            case "new-york":
+                retval = new NycFareServiceFactory();
+                break;
+            case "seattle":
+                retval = new SeattleFareServiceFactory();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown fare type: '%s'", type));
         }
         retval.configure(config);
         return retval;
     }
 
-    public String toString() { return this.getClass().getSimpleName(); }
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
 }

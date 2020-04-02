@@ -1,18 +1,17 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Set;
-
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 
+import java.util.Set;
+
 /**
  * Renting a bike edge.
- * 
+ * <p>
  * Cost is the time to pickup a bike plus "inconvenience of renting".
- * 
+ *
  * @author laurent
- * 
  */
 public class RentABikeOnEdge extends RentABikeAbstractEdge {
 

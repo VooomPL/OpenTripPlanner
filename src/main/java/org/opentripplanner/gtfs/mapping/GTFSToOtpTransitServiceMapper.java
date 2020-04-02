@@ -1,7 +1,7 @@
 package org.opentripplanner.gtfs.mapping;
 
-import org.opentripplanner.model.impl.OtpTransitServiceBuilder;
 import org.opentripplanner.model.OtpTransitService;
+import org.opentripplanner.model.impl.OtpTransitServiceBuilder;
 
 
 /**

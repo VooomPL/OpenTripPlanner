@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * A list of coordinates encoded as a string.
- * 
+ * <p>
  * See <a href="http://code.google.com/apis/maps/documentation/polylinealgorithm.html">Encoded
  * polyline algorithm format</a>
  */
@@ -43,7 +43,7 @@ public class EncodedPolylineBean implements Serializable {
     /**
      * Levels describes which points should be shown at various zoom levels. Presently, we show all
      * points at all zoom levels.
-    */
+     */
     public String getLevels() {
         return levels;
     }

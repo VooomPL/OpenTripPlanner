@@ -13,12 +13,14 @@ public class TemporaryVertexDisposeTest {
     // Given a very simple graph: A -> B
     private final Vertex a = new V("A");
     private final Vertex b = new V("B");
+
     {
         edge(a, b);
         assertOriginalGraphIsIntact();
     }
 
-    @Test public void disposeNormalCase() {
+    @Test
+    public void disposeNormalCase() {
         // Given a temporary vertex 'origin' and 'destination' connected to graph
         Vertex origin = new TempVertex("origin");
         Vertex destination = new TempVertex("dest");
@@ -37,7 +39,8 @@ public class TemporaryVertexDisposeTest {
         assertOriginalGraphIsIntact();
     }
 
-    @Test public void disposeShouldNotDeleteOtherIncomingEdges() {
+    @Test
+    public void disposeShouldNotDeleteOtherIncomingEdges() {
         // Given a temporary vertex 'origin' connected to B - has other incoming edges
         Vertex origin = new TempVertex("origin");
         Vertex otherTemp = new TempVertex("OT");
@@ -53,7 +56,8 @@ public class TemporaryVertexDisposeTest {
         assertEquals("[A->B, OT->B]", b.getIncoming().toString());
     }
 
-    @Test public void disposeShouldNotDeleteOtherOutgoingEdges() {
+    @Test
+    public void disposeShouldNotDeleteOtherOutgoingEdges() {
         // Given a temporary vertex 'destination' connected from A - with one other outgoing edge
         Vertex destination = new TempVertex("destination");
         Vertex otherTemp = new TempVertex("OT");
@@ -71,7 +75,8 @@ public class TemporaryVertexDisposeTest {
     }
 
 
-    @Test public void disposeShouldHandleLoopsInTemporaryPath() {
+    @Test
+    public void disposeShouldHandleLoopsInTemporaryPath() {
         Vertex x = new TempVertex("x");
         Vertex y = new TempVertex("y");
         Vertex z = new TempVertex("z");
@@ -97,7 +102,8 @@ public class TemporaryVertexDisposeTest {
      * <p/>
      * The temporary part of the graph do NOT contain any loops.
      */
-    @Test public void disposeTemporaryVertexesWithComplexPaths() {
+    @Test
+    public void disposeTemporaryVertexesWithComplexPaths() {
 
         Vertex x = new TempVertex("x");
         Vertex y = new TempVertex("y");
@@ -145,7 +151,8 @@ public class TemporaryVertexDisposeTest {
      * <p/>
      * Where 'x' and 'y' are temporary vertexes
      */
-    @Test public void disposeTemporaryAlternativePath() {
+    @Test
+    public void disposeTemporaryAlternativePath() {
         Vertex x = new TempVertex("x");
         Vertex y = new TempVertex("y");
 
@@ -168,7 +175,8 @@ public class TemporaryVertexDisposeTest {
     /**
      * We should be able to delete a very deep path without getting a stack overflow error.
      */
-    @Test public void disposeVeryDeepTemporaryPath() {
+    @Test
+    public void disposeVeryDeepTemporaryPath() {
         // Create access and egress legs with 1000 vertexes
         Vertex origin = new TempVertex("origin");
 
@@ -178,7 +186,7 @@ public class TemporaryVertexDisposeTest {
         // Number of temporary vertexes in path
         int i = 1024;
 
-        while (i>0) {
+        while (i > 0) {
             o2 = new TempVertex("T" + --i);
             edge(o1, o2);
             o1 = o2;
@@ -213,7 +221,8 @@ public class TemporaryVertexDisposeTest {
             super(null, label, ANY_LOC, ANY_LOC);
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return getLabel();
         }
     }
@@ -223,7 +232,8 @@ public class TemporaryVertexDisposeTest {
             super(label);
         }
 
-        @Override public boolean isEndVertex() {
+        @Override
+        public boolean isEndVertex() {
             throw new IllegalStateException("The `isEndVertex` is not used by dispose logic.");
         }
     }
@@ -238,7 +248,8 @@ public class TemporaryVertexDisposeTest {
             super(from, to);
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return getFromVertex().getLabel() + "->" + getToVertex().getLabel();
         }
     }

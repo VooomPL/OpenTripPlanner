@@ -8,7 +8,7 @@ import org.opentripplanner.standalone.Router;
 
 /**
  * A router, as returned by the getRouter function of the OTP script entry point.
- * 
+ * <p>
  * Example of code (python script):
  * <pre>
  *   # Get the default router
@@ -16,7 +16,7 @@ import org.opentripplanner.standalone.Router;
  *   # Get the router of ID 'paris'
  *   parisRouter = otp.getRouter('paris')
  * </pre>
- * 
+ *
  * @author laurent
  */
 public class OtpsRouter {
@@ -29,10 +29,10 @@ public class OtpsRouter {
 
     /**
      * Plan a route on the router given the various options.
-     * 
+     *
      * @param req The routing request options (date/time, modes, etc...)
      * @return A Shortest-path-tree (a time+various states for each vertices around the
-     *         origin/destination).
+     * origin/destination).
      */
     public OtpsSPT plan(OtpsRoutingRequest req) {
         try {

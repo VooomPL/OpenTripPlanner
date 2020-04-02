@@ -1,15 +1,5 @@
 package org.opentripplanner.graph_builder.module.shapefile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
@@ -17,6 +7,10 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
@@ -34,18 +28,14 @@ import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.services.notes.StreetNotesService;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
+import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.opentripplanner.util.NonLocalizedString;
+import java.util.*;
 
 /**
  * Loads a shapefile into an edge-based graph.
- *
  */
 public class ShapefileStreetModule implements GraphBuilderModule {
     private static Logger log = LoggerFactory.getLogger(ShapefileStreetModule.class);
@@ -63,7 +53,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
     public List<String> getPrerequisites() {
         return Collections.emptyList();
     }
-    
+
     public void setFeatureSourceFactory(FeatureSourceFactory factory) {
         featureSourceFactory = factory;
     }
@@ -104,7 +94,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
                     .getPermissionConverter();
             SimpleFeatureConverter<String> noteConverter = schema.getNoteConverter();
 
-            HashMap<Coordinate, IntersectionVertex> intersectionsByLocation = 
+            HashMap<Coordinate, IntersectionVertex> intersectionsByLocation =
                     new HashMap<Coordinate, IntersectionVertex>();
 
             SimpleFeatureConverter<P2<Double>> safetyConverter = schema.getBicycleSafetyConverter();
@@ -112,7 +102,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
             SimpleFeatureConverter<Boolean> slopeOverrideCoverter = schema.getSlopeOverrideConverter();
 
             SimpleFeatureConverter<Boolean> featureSelector = schema.getFeatureSelector();
-            
+
             // Keep track of features that are duplicated so we don't have duplicate streets
             Set<Object> seen = new HashSet<Object>();
 
@@ -120,7 +110,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
             FeatureIterator<SimpleFeature> it2 = features.features();
             while (it2.hasNext()) {
                 SimpleFeature feature = it2.next();
-                if (featureSelector != null && ! featureSelector.convert(feature)) {
+                if (featureSelector != null && !featureSelector.convert(feature)) {
                     continue;
                 }
                 featureList.add(feature);
@@ -129,7 +119,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
             it2 = null;
 
             HashMap<Coordinate, TreeSet<String>> coordinateToStreetNames = getCoordinatesToStreetNames(featureList);
-            
+
             for (SimpleFeature feature : featureList) {
                 if (feature.getDefaultGeometry() == null) {
                     log.warn("feature has no geometry: " + feature.getIdentifier());
@@ -151,12 +141,12 @@ public class ShapefileStreetModule implements GraphBuilderModule {
                     log.warn("Bad geometry for street with label " + label + " name " + name);
                     continue;
                 }
-                
+
                 // this rounding is a total hack, to work around
                 // http://jira.codehaus.org/browse/GEOT-2811
                 Coordinate startCoordinate = new Coordinate(
                         Math.round(coordinates[0].x * 1048576) / 1048576.0, Math
-                                .round(coordinates[0].y * 1048576) / 1048576.0);
+                        .round(coordinates[0].y * 1048576) / 1048576.0);
                 Coordinate endCoordinate = new Coordinate(Math
                         .round(coordinates[coordinates.length - 1].x * 1048576) / 1048576.0, Math
                         .round(coordinates[coordinates.length - 1].y * 1048576) / 1048576.0);
@@ -201,12 +191,12 @@ public class ShapefileStreetModule implements GraphBuilderModule {
                 backStreet.shareData(street);
 
                 if (noteConverter != null) {
-                	String note = noteConverter.convert(feature);
-                	if (note != null && note.length() > 0) {
-				Alert noteAlert = Alert.createSimpleAlerts(note);
-				graph.streetNotesService.addStaticNote(street, noteAlert, StreetNotesService.ALWAYS_MATCHER);
-				graph.streetNotesService.addStaticNote(backStreet, noteAlert, StreetNotesService.ALWAYS_MATCHER);
-                	}
+                    String note = noteConverter.convert(feature);
+                    if (note != null && note.length() > 0) {
+                        Alert noteAlert = Alert.createSimpleAlerts(note);
+                        graph.streetNotesService.addStaticNote(street, noteAlert, StreetNotesService.ALWAYS_MATCHER);
+                        graph.streetNotesService.addStaticNote(backStreet, noteAlert, StreetNotesService.ALWAYS_MATCHER);
+                    }
                 }
 
                 boolean slopeOverride = slopeOverrideCoverter.convert(feature);
@@ -225,7 +215,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
             throw new IllegalStateException("error loading shapefile street data", ex);
         } finally {
             featureSourceFactory.cleanup();
-        }       
+        }
     }
 
     private HashMap<Coordinate, TreeSet<String>> getCoordinatesToStreetNames(
@@ -259,7 +249,7 @@ public class ShapefileStreetModule implements GraphBuilderModule {
                 }
                 String streetName = streetNameConverter.convert(feature);
                 if (streetName == null) {
-                	throw new IllegalStateException("Unexpectedly got null for a street name for feature at " + coord);
+                    throw new IllegalStateException("Unexpectedly got null for a street name for feature at " + coord);
                 }
                 streets.add(streetName);
             }
@@ -269,8 +259,8 @@ public class ShapefileStreetModule implements GraphBuilderModule {
     }
 
     private String getIntersectionName(HashMap<Coordinate, TreeSet<String>> coordinateToStreets,
-            HashMap<String, HashMap<Coordinate, Integer>> intersectionNameToId,
-            Coordinate coordinate) {
+                                       HashMap<String, HashMap<Coordinate, Integer>> intersectionNameToId,
+                                       Coordinate coordinate) {
 
         TreeSet<String> streets = coordinateToStreets.get(coordinate);
         if (streets == null) {

@@ -1,16 +1,16 @@
 package org.opentripplanner.routing.edgetype.factory;
 
 
-import java.io.IOException;
-
 import org.junit.Test;
-import org.opentripplanner.gtfs.MockGtfs;
 import org.opentripplanner.graph_builder.module.GtfsFeedId;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.gtfs.MockGtfs;
 import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
+
+import java.io.IOException;
 
 public class PatternHopFactoryTest {
 
@@ -35,7 +35,7 @@ public class PatternHopFactoryTest {
 
         for (Edge edge : graph.getEdges()) {
             if (edge instanceof TransitBoardAlight) {
-                TripPattern pattern = ((TransitBoardAlight)edge).getPattern();
+                TripPattern pattern = ((TransitBoardAlight) edge).getPattern();
                 // TODO assertTrue(pattern.getBikesAllowed());
             }
         }

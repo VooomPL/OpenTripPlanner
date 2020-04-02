@@ -1,15 +1,9 @@
 package org.opentripplanner.api.model;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.locationtech.jts.geom.Geometry;
-
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.common.geometry.GeometryDeserializer;
 import org.opentripplanner.common.geometry.GeometrySerializer;
 import org.opentripplanner.routing.bike_rental.BikeRentalStationService;
@@ -19,14 +13,19 @@ import org.opentripplanner.util.TravelOption;
 import org.opentripplanner.util.TravelOptionsMaker;
 import org.opentripplanner.util.WorldEnvelope;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 public class RouterInfo {
 
     private final BikeRentalStationService service;
 
     public String routerId;
-    
-    @JsonSerialize(using= GeometrySerializer.class)
-    @JsonDeserialize(using= GeometryDeserializer.class)
+
+    @JsonSerialize(using = GeometrySerializer.class)
+    @JsonDeserialize(using = GeometryDeserializer.class)
     public Geometry polygon;
 
     public Date buildTime;
@@ -82,14 +81,15 @@ public class RouterInfo {
     /**
      * Set center coordinate from transit center in {@link Graph#calculateTransitCenter()} if transit is used
      * or as mean coordinate if not
-     *
+     * <p>
      * It is first called when OSM is loaded. Then after transit data is loaded.
      * So that center is set in all combinations of street and transit loading.
+     *
      * @param center
      */
     public void addCenter(Optional<Coordinate> center) {
         //Transit data was loaded and center was calculated with calculateTransitCenter
-        if(center.isPresent()) {
+        if (center.isPresent()) {
             centerLongitude = center.get().x;
             centerLatitude = center.get().y;
         } else {

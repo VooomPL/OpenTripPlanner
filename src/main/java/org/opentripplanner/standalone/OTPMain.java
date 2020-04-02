@@ -29,7 +29,7 @@ import java.io.FileNotFoundException;
  * depending on command line options. OTPMain is a concrete class making it possible to construct one with custom
  * CommandLineParameters and use its graph builder construction method from web services or scripts, not just from the
  * static main function below.
- *
+ * <p>
  * TODO still it seems fairly natural for all of these methods to be static.
  */
 public class OTPMain {
@@ -40,7 +40,9 @@ public class OTPMain {
     public OTPServer otpServer = null;
     public GraphService graphService = null;
 
-    /** ENTRY POINT: This is the main method that is called when running otp.jar from the command line. */
+    /**
+     * ENTRY POINT: This is the main method that is called when running otp.jar from the command line.
+     */
     public static void main(String[] args) {
 
         /* Parse and validate command line parameters. */
@@ -84,9 +86,8 @@ public class OTPMain {
      * Making OTPMain a concrete class and placing this logic an instance method instead of embedding it in the static
      * main method makes it possible to build graphs from web services or scripts, not just from the command line.
      *
-     * @return
-     *         true - if the OTPServer starts successfully. If "Run an OTP API server" has been requested, this method will return when the web server shuts down;
-     *         false - if an error occurs while loading the graph;
+     * @return true - if the OTPServer starts successfully. If "Run an OTP API server" has been requested, this method will return when the web server shuts down;
+     * false - if an error occurs while loading the graph;
      */
     public boolean run() {
 
@@ -132,7 +133,7 @@ public class OTPMain {
             Router defaultRouter = graphService.getRouter();
             defaultRouter.graphVisualizer = new GraphVisualizer(defaultRouter);
             defaultRouter.graphVisualizer.run();
-            defaultRouter.timeouts = new double[] {60}; // avoid timeouts due to search animation
+            defaultRouter.timeouts = new double[]{60}; // avoid timeouts due to search animation
         }
 
         /* Start script if requested */
@@ -172,7 +173,7 @@ public class OTPMain {
      * If a graph is supplied (graph parameter is not null) then that graph is also registered.
      * TODO move into OTPServer and/or GraphService itself, eliminate FileFactory and put basePath in GraphService
      */
-    public void makeGraphService () {
+    public void makeGraphService() {
         graphService = new GraphService(params.autoReload);
         InputStreamGraphSource.FileFactory graphSourceFactory =
                 new InputStreamGraphSource.FileFactory(params.graphDirectory);
@@ -186,12 +187,12 @@ public class OTPMain {
      * Open and parse the JSON file at the given path into a Jackson JSON tree. Comments and unquoted keys are allowed.
      * Returns null if the file does not exist,
      * Returns null if the file contains syntax errors or cannot be parsed for some other reason.
-     *
+     * <p>
      * We do not require any JSON config files to be present because that would get in the way of the simplest
      * rapid deployment workflow. Therefore we return an empty JSON node when the file is missing, causing us to fall
      * back on all the default values as if there was a JSON file present with no fields defined.
      */
-    public static JsonNode loadJson (File file) {
+    public static JsonNode loadJson(File file) {
         try (FileInputStream jsonStream = new FileInputStream(file)) {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);

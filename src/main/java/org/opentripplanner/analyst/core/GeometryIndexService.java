@@ -1,11 +1,10 @@
 package org.opentripplanner.analyst.core;
 
-import java.util.List;
-
+import org.locationtech.jts.geom.Envelope;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import org.locationtech.jts.geom.Envelope;
+import java.util.List;
 
 public interface GeometryIndexService {
 

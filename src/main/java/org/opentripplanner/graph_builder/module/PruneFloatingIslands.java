@@ -1,19 +1,18 @@
 package org.opentripplanner.graph_builder.module;
 
+import org.opentripplanner.common.StreetUtils;
+import org.opentripplanner.graph_builder.services.GraphBuilderModule;
+import org.opentripplanner.routing.graph.Graph;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.opentripplanner.common.StreetUtils;
-import org.opentripplanner.graph_builder.linking.TransitToStreetNetworkModule;
-import org.opentripplanner.graph_builder.services.GraphBuilderModule;
-import org.opentripplanner.routing.graph.Graph;
-import org.slf4j.*;
-
 /**
  * this module is part of the  {@link org.opentripplanner.graph_builder.services.GraphBuilderModule} process. it design to remove small isolated
- * islands form the graph. Islands are created when there is no connectivity in the map, island 
+ * islands form the graph. Islands are created when there is no connectivity in the map, island
  * acts like trap since there is no connectivity there is no way in or out the island.
  * The module distinguish between two island types one with transit stops and one without stops.
  */
@@ -34,8 +33,8 @@ public class PruneFloatingIslands implements GraphBuilderModule {
     private int pruningThresholdIslandWithStops;
 
     /**
-     * The name for output file for this process. The file will store information about the islands 
-     * that were found and whether they were pruned. If the value is an empty string or null there 
+     * The name for output file for this process. The file will store information about the islands
+     * that were found and whether they were pruned. If the value is an empty string or null there
      * will be no output file.
      */
     private String islandLogFile;
@@ -58,14 +57,14 @@ public class PruneFloatingIslands implements GraphBuilderModule {
     @Override
     public void buildGraph(Graph graph, HashMap<Class<?>, Object> extra) {
         LOG.info("Pruning isolated islands in street network");
-        
-        StreetUtils.pruneFloatingIslands(graph, pruningThresholdIslandWithoutStops, 
-        		pruningThresholdIslandWithStops, islandLogFile);
+
+        StreetUtils.pruneFloatingIslands(graph, pruningThresholdIslandWithoutStops,
+                pruningThresholdIslandWithStops, islandLogFile);
         if (transitToStreetNetwork == null) {
             LOG.debug("TransitToStreetNetworkGraphBuilder was not provided to PruneFloatingIslands. Not attempting to reconnect stops.");
         } else {
             //reconnect stops on small islands (that removed)
-            transitToStreetNetwork.buildGraph(graph,extra);
+            transitToStreetNetwork.buildGraph(graph, extra);
         }
         LOG.debug("Done pruning isolated islands");
     }
@@ -74,11 +73,13 @@ public class PruneFloatingIslands implements GraphBuilderModule {
     public void checkInputs() {
         //no inputs
     }
+
     public void setPruningThresholdIslandWithoutStops(int pruningThresholdIslandWithoutStops) {
-    	this.pruningThresholdIslandWithoutStops = pruningThresholdIslandWithoutStops;
+        this.pruningThresholdIslandWithoutStops = pruningThresholdIslandWithoutStops;
     }
+
     public void setPruningThresholdIslandWithStops(int pruningThresholdIslandWithStops) {
-    	this.pruningThresholdIslandWithStops = pruningThresholdIslandWithStops;
+        this.pruningThresholdIslandWithStops = pruningThresholdIslandWithStops;
     }
 
 }

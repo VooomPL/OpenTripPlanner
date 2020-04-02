@@ -26,7 +26,7 @@ public class RentVehicleAnywhereEdgeTest {
     public void setUp() {
         Graph graph = new Graph();
         IntersectionVertex v = new IntersectionVertex(graph, "v_name", 0, 0);
-        edge  = new RentVehicleAnywhereEdge(v);
+        edge = new RentVehicleAnywhereEdge(v);
         request = new RoutingRequest();
         request.setDummyRoutingContext(graph);
         s = new State(v, request);

@@ -1,13 +1,14 @@
 package org.opentripplanner.openstreetmap.model;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.module.osm.OSMFilter;
 import org.opentripplanner.graph_builder.module.osm.WayProperties;
 import org.opentripplanner.graph_builder.module.osm.WayPropertySet;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class OSMWayTest {
 
@@ -118,10 +119,11 @@ public class OSMWayTest {
 
     /**
      * Tests if cars can drive on unclassified highways with bicycleDesignated
-     *
+     * <p>
      * Check for bug #1878 and PR #1880
      */
-    @Test public void testCarPermission() {
+    @Test
+    public void testCarPermission() {
         OSMWay way = new OSMWay();
         way.addTag("highway", "unclassified");
 
@@ -137,7 +139,8 @@ public class OSMWayTest {
      * Tests that motorcar/bicycle/foot private don't add permissions
      * but yes add permission if access is no
      */
-    @Test public void testMotorCarTagAllowedPermissions(){
+    @Test
+    public void testMotorCarTagAllowedPermissions() {
         OSMWay way = new OSMWay();
         way.addTag("highway", "residential");
         P2<StreetTraversalPermission> permissionPair = getWayProperties(way);
@@ -170,7 +173,8 @@ public class OSMWayTest {
      * Tests that motorcar/bicycle/foot private don't add permissions
      * but no remove permission if access is yes
      */
-    @Test public void testMotorCarTagDeniedPermissions(){
+    @Test
+    public void testMotorCarTagDeniedPermissions() {
         OSMWay way = new OSMWay();
         way.addTag("highway", "residential");
         P2<StreetTraversalPermission> permissionPair = getWayProperties(way);
@@ -199,10 +203,11 @@ public class OSMWayTest {
     /**
      * Tests that motor_vehicle/bicycle/foot private don't add permissions
      * but yes add permission if access is no
-     *
+     * <p>
      * Support for motor_vehicle was added in #1881
      */
-    @Test public void testMotorVehicleTagAllowedPermissions(){
+    @Test
+    public void testMotorVehicleTagAllowedPermissions() {
         OSMWay way = new OSMWay();
         way.addTag("highway", "residential");
         P2<StreetTraversalPermission> permissionPair = getWayProperties(way);
@@ -234,10 +239,11 @@ public class OSMWayTest {
     /**
      * Tests that motor_vehicle/bicycle/foot private don't add permissions
      * but no remove permission if access is yes
-     *
+     * <p>
      * Support for motor_vehicle was added in #1881
      */
-    @Test public void testMotorVehicleTagDeniedPermissions(){
+    @Test
+    public void testMotorVehicleTagDeniedPermissions() {
         OSMWay way = new OSMWay();
         way.addTag("highway", "residential");
         P2<StreetTraversalPermission> permissionPair = getWayProperties(way);

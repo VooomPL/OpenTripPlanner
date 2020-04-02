@@ -8,7 +8,6 @@ import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.PathwayEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +89,7 @@ public class TransitStop extends TransitStationStop {
     public void addMode(TraverseMode mode) {
         modes.setMode(mode, true);
     }
-    
+
     public boolean isStreetLinkable() {
         return isEntrance() || !hasEntrances();
     }

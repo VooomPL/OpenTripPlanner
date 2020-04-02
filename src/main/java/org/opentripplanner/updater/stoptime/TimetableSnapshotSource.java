@@ -1,21 +1,10 @@
 package org.opentripplanner.updater.stoptime;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopPattern;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Trip;
+import com.google.common.base.Preconditions;
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import org.opentripplanner.model.*;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.edgetype.Timetable;
 import org.opentripplanner.routing.edgetype.TimetableSnapshot;
@@ -28,10 +17,9 @@ import org.opentripplanner.updater.GtfsRealtimeFuzzyTripMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import java.text.ParseException;
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class should be used to create snapshots of lookup tables of realtime data. This is
@@ -85,7 +73,9 @@ public class TimetableSnapshotSource {
      */
     private final TripPatternCache tripPatternCache = new TripPatternCache();
 
-    /** Should expired realtime data be purged from the graph. */
+    /**
+     * Should expired realtime data be purged from the graph.
+     */
     public boolean purgeExpiredData = true;
 
     protected ServiceDate lastPurgeDate = null;
@@ -112,9 +102,9 @@ public class TimetableSnapshotSource {
 
     /**
      * @return an up-to-date snapshot mapping TripPatterns to Timetables. This snapshot and the
-     *         timetable objects it references are guaranteed to never change, so the requesting
-     *         thread is provided a consistent view of all TripTimes. The routing thread need only
-     *         release its reference to the snapshot to release resources.
+     * timetable objects it references are guaranteed to never change, so the requesting
+     * thread is provided a consistent view of all TripTimes. The routing thread need only
+     * release its reference to the snapshot to release resources.
      */
     public TimetableSnapshot getTimetableSnapshot() {
         TimetableSnapshot snapshotToReturn;
@@ -155,18 +145,19 @@ public class TimetableSnapshotSource {
     /**
      * Method to apply a trip update list to the most recent version of the timetable snapshot. A
      * GTFS-RT feed is always applied against a single static feed (indicated by feedId).
-<<<<<<< HEAD
-     * 
-=======
-     *
+     * <<<<<<< HEAD
+     * <p>
+     * =======
+     * <p>
      * However, multi-feed support is not completed and we currently assume there is only one static
      * feed when matching IDs.
+     * <p>
+     * >>>>>>> 7296be8ffd532a13afb0bec263a9f436ab787022
      *
->>>>>>> 7296be8ffd532a13afb0bec263a9f436ab787022
-     * @param graph graph to update (needed for adding/changing stop patterns)
+     * @param graph       graph to update (needed for adding/changing stop patterns)
      * @param fullDataset true iff the list with updates represent all updates that are active right
-     *        now, i.e. all previous updates should be disregarded
-     * @param updates GTFS-RT TripUpdate's that should be applied atomically
+     *                    now, i.e. all previous updates should be disregarded
+     * @param updates     GTFS-RT TripUpdate's that should be applied atomically
      * @param feedId
      */
     public void applyTripUpdates(final Graph graph, final boolean fullDataset, final List<TripUpdate> updates, final String feedId) {
@@ -291,9 +282,9 @@ public class TimetableSnapshotSource {
                     final StopTimeUpdate.ScheduleRelationship stopScheduleRelationship = stopTimeUpdate
                             .getScheduleRelationship();
                     if (stopScheduleRelationship.equals(StopTimeUpdate.ScheduleRelationship.SKIPPED)
-                            // TODO: uncomment next line when StopTimeUpdate.ScheduleRelationship.ADDED exists
+                        // TODO: uncomment next line when StopTimeUpdate.ScheduleRelationship.ADDED exists
 //                            || stopScheduleRelationship.equals(StopTimeUpdate.ScheduleRelationship.ADDED)
-                            ) {
+                    ) {
                         hasModifiedStops = true;
                     }
                 }
@@ -342,14 +333,14 @@ public class TimetableSnapshotSource {
     /**
      * Validate and handle GTFS-RT TripUpdate message containing an ADDED trip.
      *
-     * @param graph graph to update
-     * @param tripUpdate GTFS-RT TripUpdate message
+     * @param graph       graph to update
+     * @param tripUpdate  GTFS-RT TripUpdate message
      * @param feedId
      * @param serviceDate
      * @return true iff successful
      */
     private boolean validateAndHandleAddedTrip(final Graph graph, final TripUpdate tripUpdate,
-            final String feedId, final ServiceDate serviceDate) {
+                                               final String feedId, final ServiceDate serviceDate) {
         // Preconditions
         Preconditions.checkNotNull(graph);
         Preconditions.checkNotNull(tripUpdate);
@@ -407,7 +398,7 @@ public class TimetableSnapshotSource {
      * Check stop time updates of trip update that results in a new trip (ADDED or MODIFIED) and
      * find all stops of that trip.
      *
-     * @param feedId feed id this trip update is intented for
+     * @param feedId     feed id this trip update is intented for
      * @param tripUpdate trip update
      * @return stops when stop time updates are correct; null if there are errors
      */
@@ -529,15 +520,15 @@ public class TimetableSnapshotSource {
     /**
      * Handle GTFS-RT TripUpdate message containing an ADDED trip.
      *
-     * @param graph graph to update
-     * @param tripUpdate GTFS-RT TripUpdate message
-     * @param stops the stops of each StopTimeUpdate in the TripUpdate message
+     * @param graph       graph to update
+     * @param tripUpdate  GTFS-RT TripUpdate message
+     * @param stops       the stops of each StopTimeUpdate in the TripUpdate message
      * @param feedId
      * @param serviceDate service date for added trip
      * @return true iff successful
      */
     private boolean handleAddedTrip(final Graph graph, final TripUpdate tripUpdate, final List<Stop> stops,
-            final String feedId, final ServiceDate serviceDate) {
+                                    final String feedId, final ServiceDate serviceDate) {
         // Preconditions
         Preconditions.checkNotNull(stops);
         Preconditions.checkArgument(tripUpdate.getStopTimeUpdateCount() == stops.size(),
@@ -599,17 +590,17 @@ public class TimetableSnapshotSource {
     /**
      * Add a (new) trip to the graph and the buffer
      *
-     * @param graph graph
-     * @param trip trip
-     * @param tripUpdate trip update containing stop time updates
-     * @param stops list of stops corresponding to stop time updates
-     * @param serviceDate service date of trip
+     * @param graph         graph
+     * @param trip          trip
+     * @param tripUpdate    trip update containing stop time updates
+     * @param stops         list of stops corresponding to stop time updates
+     * @param serviceDate   service date of trip
      * @param realTimeState real-time state of new trip
      * @return true iff successful
      */
     private boolean addTripToGraphAndBuffer(final String feedId, final Graph graph, final Trip trip,
-            final TripUpdate tripUpdate, final List<Stop> stops, final ServiceDate serviceDate,
-            final RealTimeState realTimeState) {
+                                            final TripUpdate tripUpdate, final List<Stop> stops, final ServiceDate serviceDate,
+                                            final RealTimeState realTimeState) {
 
         // Preconditions
         Preconditions.checkNotNull(stops);
@@ -719,13 +710,13 @@ public class TimetableSnapshotSource {
     /**
      * Cancel scheduled trip in buffer given trip id (without agency id) on service date
      *
-     * @param tripId trip id without agency id
+     * @param tripId      trip id without agency id
      * @param serviceDate service date
      * @return true if scheduled trip was cancelled
      */
     private boolean cancelScheduledTrip(String feedId, String tripId, final ServiceDate serviceDate) {
         boolean success = false;
-        
+
         final TripPattern pattern = getPatternForTripId(feedId, tripId);
 
         if (pattern != null) {
@@ -749,8 +740,8 @@ public class TimetableSnapshotSource {
      * Cancel previously added trip from buffer if there is a previously added trip with given trip
      * id (without agency id) on service date
      *
-     * @param feedId feed id the trip id belongs to
-     * @param tripId trip id without agency id
+     * @param feedId      feed id the trip id belongs to
+     * @param tripId      trip id without agency id
      * @param serviceDate service date
      * @return true if a previously added trip was cancelled
      */
@@ -784,8 +775,8 @@ public class TimetableSnapshotSource {
     /**
      * Validate and handle GTFS-RT TripUpdate message containing a MODIFIED trip.
      *
-     * @param graph graph to update
-     * @param tripUpdate GTFS-RT TripUpdate message
+     * @param graph       graph to update
+     * @param tripUpdate  GTFS-RT TripUpdate message
      * @param feedId
      * @param serviceDate
      * @return true iff successful
@@ -855,16 +846,16 @@ public class TimetableSnapshotSource {
     /**
      * Handle GTFS-RT TripUpdate message containing a MODIFIED trip.
      *
-     * @param graph graph to update
-     * @param trip trip that is modified
-     * @param tripUpdate GTFS-RT TripUpdate message
-     * @param stops the stops of each StopTimeUpdate in the TripUpdate message
+     * @param graph       graph to update
+     * @param trip        trip that is modified
+     * @param tripUpdate  GTFS-RT TripUpdate message
+     * @param stops       the stops of each StopTimeUpdate in the TripUpdate message
      * @param feedId
      * @param serviceDate service date for modified trip
      * @return true iff successful
      */
     private boolean handleModifiedTrip(final Graph graph, final Trip trip, final TripUpdate tripUpdate, final List<Stop> stops,
-            final String feedId, final ServiceDate serviceDate) {
+                                       final String feedId, final ServiceDate serviceDate) {
         // Preconditions
         Preconditions.checkNotNull(stops);
         Preconditions.checkArgument(tripUpdate.getStopTimeUpdateCount() == stops.size(),
@@ -911,7 +902,7 @@ public class TimetableSnapshotSource {
         final ServiceDate today = new ServiceDate();
         final ServiceDate previously = today.previous().previous(); // Just to be safe...
 
-        if(lastPurgeDate != null && lastPurgeDate.compareTo(previously) > 0) {
+        if (lastPurgeDate != null && lastPurgeDate.compareTo(previously) > 0) {
             return false;
         }
 
@@ -938,7 +929,7 @@ public class TimetableSnapshotSource {
     /**
      * Retrieve route given a route id without an agency
      *
-     * @param feedId feed id for the route id
+     * @param feedId  feed id for the route id
      * @param routeId route id without the agency
      * @return route or null if route can't be found in graph index
      */

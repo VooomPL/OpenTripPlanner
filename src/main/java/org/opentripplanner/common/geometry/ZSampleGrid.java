@@ -1,21 +1,20 @@
 package org.opentripplanner.common.geometry;
 
-import org.opentripplanner.common.geometry.ZSampleGrid.ZSamplePoint;
-
 import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.common.geometry.ZSampleGrid.ZSamplePoint;
 
 /**
  * A generic indexed grid of TZ samples. TZ could be anything but is usually a vector of parameters.
- * 
+ * <p>
  * We assume some sort of equirectangular project between the index coordinates (x,y) and the
  * geographic coordinates (lat, lon). The projection factor (cos phi, standard parallel) is given as
  * a cell size in lat,lon degrees (dLat,dLon)). The conversion is given by the following formulae:
- * 
+ *
  * <code>
  * lon = lon0 + x.dLon;
  * lat = lat0 + y.dLat;
  * </code> (lat0,lon0) is the center, (dLat,dLon) is the cell size.
- * 
+ *
  * @author laurent
  */
 public interface ZSampleGrid<TZ> extends Iterable<ZSamplePoint<TZ>> {
@@ -103,7 +102,7 @@ public interface ZSampleGrid<TZ> extends Iterable<ZSamplePoint<TZ>> {
      * TODO The mapping between a ZSampleGrid and a DelaunayTriangulation should not be part of an
      * interface but extracted to a converter. This assume that the conversion process does not rely
      * on the inner working of the ZSampleGrid implementation, which should be the case.
-     * 
+     *
      * @return This ZSampleGrid converted as a DelaunayTriangulation.
      */
     public DelaunayTriangulation<TZ> delaunayTriangulate();
