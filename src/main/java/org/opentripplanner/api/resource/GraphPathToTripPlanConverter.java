@@ -249,7 +249,12 @@ public abstract class GraphPathToTripPlanConverter {
                 if (coordinates.size() == 0) {
                     coordinates.extend(geometry.getCoordinates());
                 } else {
-                    coordinates.extend(geometry.getCoordinates(), 1); // Avoid duplications
+                    for(int i=1 ; i< geometry.getCoordinates().length; ++i) { // Avoid duplications
+                        if(!geometry.getCoordinates()[i].equals(coordinates.getCoordinate(coordinates.size()-1))) {
+                            coordinates.extend(geometry.getCoordinates(), i);
+                        }
+
+                    }
                 }
             }
         }
@@ -284,7 +289,7 @@ public abstract class GraphPathToTripPlanConverter {
 
         // interval legIndexPairs[0], legIndexPairs[1] contains valid states such as WALK, CAR, TRAIN
         // interval legIndexPairs[1], legIndexPairs[2] contains LEG_SWITCH states which separate leg from next leg
-        int[] legIndexPairs = {0, states.size(), states.size()};
+        int[] legIndexPairs = {0, states.size()-1, states.size()-1};
         List<int[]> legsIndexes = new ArrayList<>();
 
         for (int i = 1; i < states.size() - 1; i++) {
@@ -300,19 +305,19 @@ public abstract class GraphPathToTripPlanConverter {
                     legIndexPairs[1] = i;
                 } else if (forwardMode != TraverseMode.LEG_SWITCH) {    // End of leg switch
                     legIndexPairs[2] = i;
-                    if (legIndexPairs[1] != states.size() - 1) {
+                    if (legIndexPairs[1] != states.size()-1) {
                         legsIndexes.add(legIndexPairs);
                     }
-                    legIndexPairs = new int[]{i, states.size(), states.size()};
+                    legIndexPairs = new int[]{i, states.size()-1, states.size()-1};
                 }
             } else if (backMode != forwardMode) {                       // Mode change => leg switch
                 legIndexPairs[1] = legIndexPairs[2] = i;
                 legsIndexes.add(legIndexPairs);
-                legIndexPairs = new int[]{i, states.size(), states.size()};
+                legIndexPairs = new int[]{i, states.size()-1, states.size()-1};
             } else if (edge instanceof PatternInterlineDwell) {         // Interlining => leg switch
                 legIndexPairs[1] = legIndexPairs[2] = i;
                 legsIndexes.add(legIndexPairs);
-                legIndexPairs = new int[]{i + 1, states.size(), states.size()};
+                legIndexPairs = new int[]{i + 1, states.size()-1, states.size()-1};
             }
         }
 
@@ -323,7 +328,7 @@ public abstract class GraphPathToTripPlanConverter {
         // Fill the two-dimensional array with states
         for (int[] legsIndex : legsIndexes) {
             legIndexPairs = legsIndex;
-            LegStateSplit legStateSplit = new LegStateSplit(states.subList(legIndexPairs[0], legIndexPairs[1]), states.subList(legIndexPairs[1], legIndexPairs[2]));
+            LegStateSplit legStateSplit = new LegStateSplit(states.subList(legIndexPairs[0], legIndexPairs[1]+1), states.subList(legIndexPairs[1], legIndexPairs[2]+1));
             legsStates.add(legStateSplit);
         }
 
@@ -359,10 +364,7 @@ public abstract class GraphPathToTripPlanConverter {
 
         addPlaces(leg, states, edges, showIntermediateStops, requestedLocale);
 
-        CoordinateArrayListSequence coordinates = makeCoordinates(edges);
-        Geometry geometry = GeometryUtils.getGeometryFactory().createLineString(coordinates);
-
-        leg.legGeometry = PolylineEncoder.createEncodings(geometry);
+        addLegGeometryToLeg(leg, edges, legStateSplit);
 
         leg.interlineWithPreviousLeg = states.get(0).getBackEdge() instanceof PatternInterlineDwell;
 
@@ -377,6 +379,15 @@ public abstract class GraphPathToTripPlanConverter {
         leg.vehicleDescription = states.get(0).getCurrentVehicle();
 
         return leg;
+    }
+
+    private static void addLegGeometryToLeg(Leg leg, List<Edge> edges, LegStateSplit legStateSplit) {
+        edges.addAll(legStateSplit.getLegSwitchStates().stream().map(State::getBackEdge).collect(Collectors.toList()));
+
+        CoordinateArrayListSequence coordinates = makeCoordinates(edges);
+        Geometry geometry = GeometryUtils.getGeometryFactory().createLineString(coordinates);
+
+        leg.legGeometry = PolylineEncoder.createEncodings(geometry);
     }
 
     private static void addFrequencyFields(List<State> states, Leg leg) {
