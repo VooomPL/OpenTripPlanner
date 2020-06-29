@@ -21,7 +21,7 @@ public class ParkingZonesUpdater extends PollingGraphUpdater {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParkingZonesUpdater.class);
 
-    private final ParkingZonesGetter parkingZonesGetter = new ParkingZonesGetter();
+    protected ParkingZonesGetter parkingZonesGetter = new ParkingZonesGetter();
     private GraphUpdaterManager graphUpdaterManager;
     private Graph graph;
     private String url;
