@@ -1,5 +1,6 @@
 package org.opentripplanner.api.resource;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
@@ -382,7 +383,8 @@ public abstract class GraphPathToTripPlanConverter {
         return leg;
     }
 
-    private static void addLegGeometryToLeg(Leg leg, List<Edge> edges, LegStateSplit legStateSplit) {
+    @VisibleForTesting
+    static void addLegGeometryToLeg(Leg leg, List<Edge> edges, LegStateSplit legStateSplit) {
         edges.addAll(legStateSplit.getLegSwitchStates().stream().map(State::getBackEdge).collect(Collectors.toList()));
 
         CoordinateArrayListSequence coordinates = makeCoordinates(edges);

@@ -1,5 +1,6 @@
 package org.opentripplanner.api.resource;
 
+import com.google.common.collect.ImmutableList;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
@@ -9,6 +10,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.junit.Test;
+import org.opentripplanner.api.model.*;
 import org.opentripplanner.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
@@ -19,12 +21,6 @@ import org.opentripplanner.model.StopPattern;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.api.model.AbsoluteDirection;
-import org.opentripplanner.api.model.Itinerary;
-import org.opentripplanner.api.model.Leg;
-import org.opentripplanner.api.model.Place;
-import org.opentripplanner.api.model.RelativeDirection;
-import org.opentripplanner.api.model.WalkStep;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.gtfs.BikeAccess;
 import org.opentripplanner.routing.alertpatch.Alert;
@@ -62,6 +58,7 @@ import org.opentripplanner.routing.edgetype.TimetableSnapshot;
 import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.error.TrivialPathException;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.services.FareService;
@@ -69,18 +66,10 @@ import org.opentripplanner.routing.services.notes.StreetNotesService;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.trippattern.TripTimes;
-import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
-import org.opentripplanner.routing.vertextype.ExitVertex;
-import org.opentripplanner.routing.vertextype.IntersectionVertex;
-import org.opentripplanner.routing.vertextype.OnboardDepartVertex;
-import org.opentripplanner.routing.vertextype.PatternArriveVertex;
-import org.opentripplanner.routing.vertextype.PatternDepartVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TransitStop;
-import org.opentripplanner.routing.vertextype.TransitStopArrive;
-import org.opentripplanner.routing.vertextype.TransitStopDepart;
+import org.opentripplanner.routing.vertextype.*;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.util.NonLocalizedString;
+import org.opentripplanner.util.PolylineEncoder;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
 import java.util.*;
@@ -174,6 +163,32 @@ public class GraphPathToTripPlanConverterTest {
         GraphPath graphPath = new GraphPath(arrive.traverse(intermediate), false);
 
         GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+    }
+
+    /**
+     * Encoded polyline should contain non trival points from LEG_SWITCH states such as going to/from bus stop
+     */
+    @Test
+    public  void testLegGeometryPolylineGeneration() {
+        // given
+        Leg leg = new Leg();
+        RoutingRequest options = new RoutingRequest("BICYCLE_RENT,TRANSIT");
+        GraphPath[] graphPaths = buildPaths();
+        List<Edge> edges = new ArrayList<>(graphPaths[0].edges);
+        LegStateSplit legStateSplit = new LegStateSplit(graphPaths[0].states, ImmutableList.of(
+                new State(
+                        graphPaths[0].states.get(3).getVertex(),
+                        new StreetTransitLink((StreetVertex) edges.get(edges.size()-1).getToVertex(), ((TransitStop) graphPaths[0].edges.get(2).getToVertex()), false),
+                        30,
+                        options)
+        ));
+
+        // when
+        GraphPathToTripPlanConverter.addLegGeometryToLeg(leg, edges, legStateSplit);
+        EncodedPolylineBean normal = PolylineEncoder.createEncodings(graphPaths[0].getGeometry());
+
+        // then
+        assertNotEquals(normal, leg.legGeometry);
     }
 
     /**
