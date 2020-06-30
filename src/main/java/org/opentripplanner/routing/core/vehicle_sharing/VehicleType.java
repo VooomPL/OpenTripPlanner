@@ -15,8 +15,11 @@ public enum VehicleType {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehicleType.class);
 
-    public static VehicleType fromString(String vehicleType) {
+    // Cannot be named `fromString` as it would become default constructor
+    // for `@QueryParam("vehicleTypesAllowed")` in `RoutingResource.java`
+    public static VehicleType fromDatabaseVehicleType(String vehicleType) {
         if (vehicleType == null) {
+            LOG.warn("Cannot create vehicle type enum from null");
             return null;
         }
         switch (vehicleType) {
@@ -27,7 +30,7 @@ public enum VehicleType {
             case _KICKSCOOTER:
                 return VehicleType.KICKSCOOTER;
             default:
-                LOG.warn("Cannot create parking zone - unknown vehicle type {}", vehicleType);
+                LOG.warn("Cannot create vehicle type enum - unknown vehicle type {}", vehicleType);
                 return null;
         }
     }
