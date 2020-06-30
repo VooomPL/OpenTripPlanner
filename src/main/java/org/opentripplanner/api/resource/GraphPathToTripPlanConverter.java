@@ -328,7 +328,7 @@ public abstract class GraphPathToTripPlanConverter {
         // Fill the two-dimensional array with states
         for (int[] legsIndex : legsIndexes) {
             legIndexPairs = legsIndex;
-            LegStateSplit legStateSplit = new LegStateSplit(states.subList(legIndexPairs[0], legIndexPairs[1]+1), states.subList(legIndexPairs[1], legIndexPairs[2]+1));
+            LegStateSplit legStateSplit = new LegStateSplit(states.subList(legIndexPairs[0], legIndexPairs[1]+1), states.subList(legIndexPairs[1] +1, legIndexPairs[2]+1));
             legsStates.add(legStateSplit);
         }
 
@@ -835,7 +835,7 @@ public abstract class GraphPathToTripPlanConverter {
      * @param previous a non-transit leg that immediately precedes this one (bike-walking, say), or null
      * @return
      */
-    public static List<WalkStep> generateWalkSteps(Graph graph, List<State> states, WalkStep previous, Locale requestedLocale) {
+    public static List<WalkStep>  generateWalkSteps(Graph graph, List<State> states, WalkStep previous, Locale requestedLocale) {
         List<WalkStep> steps = new ArrayList<WalkStep>();
         WalkStep step = null;
         double lastAngle = 0, distance = 0; // distance used for appending elevation profiles
