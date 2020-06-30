@@ -252,6 +252,7 @@ public abstract class GraphPathToTripPlanConverter {
                     for(int i=1 ; i< geometry.getCoordinates().length; ++i) { // Avoid duplications
                         if(!geometry.getCoordinates()[i].equals(coordinates.getCoordinate(coordinates.size()-1))) {
                             coordinates.extend(geometry.getCoordinates(), i);
+                            break;
                         }
 
                     }
