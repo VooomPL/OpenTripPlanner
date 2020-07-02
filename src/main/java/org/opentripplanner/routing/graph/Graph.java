@@ -774,7 +774,7 @@ public class Graph implements Serializable {
                 LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), route.getShortName(), route.getAgency().getName());
             }
             try{
-                writer.writeRecord(new String[]{routeTypeName, route.getShortName(), route.getAgency().getName()});
+                writer.writeRecord(new String[]{routeTypeName, Objects.nonNull(route.getShortName())?route.getShortName():route.getLongName(), route.getAgency().getName()});
             } catch (IOException e) {
                 file.delete();
                 throw e;
