@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
@@ -764,7 +765,7 @@ public class Graph implements Serializable {
 
     public void saveTransitLines(File file) throws IOException {
         LOG.info("Writing transit lines to csv {} ...", file.getAbsolutePath());
-        CsvWriter writer = new CsvWriter(file.getPath());
+        CsvWriter writer = new CsvWriter(file.getPath(), ',', Charset.forName("UTF-8"));
         for (Route route:getTransitRoutes()) {
             String routeTypeName = "UNSUPPORTED";
             try {
