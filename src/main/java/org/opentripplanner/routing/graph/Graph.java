@@ -59,6 +59,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
@@ -91,6 +96,10 @@ public class Graph implements Serializable {
     private Map<Class<?>, Object> _services = new HashMap<Class<?>, Object>();
 
     private Collection<Route> transitRoutes = new ArrayList<>();
+
+    private Map<FeedScopedId, Stop> transitStops = new HashMap<>();
+
+    private Collection<StopTime> transitStopTimes = new ArrayList<>();
 
     private TransferTable transferTable = new TransferTable();
 
@@ -764,16 +773,59 @@ public class Graph implements Serializable {
 
     public void saveTransitLines(File file) throws IOException {
         LOG.info("Writing transit lines to csv {} ...", file.getAbsolutePath());
-        CsvWriter writer = new CsvWriter(file.getPath());
+
+        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
         for (Route route:getTransitRoutes()) {
             String routeTypeName = "UNSUPPORTED";
             try {
                 routeTypeName = GtfsLibrary.getTraverseMode(route).name();
             }catch(IllegalArgumentException e) {
-                LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), route.getShortName(), route.getAgency().getName());
+                LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
             }
             try{
-                writer.writeRecord(new String[]{routeTypeName, route.getShortName(), route.getAgency().getName()});
+                writer.writeRecord(new String[]{routeTypeName, Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName()});
+            } catch (IOException e) {
+                file.delete();
+                throw e;
+            }
+        }
+        writer.close();
+    }
+
+    public void saveTransitLineStops(File file) throws IOException {
+        LOG.info("Writing transit line stops to csv {} ...", file.getAbsolutePath());
+
+        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        for (Stop stop:this.transitStops.values()) {
+            try{
+                writer.writeRecord(new String[]{stop.getId().getId(), ""+stop.getLat(), ""+stop.getLon(), stop.getName(), String.join("#", stop.getLineNames())});
+            } catch (IOException e) {
+                file.delete();
+                throw e;
+            }
+        }
+        writer.close();
+    }
+
+    public void saveTransitLineStopTimes(File file) throws IOException {
+        LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
+
+        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        for (StopTime stopTime:this.transitStopTimes) {
+            try{
+                Set<ServiceDate> serviceDates = calendarService.getServiceDatesForServiceId(stopTime.getTrip().getServiceId());
+                for(ServiceDate serviceDate: serviceDates) {
+                    LocalDate serviceDateToWrite = LocalDate.of(serviceDate.getYear(), serviceDate.getMonth(), serviceDate.getDay());
+                    int serviceTimeToWrite = stopTime.getArrivalTime();
+                    //if arrival time is eg. 25:30, convert it to 1:30 next day
+                    if(serviceTimeToWrite > StopTime.MAX_STOP_TIME_VALUE){
+                        serviceTimeToWrite -= StopTime.MAX_STOP_TIME_VALUE;
+                        serviceDateToWrite = serviceDateToWrite.plusDays(1);
+                    }
+                    if (!serviceDateToWrite.isBefore(LocalDate.now()) && !serviceDateToWrite.isAfter(LocalDate.now().plusDays(7))) {
+                        writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName), LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)});
+                    }
+                }
             } catch (IOException e) {
                 file.delete();
                 throw e;
@@ -1061,5 +1113,17 @@ public class Graph implements Serializable {
             flexIndex.init(this);
         }
         this.useFlexService = useFlexService;
+    }
+
+    public void addTransitStops(Collection<Stop> newStops){
+        newStops.stream().forEach(newStop -> this.transitStops.put(newStop.getId(), newStop));
+    }
+
+    public void addTransitStopTime(StopTime newStopTime){
+        this.transitStopTimes.add(newStopTime);
+        if(!this.transitStops.containsKey(newStopTime.getStop().getId())){
+            this.transitStops.put(newStopTime.getStop().getId(), newStopTime.getStop());
+        }
+        this.transitStops.get(newStopTime.getStop().getId()).addLine(Optional.ofNullable(newStopTime.getTrip().getRoute().getShortName()).orElseGet(newStopTime.getTrip().getRoute()::getLongName));
     }
 }
