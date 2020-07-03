@@ -771,10 +771,10 @@ public class Graph implements Serializable {
             try {
                 routeTypeName = GtfsLibrary.getTraverseMode(route).name();
             }catch(IllegalArgumentException e) {
-                LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), route.getShortName(), route.getAgency().getName());
+                LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
             }
             try{
-                writer.writeRecord(new String[]{routeTypeName, Objects.nonNull(route.getShortName())?route.getShortName():route.getLongName(), route.getAgency().getName()});
+                writer.writeRecord(new String[]{routeTypeName, Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName()});
             } catch (IOException e) {
                 file.delete();
                 throw e;
