@@ -21,31 +21,11 @@ public class ParkingZonesCalculator {
         this.geometryParkingZones = geometryParkingZones;
     }
 
-    private boolean isPointInParkingZone(Point point, GeometryParkingZone gpz) {
-        return gpz.getGeometriesAllowed().stream().anyMatch(g -> g.contains(point))
-                && gpz.getGeometriesDisallowed().stream().noneMatch(g -> g.contains(point));
-    }
-
-    private SingleParkingZone getMatchingParkingZoneFromList(
-            GeometryParkingZone geometryParkingZone, List<SingleParkingZone> parkingZonesEnabled) {
-        return parkingZonesEnabled.stream()
-                .filter(pz -> pz.sameProviderIdAndVehicleType(geometryParkingZone))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private SingleParkingZone findMatchingParkingZone(Point point, GeometryParkingZone geometryParkingZone,
-                                                      List<SingleParkingZone> parkingZonesEnabled) {
-        if (isPointInParkingZone(point, geometryParkingZone)) {
-            return getMatchingParkingZoneFromList(geometryParkingZone, parkingZonesEnabled);
-        } else {
-            return null;
-        }
-    }
-
-    private Point createPoint(RentVehicleAnywhereEdge e) {
-        CoordinateXY coord = new CoordinateXY(e.getFromVertex().getLon(), e.getFromVertex().getLat());
-        return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
+    public List<SingleParkingZone> getNewParkingZonesEnabled() {
+        return geometryParkingZones.stream()
+                .map(gpz -> new SingleParkingZone(gpz.getProviderId(), gpz.getVehicleType()))
+                .distinct()
+                .collect(toList());
     }
 
     public List<SingleParkingZone> getParkingZonesForRentEdge(RentVehicleAnywhereEdge edge,
@@ -57,10 +37,30 @@ public class ParkingZonesCalculator {
                 .collect(toList());
     }
 
-    public List<SingleParkingZone> getNewParkingZonesEnabled() {
-        return geometryParkingZones.stream()
-                .map(gpz -> new SingleParkingZone(gpz.getProviderId(), gpz.getVehicleType()))
-                .distinct()
-                .collect(toList());
+    private Point createPoint(RentVehicleAnywhereEdge e) {
+        CoordinateXY coord = new CoordinateXY(e.getFromVertex().getLon(), e.getFromVertex().getLat());
+        return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
+    }
+
+    private SingleParkingZone findMatchingParkingZone(Point point, GeometryParkingZone geometryParkingZone,
+                                                      List<SingleParkingZone> parkingZonesEnabled) {
+        if (isPointInParkingZone(point, geometryParkingZone)) {
+            return getMatchingParkingZoneFromList(geometryParkingZone, parkingZonesEnabled);
+        } else {
+            return null;
+        }
+    }
+
+    private boolean isPointInParkingZone(Point point, GeometryParkingZone gpz) {
+        return gpz.getGeometriesAllowed().stream().anyMatch(g -> g.contains(point))
+                && gpz.getGeometriesDisallowed().stream().noneMatch(g -> g.contains(point));
+    }
+
+    private SingleParkingZone getMatchingParkingZoneFromList(
+            GeometryParkingZone geometryParkingZone, List<SingleParkingZone> parkingZonesEnabled) {
+        return parkingZonesEnabled.stream()
+                .filter(pz -> pz.sameProviderIdAndVehicleType(geometryParkingZone))
+                .findFirst()
+                .orElse(null);
     }
 }
