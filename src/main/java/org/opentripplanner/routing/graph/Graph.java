@@ -777,7 +777,7 @@ public class Graph implements Serializable {
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
         for (Route route:getTransitRoutes()) {
             String routeTypeName = "UNSUPPORTED";
-            try {
+            try{
                 routeTypeName = GtfsLibrary.getTraverseMode(route).name();
             }catch(IllegalArgumentException e) {
                 LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
@@ -787,9 +787,10 @@ public class Graph implements Serializable {
             } catch (IOException e) {
                 file.delete();
                 throw e;
+            } finally {
+                writer.close();
             }
         }
-        writer.close();
     }
 
     public void saveTransitLineStops(File file) throws IOException {
@@ -803,8 +804,10 @@ public class Graph implements Serializable {
                 file.delete();
                 throw e;
             }
+            finally {
+                writer.close();
+            }
         }
-        writer.close();
     }
 
     public void saveTransitLineStopTimes(File file) throws IOException {
@@ -812,13 +815,13 @@ public class Graph implements Serializable {
 
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
         for (StopTime stopTime:this.transitStopTimes) {
-            try{
+            try {
                 Set<ServiceDate> serviceDates = calendarService.getServiceDatesForServiceId(stopTime.getTrip().getServiceId());
-                for(ServiceDate serviceDate: serviceDates) {
+                for (ServiceDate serviceDate : serviceDates) {
                     LocalDate serviceDateToWrite = LocalDate.of(serviceDate.getYear(), serviceDate.getMonth(), serviceDate.getDay());
                     int serviceTimeToWrite = stopTime.getArrivalTime();
                     //if arrival time is eg. 25:30, convert it to 1:30 next day
-                    if(serviceTimeToWrite > StopTime.MAX_STOP_TIME_VALUE){
+                    if (serviceTimeToWrite > StopTime.MAX_STOP_TIME_VALUE) {
                         serviceTimeToWrite -= StopTime.MAX_STOP_TIME_VALUE;
                         serviceDateToWrite = serviceDateToWrite.plusDays(1);
                     }
@@ -829,9 +832,10 @@ public class Graph implements Serializable {
             } catch (IOException e) {
                 file.delete();
                 throw e;
+            } finally {
+                writer.close();
             }
         }
-        writer.close();
     }
 
     public void save(File file) throws IOException {
