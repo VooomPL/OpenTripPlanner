@@ -6,8 +6,8 @@ import java.util.List;
 
 public class LegStateSplit {
 
-    List<State> states;
-    List<State> legSwitchStates;
+    private final List<State> states;
+    private final List<State> legSwitchStates;
 
     public LegStateSplit(List<State> states, List<State> legSwitchStates) {
         this.states = states;

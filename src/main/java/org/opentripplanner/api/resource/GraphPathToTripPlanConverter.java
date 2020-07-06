@@ -188,13 +188,13 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.usedNotRecommendedRoute = path.states.stream().anyMatch(s -> s.usedNotRecommendedRoute);
 
         String googleMapsURL = "https://www.google.pl/maps/dir/";
-        List<Place> places = itinerary.legs.stream().map(leg->leg.from).collect(Collectors.toList());
-        places.add(itinerary.legs.get(itinerary.legs.size()-1).to);
+        List<Place> places = itinerary.legs.stream().map(leg -> leg.from).collect(Collectors.toList());
+        places.add(itinerary.legs.get(itinerary.legs.size() - 1).to);
 
-        googleMapsURL=places.stream().map(place->"'"+place.lat+","+place.lon+"'/").reduce(googleMapsURL,(s1,s2)->s1+s2);
+        googleMapsURL = places.stream().map(place -> "'" + place.lat + "," + place.lon + "'/").reduce(googleMapsURL, (s1, s2) -> s1 + s2);
 
 //        TODO this probably should be removed
-        System.out.println(googleMapsURL+"     TODO please remove me");
+        System.out.println(googleMapsURL + "     TODO please remove me");
 
         return itinerary;
     }
@@ -250,8 +250,8 @@ public abstract class GraphPathToTripPlanConverter {
                 if (coordinates.size() == 0) {
                     coordinates.extend(geometry.getCoordinates());
                 } else {
-                    for(int i=1 ; i< geometry.getCoordinates().length; ++i) { // Avoid duplications
-                        if(!geometry.getCoordinates()[i].equals(coordinates.getCoordinate(coordinates.size()-1))) {
+                    for (int i = 1; i < geometry.getCoordinates().length; ++i) { // Avoid duplications
+                        if (!geometry.getCoordinates()[i].equals(coordinates.getCoordinate(coordinates.size() - 1))) {
                             coordinates.extend(geometry.getCoordinates(), i);
                             break;
                         }
@@ -291,7 +291,7 @@ public abstract class GraphPathToTripPlanConverter {
 
         // interval legIndexPairs[0], legIndexPairs[1] contains valid states such as WALK, CAR, TRAIN
         // interval legIndexPairs[1], legIndexPairs[2] contains LEG_SWITCH states which separate leg from next leg
-        int[] legIndexPairs = {0, states.size()-1, states.size()-1};
+        int[] legIndexPairs = {0, states.size() - 1, states.size() - 1};
         List<int[]> legsIndexes = new ArrayList<>();
 
         for (int i = 1; i < states.size() - 1; i++) {
@@ -307,19 +307,19 @@ public abstract class GraphPathToTripPlanConverter {
                     legIndexPairs[1] = i;
                 } else if (forwardMode != TraverseMode.LEG_SWITCH) {    // End of leg switch
                     legIndexPairs[2] = i;
-                    if (legIndexPairs[1] != states.size()-1) {
+                    if (legIndexPairs[1] != states.size() - 1) {
                         legsIndexes.add(legIndexPairs);
                     }
-                    legIndexPairs = new int[]{i, states.size()-1, states.size()-1};
+                    legIndexPairs = new int[]{i, states.size() - 1, states.size() - 1};
                 }
             } else if (backMode != forwardMode) {                       // Mode change => leg switch
                 legIndexPairs[1] = legIndexPairs[2] = i;
                 legsIndexes.add(legIndexPairs);
-                legIndexPairs = new int[]{i, states.size()-1, states.size()-1};
+                legIndexPairs = new int[]{i, states.size() - 1, states.size() - 1};
             } else if (edge instanceof PatternInterlineDwell) {         // Interlining => leg switch
                 legIndexPairs[1] = legIndexPairs[2] = i;
                 legsIndexes.add(legIndexPairs);
-                legIndexPairs = new int[]{i + 1, states.size()-1, states.size()-1};
+                legIndexPairs = new int[]{i + 1, states.size() - 1, states.size() - 1};
             }
         }
 
@@ -330,7 +330,7 @@ public abstract class GraphPathToTripPlanConverter {
         // Fill the two-dimensional array with states
         for (int[] legsIndex : legsIndexes) {
             legIndexPairs = legsIndex;
-            LegStateSplit legStateSplit = new LegStateSplit(states.subList(legIndexPairs[0], legIndexPairs[1]+1), states.subList(legIndexPairs[1] +1, legIndexPairs[2]+1));
+            LegStateSplit legStateSplit = new LegStateSplit(states.subList(legIndexPairs[0], legIndexPairs[1] + 1), states.subList(legIndexPairs[1] + 1, legIndexPairs[2] + 1));
             legsStates.add(legStateSplit);
         }
 
@@ -340,7 +340,7 @@ public abstract class GraphPathToTripPlanConverter {
     /**
      * Generate one leg of an itinerary from a {@link State} array.
      *
-     * @param legStateSplit                Split containing list of states the leg is based on
+     * @param legStateSplit         Split containing list of states the leg is based on
      * @param showIntermediateStops Whether to include intermediate stops in the leg or not
      * @return The generated leg
      */
@@ -350,13 +350,13 @@ public abstract class GraphPathToTripPlanConverter {
         List<State> states = legStateSplit.getStates();
 
         leg.startTime = makeCalendar(states.get(0));
-        leg.endTime = makeCalendar(states.get(states.size()-1));
+        leg.endTime = makeCalendar(states.get(states.size() - 1));
 
         // Calculate leg distance and fill array of edges
         leg.distance = 0.0;
         for (int i = 1; i < states.size(); i++) {
             edges.add(states.get(i).getBackEdge());
-            leg.distance += edges.get(i-1).getDistanceInMeters();
+            leg.distance += edges.get(i - 1).getDistanceInMeters();
         }
 
         TimeZone timeZone = leg.startTime.getTimeZone();
@@ -479,7 +479,8 @@ public abstract class GraphPathToTripPlanConverter {
      * This method will fill holes in the arrival and departure times associated with a
      * {@link Place} within a leg and add board and alight rules. It will also ensure that stop
      * names propagate correctly to the non-transit legs that connect to them.
-     *  @param legs       The legs of the itinerary
+     *
+     * @param legs       The legs of the itinerary
      * @param legsStates The states that go with the legs
      */
     private static void fixupLegs(List<Leg> legs, List<LegStateSplit> legsStates) {
@@ -533,7 +534,8 @@ public abstract class GraphPathToTripPlanConverter {
 
     /**
      * Calculate the walkTime, transitTime and waitingTime of an {@link Itinerary}.
-     *  @param itinerary The itinerary to calculate the times for
+     *
+     * @param itinerary The itinerary to calculate the times for
      * @param states    The states that go with the itinerary
      */
     private static void calculateTimes(Itinerary itinerary, List<State> states) {
@@ -838,7 +840,7 @@ public abstract class GraphPathToTripPlanConverter {
      * @param previous a non-transit leg that immediately precedes this one (bike-walking, say), or null
      * @return
      */
-    public static List<WalkStep>  generateWalkSteps(Graph graph, List<State> states, WalkStep previous, Locale requestedLocale) {
+    public static List<WalkStep> generateWalkSteps(Graph graph, List<State> states, WalkStep previous, Locale requestedLocale) {
         List<WalkStep> steps = new ArrayList<WalkStep>();
         WalkStep step = null;
         double lastAngle = 0, distance = 0; // distance used for appending elevation profiles
