@@ -775,21 +775,21 @@ public class Graph implements Serializable {
         LOG.info("Writing transit lines to csv {} ...", file.getAbsolutePath());
 
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
-        for (Route route:getTransitRoutes()) {
-            String routeTypeName = "UNSUPPORTED";
-            try{
-                routeTypeName = GtfsLibrary.getTraverseMode(route).name();
-            }catch(IllegalArgumentException e) {
-                LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
-            }
-            try{
+        try{
+            for (Route route:getTransitRoutes()) {
+                String routeTypeName = "UNSUPPORTED";
+                try{
+                    routeTypeName = GtfsLibrary.getTraverseMode(route).name();
+                }catch(IllegalArgumentException e) {
+                    LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
+                }
                 writer.writeRecord(new String[]{routeTypeName, Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName()});
-            } catch (IOException e) {
-                file.delete();
-                throw e;
-            } finally {
-                writer.close();
             }
+        } catch (IOException e) {
+            file.delete();
+            throw e;
+        } finally {
+            writer.close();
         }
     }
 
@@ -797,16 +797,16 @@ public class Graph implements Serializable {
         LOG.info("Writing transit line stops to csv {} ...", file.getAbsolutePath());
 
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
-        for (Stop stop:this.transitStops.values()) {
-            try{
+        try{
+            for (Stop stop:this.transitStops.values()) {
                 writer.writeRecord(new String[]{stop.getId().getId(), ""+stop.getLat(), ""+stop.getLon(), stop.getName(), String.join("#", stop.getLineNames())});
-            } catch (IOException e) {
-                file.delete();
-                throw e;
             }
-            finally {
-                writer.close();
-            }
+        } catch (IOException e) {
+            file.delete();
+            throw e;
+        }
+        finally {
+            writer.close();
         }
     }
 
@@ -814,8 +814,8 @@ public class Graph implements Serializable {
         LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
 
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
-        for (StopTime stopTime:this.transitStopTimes) {
-            try {
+        try {
+            for (StopTime stopTime:this.transitStopTimes) {
                 Set<ServiceDate> serviceDates = calendarService.getServiceDatesForServiceId(stopTime.getTrip().getServiceId());
                 for (ServiceDate serviceDate : serviceDates) {
                     LocalDate serviceDateToWrite = LocalDate.of(serviceDate.getYear(), serviceDate.getMonth(), serviceDate.getDay());
@@ -829,12 +829,12 @@ public class Graph implements Serializable {
                         writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName), LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)});
                     }
                 }
-            } catch (IOException e) {
-                file.delete();
-                throw e;
-            } finally {
-                writer.close();
             }
+        } catch (IOException e) {
+            file.delete();
+            throw e;
+        } finally {
+            writer.close();
         }
     }
 
