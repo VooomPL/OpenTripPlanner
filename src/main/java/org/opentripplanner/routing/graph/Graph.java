@@ -826,7 +826,9 @@ public class Graph implements Serializable {
                         serviceDateToWrite = serviceDateToWrite.plusDays(1);
                     }
                     if (!serviceDateToWrite.isBefore(LocalDate.now()) && !serviceDateToWrite.isAfter(LocalDate.now().plusDays(7))) {
-                        writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName), LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)});
+                        String arrivalDate = LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        String routeShortName = Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName);
+                        writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), routeShortName, arrivalDate});
                     }
                 }
             }
