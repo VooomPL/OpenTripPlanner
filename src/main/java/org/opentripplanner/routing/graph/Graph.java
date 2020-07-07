@@ -821,8 +821,8 @@ public class Graph implements Serializable {
                     LocalDate serviceDateToWrite = LocalDate.of(serviceDate.getYear(), serviceDate.getMonth(), serviceDate.getDay());
                     int serviceTimeToWrite = stopTime.getArrivalTime();
                     //if arrival time is eg. 25:30, convert it to 1:30 next day
-                    if (serviceTimeToWrite > StopTime.MAX_STOP_TIME_VALUE) {
-                        serviceTimeToWrite -= StopTime.MAX_STOP_TIME_VALUE;
+                    if (serviceTimeToWrite > LocalTime.MAX.toSecondOfDay()) {
+                        serviceTimeToWrite -= LocalTime.MAX.toSecondOfDay();
                         serviceDateToWrite = serviceDateToWrite.plusDays(1);
                     }
                     if (!serviceDateToWrite.isBefore(LocalDate.now()) && !serviceDateToWrite.isAfter(LocalDate.now().plusDays(7))) {

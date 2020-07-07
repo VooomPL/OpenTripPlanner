@@ -13,9 +13,6 @@ public final class StopTime implements Serializable, Comparable<StopTime> {
 
     public static final int MISSING_VALUE = -999;
 
-    /*Used to verify, whether the int value representing eg. arrival time can be converted to LocalTime object*/
-    public static final int MAX_STOP_TIME_VALUE = 86399;
-
     private Trip trip;
 
     private Stop stop;
