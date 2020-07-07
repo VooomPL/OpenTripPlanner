@@ -73,10 +73,9 @@ public class GraphBuilder implements Runnable {
 
     public GraphBuilder(File path, GraphBuilderParameters builderParams) {
         graphFile = new File(path, "Graph.obj");
-        long currentTimestamp = System.currentTimeMillis();
-        transitLineFile = new File(path, "linie_"+currentTimestamp+".csv");
-        transitLineStopsFile = new File(path, "przystanki_"+currentTimestamp+".csv");
-        transitLineStopTimesFile = new File(path, "godziny_"+currentTimestamp+".csv");
+        transitLineFile = new File(path, "linie.csv");
+        transitLineStopsFile = new File(path, "przystanki.csv");
+        transitLineStopTimesFile = new File(path, "godziny.csv");
         graph.stopClusterMode = builderParams.stopClusterMode;
     }
 
