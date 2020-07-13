@@ -13,7 +13,7 @@ import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.common.model.P2;
-import org.opentripplanner.graph_builder.linking.SimpleStreetSplitter;
+import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.graph.Edge;
@@ -68,7 +68,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
 
     static final Logger LOG = LoggerFactory.getLogger(StreetVertexIndexServiceImpl.class);
 
-    private SimpleStreetSplitter simpleStreetSplitter;
+    private final TemporaryStreetSplitter temporaryStreetSplitter;
 
     public StreetVertexIndexServiceImpl(Graph graph) {
         this(graph, true);
@@ -89,10 +89,9 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
         if (!hashGrid) {
             ((STRtree) edgeTree).build();
             ((STRtree) transitStopTree).build();
-            simpleStreetSplitter = new SimpleStreetSplitter(this.graph, null, null, false);
+            temporaryStreetSplitter = new TemporaryStreetSplitter(this.graph, null, null);
         } else {
-            simpleStreetSplitter = new SimpleStreetSplitter(this.graph,
-                (HashGridSpatialIndex<Edge>) edgeTree, transitStopTree, false);
+            temporaryStreetSplitter = new TemporaryStreetSplitter(this.graph, (HashGridSpatialIndex<Edge>) edgeTree, transitStopTree);
         }
 
     }
@@ -316,7 +315,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
         Coordinate c = loc.getCoordinate();
         if (c != null) {
             //return getClosestVertex(loc, options, endVertex);
-            return simpleStreetSplitter.getClosestVertex(loc, options, endVertex);
+            return temporaryStreetSplitter.getClosestVertex(loc, options, endVertex);
         }
 
         // No Coordinate available.
