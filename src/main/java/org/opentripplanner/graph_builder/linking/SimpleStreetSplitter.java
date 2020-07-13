@@ -1,14 +1,11 @@
 package org.opentripplanner.graph_builder.linking;
 
-import com.google.common.collect.Iterables;
 import gnu.trove.map.TIntDoubleMap;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
-import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.annotation.BikeParkUnlinked;
 import org.opentripplanner.graph_builder.annotation.BikeRentalStationUnlinked;
 import org.opentripplanner.graph_builder.annotation.StopLinkedTooFar;
@@ -21,7 +18,6 @@ import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.*;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
@@ -56,6 +52,14 @@ public class SimpleStreetSplitter extends StreetSplitter {
 
     private final StreetEdgeFactory edgeFactory = new DefaultStreetEdgeFactory();
 
+    private final LinkingGeoTools linkingGeoTools;
+
+    private CandidateEdgesProvider candidateEdgesProvider;
+
+    private Splitter splitter;
+
+    private EdgesMaker edgesMaker;
+
     /**
      * Construct a new SimpleStreetSplitter. Be aware that only one SimpleStreetSplitter should be
      * active on a graph at any given time.
@@ -65,7 +69,12 @@ public class SimpleStreetSplitter extends StreetSplitter {
      * @param graph
      */
     public SimpleStreetSplitter(Graph graph) {
+        this(graph, new LinkingGeoTools());
+    }
+
+    protected SimpleStreetSplitter(Graph graph, LinkingGeoTools linkingGeoTools) {
         super(graph, null);
+        this.linkingGeoTools = linkingGeoTools;
     }
 
     public HashGridSpatialIndex<Edge> getIdx() {
@@ -114,55 +123,14 @@ public class SimpleStreetSplitter extends StreetSplitter {
     @Override
     protected void makeLinkEdges(Vertex from, StreetVertex to) {
         if (from instanceof TransitStop) {
-            makeTransitLinkEdges((TransitStop) from, to);
+            edgesMaker.makeTransitLinkEdges((TransitStop) from, to);
         } else if (from instanceof BikeRentalStationVertex) {
-            makeBikeRentalLinkEdges((BikeRentalStationVertex) from, to);
+            edgesMaker.makeBikeRentalLinkEdges((BikeRentalStationVertex) from, to);
         } else if (from instanceof BikeParkVertex) {
-            makeBikeParkEdges((BikeParkVertex) from, to);
+            edgesMaker.makeBikeParkEdges((BikeParkVertex) from, to);
         } else {
             LOG.warn("Not supported type of vertex: {}", from.getClass());
         }
-    }
-
-    /**
-     * Make bike park edges
-     */
-    private void makeBikeParkEdges(BikeParkVertex from, StreetVertex to) {
-        for (StreetBikeParkLink sbpl : Iterables.filter(from.getOutgoing(), StreetBikeParkLink.class)) {
-            if (sbpl.getToVertex() == to)
-                return;
-        }
-
-        new StreetBikeParkLink(from, to);
-        new StreetBikeParkLink(to, from);
-    }
-
-    /**
-     * Make street transit link edges, unless they already exist.
-     */
-    private void makeTransitLinkEdges(TransitStop tstop, StreetVertex v) {
-        // ensure that the requisite edges do not already exist
-        // this can happen if we link to duplicate ways that have the same start/end vertices.
-        for (StreetTransitLink e : Iterables.filter(tstop.getOutgoing(), StreetTransitLink.class)) {
-            if (e.getToVertex() == v)
-                return;
-        }
-
-        new StreetTransitLink(tstop, v, tstop.hasWheelchairEntrance());
-        new StreetTransitLink(v, tstop, tstop.hasWheelchairEntrance());
-    }
-
-    /**
-     * Make link edges for bike rental
-     */
-    private void makeBikeRentalLinkEdges(BikeRentalStationVertex from, StreetVertex to) {
-        for (StreetBikeRentalLink sbrl : Iterables.filter(from.getOutgoing(), StreetBikeRentalLink.class)) {
-            if (sbrl.getToVertex() == to)
-                return;
-        }
-
-        new StreetBikeRentalLink(from, to);
-        new StreetBikeRentalLink(to, from);
     }
 
     /**
@@ -171,7 +139,7 @@ public class SimpleStreetSplitter extends StreetSplitter {
     private void link(Vertex tstop, StreetEdge edge, double xscale) {
         // TODO: we've already built this line string, we should save it
         LineString orig = edge.getGeometry();
-        LinearLocation ll = createLinearLocation(tstop, orig, xscale);
+        LinearLocation ll = linkingGeoTools.createLinearLocation(tstop, orig, xscale);
         if (tryLinkVertexToVertex(tstop, edge, orig, ll)) {
             return;
         }
@@ -180,7 +148,7 @@ public class SimpleStreetSplitter extends StreetSplitter {
 
     private void linkVertexOnEdge(Vertex tstop, StreetEdge edge, LinearLocation ll) {
         // split the edge, get the split vertex
-        SplitterVertex v0 = split(edge, ll);
+        SplitterVertex v0 = splitter.splitPermanently(edge, ll);
         makeLinkEdges(tstop, v0);
 
         // If splitter vertex is part of area; link splittervertex to all other vertexes in area, this creates
@@ -202,50 +170,15 @@ public class SimpleStreetSplitter extends StreetSplitter {
 
         for (Vertex vertex : vertices) {
             if (vertex instanceof StreetVertex && !vertex.equals(splitterVertex)) {
-                LineString line = geometryFactory.createLineString(new Coordinate[]{splitterVertex.getCoordinate(), vertex.getCoordinate()});
-                double length = SphericalDistanceLibrary.distance(splitterVertex.getCoordinate(),
-                        vertex.getCoordinate());
+                LineString line = linkingGeoTools.createLineString(splitterVertex, vertex);
+                double length = SphericalDistanceLibrary.distance(splitterVertex.getCoordinate(), vertex.getCoordinate());
                 I18NString name = new LocalizedString("", new OSMWithTags());
-
                 edgeFactory.createAreaEdge((IntersectionVertex) splitterVertex, (IntersectionVertex) vertex, line, name, length, StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, false, area);
                 edgeFactory.createAreaEdge((IntersectionVertex) vertex, (IntersectionVertex) splitterVertex, line, name, length, StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE, false, area);
             }
         }
     }
 
-
-    /**
-     * Split the street edge at the given fraction
-     *
-     * @param edge           to be split
-     * @param ll             fraction at which to split the edge
-     * @return Splitter vertex with added new edges
-     */
-    private SplitterVertex split(StreetEdge edge, LinearLocation ll) {
-        LineString geometry = edge.getGeometry();
-
-        // create the geometries
-        Coordinate splitPoint = ll.getCoordinate(geometry);
-
-        // every edge can be split exactly once, so this is a valid label
-        SplitterVertex v = new SplitterVertex(graph, "split from " + edge.getId(), splitPoint.x, splitPoint.y, edge);
-
-        // Split the 'edge' at 'v' in 2 new edges and connect these 2 edges to the
-        // existing vertices
-        P2<StreetEdge> edges = edge.split(v, true);
-
-        // update indices of new edges
-        idx.insert(edges.first.getGeometry(), edges.first);
-        idx.insert(edges.second.getGeometry(), edges.second);
-
-        // (no need to remove original edge, we filter it when it comes out of the index)
-
-        // remove original edge from the graph
-        edge.getToVertex().removeIncoming(edge);
-        edge.getFromVertex().removeOutgoing(edge);
-
-        return v;
-    }
 
     /**
      * Link this vertex into the graph
@@ -264,12 +197,12 @@ public class SimpleStreetSplitter extends StreetSplitter {
         // Expand more in the longitude direction than the latitude direction to account for converging meridians.
         env.expandBy(RADIUS_DEG / xscale, RADIUS_DEG);
 
-        List<StreetEdge> candidateEdges = getCandidateEdges(env, traverseMode);
+        List<StreetEdge> candidateEdges = candidateEdgesProvider.getCandidateEdges(env, traverseMode);
 
         // Make a map of distances to all edges.
-        TIntDoubleMap distances = getDistances(candidateEdges, vertex, xscale);
+        TIntDoubleMap distances = candidateEdgesProvider.getDistances(candidateEdges, vertex, xscale);
 
-        sortCandidateEdges(candidateEdges, distances);
+        candidateEdgesProvider.sortCandidateEdges(candidateEdges, distances);
 
         // find the closest candidate edges
         if (candidateEdges.isEmpty() || distances.get(candidateEdges.get(0).getId()) > RADIUS_DEG) {
@@ -277,7 +210,7 @@ public class SimpleStreetSplitter extends StreetSplitter {
         }
 
         // find the best edges
-        List<StreetEdge> bestEdges = getBestEdges(candidateEdges, distances);
+        List<StreetEdge> bestEdges = candidateEdgesProvider.getBestEdges(candidateEdges, distances);
 
         for (StreetEdge edge : bestEdges) {
             link(vertex, edge, xscale);

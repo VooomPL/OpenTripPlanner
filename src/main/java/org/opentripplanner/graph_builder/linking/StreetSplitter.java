@@ -38,20 +38,11 @@ import java.util.stream.Collectors;
 
 public abstract class StreetSplitter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StreetSplitter.class);
-
     protected static final double RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(1000);
-
-    /**
-     * if there are two ways and the distances to them differ by less than this value, we link to both of them
-     */
-    protected static final double DUPLICATE_WAY_EPSILON_DEGREES = SphericalDistanceLibrary.metersToDegrees(0.001);
 
     protected final Graph graph;
 
     protected final HashGridSpatialIndex<Edge> idx;
-
-    protected static final GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
 
     /**
      * Construct a new SimpleStreetSplitter.
@@ -72,12 +63,6 @@ public abstract class StreetSplitter {
         } else {
             idx = hashGridSpatialIndex;
         }
-    }
-
-    protected LinearLocation createLinearLocation(Vertex tstop, LineString orig, double xscale) {
-        LineString transformed = equirectangularProject(orig, xscale);
-        LocationIndexedLine il = new LocationIndexedLine(transformed);
-        return il.project(new Coordinate(tstop.getLon() * xscale, tstop.getLat()));
     }
 
     protected boolean tryLinkVertexToVertex(Vertex tstop, StreetEdge edge, LineString orig, LinearLocation ll) {
@@ -105,101 +90,8 @@ public abstract class StreetSplitter {
         return false;
     }
 
-
-    protected List<StreetEdge> getCandidateEdges(Envelope env, TraverseMode traverseMode) {
-        final TraverseModeSet traverseModeSet;
-        if (traverseMode == TraverseMode.BICYCLE) {
-            traverseModeSet = new TraverseModeSet(traverseMode, TraverseMode.WALK);
-        } else {
-            traverseModeSet = new TraverseModeSet(traverseMode);
-        }
-        // We sort the list of candidate edges by distance to the stop
-        // This should remove any issues with things coming out of the spatial index in different orders
-        // Then we link to everything that is within DUPLICATE_WAY_EPSILON_METERS of of the best distance
-        // so that we capture back edges and duplicate ways.
-        return idx.query(env).stream()
-                .filter(streetEdge -> streetEdge instanceof StreetEdge)
-                .map(edge -> (StreetEdge) edge)
-                // note: not filtering by radius here as distance calculation is expensive
-                // we do that below.
-                .filter(edge -> edge.canTraverse(traverseModeSet) &&
-                        // only link to edges still in the graph.
-                        edge.getToVertex().getIncoming().contains(edge))
-                .collect(Collectors.toList());
-    }
-
-    protected TIntDoubleMap getDistances(List<StreetEdge> candidateEdges, Vertex vertex, double xscale) {
-        TIntDoubleMap distances = new TIntDoubleHashMap();
-        candidateEdges.forEach(e -> distances.put(e.getId(), distance(vertex, e, xscale)));
-        return distances;
-    }
-
-    protected void sortCandidateEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
-        // Sort the list.
-        candidateEdges.sort((o1, o2) -> {
-            double diff = distances.get(o1.getId()) - distances.get(o2.getId());
-            // A Comparator must return an integer but our distances are doubles.
-            if (diff < 0)
-                return -1;
-            if (diff > 0)
-                return 1;
-            return 0;
-        });
-
-    }
-
-    protected List<StreetEdge> getBestEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
-        // find the best edges
-        List<StreetEdge> bestEdges = Lists.newArrayList();
-
-        // add edges until there is a break of epsilon meters.
-        // we do this to enforce determinism. if there are a lot of edges that are all extremely close to each other,
-        // we want to be sure that we deterministically link to the same ones every time. Any hard cutoff means things can
-        // fall just inside or beyond the cutoff depending on floating-point operations.
-        int i = 0;
-        do {
-            bestEdges.add(candidateEdges.get(i++));
-        } while (i < candidateEdges.size() && distances.get(candidateEdges.get(i).getId()) - distances.get(candidateEdges.get(i - 1).getId()) < DUPLICATE_WAY_EPSILON_DEGREES);
-
-        return bestEdges;
-    }
-
     /**
      * Make the appropriate type of link edges from a vertex
      */
     protected abstract void makeLinkEdges(Vertex from, StreetVertex to);
-
-    /**
-     * projected distance from stop to edge, in latitude degrees
-     */
-    protected static double distance(Vertex tstop, StreetEdge edge, double xscale) {
-        // Despite the fact that we want to use a fast somewhat inaccurate projection, still use JTS library tools
-        // for the actual distance calculations.
-        LineString transformed = equirectangularProject(edge.getGeometry(), xscale);
-        return transformed.distance(geometryFactory.createPoint(new Coordinate(tstop.getLon() * xscale, tstop.getLat())));
-    }
-
-    /**
-     * projected distance from stop to another stop, in latitude degrees
-     */
-    protected static double distance(Vertex tstop, Vertex tstop2, double xscale) {
-        // use JTS internal tools wherever possible
-        return new Coordinate(tstop.getLon() * xscale, tstop.getLat()).distance(new Coordinate(tstop2.getLon() * xscale, tstop2.getLat()));
-    }
-
-    /**
-     * project this linestring to an equirectangular projection
-     */
-    private static LineString equirectangularProject(LineString geometry, double xscale) {
-        Coordinate[] coords = new Coordinate[geometry.getNumPoints()];
-
-        for (int i = 0; i < coords.length; i++) {
-            Coordinate c = geometry.getCoordinateN(i);
-            c = (Coordinate) c.clone();
-            c.x *= xscale;
-            coords[i] = c;
-        }
-
-        return geometryFactory.createLineString(coords);
-    }
 }
