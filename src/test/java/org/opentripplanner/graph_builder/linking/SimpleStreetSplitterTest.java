@@ -33,7 +33,7 @@ public class SimpleStreetSplitterTest {
     @Before
     public void buildSpy() {
         graph = new Graph();
-        simpleStreetSplitter = new TemporaryStreetSplitter(graph, null, null);
+        simpleStreetSplitter = TemporaryStreetSplitter.createNewDefaultInstance(graph, null, null);
         spySimpleStreetSplitter = spy(simpleStreetSplitter);
     }
 

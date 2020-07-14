@@ -4,7 +4,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.locationtech.jts.index.SpatialIndex;
+import org.opentripplanner.common.geometry.HashGridSpatialIndex;
+import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
+import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +37,7 @@ public class TransitToStreetNetworkModule implements GraphBuilderModule {
         //NetworkLinker linker = new NetworkLinker(graph, extra);
         //linker.createLinkage();
         
-        SimpleStreetSplitter splitter = new SimpleStreetSplitter(graph);
+        SimpleStreetSplitter splitter = SimpleStreetSplitter.createNewDefaultInstance(graph, null);
         splitter.link();
         
         // don't split streets

@@ -1,8 +1,11 @@
 package org.opentripplanner.graph_builder.linking;
 
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.index.SpatialIndex;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
+import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
@@ -61,6 +64,21 @@ public class TemporaryStreetSplitter {
         this.graph = graph;
         this.linker = linker;
         this.toTransitStopLinker = toTransitStopLinker;
+    }
+
+    public static TemporaryStreetSplitter createNewDefaultInstance(Graph graph, HashGridSpatialIndex<Edge> index, SpatialIndex transitStopIndex) {
+        if (index == null) {
+            index = LinkingGeoTools.createHashGridSpatialIndex(graph);
+        }
+        StreetEdgeFactory streetEdgeFactory = new DefaultStreetEdgeFactory();
+        EdgesMaker edgesMaker = new EdgesMaker();
+        LinkingGeoTools linkingGeoTools = new LinkingGeoTools();
+        Splitter splitter = new Splitter(graph, index);
+        CandidateEdgesProvider candidateEdgesProvider = new CandidateEdgesProvider(index, linkingGeoTools);
+        OnEdgeLinker onEdgeLinker = new OnEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools);
+        Linker linker = new Linker(onEdgeLinker, candidateEdgesProvider, linkingGeoTools, edgesMaker);
+        ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker);
+        return new TemporaryStreetSplitter(graph, linker, toTransitStopLinker);
     }
 
     /**

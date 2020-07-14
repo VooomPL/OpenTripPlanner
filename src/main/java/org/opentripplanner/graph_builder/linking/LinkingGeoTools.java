@@ -1,5 +1,6 @@
 package org.opentripplanner.graph_builder.linking;
 
+import com.google.common.collect.Iterables;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -7,8 +8,11 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 
 public class LinkingGeoTools {
@@ -16,6 +20,15 @@ public class LinkingGeoTools {
     protected static final double RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(1000);
 
     private static final GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
+
+    public static HashGridSpatialIndex<Edge> createHashGridSpatialIndex(Graph graph) {
+        // build a nice private spatial index, since we're adding and removing edges
+        HashGridSpatialIndex<Edge> index = new HashGridSpatialIndex<>();
+        for (StreetEdge se : Iterables.filter(graph.getEdges(), StreetEdge.class)) {
+            index.insert(se.getGeometry(), se);
+        }
+        return index;
+    }
 
     public LinearLocation createLinearLocation(Vertex tstop, LineString orig) {
         double xscale = createXScale(tstop);

@@ -64,7 +64,7 @@ public class OnEdgeLinker {
     }
 
     // Link to all vertices in area/platform
-    protected void linkTransitToAreaVertices(Vertex splitterVertex, AreaEdgeList area) {
+    private void linkTransitToAreaVertices(Vertex splitterVertex, AreaEdgeList area) {
         List<Vertex> vertices = new ArrayList<>();
 
         for (AreaEdge areaEdge : area.getEdges()) {

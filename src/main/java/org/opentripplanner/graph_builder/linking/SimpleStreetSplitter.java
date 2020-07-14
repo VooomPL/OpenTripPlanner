@@ -5,6 +5,8 @@ import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.graph_builder.annotation.BikeParkUnlinked;
 import org.opentripplanner.graph_builder.annotation.BikeRentalStationUnlinked;
 import org.opentripplanner.graph_builder.annotation.StopUnlinked;
+import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
+import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.graph.Edge;
@@ -33,11 +35,11 @@ public class SimpleStreetSplitter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleStreetSplitter.class);
 
-    protected final Graph graph;
+    private final Graph graph;
 
-    protected final HashGridSpatialIndex<Edge> idx;
+    private final HashGridSpatialIndex<Edge> idx;
 
-    protected final Linker linker;
+    private final Linker linker;
 
     /**
      * Construct a new SimpleStreetSplitter.
@@ -46,19 +48,24 @@ public class SimpleStreetSplitter {
      * @param hashGridSpatialIndex If not null this index is used instead of creating new one
      * @param linker
      */
-    protected SimpleStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, Linker linker) {
+    public SimpleStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, Linker linker) {
         this.graph = graph;
+        this.idx = hashGridSpatialIndex;
         this.linker = linker;
-        //We build a spatial index if it isn't provided
-        if (hashGridSpatialIndex == null) {
-            // build a nice private spatial index, since we're adding and removing edges
-            idx = new HashGridSpatialIndex<>();
-            for (StreetEdge se : Iterables.filter(graph.getEdges(), StreetEdge.class)) {
-                idx.insert(se.getGeometry(), se);
-            }
-        } else {
-            idx = hashGridSpatialIndex;
+    }
+
+    public static SimpleStreetSplitter createNewDefaultInstance(Graph graph, HashGridSpatialIndex<Edge> index) {
+        if (index == null) {
+            index = LinkingGeoTools.createHashGridSpatialIndex(graph);
         }
+        StreetEdgeFactory streetEdgeFactory = new DefaultStreetEdgeFactory();
+        EdgesMaker edgesMaker = new EdgesMaker();
+        LinkingGeoTools linkingGeoTools = new LinkingGeoTools();
+        Splitter splitter = new Splitter(graph, index);
+        CandidateEdgesProvider candidateEdgesProvider = new CandidateEdgesProvider(index, linkingGeoTools);
+        OnEdgeLinker onEdgeLinker = new OnEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools);
+        Linker linker = new Linker(onEdgeLinker, candidateEdgesProvider, linkingGeoTools, edgesMaker);
+        return new SimpleStreetSplitter(graph, index, linker);
     }
 
     public HashGridSpatialIndex<Edge> getIdx() {

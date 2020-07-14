@@ -89,9 +89,9 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
         if (!hashGrid) {
             ((STRtree) edgeTree).build();
             ((STRtree) transitStopTree).build();
-            temporaryStreetSplitter = new TemporaryStreetSplitter(this.graph, null, null);
+            temporaryStreetSplitter = TemporaryStreetSplitter.createNewDefaultInstance(this.graph, null, null);
         } else {
-            temporaryStreetSplitter = new TemporaryStreetSplitter(this.graph, (HashGridSpatialIndex<Edge>) edgeTree, transitStopTree);
+            temporaryStreetSplitter = TemporaryStreetSplitter.createNewDefaultInstance(this.graph, (HashGridSpatialIndex<Edge>) edgeTree, transitStopTree);
         }
 
     }
