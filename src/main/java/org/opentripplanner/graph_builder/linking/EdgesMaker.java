@@ -31,10 +31,22 @@ public class EdgesMaker {
         }
     }
 
+    public void makePermanentEdges(Vertex from, StreetVertex to) {
+        if (from instanceof TransitStop) {
+            makeTransitLinkEdges((TransitStop) from, to);
+        } else if (from instanceof BikeRentalStationVertex) {
+            makeBikeRentalLinkEdges((BikeRentalStationVertex) from, to);
+        } else if (from instanceof BikeParkVertex) {
+            makeBikeParkEdges((BikeParkVertex) from, to);
+        } else {
+            LOG.warn("Not supported type of vertex: {}", from.getClass());
+        }
+    }
+
     /**
      * Make street transit link edges, unless they already exist.
      */
-    public void makeTransitLinkEdges(TransitStop tstop, StreetVertex v) {
+    private void makeTransitLinkEdges(TransitStop tstop, StreetVertex v) {
         // ensure that the requisite edges do not already exist
         // this can happen if we link to duplicate ways that have the same start/end vertices.
         for (StreetTransitLink e : Iterables.filter(tstop.getOutgoing(), StreetTransitLink.class)) {
@@ -49,7 +61,7 @@ public class EdgesMaker {
     /**
      * Make link edges for bike rental
      */
-    public void makeBikeRentalLinkEdges(BikeRentalStationVertex from, StreetVertex to) {
+    private void makeBikeRentalLinkEdges(BikeRentalStationVertex from, StreetVertex to) {
         for (StreetBikeRentalLink sbrl : Iterables.filter(from.getOutgoing(), StreetBikeRentalLink.class)) {
             if (sbrl.getToVertex() == to)
                 return;
@@ -62,7 +74,7 @@ public class EdgesMaker {
     /**
      * Make bike park edges
      */
-    public void makeBikeParkEdges(BikeParkVertex from, StreetVertex to) {
+    private void makeBikeParkEdges(BikeParkVertex from, StreetVertex to) {
         for (StreetBikeParkLink sbpl : Iterables.filter(from.getOutgoing(), StreetBikeParkLink.class)) {
             if (sbpl.getToVertex() == to)
                 return;
@@ -71,5 +83,4 @@ public class EdgesMaker {
         new StreetBikeParkLink(from, to);
         new StreetBikeParkLink(to, from);
     }
-
 }

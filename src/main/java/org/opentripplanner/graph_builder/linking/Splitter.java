@@ -13,9 +13,14 @@ import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
 
 public class Splitter {
 
-    private Graph graph;
+    private final Graph graph;
 
-    private HashGridSpatialIndex<Edge> idx;
+    private final HashGridSpatialIndex<Edge> idx;
+
+    public Splitter(Graph graph, HashGridSpatialIndex<Edge> idx) {
+        this.graph = graph;
+        this.idx = idx;
+    }
 
     /**
      * Split the street edge at the given fraction
@@ -72,5 +77,4 @@ public class Splitter {
         edge.split(v, false);
         return v;
     }
-
 }

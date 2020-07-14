@@ -1,39 +1,25 @@
 package org.opentripplanner.graph_builder.linking;
 
-import gnu.trove.map.TIntDoubleMap;
-import gnu.trove.map.hash.TIntDoubleHashMap;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.index.SpatialIndex;
-import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
-import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo.SingleParkingZone;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
-import org.opentripplanner.routing.vertextype.SplitterVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import static org.opentripplanner.graph_builder.linking.CandidateEdgesProvider.DUPLICATE_WAY_EPSILON_DEGREES;
 
 /**
  * This class links transit stops to streets by splitting the streets (unless the stop is extremely close to the street
@@ -50,7 +36,7 @@ import static org.opentripplanner.graph_builder.linking.CandidateEdgesProvider.D
  * See discussion in pull request #1922, follow up issue #1934, and the original issue calling for replacement of
  * the stop linker, #1305.
  */
-public class TemporaryStreetSplitter extends StreetSplitter {
+public class TemporaryStreetSplitter {
 
     private static final Logger LOG = LoggerFactory.getLogger(TemporaryStreetSplitter.class);
 
@@ -58,15 +44,11 @@ public class TemporaryStreetSplitter extends StreetSplitter {
 
     private static final LocalizedString DESTINATION = new LocalizedString("destination", new String[]{});
 
-    private final SpatialIndex transitStopIndex;
+    private final Graph graph;
 
-    private final LinkingGeoTools linkingGeoTools;
+    private final Linker linker;
 
-    private CandidateEdgesProvider candidateEdgesProvider;
-
-    private Splitter splitter;
-
-    private EdgesMaker edgesMaker;
+    private final ToTransitStopLinker toTransitStopLinker;
 
     /**
      * Construct a new SimpleStreetSplitter.
@@ -75,16 +57,10 @@ public class TemporaryStreetSplitter extends StreetSplitter {
      * @param hashGridSpatialIndex If not null this index is used instead of creating new one
      * @param transitStopIndex     Index of all transitStops which is generated in {@link org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl}
      */
-    public TemporaryStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex,
-                                   SpatialIndex transitStopIndex) {
-        this(graph, hashGridSpatialIndex, transitStopIndex, new LinkingGeoTools());
-    }
-
-    protected TemporaryStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex,
-                                      SpatialIndex transitStopIndex, LinkingGeoTools linkingGeoTools) {
-        super(graph, hashGridSpatialIndex);
-        this.transitStopIndex = transitStopIndex;
-        this.linkingGeoTools = linkingGeoTools;
+    public TemporaryStreetSplitter(Graph graph, Linker linker, ToTransitStopLinker toTransitStopLinker) {
+        this.graph = graph;
+        this.linker = linker;
+        this.toTransitStopLinker = toTransitStopLinker;
     }
 
     /**
@@ -101,11 +77,21 @@ public class TemporaryStreetSplitter extends StreetSplitter {
      */
     public Vertex getClosestVertex(GenericLocation location, RoutingRequest options,
                                    boolean endVertex) {
+        TemporaryStreetLocation closest = createTemporaryVertex(location, options, endVertex);
+        TraverseMode nonTransitMode = createTraverseMode(options, endVertex);
         if (endVertex) {
-            LOG.debug("Finding end vertex for {}", location);
-        } else {
-            LOG.debug("Finding start vertex for {}", location);
+            addTemporaryDropoffVehicleEdge(closest);
         }
+        if (!linker.linkTemporarily(closest, nonTransitMode, options)) {
+            if (!toTransitStopLinker.tryLinkVertexToStop(closest)) {
+                LOG.warn("Couldn't link {}", location);
+            }
+        }
+        return closest;
+    }
+
+    private TemporaryStreetLocation createTemporaryVertex(GenericLocation location, RoutingRequest options,
+                                                          boolean endVertex) {
         Coordinate coord = location.getCoordinate();
         String name;
 
@@ -118,34 +104,26 @@ public class TemporaryStreetSplitter extends StreetSplitter {
         } else {
             name = location.name;
         }
-        TemporaryStreetLocation closest = new TemporaryStreetLocation(UUID.randomUUID().toString(),
-                coord, new NonLocalizedString(name), endVertex);
+        return new TemporaryStreetLocation(UUID.randomUUID().toString(), coord, new NonLocalizedString(name), endVertex);
+    }
 
-        TraverseMode nonTransitMode = TraverseMode.WALK;
+    private TraverseMode createTraverseMode(RoutingRequest options, boolean endVertex) {
         //It can be null in tests
         if (options != null) {
             TraverseModeSet modes = options.modes;
             if (modes.getCar())
                 // for park and ride we will start in car mode and walk to the end vertex
                 if (endVertex && options.parkAndRide) {
-                    nonTransitMode = TraverseMode.WALK;
+                    return TraverseMode.WALK;
                 } else {
-                    nonTransitMode = TraverseMode.CAR;
+                    return TraverseMode.CAR;
                 }
             else if (modes.getWalk())
-                nonTransitMode = TraverseMode.WALK;
+                return TraverseMode.WALK;
             else if (modes.getBicycle())
-                nonTransitMode = TraverseMode.BICYCLE;
+                return TraverseMode.BICYCLE;
         }
-
-        if (endVertex) {
-            addTemporaryDropoffVehicleEdge(closest);
-        }
-
-        if (!link(closest, nonTransitMode, options)) {
-            LOG.warn("Couldn't link {}", location);
-        }
-        return closest;
+        return TraverseMode.WALK;
     }
 
     private void addTemporaryDropoffVehicleEdge(Vertex destination) {
@@ -155,132 +133,5 @@ public class TemporaryStreetSplitter extends StreetSplitter {
             List<SingleParkingZone> parkingZones = graph.parkingZonesCalculator.getParkingZonesForRentEdge(e, parkingZonesEnabled);
             e.updateParkingZones(parkingZonesEnabled, parkingZones);
         }
-    }
-
-    /**
-     * Make the appropriate type of link edges from a vertex
-     */
-    @Override
-    protected void makeLinkEdges(Vertex from, StreetVertex to) {
-        if (from instanceof TemporaryStreetLocation) {
-            edgesMaker.makeTemporaryEdges((TemporaryStreetLocation) from, to);
-        } else {
-            LOG.warn("Cannot create temporary edges for permanent vertex of type {}", from.getClass());
-        }
-    }
-
-    /**
-     * split the edge and link in the transit stop
-     */
-    private void link(TemporaryStreetLocation tstop, StreetEdge edge, double xscale, RoutingRequest options) {
-        // TODO: we've already built this line string, we should save it
-        LineString orig = edge.getGeometry();
-        LinearLocation ll = linkingGeoTools.createLinearLocation(tstop, orig, xscale);
-        if (tryLinkVertexToVertex(tstop, edge, orig, ll)) {
-            return;
-        }
-        linkVertexOnEdge(tstop, edge, ll, options);
-    }
-
-    private void linkVertexOnEdge(TemporaryStreetLocation tstop, StreetEdge edge, LinearLocation ll, RoutingRequest options) {
-        //This throws runtime TrivialPathException if same edge is split in origin and destination link
-        //It is only used in origin/destination linking since otherwise options is null
-        if (options != null) {
-            options.canSplitEdge(edge);
-        }
-        // split the edge, get the split vertex
-        SplitterVertex v0 = splitter.splitTemporarily(edge, ll, tstop.isEndVertex());
-        edgesMaker.makeTemporaryEdges(tstop, v0);
-    }
-
-    private boolean tryLinkVertexToStop(Vertex vertex, Envelope env, double xscale) {
-        // We only link to stops if we are searching for origin/destination and for that we need transitStopIndex.
-        if (transitStopIndex == null) {
-            return false;
-        }
-        LOG.debug("No street edge was found for {}", vertex);
-        // We search for closest stops (since this is only used in origin/destination linking if no edges were found)
-        // in the same way the closest edges are found.
-        List<TransitStop> candidateStops = new ArrayList<>();
-        transitStopIndex.query(env).forEach(candidateStop ->
-                candidateStops.add((TransitStop) candidateStop)
-        );
-
-        final TIntDoubleMap stopDistances = new TIntDoubleHashMap();
-
-        for (TransitStop t : candidateStops) {
-            stopDistances.put(t.getIndex(), linkingGeoTools.distance(vertex, t, xscale));
-        }
-
-        Collections.sort(candidateStops, (o1, o2) -> {
-            double diff = stopDistances.get(o1.getIndex()) - stopDistances.get(o2.getIndex());
-            if (diff < 0) {
-                return -1;
-            }
-            if (diff > 0) {
-                return 1;
-            }
-            return 0;
-        });
-        if (candidateStops.isEmpty() || stopDistances.get(candidateStops.get(0).getIndex()) > RADIUS_DEG) {
-            LOG.debug("Stops aren't close either!");
-            return false;
-        } else {
-            List<TransitStop> bestStops = Lists.newArrayList();
-            // Add stops until there is a break of epsilon meters.
-            // we do this to enforce determinism. if there are a lot of stops that are all extremely close to each other,
-            // we want to be sure that we deterministically link to the same ones every time. Any hard cutoff means things can
-            // fall just inside or beyond the cutoff depending on floating-point operations.
-            int i = 0;
-            do {
-                bestStops.add(candidateStops.get(i++));
-            } while (i < candidateStops.size() &&
-                    stopDistances.get(candidateStops.get(i).getIndex()) - stopDistances
-                            .get(candidateStops.get(i - 1).getIndex()) < DUPLICATE_WAY_EPSILON_DEGREES);
-
-            for (TransitStop stop : bestStops) {
-                LOG.debug("Linking vertex to stop: {}", stop.getName());
-                edgesMaker.makeTemporaryEdges((TemporaryStreetLocation) vertex, stop);
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Link this vertex into the graph
-     */
-    protected boolean link(TemporaryStreetLocation vertex, TraverseMode traverseMode, RoutingRequest options) {
-        // find nearby street edges
-        // TODO: we used to use an expanding-envelope search, which is more efficient in
-        // dense areas. but first let's see how inefficient this is. I suspect it's not too
-        // bad and the gains in simplicity are considerable.
-
-        Envelope env = new Envelope(vertex.getCoordinate());
-
-        // Perform a simple local equirectangular projection, so distances are expressed in degrees latitude.
-        double xscale = Math.cos(vertex.getLat() * Math.PI / 180);
-
-        // Expand more in the longitude direction than the latitude direction to account for converging meridians.
-        env.expandBy(RADIUS_DEG / xscale, RADIUS_DEG);
-
-        List<StreetEdge> candidateEdges = candidateEdgesProvider.getCandidateEdges(env, traverseMode);
-
-        // Make a map of distances to all edges.
-        TIntDoubleMap distances = candidateEdgesProvider.getDistances(candidateEdges, vertex, xscale);
-
-        candidateEdgesProvider.sortCandidateEdges(candidateEdges, distances);
-
-        // find the closest candidate edges
-        if (candidateEdges.isEmpty() || distances.get(candidateEdges.get(0).getId()) > RADIUS_DEG) {
-            return tryLinkVertexToStop(vertex, env, xscale);
-        }
-
-        // find the best edges
-        List<StreetEdge> bestEdges = candidateEdgesProvider.getBestEdges(candidateEdges, distances);
-
-        for (StreetEdge edge : bestEdges) {
-            link(vertex, edge, xscale, options);
-        }
-        return true;
     }
 }
