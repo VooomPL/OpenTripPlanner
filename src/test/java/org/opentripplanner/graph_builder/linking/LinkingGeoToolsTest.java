@@ -25,7 +25,7 @@ public class LinkingGeoToolsTest {
     private StreetEdge edge;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         someVertex = new StreetLocation("id1", new Coordinate(0.5, 2), "name");
         from = new StreetLocation("id1", new Coordinate(0, 1), "name");
         to = new StreetLocation("id2", new Coordinate(1, 1), "name");
