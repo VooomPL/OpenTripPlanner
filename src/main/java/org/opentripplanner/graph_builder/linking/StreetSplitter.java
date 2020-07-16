@@ -11,6 +11,9 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.SplitterVertex;
 import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
 
+/**
+ * Splits street edges temporarily or permanently at the given fraction
+ */
 public class StreetSplitter {
 
     private final Graph graph;
