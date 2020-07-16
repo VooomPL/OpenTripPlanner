@@ -14,6 +14,9 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 
+/**
+ * Holds all functions useful in vertex linking, that are manipulating with geometry and locations calculating
+ */
 public class LinkingGeoTools {
 
     protected static final double RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(1000);
