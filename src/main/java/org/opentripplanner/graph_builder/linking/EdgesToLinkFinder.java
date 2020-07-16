@@ -2,7 +2,6 @@ package org.opentripplanner.graph_builder.linking;
 
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
@@ -48,7 +47,7 @@ public class EdgesToLinkFinder {
         // Make a map of distances to all edges.
         TIntDoubleMap distances = getDistances(candidateEdges, vertex);
 
-        sortCandidateEdges(candidateEdges, distances);
+        EdgesFinderUtils.sort(candidateEdges, distances, Edge::getId);
 
         // find the closest candidate edges
         if (candidateEdges.isEmpty() || distances.get(candidateEdges.get(0).getId()) > RADIUS_DEG) {
@@ -56,7 +55,7 @@ public class EdgesToLinkFinder {
         }
 
         // find the best edges
-        return getBestEdges(candidateEdges, distances);
+        return EdgesFinderUtils.getBestCandidates(candidateEdges, distances, Edge::getId);
     }
 
     private List<StreetEdge> getCandidateEdges(Envelope env, TraverseMode traverseMode) {
@@ -85,35 +84,5 @@ public class EdgesToLinkFinder {
         TIntDoubleMap distances = new TIntDoubleHashMap();
         candidateEdges.forEach(e -> distances.put(e.getId(), linkingGeoTools.distance(vertex, e)));
         return distances;
-    }
-
-    private void sortCandidateEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
-        // Sort the list.
-        candidateEdges.sort((o1, o2) -> {
-            double diff = distances.get(o1.getId()) - distances.get(o2.getId());
-            // A Comparator must return an integer but our distances are doubles.
-            if (diff < 0)
-                return -1;
-            if (diff > 0)
-                return 1;
-            return 0;
-        });
-
-    }
-
-    private List<StreetEdge> getBestEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
-        // find the best edges
-        List<StreetEdge> bestEdges = Lists.newArrayList();
-
-        // add edges until there is a break of epsilon meters.
-        // we do this to enforce determinism. if there are a lot of edges that are all extremely close to each other,
-        // we want to be sure that we deterministically link to the same ones every time. Any hard cutoff means things can
-        // fall just inside or beyond the cutoff depending on floating-point operations.
-        int i = 0;
-        do {
-            bestEdges.add(candidateEdges.get(i++));
-        } while (i < candidateEdges.size() && distances.get(candidateEdges.get(i).getId()) - distances.get(candidateEdges.get(i - 1).getId()) < DUPLICATE_WAY_EPSILON_DEGREES);
-
-        return bestEdges;
     }
 }

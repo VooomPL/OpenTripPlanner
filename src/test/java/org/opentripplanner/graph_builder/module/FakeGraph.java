@@ -132,7 +132,7 @@ public class FakeGraph {
 
     /** link the stops in the graph */
     public static void link (Graph g) {
-        SimpleStreetSplitter linker = new SimpleStreetSplitter(g);
+        SimpleStreetSplitter linker = SimpleStreetSplitter.createNewDefaultInstance(g, null);
         linker.link();
     }
 

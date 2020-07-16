@@ -119,7 +119,7 @@ public class BikeRentalUpdater extends PollingGraphUpdater {
     @Override
     public void setup(Graph graph) throws InterruptedException, ExecutionException {
         // Creation of network linker library will not modify the graph
-        linker = new SimpleStreetSplitter(graph);
+        linker = SimpleStreetSplitter.createNewDefaultInstance(graph, null);
         // Adding a bike rental station service needs a graph writer runnable
         service = graph.getService(BikeRentalStationService.class, true);
     }
