@@ -16,6 +16,8 @@ import org.opentripplanner.routing.graph.Vertex;
 
 public class LinkingGeoTools {
 
+    private static final double EPSILON = 1e-8;
+
     protected static final double RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(1000);
 
     private static final GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
@@ -81,6 +83,32 @@ public class LinkingGeoTools {
         // Expand more in the longitude direction than the latitude direction to account for converging meridians.
         env.expandBy(RADIUS_DEG / createXScale(vertex), RADIUS_DEG);
         return env;
+    }
+
+    /**
+     * is given location really close to the beginning of {@link LineString} it refers to
+     */
+    public boolean isLocationAtTheBeginning(LinearLocation ll) {
+        // We use a really tiny epsilon here because we only want points that actually snap to exactly the same location on the
+        // street to use the same vertices. Otherwise the order the stops are loaded in will affect where they are snapped.
+        return ll.getSegmentIndex() == 0 && ll.getSegmentFraction() < EPSILON;
+    }
+
+    /**
+     * is given location exactly at the end of {@link LineString} it refers to
+     */
+    public boolean isLocationExactlyAtTheEnd(LinearLocation ll, LineString lineString) {
+        // -1 converts from count to index. Because of the fencepost problem, npoints - 1 is the "segment"
+        // past the last point
+        return ll.getSegmentIndex() == lineString.getNumPoints() - 1;
+    }
+
+    /**
+     * is given location really close to the end of {@link LineString} it refers to
+     */
+    public boolean isLocationAtTheEnd(LinearLocation ll, LineString lineString) {
+        // nPoints - 2: -1 to correct for index vs count, -1 to account for fencepost problem
+        return ll.getSegmentIndex() == lineString.getNumPoints() - 2 && ll.getSegmentFraction() > 1 - EPSILON;
     }
 
     /**
