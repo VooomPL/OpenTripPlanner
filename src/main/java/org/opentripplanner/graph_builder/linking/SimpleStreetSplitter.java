@@ -431,7 +431,7 @@ public class SimpleStreetSplitter {
         if (destructiveSplitting) {
             throw new RuntimeException("Destructive splitting is used on temporary edges. Something is wrong!");
         }
-        if (to instanceof TemporarySplitterVertex) {
+        if (to instanceof TemporarySplitterVertex) { // TODO this can never happen
             from.setWheelchairAccessible(((TemporarySplitterVertex) to).isWheelchairAccessible());
         }
         if (from.isEndVertex()) {
