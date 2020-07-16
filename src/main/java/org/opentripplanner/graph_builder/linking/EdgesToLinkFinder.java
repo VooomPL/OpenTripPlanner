@@ -18,6 +18,9 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.opentripplanner.graph_builder.linking.LinkingGeoTools.RADIUS_DEG;
 
+/**
+ * Finds all closest edges in graph that given vertex could be linked to
+ */
 public class EdgesToLinkFinder {
 
     /**

@@ -21,6 +21,9 @@ import org.opentripplanner.util.LocalizedString;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Links vertex to edge in graph at a given faction
+ */
 public class ToEdgeLinker {
 
     private final StreetEdgeFactory edgeFactory;

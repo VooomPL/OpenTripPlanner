@@ -12,6 +12,9 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Tries to link vertices to all closest edges in graph
+ */
 public class Linker {
 
     private final ToEdgeLinker toEdgeLinker;
