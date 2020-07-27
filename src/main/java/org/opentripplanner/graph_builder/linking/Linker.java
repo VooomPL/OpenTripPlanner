@@ -34,7 +34,7 @@ public class Linker {
     }
 
     /**
-     * temporarily link this vertex into the graph
+     * Temporarily link this vertex into the graph
      */
     public boolean linkTemporarily(TemporaryStreetLocation vertex, TraverseMode traverseMode, RoutingRequest options) {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
@@ -43,7 +43,7 @@ public class Linker {
     }
 
     /**
-     * permanently link this vertex into the graph
+     * Permanently link this vertex into the graph
      */
     public boolean linkPermanently(Vertex vertex, TraverseMode traverseMode) {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
@@ -77,7 +77,7 @@ public class Linker {
     }
 
     private Optional<Vertex> maybeFindVertexToLinkTo(StreetEdge edge, LineString lineString, LinearLocation ll) {
-        // if we're very close to one end of the line or the other, or endwise, don't bother to split,
+        // If we're very close to one end of the line or the other, or endwise, don't bother to split,
         // cut to the chase and link directly
         if (linkingGeoTools.isLocationAtTheBeginning(ll)) {
             return Optional.of(edge.getFromVertex());

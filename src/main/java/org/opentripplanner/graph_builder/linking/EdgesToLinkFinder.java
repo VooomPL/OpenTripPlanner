@@ -1,7 +1,6 @@
 package org.opentripplanner.graph_builder.linking;
 
-import gnu.trove.map.TIntDoubleMap;
-import gnu.trove.map.hash.TIntDoubleHashMap;
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
@@ -12,6 +11,9 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -23,7 +25,7 @@ import static org.opentripplanner.graph_builder.linking.LinkingGeoTools.RADIUS_D
 public class EdgesToLinkFinder {
 
     /**
-     * if there are two ways and the distances to them differ by less than this value, we link to both of them
+     * If there are two ways and the distances to them differ by less than this value, we link to both of them
      */
     public static final double DUPLICATE_WAY_EPSILON_DEGREES = SphericalDistanceLibrary.metersToDegrees(0.001);
 
@@ -37,25 +39,20 @@ public class EdgesToLinkFinder {
     }
 
     /**
-     * finds all near edges that we should link given vertex to
+     * Finds all near edges that we should link given vertex to
      */
     public List<StreetEdge> findEdgesToLink(Vertex vertex, TraverseMode traverseMode) {
         Envelope env = linkingGeoTools.createEnvelope(vertex);
 
         List<StreetEdge> candidateEdges = getCandidateEdges(env, traverseMode);
 
-        // Make a map of distances to all edges.
-        TIntDoubleMap distances = getDistances(candidateEdges, vertex);
+        List<Map.Entry<StreetEdge, Double>> sortedCandidateEdges = getSortedCandidateEdges(candidateEdges, vertex);
 
-        EdgesFinderUtils.sort(candidateEdges, distances, Edge::getId);
-
-        // find the closest candidate edges
-        if (candidateEdges.isEmpty() || distances.get(candidateEdges.get(0).getId()) > RADIUS_DEG) {
+        if (sortedCandidateEdges.isEmpty() || sortedCandidateEdges.get(0).getValue() > RADIUS_DEG) {
             return emptyList();
         }
 
-        // find the best edges
-        return EdgesFinderUtils.getBestCandidates(candidateEdges, distances, Edge::getId);
+        return getBestEdges(sortedCandidateEdges);
     }
 
     private List<StreetEdge> getCandidateEdges(Envelope env, TraverseMode traverseMode) {
@@ -80,9 +77,31 @@ public class EdgesToLinkFinder {
                 .collect(toList());
     }
 
-    private TIntDoubleMap getDistances(List<StreetEdge> candidateEdges, Vertex vertex) {
-        TIntDoubleMap distances = new TIntDoubleHashMap();
-        candidateEdges.forEach(e -> distances.put(e.getId(), linkingGeoTools.distance(vertex, e)));
-        return distances;
+    /**
+     * Returns candidate edges with distances to given vertex sorted by this distance
+     */
+    private List<Map.Entry<StreetEdge, Double>> getSortedCandidateEdges(List<StreetEdge> candidateEdges, Vertex vertex) {
+        return candidateEdges.stream()
+                .collect(Collectors.toMap(Function.identity(), (edge) -> linkingGeoTools.distance(vertex, edge)))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(toList());
+    }
+
+    private List<StreetEdge> getBestEdges(List<Map.Entry<StreetEdge, Double>> sortedCandidateEdges) {
+        // Find the best edges
+        List<StreetEdge> bestEdges = Lists.newArrayList();
+
+        // Add edges until there is a break of epsilon meters.
+        // We do this to enforce determinism. if there are a lot of edges that are all extremely close to each other,
+        // We want to be sure that we deterministically link to the same ones every time. Any hard cutoff means things can
+        // fall just inside or beyond the cutoff depending on floating-point operations.
+        int i = 0;
+        do {
+            bestEdges.add(sortedCandidateEdges.get(i++).getKey());
+        } while (i < sortedCandidateEdges.size() && sortedCandidateEdges.get(i).getValue() - sortedCandidateEdges.get(i - 1).getValue() < DUPLICATE_WAY_EPSILON_DEGREES);
+
+        return bestEdges;
     }
 }

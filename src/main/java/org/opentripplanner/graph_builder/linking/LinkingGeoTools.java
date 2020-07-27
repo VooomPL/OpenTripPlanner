@@ -26,7 +26,7 @@ public class LinkingGeoTools {
     private static final GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
 
     /**
-     * creates new spatial index of street edges in graph
+     * Creates new spatial index of street edges in graph
      */
     public static HashGridSpatialIndex<Edge> createHashGridSpatialIndex(Graph graph) {
         HashGridSpatialIndex<Edge> index = new HashGridSpatialIndex<>();
@@ -38,7 +38,7 @@ public class LinkingGeoTools {
     }
 
     /**
-     * finds closest point to given vertex in a sequence of points (LineString)
+     * Finds closest point to given vertex in a sequence of points (LineString)
      */
     public LinearLocation findLocationClosestToVertex(Vertex vertex, LineString lineString) {
         double xscale = createXScale(vertex);
@@ -48,16 +48,16 @@ public class LinkingGeoTools {
     }
 
     /**
-     * projected distance from vertex to another vertex, in latitude degrees
+     * Projected distance from vertex to another vertex, in latitude degrees
      */
     public double distance(Vertex from, Vertex to) {
         double xscale = createXScale(from);
-        // use JTS internal tools wherever possible
+        // Use JTS internal tools wherever possible
         return new Coordinate(from.getLon() * xscale, from.getLat()).distance(new Coordinate(to.getLon() * xscale, to.getLat()));
     }
 
     /**
-     * projected distance from vertex to edge, in latitude degrees
+     * Projected distance from vertex to edge, in latitude degrees
      */
     public double distance(Vertex vertex, Edge edge) {
         double xscale = createXScale(vertex);
@@ -68,17 +68,17 @@ public class LinkingGeoTools {
     }
 
     /**
-     * create straight line between vertexes
+     * Create straight line between vertexes
      */
     public LineString createLineString(Vertex from, Vertex to) {
         return geometryFactory.createLineString(new Coordinate[]{from.getCoordinate(), to.getCoordinate()});
     }
 
     /**
-     * wrap vertex coords in an envelope for searching in spatial index {@link HashGridSpatialIndex}
+     * Wrap vertex coords in an envelope for searching in spatial index {@link HashGridSpatialIndex}
      */
     public Envelope createEnvelope(Vertex vertex) {
-        // find nearby street edges
+        // Find nearby street edges
         // TODO: we used to use an expanding-envelope search, which is more efficient in
         // dense areas. but first let's see how inefficient this is. I suspect it's not too
         // bad and the gains in simplicity are considerable.
@@ -89,7 +89,7 @@ public class LinkingGeoTools {
     }
 
     /**
-     * is given location really close to the beginning of {@link LineString} it refers to
+     * Is given location really close to the beginning of {@link LineString} it refers to
      */
     public boolean isLocationAtTheBeginning(LinearLocation ll) {
         // We use a really tiny epsilon here because we only want points that actually snap to exactly the same location on the
@@ -98,7 +98,7 @@ public class LinkingGeoTools {
     }
 
     /**
-     * is given location exactly at the end of {@link LineString} it refers to
+     * Is given location exactly at the end of {@link LineString} it refers to
      */
     public boolean isLocationExactlyAtTheEnd(LinearLocation ll, LineString lineString) {
         // -1 converts from count to index. Because of the fencepost problem, npoints - 1 is the "segment"
@@ -107,7 +107,7 @@ public class LinkingGeoTools {
     }
 
     /**
-     * is given location really close to the end of {@link LineString} it refers to
+     * Is given location really close to the end of {@link LineString} it refers to
      */
     public boolean isLocationAtTheEnd(LinearLocation ll, LineString lineString) {
         // nPoints - 2: -1 to correct for index vs count, -1 to account for fencepost problem
@@ -115,7 +115,7 @@ public class LinkingGeoTools {
     }
 
     /**
-     * project this linestring to an equirectangular projection
+     * Project this linestring to an equirectangular projection
      */
     private LineString equirectangularProject(LineString geometry, double xscale) {
         Coordinate[] coords = new Coordinate[geometry.getNumPoints()];
@@ -129,7 +129,7 @@ public class LinkingGeoTools {
     }
 
     /**
-     * performs a simple local equirectangular projection, so distances are expressed in degrees latitude
+     * Performs a simple local equirectangular projection, so distances are expressed in degrees latitude
      */
     private double createXScale(Vertex vertex) {
         return Math.cos(vertex.getLat() * Math.PI / 180);

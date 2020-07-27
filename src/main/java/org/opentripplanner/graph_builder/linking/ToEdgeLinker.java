@@ -49,7 +49,7 @@ public class ToEdgeLinker {
     }
 
     /**
-     * temporarily split edge at given location and link vertex to that split
+     * Temporarily split edge at given location and link vertex to that split
      */
     public void linkVertexToEdgeTemporarily(TemporaryStreetLocation temporaryVertex, StreetEdge edge, LinearLocation ll) {
         SplitterVertex splitterVertex = splitter.splitTemporarily(edge, ll, temporaryVertex.isEndVertex());
@@ -57,7 +57,7 @@ public class ToEdgeLinker {
     }
 
     /**
-     * permanently split edge at given location and link vertex to that split
+     * Permanently split edge at given location and link vertex to that split
      */
     public void linkVertexToEdgePermanently(Vertex vertex, StreetEdge edge, LinearLocation ll) {
         SplitterVertex splitterVertex = splitter.splitPermanently(edge, ll);
@@ -71,7 +71,7 @@ public class ToEdgeLinker {
     }
 
     /**
-     * link vertex to all vertices in area/platform
+     * Link vertex to all vertices in area/platform
      */
     private void linkVertexToAreaVertices(Vertex splitterVertex, AreaEdgeList area) {
         List<Vertex> vertices = new ArrayList<>();
