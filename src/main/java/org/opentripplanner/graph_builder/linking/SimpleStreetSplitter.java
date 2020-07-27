@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -229,7 +230,6 @@ public class SimpleStreetSplitter {
             for (TransitStop t : candidateStops) {
                 stopDistances.put(t.getIndex(), distance(vertex, t, xscale));
             }
-
             Collections.sort(candidateStops, (o1, o2) -> {
                     double diff = stopDistances.get(o1.getIndex()) - stopDistances.get(o2.getIndex());
                     if (diff < 0) {
