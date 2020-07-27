@@ -1,7 +1,5 @@
 package org.opentripplanner.graph_builder.linking;
 
-import gnu.trove.map.TIntDoubleMap;
-import gnu.trove.map.hash.TIntDoubleHashMap;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
@@ -13,6 +11,9 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -45,18 +46,13 @@ public class EdgesToLinkFinder {
 
         List<StreetEdge> candidateEdges = getCandidateEdges(env, traverseMode);
 
-        // Make a map of distances to all edges.
-        TIntDoubleMap distances = getDistances(candidateEdges, vertex);
+        List<Map.Entry<StreetEdge, Double>> sortedCandidateEdges = getSortedCandidateEdges(candidateEdges, vertex);
 
-        sortCandidateEdges(candidateEdges, distances);
-
-        // Find the closest candidate edges
-        if (candidateEdges.isEmpty() || distances.get(candidateEdges.get(0).getId()) > RADIUS_DEG) {
+        if (sortedCandidateEdges.isEmpty() || sortedCandidateEdges.get(0).getValue() > RADIUS_DEG) {
             return emptyList();
         }
 
-        // Find the best edges
-        return getBestEdges(candidateEdges, distances);
+        return getBestEdges(sortedCandidateEdges);
     }
 
     private List<StreetEdge> getCandidateEdges(Envelope env, TraverseMode traverseMode) {
@@ -81,27 +77,19 @@ public class EdgesToLinkFinder {
                 .collect(toList());
     }
 
-    private TIntDoubleMap getDistances(List<StreetEdge> candidateEdges, Vertex vertex) {
-        TIntDoubleMap distances = new TIntDoubleHashMap();
-        candidateEdges.forEach(e -> distances.put(e.getId(), linkingGeoTools.distance(vertex, e)));
-        return distances;
+    /**
+     * Returns candidate edges with distances to given vertex sorted by this distance
+     */
+    private List<Map.Entry<StreetEdge, Double>> getSortedCandidateEdges(List<StreetEdge> candidateEdges, Vertex vertex) {
+        return candidateEdges.stream()
+                .collect(Collectors.toMap(Function.identity(), (edge) -> linkingGeoTools.distance(vertex, edge)))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(toList());
     }
 
-    private void sortCandidateEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
-        // Sort the list.
-        candidateEdges.sort((o1, o2) -> {
-            double diff = distances.get(o1.getId()) - distances.get(o2.getId());
-            // A Comparator must return an integer but our distances are doubles.
-            if (diff < 0)
-                return -1;
-            if (diff > 0)
-                return 1;
-            return 0;
-        });
-
-    }
-
-    private List<StreetEdge> getBestEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
+    private List<StreetEdge> getBestEdges(List<Map.Entry<StreetEdge, Double>> sortedCandidateEdges) {
         // Find the best edges
         List<StreetEdge> bestEdges = Lists.newArrayList();
 
@@ -111,8 +99,8 @@ public class EdgesToLinkFinder {
         // fall just inside or beyond the cutoff depending on floating-point operations.
         int i = 0;
         do {
-            bestEdges.add(candidateEdges.get(i++));
-        } while (i < candidateEdges.size() && distances.get(candidateEdges.get(i).getId()) - distances.get(candidateEdges.get(i - 1).getId()) < DUPLICATE_WAY_EPSILON_DEGREES);
+            bestEdges.add(sortedCandidateEdges.get(i++).getKey());
+        } while (i < sortedCandidateEdges.size() && sortedCandidateEdges.get(i).getValue() - sortedCandidateEdges.get(i - 1).getValue() < DUPLICATE_WAY_EPSILON_DEGREES);
 
         return bestEdges;
     }

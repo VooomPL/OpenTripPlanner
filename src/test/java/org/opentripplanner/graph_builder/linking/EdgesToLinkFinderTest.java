@@ -109,7 +109,7 @@ public class EdgesToLinkFinderTest {
     }
 
     @Test
-    public void shouldSortEdgesByDistane() {
+    public void shouldSortEdgesByDistance() {
         // given
         when(index.query(any())).thenReturn(of(edgeCar3, edgeCar2, edgeCar1));
 
