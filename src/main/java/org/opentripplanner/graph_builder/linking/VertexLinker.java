@@ -13,9 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Tries to link vertices to all closest edges in graph
+ * Tries to link vertices to all closest edges in graph. If possible, it maset links directly to vertexes
+ * via {@link EdgesMaker}, or else it delegates creating links to {@link ToEdgeLinker}
  */
-public class Linker {
+public class VertexLinker {
 
     private final ToEdgeLinker toEdgeLinker;
 
@@ -25,8 +26,8 @@ public class Linker {
 
     private final EdgesMaker edgesMaker;
 
-    public Linker(ToEdgeLinker toEdgeLinker, EdgesToLinkFinder edgesToLinkFinder, LinkingGeoTools linkingGeoTools,
-                  EdgesMaker edgesMaker) {
+    public VertexLinker(ToEdgeLinker toEdgeLinker, EdgesToLinkFinder edgesToLinkFinder, LinkingGeoTools linkingGeoTools,
+                        EdgesMaker edgesMaker) {
         this.toEdgeLinker = toEdgeLinker;
         this.edgesToLinkFinder = edgesToLinkFinder;
         this.linkingGeoTools = linkingGeoTools;
@@ -38,7 +39,7 @@ public class Linker {
      */
     public boolean linkTemporarily(TemporaryStreetLocation vertex, TraverseMode traverseMode, RoutingRequest options) {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
-        streetEdges.forEach(edge -> linkTemporarily(vertex, edge, options));
+        streetEdges.forEach(edge -> linkTemporarilyToEdge(vertex, edge, options));
         return !streetEdges.isEmpty();
     }
 
@@ -47,11 +48,11 @@ public class Linker {
      */
     public boolean linkPermanently(Vertex vertex, TraverseMode traverseMode) {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
-        streetEdges.forEach(edge -> linkPermanently(vertex, edge));
+        streetEdges.forEach(edge -> linkPermanentlyToEdge(vertex, edge));
         return !streetEdges.isEmpty();
     }
 
-    private void linkTemporarily(TemporaryStreetLocation vertex, StreetEdge edge, RoutingRequest options) {
+    private void linkTemporarilyToEdge(TemporaryStreetLocation vertex, StreetEdge edge, RoutingRequest options) {
         LineString orig = edge.getGeometry();
         LinearLocation ll = linkingGeoTools.findLocationClosestToVertex(vertex, orig);
         Optional<Vertex> maybeVertexToLinkTo = maybeFindVertexToLinkTo(edge, orig, ll);
@@ -64,7 +65,7 @@ public class Linker {
         }
     }
 
-    private void linkPermanently(Vertex vertex, StreetEdge edge) {
+    private void linkPermanentlyToEdge(Vertex vertex, StreetEdge edge) {
         // TODO: we've already built this line string, we should save it
         LineString orig = edge.getGeometry();
         LinearLocation ll = linkingGeoTools.findLocationClosestToVertex(vertex, orig);

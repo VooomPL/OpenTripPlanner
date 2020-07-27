@@ -21,14 +21,14 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class LinkerTest {
+public class VertexLinkerTest {
 
     private ToEdgeLinker toEdgeLinker;
     private EdgesToLinkFinder edgesToLinkFinder;
     private LinkingGeoTools linkingGeoTools;
     private EdgesMaker edgesMaker;
 
-    private Linker linker;
+    private VertexLinker vertexLinker;
 
     private TemporaryStreetLocation temporaryVertex, otherTemporaryVertex;
     private StreetVertex vertex;
@@ -42,7 +42,7 @@ public class LinkerTest {
         linkingGeoTools = mock(LinkingGeoTools.class);
         edgesMaker = mock(EdgesMaker.class);
 
-        linker = new Linker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
+        vertexLinker = new VertexLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
 
         temporaryVertex = new TemporaryStreetLocation("id1", new Coordinate(0, 0), null, false);
         otherTemporaryVertex = new TemporaryStreetLocation("id1", new Coordinate(0, 0), null, false);
@@ -62,7 +62,7 @@ public class LinkerTest {
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(emptyList());
 
         // when
-        boolean linkTemporarily = linker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
+        boolean linkTemporarily = vertexLinker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
 
         // then
         assertFalse(linkTemporarily);
@@ -77,7 +77,7 @@ public class LinkerTest {
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(emptyList());
 
         // when
-        boolean linkPermanently = linker.linkPermanently(vertex, TraverseMode.WALK);
+        boolean linkPermanently = vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
 
         // then
         assertFalse(linkPermanently);
@@ -95,7 +95,7 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(true);
 
         // when
-        boolean linkTemporarily = linker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
+        boolean linkTemporarily = vertexLinker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
 
         // then
         assertTrue(linkTemporarily);
@@ -118,7 +118,7 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(true);
 
         // when
-        boolean linkTemporarily = linker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
+        boolean linkTemporarily = vertexLinker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
 
         // then
         assertTrue(linkTemporarily);
@@ -143,7 +143,7 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(true);
 
         // when
-        boolean linkTemporarily = linker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
+        boolean linkTemporarily = vertexLinker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
 
         // then
         assertTrue(linkTemporarily);
@@ -167,7 +167,7 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(true);
 
         // when
-        boolean linkPermanently = linker.linkPermanently(vertex, TraverseMode.WALK);
+        boolean linkPermanently = vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
 
         // then
         assertTrue(linkPermanently);
@@ -191,7 +191,7 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
 
         // when
-        boolean linkTemporarily = linker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
+        boolean linkTemporarily = vertexLinker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options);
 
         // then
         assertTrue(linkTemporarily);
@@ -217,7 +217,7 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
 
         // when
-        boolean linkPermanently = linker.linkPermanently(vertex, TraverseMode.WALK);
+        boolean linkPermanently = vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
 
         // then
         assertTrue(linkPermanently);
@@ -242,9 +242,9 @@ public class LinkerTest {
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
 
-        linker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options); // first linking
+        vertexLinker.linkTemporarily(temporaryVertex, TraverseMode.WALK, options); // first linking
 
         // when
-        linker.linkTemporarily(otherTemporaryVertex, TraverseMode.WALK, options);
+        vertexLinker.linkTemporarily(otherTemporaryVertex, TraverseMode.WALK, options);
     }
 }
