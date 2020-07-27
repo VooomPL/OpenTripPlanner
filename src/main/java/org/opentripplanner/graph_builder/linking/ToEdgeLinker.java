@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Links vertex to edge in graph at a given faction
+ * Links vertex to edge in graph at a given fraction
  */
 public class ToEdgeLinker {
 
