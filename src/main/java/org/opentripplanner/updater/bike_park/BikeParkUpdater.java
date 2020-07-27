@@ -85,7 +85,7 @@ public class BikeParkUpdater extends PollingGraphUpdater {
     @Override
     public void setup(Graph graph) {
         // Creation of network linker library will not modify the graph
-        linker = SimpleStreetSplitter.createNewDefaultInstance(graph, null);
+        linker = SimpleStreetSplitter.createNewDefaultInstance(graph, null, false);
         // Adding a bike park station service needs a graph writer runnable
         bikeService = graph.getService(BikeRentalStationService.class, true);
     }

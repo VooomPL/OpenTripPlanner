@@ -88,8 +88,4 @@ public class VertexLinker {
         }
         return Optional.empty();
     }
-
-    public void setAddExtraEdgesToAreas(boolean addExtraEdgesToAreas) {
-        toEdgeLinker.setAddExtraEdgesToAreas(addExtraEdgesToAreas);
-    }
 }

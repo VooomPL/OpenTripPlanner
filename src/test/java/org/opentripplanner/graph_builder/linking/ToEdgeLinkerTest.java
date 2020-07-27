@@ -33,7 +33,7 @@ public class ToEdgeLinkerTest {
         streetSplitter = mock(StreetSplitter.class);
         edgesMaker = mock(EdgesMaker.class);
         linkingGeoTools = mock(LinkingGeoTools.class);
-        toEdgeLinker = new ToEdgeLinker(new DefaultStreetEdgeFactory(), streetSplitter, edgesMaker, linkingGeoTools);
+        toEdgeLinker = new ToEdgeLinker(new DefaultStreetEdgeFactory(), streetSplitter, edgesMaker, linkingGeoTools, false);
 
         Coordinate coordinate = new Coordinate(1, 2);
         temporaryStreetLocation = new TemporaryStreetLocation("id1", coordinate, null, false);

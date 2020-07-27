@@ -37,14 +37,14 @@ public class TemporaryStreetSplitter {
 
     private final Graph graph;
 
-    private final Linker linker;
+    private final VertexLinker vertexLinker;
 
     private final ToTransitStopLinker toTransitStopLinker;
 
 
-    public TemporaryStreetSplitter(Graph graph, Linker linker, ToTransitStopLinker toTransitStopLinker) {
+    public TemporaryStreetSplitter(Graph graph, VertexLinker vertexLinker, ToTransitStopLinker toTransitStopLinker) {
         this.graph = graph;
-        this.linker = linker;
+        this.vertexLinker = vertexLinker;
         this.toTransitStopLinker = toTransitStopLinker;
     }
 
@@ -66,10 +66,10 @@ public class TemporaryStreetSplitter {
         BestCandidatesGetter bestCandidatesGetter = new BestCandidatesGetter();
         StreetSplitter splitter = new StreetSplitter(graph, index);
         EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
-        ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools);
-        Linker linker = new Linker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
+        ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, false);
+        VertexLinker vertexLinker = new VertexLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
         ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker, bestCandidatesGetter);
-        return new TemporaryStreetSplitter(graph, linker, toTransitStopLinker);
+        return new TemporaryStreetSplitter(graph, vertexLinker, toTransitStopLinker);
     }
 
     /**
@@ -89,7 +89,7 @@ public class TemporaryStreetSplitter {
         if (endVertex) {
             addTemporaryDropoffVehicleEdge(closest);
         }
-        if (!linker.linkTemporarily(closest, nonTransitMode, options)) {
+        if (!vertexLinker.linkTemporarily(closest, nonTransitMode, options)) {
             if (!toTransitStopLinker.tryLinkVertexToStop(closest)) {
                 LOG.warn("Couldn't link {}", location);
             }

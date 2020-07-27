@@ -42,22 +42,26 @@ public class SimpleStreetSplitter {
 
     private final HashGridSpatialIndex<Edge> idx;
 
-    private final Linker linker;
+    private final VertexLinker vertexLinker;
 
-    public SimpleStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, Linker linker) {
+    public SimpleStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, VertexLinker vertexLinker) {
         this.graph = graph;
         this.idx = hashGridSpatialIndex;
-        this.linker = linker;
+        this.vertexLinker = vertexLinker;
     }
 
     /**
      * Construct a new SimpleStreetSplitter.
      * NOTE: Only one SimpleStreetSplitter should be active on a graph at any given time.
      * NOTE: Whole module should share the same index of edges as we add new edges to it.
+     *
      * @param graph
-     * @param index If not null this index is used instead of creating new one
+     * @param index                If not null this index is used instead of creating new one
+     * @param addExtraEdgesToAreas True if we want to add {@link org.opentripplanner.routing.edgetype.AreaEdge}
+     *                             when linking edges to areas
      */
-    public static SimpleStreetSplitter createNewDefaultInstance(Graph graph, @Nullable HashGridSpatialIndex<Edge> index) {
+    public static SimpleStreetSplitter createNewDefaultInstance(Graph graph, @Nullable HashGridSpatialIndex<Edge> index,
+                                                                boolean addExtraEdgesToAreas) {
         if (index == null) {
             index = LinkingGeoTools.createHashGridSpatialIndex(graph);
         }
@@ -67,9 +71,9 @@ public class SimpleStreetSplitter {
         BestCandidatesGetter bestCandidatesGetter = new BestCandidatesGetter();
         StreetSplitter splitter = new StreetSplitter(graph, index);
         EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
-        ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools);
-        Linker linker = new Linker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
-        return new SimpleStreetSplitter(graph, index, linker);
+        ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, addExtraEdgesToAreas);
+        VertexLinker vertexLinker = new VertexLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
+        return new SimpleStreetSplitter(graph, index, vertexLinker);
     }
 
     public HashGridSpatialIndex<Edge> getIdx() {
@@ -109,10 +113,6 @@ public class SimpleStreetSplitter {
      * Link this vertex into the graph to the closest walkable edge
      */
     public boolean link(Vertex vertex) {
-        return linker.linkPermanently(vertex, TraverseMode.WALK);
-    }
-
-    public void setAddExtraEdgesToAreas(boolean addExtraEdgesToAreas) {
-        this.linker.setAddExtraEdgesToAreas(addExtraEdgesToAreas);
+        return vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
     }
 }

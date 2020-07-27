@@ -32,7 +32,7 @@ public class TransitToStreetNetworkModule implements GraphBuilderModule {
         //NetworkLinker linker = new NetworkLinker(graph, extra);
         //linker.createLinkage();
 
-        SimpleStreetSplitter splitter = SimpleStreetSplitter.createNewDefaultInstance(graph, null);
+        SimpleStreetSplitter splitter = SimpleStreetSplitter.createNewDefaultInstance(graph, null, false);
         splitter.link();
 
         // don't split streets

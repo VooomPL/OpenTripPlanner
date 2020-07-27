@@ -152,7 +152,7 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
     @Override
     public void setup(Graph graph) throws Exception {
         this.graph = graph;
-        this.simpleStreetSplitter = SimpleStreetSplitter.createNewDefaultInstance(graph, null);
+        this.simpleStreetSplitter = SimpleStreetSplitter.createNewDefaultInstance(graph, null, false);
     }
 
     @Override
