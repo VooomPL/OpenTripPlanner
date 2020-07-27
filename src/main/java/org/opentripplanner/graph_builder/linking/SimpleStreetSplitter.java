@@ -64,8 +64,9 @@ public class SimpleStreetSplitter {
         StreetEdgeFactory streetEdgeFactory = new DefaultStreetEdgeFactory();
         EdgesMaker edgesMaker = new EdgesMaker();
         LinkingGeoTools linkingGeoTools = new LinkingGeoTools();
+        BestCandidatesGetter bestCandidatesGetter = new BestCandidatesGetter();
         StreetSplitter splitter = new StreetSplitter(graph, index);
-        EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools);
+        EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools);
         Linker linker = new Linker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
         return new SimpleStreetSplitter(graph, index, linker);

@@ -1,7 +1,5 @@
 package org.opentripplanner.graph_builder.linking;
 
-import gnu.trove.map.TIntDoubleMap;
-import gnu.trove.map.hash.TIntDoubleHashMap;
 import org.locationtech.jts.index.SpatialIndex;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
@@ -11,8 +9,10 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static org.opentripplanner.graph_builder.linking.LinkingGeoTools.RADIUS_DEG;
 
+/**
+ * Links given vertex to closest transit stop(s) if there are any in close distance
+ */
 public class ToTransitStopLinker {
 
     private final SpatialIndex transitStopIndex;
@@ -21,26 +21,31 @@ public class ToTransitStopLinker {
 
     private final EdgesMaker edgesMaker;
 
-    public ToTransitStopLinker(SpatialIndex transitStopIndex, LinkingGeoTools linkingGeoTools, EdgesMaker edgesMaker) {
+    private final BestCandidatesGetter bestCandidatesGetter;
+
+    public ToTransitStopLinker(SpatialIndex transitStopIndex, LinkingGeoTools linkingGeoTools, EdgesMaker edgesMaker,
+                               BestCandidatesGetter bestCandidatesGetter) {
         this.transitStopIndex = transitStopIndex;
         this.linkingGeoTools = linkingGeoTools;
         this.edgesMaker = edgesMaker;
+        this.bestCandidatesGetter = bestCandidatesGetter;
     }
 
+    /**
+     * Tries to temporarily link given vertex to closest transit stop(s), returns true if a link was made
+     */
     public boolean tryLinkVertexToStop(TemporaryStreetLocation vertex) {
         List<TransitStop> transitStops = findTransitStopsToLink(vertex);
         transitStops.forEach(stop -> edgesMaker.makeTemporaryEdges(vertex, stop));
         return !transitStops.isEmpty();
     }
 
+    /**
+     *  Finds all closest transit stops in graph that given vertex could be linked to
+     */
     private List<TransitStop> findTransitStopsToLink(Vertex vertex) {
         List<TransitStop> candidateStops = getCandidateStops(vertex);
-        TIntDoubleMap stopDistances = getDistances(candidateStops, vertex);
-        if (candidateStops.isEmpty() || stopDistances.get(candidateStops.get(0).getIndex()) > RADIUS_DEG) {
-            return emptyList();
-        }
-        EdgesFinderUtils.sort(candidateStops, stopDistances, Vertex::getIndex);
-        return EdgesFinderUtils.getBestCandidates(candidateStops, stopDistances, Vertex::getIndex);
+        return bestCandidatesGetter.getBestCandidates(candidateStops, stop -> linkingGeoTools.distance(vertex, stop));
     }
 
     private List<TransitStop> getCandidateStops(Vertex vertex) {
@@ -54,11 +59,5 @@ public class ToTransitStopLinker {
                 .filter(TransitStop.class::isInstance)
                 .map(TransitStop.class::cast)
                 .collect(toList());
-    }
-
-    private TIntDoubleMap getDistances(List<TransitStop> candidateStops, Vertex vertex) {
-        TIntDoubleMap stopDistances = new TIntDoubleHashMap();
-        candidateStops.forEach(t -> stopDistances.put(t.getIndex(), linkingGeoTools.distance(vertex, t)));
-        return stopDistances;
     }
 }

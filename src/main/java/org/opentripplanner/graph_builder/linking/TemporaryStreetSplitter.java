@@ -63,11 +63,12 @@ public class TemporaryStreetSplitter {
         StreetEdgeFactory streetEdgeFactory = new DefaultStreetEdgeFactory();
         EdgesMaker edgesMaker = new EdgesMaker();
         LinkingGeoTools linkingGeoTools = new LinkingGeoTools();
+        BestCandidatesGetter bestCandidatesGetter = new BestCandidatesGetter();
         StreetSplitter splitter = new StreetSplitter(graph, index);
-        EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools);
+        EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools);
         Linker linker = new Linker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
-        ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker);
+        ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker, bestCandidatesGetter);
         return new TemporaryStreetSplitter(graph, linker, toTransitStopLinker);
     }
 
