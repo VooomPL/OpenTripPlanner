@@ -24,7 +24,7 @@ import static org.opentripplanner.graph_builder.linking.LinkingGeoTools.RADIUS_D
 public class EdgesToLinkFinder {
 
     /**
-     * if there are two ways and the distances to them differ by less than this value, we link to both of them
+     * If there are two ways and the distances to them differ by less than this value, we link to both of them
      */
     public static final double DUPLICATE_WAY_EPSILON_DEGREES = SphericalDistanceLibrary.metersToDegrees(0.001);
 
@@ -38,7 +38,7 @@ public class EdgesToLinkFinder {
     }
 
     /**
-     * finds all near edges that we should link given vertex to
+     * Finds all near edges that we should link given vertex to
      */
     public List<StreetEdge> findEdgesToLink(Vertex vertex, TraverseMode traverseMode) {
         Envelope env = linkingGeoTools.createEnvelope(vertex);
@@ -50,12 +50,12 @@ public class EdgesToLinkFinder {
 
         sortCandidateEdges(candidateEdges, distances);
 
-        // find the closest candidate edges
+        // Find the closest candidate edges
         if (candidateEdges.isEmpty() || distances.get(candidateEdges.get(0).getId()) > RADIUS_DEG) {
             return emptyList();
         }
 
-        // find the best edges
+        // Find the best edges
         return getBestEdges(candidateEdges, distances);
     }
 
@@ -102,12 +102,12 @@ public class EdgesToLinkFinder {
     }
 
     private List<StreetEdge> getBestEdges(List<StreetEdge> candidateEdges, TIntDoubleMap distances) {
-        // find the best edges
+        // Find the best edges
         List<StreetEdge> bestEdges = Lists.newArrayList();
 
-        // add edges until there is a break of epsilon meters.
-        // we do this to enforce determinism. if there are a lot of edges that are all extremely close to each other,
-        // we want to be sure that we deterministically link to the same ones every time. Any hard cutoff means things can
+        // Add edges until there is a break of epsilon meters.
+        // We do this to enforce determinism. if there are a lot of edges that are all extremely close to each other,
+        // We want to be sure that we deterministically link to the same ones every time. Any hard cutoff means things can
         // fall just inside or beyond the cutoff depending on floating-point operations.
         int i = 0;
         do {
