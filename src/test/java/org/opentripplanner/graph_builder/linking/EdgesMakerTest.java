@@ -9,7 +9,6 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
 
 import static org.junit.Assert.assertEquals;
@@ -18,8 +17,8 @@ public class EdgesMakerTest {
 
     private final EdgesMaker edgesMaker = new EdgesMaker();
 
-    private TemporaryStreetLocation origin, destination;
-    private TemporarySplitterVertex temporarySplitterVertex;
+    private TemporaryStreetLocation origin;
+    private TemporaryStreetLocation destination;
     private StreetVertex to;
     private TransitStop transitStop;
 

@@ -12,8 +12,7 @@ import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LinkingGeoToolsTest {
 
@@ -97,5 +96,81 @@ public class LinkingGeoToolsTest {
         assertTrue(envelope.getMinY() < envelope.getMaxY());
         assertTrue(envelope.getMinY() < someVertex.getCoordinate().y);
         assertTrue(someVertex.getCoordinate().y < envelope.getMaxY());
+    }
+
+    @Test
+    public void shouldReturnTrueForLocationExactlyAtTheBeginning() {
+        // given
+        LinearLocation ll = new LinearLocation(0, 0);
+
+        // then
+        assertTrue(linkingGeoTools.isLocationAtTheBeginning(ll));
+    }
+
+    @Test
+    public void shouldReturnTrueForLocationAlmostAtTheBeginning() {
+        // given
+        LinearLocation ll = new LinearLocation(0, 1e-9);
+
+        // then
+        assertTrue(linkingGeoTools.isLocationAtTheBeginning(ll));
+    }
+
+    @Test
+    public void shouldReturnFalseForLocationNotAtTheBeginning() {
+        // given
+        LinearLocation ll = new LinearLocation(0, 0.1);
+
+        // then
+        assertFalse(linkingGeoTools.isLocationAtTheBeginning(ll));
+    }
+
+    @Test
+    public void shouldReturnFalseForLocationFarFromTheBeginning() {
+        // given
+        LinearLocation ll = new LinearLocation(1, 0);
+
+        // then
+        assertFalse(linkingGeoTools.isLocationAtTheBeginning(ll));
+    }
+
+    @Test
+    public void shouldReturnTrueForLocationExactlyAtTheEnd() {
+        // given
+        LineString lineString = linkingGeoTools.createLineString(from, to);
+        LinearLocation ll = new LinearLocation(1, 0);
+
+        // then
+        assertTrue(linkingGeoTools.isLocationExactlyAtTheEnd(ll, lineString));
+    }
+
+    @Test
+    public void shouldReturnFalseForLocationNotExactlyAtTheBeginning() {
+        // given
+        LineString lineString = linkingGeoTools.createLineString(from, to);
+        LinearLocation ll = new LinearLocation(0, 0);
+
+        // then
+        assertFalse(linkingGeoTools.isLocationExactlyAtTheEnd(ll, lineString));
+    }
+
+    @Test
+    public void shouldReturnTrueForLocationAlmostAtTheEnd() {
+        // given
+        LineString lineString = linkingGeoTools.createLineString(from, to);
+        LinearLocation ll = new LinearLocation(0, 1 - 1e-9);
+
+        // then
+        assertTrue(linkingGeoTools.isLocationAtTheEnd(ll, lineString));
+    }
+
+    @Test
+    public void shouldReturnFalseForLocationNotAtTheEnd() {
+        // given
+        LineString lineString = linkingGeoTools.createLineString(from, to);
+        LinearLocation ll = new LinearLocation(0, 0.5);
+
+        // then
+        assertFalse(linkingGeoTools.isLocationAtTheEnd(ll, lineString));
     }
 }
