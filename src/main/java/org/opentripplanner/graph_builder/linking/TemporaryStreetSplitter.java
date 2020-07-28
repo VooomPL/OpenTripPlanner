@@ -37,14 +37,14 @@ public class TemporaryStreetSplitter {
 
     private final Graph graph;
 
-    private final VertexLinker vertexLinker;
+    private final ToStreetEdgeLinker toStreetEdgeLinker;
 
     private final ToTransitStopLinker toTransitStopLinker;
 
 
-    public TemporaryStreetSplitter(Graph graph, VertexLinker vertexLinker, ToTransitStopLinker toTransitStopLinker) {
+    public TemporaryStreetSplitter(Graph graph, ToStreetEdgeLinker toStreetEdgeLinker, ToTransitStopLinker toTransitStopLinker) {
         this.graph = graph;
-        this.vertexLinker = vertexLinker;
+        this.toStreetEdgeLinker = toStreetEdgeLinker;
         this.toTransitStopLinker = toTransitStopLinker;
     }
 
@@ -67,9 +67,9 @@ public class TemporaryStreetSplitter {
         StreetSplitter splitter = new StreetSplitter(graph, index);
         EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, false);
-        VertexLinker vertexLinker = new VertexLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
+        ToStreetEdgeLinker toStreetEdgeLinker = new ToStreetEdgeLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
         ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker, bestCandidatesGetter);
-        return new TemporaryStreetSplitter(graph, vertexLinker, toTransitStopLinker);
+        return new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker);
     }
 
     /**
@@ -83,13 +83,13 @@ public class TemporaryStreetSplitter {
      * @param options
      * @param endVertex true if this is destination vertex
      */
-    public TemporaryStreetLocation getClosestVertex(GenericLocation location, RoutingRequest options, boolean endVertex) {
+    public TemporaryStreetLocation linkLocationToGraph(GenericLocation location, RoutingRequest options, boolean endVertex) {
         TemporaryStreetLocation closest = createTemporaryVertex(location, options, endVertex);
         TraverseMode nonTransitMode = createTraverseMode(options, endVertex);
         if (endVertex) {
             addTemporaryDropoffVehicleEdge(closest);
         }
-        if (!vertexLinker.linkTemporarily(closest, nonTransitMode, options)) {
+        if (!toStreetEdgeLinker.linkTemporarily(closest, nonTransitMode, options)) {
             if (!toTransitStopLinker.tryLinkVertexToStop(closest)) {
                 LOG.warn("Couldn't link {}", location);
             }

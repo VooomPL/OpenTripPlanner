@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class TemporaryStreetSplitterTest {
 
     private Graph graph;
-    private VertexLinker vertexLinker;
+    private ToStreetEdgeLinker toStreetEdgeLinker;
     private ToTransitStopLinker toTransitStopLinker;
 
     private TemporaryStreetSplitter temporaryStreetSplitter;
@@ -35,9 +35,9 @@ public class TemporaryStreetSplitterTest {
     public void setUp() {
         graph = new Graph();
 
-        vertexLinker = mock(VertexLinker.class);
+        toStreetEdgeLinker = mock(ToStreetEdgeLinker.class);
         toTransitStopLinker = mock(ToTransitStopLinker.class);
-        temporaryStreetSplitter = new TemporaryStreetSplitter(graph, vertexLinker, toTransitStopLinker);
+        temporaryStreetSplitter = new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker);
 
         genericLocation = new GenericLocation(10, 23);
         routingRequest = new RoutingRequest();
@@ -46,68 +46,68 @@ public class TemporaryStreetSplitterTest {
     @Test
     public void shouldReturnClosestVertexWhenLinkingToEdgeSucceed() {
         // given
-        when(vertexLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
+        when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
 
         // when
-        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.getClosestVertex(genericLocation, routingRequest, false);
+        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, false);
 
         // then
         assertEquals(genericLocation.getCoordinate(), closestVertex.getCoordinate());
         assertFalse(closestVertex.isEndVertex());
-        verify(vertexLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
-        verifyNoMoreInteractions(vertexLinker);
+        verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
+        verifyNoMoreInteractions(toStreetEdgeLinker);
         verifyZeroInteractions(toTransitStopLinker);
     }
 
     @Test
     public void shouldReturnClosestVertexWhenLinkingToTransitStopSucceeded() {
         // given
-        when(vertexLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(false);
+        when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(false);
         when(toTransitStopLinker.tryLinkVertexToStop(any())).thenReturn(true);
 
         // when
-        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.getClosestVertex(genericLocation, routingRequest, false);
+        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, false);
 
         // then
         assertEquals(genericLocation.getCoordinate(), closestVertex.getCoordinate());
-        verify(vertexLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
+        verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
         verify(toTransitStopLinker, times(1)).tryLinkVertexToStop(closestVertex);
-        verifyNoMoreInteractions(vertexLinker, toTransitStopLinker);
+        verifyNoMoreInteractions(toStreetEdgeLinker, toTransitStopLinker);
     }
 
     @Test
     public void shouldReturnNotLinkedVertexWhenAllLinkingFailed() {
         // given
-        when(vertexLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(false);
+        when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(false);
         when(toTransitStopLinker.tryLinkVertexToStop(any())).thenReturn(false);
 
         // when
-        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.getClosestVertex(genericLocation, routingRequest, false);
+        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, false);
 
         // then
         assertEquals(genericLocation.getCoordinate(), closestVertex.getCoordinate());
-        verify(vertexLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
+        verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
         verify(toTransitStopLinker, times(1)).tryLinkVertexToStop(closestVertex);
-        verifyNoMoreInteractions(vertexLinker, toTransitStopLinker);
+        verifyNoMoreInteractions(toStreetEdgeLinker, toTransitStopLinker);
     }
 
     @Test
     public void shouldSetTraverseModeToCarWhenRoutingCar() {
         // given
         routingRequest.modes = new TraverseModeSet(TraverseMode.CAR);
-        when(vertexLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
+        when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
 
         // when
-        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.getClosestVertex(genericLocation, routingRequest, false);
+        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, false);
 
         // then
-        verify(vertexLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.CAR, routingRequest);
+        verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.CAR, routingRequest);
     }
 
     @Test
     public void shouldAddDropoffVehicleEdgeAtDestination() {
         // given
-        when(vertexLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
+        when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
 
         List<ParkingZoneInfo.SingleParkingZone> parkingZonesEnabled = emptyList();
         List<ParkingZoneInfo.SingleParkingZone> parkingZonesForEdge = emptyList();
@@ -116,7 +116,7 @@ public class TemporaryStreetSplitterTest {
         when(graph.parkingZonesCalculator.getParkingZonesForRentEdge(any(), eq(parkingZonesEnabled))).thenReturn(parkingZonesForEdge);
 
         // when
-        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.getClosestVertex(genericLocation, routingRequest, true);
+        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, true);
 
         // then
         assertEquals(1, closestVertex.getOutgoing().size());
@@ -130,10 +130,10 @@ public class TemporaryStreetSplitterTest {
     @Test
     public void shouldNotAddDropoffVehicleEdgeAtVertexOtherThanDestination() {
         // given
-        when(vertexLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
+        when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
 
         // when
-        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.getClosestVertex(genericLocation, routingRequest, false);
+        TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, false);
 
         // then
         assertTrue(closestVertex.getOutgoing().isEmpty());

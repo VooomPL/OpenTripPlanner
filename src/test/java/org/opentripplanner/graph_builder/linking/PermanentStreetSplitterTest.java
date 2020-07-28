@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 public class PermanentStreetSplitterTest {
 
     private Graph graph;
-    private VertexLinker vertexLinker;
+    private ToStreetEdgeLinker toStreetEdgeLinker;
     private PermanentStreetSplitter permanentStreetSplitter;
 
     private Stop stop;
@@ -24,8 +24,8 @@ public class PermanentStreetSplitterTest {
     @Before
     public void setUp() {
         graph = new Graph();
-        vertexLinker = mock(VertexLinker.class);
-        permanentStreetSplitter = new PermanentStreetSplitter(graph, null, vertexLinker);
+        toStreetEdgeLinker = mock(ToStreetEdgeLinker.class);
+        permanentStreetSplitter = new PermanentStreetSplitter(graph, null, toStreetEdgeLinker);
 
         stop = new Stop();
         stop.setName("transitVertex 1");
@@ -38,43 +38,43 @@ public class PermanentStreetSplitterTest {
     public void shouldLinkVertexToGraph() {
         // given
         TransitStop transitStop = new TransitStop(graph, stop);
-        when(vertexLinker.linkPermanently(transitStop, TraverseMode.WALK)).thenReturn(true);
+        when(toStreetEdgeLinker.linkPermanently(transitStop, TraverseMode.WALK)).thenReturn(true);
 
         // when
         boolean linked = permanentStreetSplitter.link(transitStop);
 
         // then
         assertTrue(linked);
-        verify(vertexLinker, times(1)).linkPermanently(transitStop, TraverseMode.WALK);
-        verifyNoMoreInteractions(vertexLinker);
+        verify(toStreetEdgeLinker, times(1)).linkPermanently(transitStop, TraverseMode.WALK);
+        verifyNoMoreInteractions(toStreetEdgeLinker);
     }
 
     @Test
     public void shouldLinkAllRelevantVerticesToGraph() {
         // given
         TransitStop transitStop = new TransitStop(graph, stop);
-        when(vertexLinker.linkPermanently(transitStop, TraverseMode.WALK)).thenReturn(true);
+        when(toStreetEdgeLinker.linkPermanently(transitStop, TraverseMode.WALK)).thenReturn(true);
 
         // when
         permanentStreetSplitter.link();
 
         // then
-        verify(vertexLinker, times(1)).linkPermanently(transitStop, TraverseMode.WALK);
-        verifyNoMoreInteractions(vertexLinker);
+        verify(toStreetEdgeLinker, times(1)).linkPermanently(transitStop, TraverseMode.WALK);
+        verifyNoMoreInteractions(toStreetEdgeLinker);
     }
 
     @Test
     public void shouldIgnoreLinkingFailure() {
         // given
         TransitStop transitStop = new TransitStop(graph, stop);
-        when(vertexLinker.linkPermanently(transitStop, TraverseMode.WALK)).thenReturn(false);
+        when(toStreetEdgeLinker.linkPermanently(transitStop, TraverseMode.WALK)).thenReturn(false);
 
         // when
         permanentStreetSplitter.link();
 
         // then
-        verify(vertexLinker, times(1)).linkPermanently(transitStop, TraverseMode.WALK);
-        verifyNoMoreInteractions(vertexLinker);
+        verify(toStreetEdgeLinker, times(1)).linkPermanently(transitStop, TraverseMode.WALK);
+        verifyNoMoreInteractions(toStreetEdgeLinker);
     }
 
     @Test
@@ -86,6 +86,6 @@ public class PermanentStreetSplitterTest {
         permanentStreetSplitter.link();
 
         // then
-        verifyZeroInteractions(vertexLinker);
+        verifyZeroInteractions(toStreetEdgeLinker);
     }
 }

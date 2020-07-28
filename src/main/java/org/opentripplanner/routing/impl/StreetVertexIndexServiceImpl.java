@@ -315,7 +315,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
         Coordinate c = loc.getCoordinate();
         if (c != null) {
             //return getClosestVertex(loc, options, endVertex);
-            return temporaryStreetSplitter.getClosestVertex(loc, options, endVertex);
+            return temporaryStreetSplitter.linkLocationToGraph(loc, options, endVertex);
         }
 
         // No Coordinate available.

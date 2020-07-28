@@ -23,16 +23,12 @@ import javax.annotation.Nullable;
  * This class links transit stops to streets by splitting the streets (unless the stop is extremely close to the street
  * intersection).
  * <p>
- * It is intended to eventually completely replace the existing stop linking code, which had been through so many
- * revisions and adaptations to different street and turn representations that it was very glitchy. This new code is
- * also intended to be deterministic in linking to streets, independent of the order in which the JVM decides to
+ * This code is intended to be deterministic in linking to streets, independent of the order in which the JVM decides to
  * iterate over Maps and even in the presence of points that are exactly halfway between multiple candidate linking
  * points.
  * <p>
- * It would be wise to keep this new incarnation of the linking code relatively simple, considering what happened before.
- * <p>
- * See discussion in pull request #1922, follow up issue #1934, and the original issue calling for replacement of
- * the stop linker, #1305.
+ * [LEGACY] See discussion in pull request #1922, follow up issue #1934, and the original issue calling for replacement
+ * of the stop linker, #1305.
  */
 public class PermanentStreetSplitter {
 
@@ -42,17 +38,17 @@ public class PermanentStreetSplitter {
 
     private final HashGridSpatialIndex<Edge> idx;
 
-    private final VertexLinker vertexLinker;
+    private final ToStreetEdgeLinker toStreetEdgeLinker;
 
-    public PermanentStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, VertexLinker vertexLinker) {
+    public PermanentStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, ToStreetEdgeLinker toStreetEdgeLinker) {
         this.graph = graph;
         this.idx = hashGridSpatialIndex;
-        this.vertexLinker = vertexLinker;
+        this.toStreetEdgeLinker = toStreetEdgeLinker;
     }
 
     /**
-     * Construct a new SimpleStreetSplitter.
-     * NOTE: Only one SimpleStreetSplitter should be active on a graph at any given time.
+     * Construct a new PermanentStreetSplitter.
+     * NOTE: Only one PermanentStreetSplitter should be active on a graph at any given time.
      * NOTE: Whole module should share the same index of edges as we add new edges to it.
      *
      * @param graph
@@ -72,8 +68,8 @@ public class PermanentStreetSplitter {
         StreetSplitter splitter = new StreetSplitter(graph, index);
         EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, addExtraEdgesToAreas);
-        VertexLinker vertexLinker = new VertexLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
-        return new PermanentStreetSplitter(graph, index, vertexLinker);
+        ToStreetEdgeLinker toStreetEdgeLinker = new ToStreetEdgeLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
+        return new PermanentStreetSplitter(graph, index, toStreetEdgeLinker);
     }
 
     public HashGridSpatialIndex<Edge> getIdx() {
@@ -97,7 +93,7 @@ public class PermanentStreetSplitter {
      * Link this vertex into the graph to the closest walkable edge
      */
     public boolean link(Vertex vertex) {
-        return vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
+        return toStreetEdgeLinker.linkPermanently(vertex, TraverseMode.WALK);
     }
 
     private boolean hasToBeLinked(Vertex v) {

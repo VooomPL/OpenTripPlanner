@@ -16,7 +16,7 @@ import java.util.Optional;
  * Tries to link vertices to all closest edges in graph. If possible, it maset links directly to vertexes
  * via {@link EdgesMaker}, or else it delegates creating links to {@link ToEdgeLinker}
  */
-public class VertexLinker {
+public class ToStreetEdgeLinker {
 
     private final ToEdgeLinker toEdgeLinker;
 
@@ -26,8 +26,8 @@ public class VertexLinker {
 
     private final EdgesMaker edgesMaker;
 
-    public VertexLinker(ToEdgeLinker toEdgeLinker, EdgesToLinkFinder edgesToLinkFinder, LinkingGeoTools linkingGeoTools,
-                        EdgesMaker edgesMaker) {
+    public ToStreetEdgeLinker(ToEdgeLinker toEdgeLinker, EdgesToLinkFinder edgesToLinkFinder, LinkingGeoTools linkingGeoTools,
+                              EdgesMaker edgesMaker) {
         this.toEdgeLinker = toEdgeLinker;
         this.edgesToLinkFinder = edgesToLinkFinder;
         this.linkingGeoTools = linkingGeoTools;
