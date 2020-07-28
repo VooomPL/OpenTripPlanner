@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.*;
 public class LegGeometryIT extends IntegrationTest {
 
     @Test
-    public void testLegGeometryContinuity() {
+    public void testLegGeometryContinuityWithRenting() {
         List<String> destinations = ImmutableList.of("53.134889, 18.035789", "53.142835, 18.018029", "53.130221, 18.039692", "53.111929, 18.035472", "53.120262, 17.977395");
 
         for(String toPlace: destinations) {
@@ -27,7 +27,8 @@ public class LegGeometryIT extends IntegrationTest {
                     .queryParam("fromPlace", "53.119934, 17.997763")
                     .queryParam("toPlace", toPlace)
                     .queryParam("locale", "pl")
-                    .queryParam("mode", "WALK,TRANSIT")
+                    .queryParam("mode", "WALK,TRANSIT,CAR,BICYCLE")
+                    .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
                     .queryParam("startingMode", "WALK")
                     .queryParam("rentingAllowed", "true")
                     .queryParam("time", "15:00:00")
@@ -45,7 +46,7 @@ public class LegGeometryIT extends IntegrationTest {
     }
 
     @Test
-    public void testLegGeometryContinuity2() {
+    public void testLegGeometryContinuityNoRenting() {
         List<String> destinations = ImmutableList.of("53.1348584,18.0358261", "53.142835, 18.018029", "53.130221, 18.039692", "53.111929, 18.035472", "53.120262, 17.977395");
 
         for(String toPlace: destinations) {

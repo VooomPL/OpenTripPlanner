@@ -26,6 +26,7 @@ public class ResponseStructureIT extends IntegrationTest {
                 .queryParam("mode", "WALK,TRANSIT")
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
+                .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
                 .queryParam("time", "15:00:00")
                 .queryParam("date", "07-22-2020")
                 .request().get();
