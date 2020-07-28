@@ -83,7 +83,7 @@ public class TemporaryStreetSplitter {
      * @param options
      * @param endVertex true if this is destination vertex
      */
-    public Vertex getClosestVertex(GenericLocation location, RoutingRequest options, boolean endVertex) {
+    public TemporaryStreetLocation getClosestVertex(GenericLocation location, RoutingRequest options, boolean endVertex) {
         TemporaryStreetLocation closest = createTemporaryVertex(location, options, endVertex);
         TraverseMode nonTransitMode = createTraverseMode(options, endVertex);
         if (endVertex) {
@@ -113,6 +113,7 @@ public class TemporaryStreetSplitter {
         return new TemporaryStreetLocation(UUID.randomUUID().toString(), coord, new NonLocalizedString(name), endVertex);
     }
 
+    // TODO AdamWiktor VMP-59
     private TraverseMode createTraverseMode(RoutingRequest options, boolean endVertex) {
         //It can be null in tests
         if (options != null) {

@@ -34,9 +34,9 @@ import javax.annotation.Nullable;
  * See discussion in pull request #1922, follow up issue #1934, and the original issue calling for replacement of
  * the stop linker, #1305.
  */
-public class SimpleStreetSplitter {
+public class PermanentStreetSplitter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleStreetSplitter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PermanentStreetSplitter.class);
 
     private final Graph graph;
 
@@ -44,7 +44,7 @@ public class SimpleStreetSplitter {
 
     private final VertexLinker vertexLinker;
 
-    public SimpleStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, VertexLinker vertexLinker) {
+    public PermanentStreetSplitter(Graph graph, HashGridSpatialIndex<Edge> hashGridSpatialIndex, VertexLinker vertexLinker) {
         this.graph = graph;
         this.idx = hashGridSpatialIndex;
         this.vertexLinker = vertexLinker;
@@ -60,8 +60,8 @@ public class SimpleStreetSplitter {
      * @param addExtraEdgesToAreas True if we want to add {@link org.opentripplanner.routing.edgetype.AreaEdge}
      *                             when linking edges to areas
      */
-    public static SimpleStreetSplitter createNewDefaultInstance(Graph graph, @Nullable HashGridSpatialIndex<Edge> index,
-                                                                boolean addExtraEdgesToAreas) {
+    public static PermanentStreetSplitter createNewDefaultInstance(Graph graph, @Nullable HashGridSpatialIndex<Edge> index,
+                                                                   boolean addExtraEdgesToAreas) {
         if (index == null) {
             index = LinkingGeoTools.createHashGridSpatialIndex(graph);
         }
@@ -73,7 +73,7 @@ public class SimpleStreetSplitter {
         EdgesToLinkFinder edgesToLinkFinder = new EdgesToLinkFinder(index, linkingGeoTools, bestCandidatesGetter);
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, addExtraEdgesToAreas);
         VertexLinker vertexLinker = new VertexLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
-        return new SimpleStreetSplitter(graph, index, vertexLinker);
+        return new PermanentStreetSplitter(graph, index, vertexLinker);
     }
 
     public HashGridSpatialIndex<Edge> getIdx() {
@@ -93,6 +93,13 @@ public class SimpleStreetSplitter {
         }
     }
 
+    /**
+     * Link this vertex into the graph to the closest walkable edge
+     */
+    public boolean link(Vertex vertex) {
+        return vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
+    }
+
     private boolean hasToBeLinked(Vertex v) {
         if (v instanceof TransitStop || v instanceof BikeRentalStationVertex || v instanceof BikeParkVertex) {
             return v.getOutgoing().stream().noneMatch(e -> e instanceof StreetTransitLink); // not yet linked
@@ -107,12 +114,5 @@ public class SimpleStreetSplitter {
             LOG.warn(graph.addBuilderAnnotation(new BikeRentalStationUnlinked((BikeRentalStationVertex) v)));
         else if (v instanceof BikeParkVertex)
             LOG.warn(graph.addBuilderAnnotation(new BikeParkUnlinked((BikeParkVertex) v)));
-    }
-
-    /**
-     * Link this vertex into the graph to the closest walkable edge
-     */
-    public boolean link(Vertex vertex) {
-        return vertexLinker.linkPermanently(vertex, TraverseMode.WALK);
     }
 }
