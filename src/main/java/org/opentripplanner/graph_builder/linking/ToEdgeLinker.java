@@ -34,17 +34,14 @@ public class ToEdgeLinker {
 
     private final LinkingGeoTools linkingGeoTools;
 
-    private boolean addExtraEdgesToAreas = false;
+    private final boolean addExtraEdgesToAreas;
 
     public ToEdgeLinker(StreetEdgeFactory edgeFactory, StreetSplitter splitter, EdgesMaker edgesMaker,
-                        LinkingGeoTools linkingGeoTools) {
+                        LinkingGeoTools linkingGeoTools, boolean addExtraEdgesToAreas) {
         this.edgeFactory = edgeFactory;
         this.splitter = splitter;
         this.edgesMaker = edgesMaker;
         this.linkingGeoTools = linkingGeoTools;
-    }
-
-    public void setAddExtraEdgesToAreas(boolean addExtraEdgesToAreas) {
         this.addExtraEdgesToAreas = addExtraEdgesToAreas;
     }
 
