@@ -12,10 +12,6 @@ public class VehiclePositionsDiff {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehiclePositionsDiff.class);
 
-    private static final String CAR = "car";
-    private static final String MOTORBIKE = "scooter";
-    private static final String KICKSCOOTER = "un-pedal-scooter";
-
     private final List<VehicleDescription> appeared;
 
     public VehiclePositionsDiff(List<SharedVehiclesApiResponse.Vehicle> vehicles) {

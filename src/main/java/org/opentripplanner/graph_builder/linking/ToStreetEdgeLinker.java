@@ -8,6 +8,7 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,23 @@ public class ToStreetEdgeLinker {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
         streetEdges.forEach(edge -> linkTemporarilyToEdge(vertex, edge, options));
         return !streetEdges.isEmpty();
+    }
+
+    public boolean linkTemporarily(TemporaryRentVehicleVertex vertex, TraverseMode traverseMode) {
+        List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
+        streetEdges.forEach(edge -> linkTemporarilyToEdge(vertex, edge));
+        return !streetEdges.isEmpty();
+    }
+
+    private void linkTemporarilyToEdge(TemporaryRentVehicleVertex vertex, StreetEdge edge) {
+        LineString orig = edge.getGeometry();
+        LinearLocation ll = linkingGeoTools.findLocationClosestToVertex(vertex, orig);
+        Optional<Vertex> maybeVertexToLinkTo = maybeFindVertexToLinkTo(edge, orig, ll);
+        if (maybeVertexToLinkTo.isPresent()) {
+            edgesMaker.makeTemporaryEdgesBothWays(vertex, maybeVertexToLinkTo.get());
+        } else {
+            toEdgeLinker.linkVertexToEdgeBothWaysTemporarily(vertex, edge, ll);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.opentripplanner.graph_builder.linking;
 
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.index.SpatialIndex;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.GenericLocation;
@@ -9,12 +10,16 @@ import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo.SingleParkingZone;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
@@ -40,7 +45,6 @@ public class TemporaryStreetSplitter {
     private final ToStreetEdgeLinker toStreetEdgeLinker;
 
     private final ToTransitStopLinker toTransitStopLinker;
-
 
     public TemporaryStreetSplitter(Graph graph, ToStreetEdgeLinker toStreetEdgeLinker, ToTransitStopLinker toTransitStopLinker) {
         this.graph = graph;
@@ -140,5 +144,27 @@ public class TemporaryStreetSplitter {
             List<SingleParkingZone> parkingZones = graph.parkingZonesCalculator.getParkingZonesForRentEdge(e, parkingZonesEnabled);
             e.updateParkingZones(parkingZonesEnabled, parkingZones);
         }
+    }
+
+    public TemporaryRentVehicleVertex linkRentableVehicleToGraph(VehicleDescription vehicle) {
+        TemporaryRentVehicleVertex temporaryVertex = createTemporaryVertex(vehicle);
+        if (!toStreetEdgeLinker.linkTemporarily(temporaryVertex, vehicle.getTraverseMode())) {
+            LOG.warn("Couldn't link vehicle {} to graph", vehicle);
+            return null;
+        } else {
+            return temporaryVertex;
+        }
+    }
+
+    private TemporaryRentVehicleVertex createTemporaryVertex(VehicleDescription vehicle) {
+        TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(), new CoordinateXY(vehicle.getLongitude(), vehicle.getLatitude()), "name");// TODO
+//        if (graph.parkingZonesCalculator != null) {
+//            List<SingleParkingZone> parkingZonesEnabled = graph.parkingZonesCalculator.getNewParkingZonesEnabled();
+//            List<SingleParkingZone> parkingZones = graph.parkingZonesCalculator.getParkingZonesForRentEdge(e, parkingZonesEnabled);
+//            new RentVehicleEdge(vertex, vehicle, , parkingZones); // TODO
+//        } else {
+            new RentVehicleEdge(vertex, vehicle, new ParkingZoneInfo(), new ParkingZoneInfo());
+//        }
+        return vertex;
     }
 }
