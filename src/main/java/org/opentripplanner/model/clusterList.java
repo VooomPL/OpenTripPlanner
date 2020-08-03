@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class clusterList {
    private ArrayList<cluster> clusters;
-    public ckusterList(String jsonPath) {
+    public clusterList(String jsonPath) {
         ObjectMapper mapper = new ObjectMapper();
         try(InputStream fileStream = new FileInputStream(jsonPath)) {
             this.clusters= mapper.readValue(fileStream, mapper.getTypeFactory().constructCollectionType(ArrayList.class, cluster.class));
