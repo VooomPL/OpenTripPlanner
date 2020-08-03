@@ -23,7 +23,7 @@ public class ResponseStructureIT extends IntegrationTest {
                 .queryParam("fromPlace", "53.119934, 17.997763")
                 .queryParam("toPlace", "53.142835, 18.018029")
                 .queryParam("locale", "pl")
-                .queryParam("mode", "WALK,TRANSIT")
+                .queryParam("mode", "WALK,TRANSIT, CAR, BICYCLE")
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
