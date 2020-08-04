@@ -1,7 +1,5 @@
-public class cluster {
-  private   int id;
-  private speedData[] speed ;
-  private edegeData [] edges;
+ private speedData[] speed ;
+  private edgeData[] edges;
 
     public int getId() {
         return id;
@@ -23,7 +21,8 @@ public class cluster {
         return edges;
     }
 
-    public void setEdges(edegData[] edges) {
+    public void setEdges(edgeData[] edges) {
         this.edges = edges;
     }
 }
+
