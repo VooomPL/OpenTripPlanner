@@ -1,4 +1,4 @@
-public class edegData {
+public class edgeData {
            private int clusterid;
            private long endid;
            private double   endlatitude;
