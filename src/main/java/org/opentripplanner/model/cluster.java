@@ -1,7 +1,7 @@
 public class cluster {
   private   int id;
   private speedData[] speed ;
-  private edegData [] edges;
+  private edegeData [] edges;
 
     public int getId() {
         return id;
