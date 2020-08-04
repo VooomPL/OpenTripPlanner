@@ -19,7 +19,7 @@ public class cluster {
         this.speed = speed;
     }
 
-    public edegData[] getEdges() {
+    public edgeData[] getEdges() {
         return edges;
     }
 
