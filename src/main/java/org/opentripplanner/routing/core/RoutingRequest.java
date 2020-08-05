@@ -1584,7 +1584,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      *
      * @param edge
      */
-    public void canSplitEdge(StreetEdge edge) {
+    public void canSplitEdge(StreetEdge edge) throws TrivialPathException {
         if (splitEdge == null) {
             splitEdge = edge;
         } else {

@@ -16,6 +16,7 @@ import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.edgetype.*;
+import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -310,8 +311,8 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
     }
     
     @Override
-    public Vertex getVertexForLocation(GenericLocation loc, RoutingRequest options,
-                                       boolean endVertex) {
+    public Vertex getVertexForLocation(GenericLocation loc, RoutingRequest options, boolean endVertex)
+            throws TrivialPathException {
         Coordinate c = loc.getCoordinate();
         if (c != null) {
             //return getClosestVertex(loc, options, endVertex);

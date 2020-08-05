@@ -11,6 +11,7 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo.SingleParkingZone;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
+import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -83,7 +84,8 @@ public class TemporaryStreetSplitter {
      * @param options
      * @param endVertex true if this is destination vertex
      */
-    public TemporaryStreetLocation linkLocationToGraph(GenericLocation location, RoutingRequest options, boolean endVertex) {
+    public TemporaryStreetLocation linkLocationToGraph(GenericLocation location, RoutingRequest options,
+                                                       boolean endVertex) throws TrivialPathException {
         TemporaryStreetLocation closest = createTemporaryVertex(location, options, endVertex);
         TraverseMode nonTransitMode = createTraverseMode(options, endVertex);
         if (endVertex) {

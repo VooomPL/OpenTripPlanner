@@ -5,6 +5,7 @@ import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
@@ -37,7 +38,8 @@ public class ToStreetEdgeLinker {
     /**
      * Temporarily link this vertex into the graph
      */
-    public boolean linkTemporarily(TemporaryStreetLocation vertex, TraverseMode traverseMode, RoutingRequest options) {
+    public boolean linkTemporarily(TemporaryStreetLocation vertex, TraverseMode traverseMode, RoutingRequest options)
+            throws TrivialPathException {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
         streetEdges.forEach(edge -> linkTemporarilyToEdge(vertex, edge, options));
         return !streetEdges.isEmpty();
@@ -52,7 +54,8 @@ public class ToStreetEdgeLinker {
         return !streetEdges.isEmpty();
     }
 
-    private void linkTemporarilyToEdge(TemporaryStreetLocation vertex, StreetEdge edge, RoutingRequest options) {
+    private void linkTemporarilyToEdge(TemporaryStreetLocation vertex, StreetEdge edge, RoutingRequest options)
+            throws TrivialPathException {
         LineString orig = edge.getGeometry();
         LinearLocation ll = linkingGeoTools.findLocationClosestToVertex(vertex, orig);
         Optional<Vertex> maybeVertexToLinkTo = maybeFindVertexToLinkTo(edge, orig, ll);
