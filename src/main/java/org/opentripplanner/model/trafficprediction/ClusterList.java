@@ -1,3 +1,5 @@
+package org.opentripplanner.model.trafficprediction;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,13 +8,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
-public class clusterList {
-   private ArrayList<cluster> clusters;
-    public clusterList(String jsonPath) {
+public class ClusterList {
+
+    private List<Cluster> clusters;
+
+    public ClusterList(String jsonPath) {
         ObjectMapper mapper = new ObjectMapper();
-        try(InputStream fileStream = new FileInputStream(jsonPath)) {
-            this.clusters= mapper.readValue(fileStream, mapper.getTypeFactory().constructCollectionType(ArrayList.class, cluster.class));
+        try (InputStream fileStream = new FileInputStream(jsonPath)) {
+            this.clusters = mapper.readValue(fileStream, mapper.getTypeFactory().constructCollectionType(ArrayList.class, Cluster.class));
         } catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -20,14 +25,13 @@ public class clusterList {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.clusters = clusters;
     }
 
-    public ArrayList<cluster> getClusters() {
+    public List<Cluster> getClusters() {
         return clusters;
     }
 
-    public void setClusters(ArrayList<cluster> clusters) {
-        this.clusters = clusters;
+    public void setClusters(List<Cluster> Clusters) {
+        this.clusters = Clusters;
     }
 }
