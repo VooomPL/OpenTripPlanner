@@ -13,6 +13,7 @@ import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -31,8 +32,10 @@ public class ToStreetEdgeLinkerTest {
     private ToStreetEdgeLinker toStreetEdgeLinker;
 
     private TemporaryStreetLocation temporaryVertex, otherTemporaryVertex;
+    private TemporaryRentVehicleVertex temporaryRentVehicleVertex;
     private StreetVertex vertex;
     private StreetEdge edge;
+    private LinearLocation ll;
     private RoutingRequest options;
 
     @Before
@@ -41,11 +44,14 @@ public class ToStreetEdgeLinkerTest {
         edgesToLinkFinder = mock(EdgesToLinkFinder.class);
         linkingGeoTools = mock(LinkingGeoTools.class);
         edgesMaker = mock(EdgesMaker.class);
+        ll = mock(LinearLocation.class);
+        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
 
         toStreetEdgeLinker = new ToStreetEdgeLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
 
         temporaryVertex = new TemporaryStreetLocation("id1", new Coordinate(0, 0), null, false);
         otherTemporaryVertex = new TemporaryStreetLocation("id1", new Coordinate(0, 0), null, false);
+        temporaryRentVehicleVertex = new TemporaryRentVehicleVertex("id3", new Coordinate(0, 0), "name");
         vertex = new StreetLocation("id2", new Coordinate(0, 1), "name");
 
         StreetVertex from = new StreetLocation("id1", new Coordinate(0, 1), "name");
@@ -90,8 +96,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldReturnTrueIfTemporaryLinkWasMadeToBeginningOfEdge() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(true);
 
         // when
@@ -112,8 +116,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldReturnTrueIfTemporaryLinkWasMadeToEndOfEdge() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(true);
 
@@ -136,8 +138,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldReturnTrueIfTemporaryLinkWasMadeToEndOfEdgeWhenProjectionIsExactlyAtTheEnd() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(true);
@@ -162,8 +162,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldReturnTrueIfPermanentLinkWasMade() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(true);
 
         // when
@@ -184,8 +182,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldSplitEdgeTemporarilyWhenCannotLinkToBeginningOrEnd() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
@@ -210,8 +206,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldSplitEdgePermanentlyWhenCannotLinkToBeginningOrEnd() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
@@ -236,8 +230,6 @@ public class ToStreetEdgeLinkerTest {
     public void shouldThrowExceptionWhenTryingToMakeSecondTemporarySplitOnTheSameEdge() {
         // given
         when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
-        LinearLocation ll = mock(LinearLocation.class);
-        when(linkingGeoTools.findLocationClosestToVertex(any(), any())).thenReturn(ll);
         when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
         when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
@@ -246,5 +238,61 @@ public class ToStreetEdgeLinkerTest {
 
         // when
         toStreetEdgeLinker.linkTemporarily(otherTemporaryVertex, TraverseMode.WALK, options);
+    }
+
+    @Test
+    public void shouldReturnTrueIfTemporaryLinkWasMadeBothWaysToVertex() {
+        // given
+        when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
+        when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(true);
+
+        // when
+        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.WALK);
+
+        // then
+        assertTrue(linkTemporarily);
+        verify(edgesMaker, times(1)).makeTemporaryEdgesBothWays(temporaryRentVehicleVertex, edge.getFromVertex());
+
+        verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryRentVehicleVertex, TraverseMode.WALK);
+        verify(linkingGeoTools, times(1)).findLocationClosestToVertex(temporaryRentVehicleVertex, edge.getGeometry());
+        verify(linkingGeoTools, times(1)).isLocationAtTheBeginning(ll);
+        verifyNoMoreInteractions(edgesToLinkFinder, linkingGeoTools, edgesMaker);
+        verifyZeroInteractions(toEdgeLinker);
+    }
+
+    @Test
+    public void shouldReturnTrueIfTemporaryLinkWasMadeBothWaysToEdge() {
+        // given
+        when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(edge));
+        when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
+        when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
+        when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
+
+        // when
+        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.WALK);
+
+        // then
+        assertTrue(linkTemporarily);
+        verify(toEdgeLinker, times(1)).linkVertexToEdgeBothWaysTemporarily(temporaryRentVehicleVertex, edge, ll);
+
+        verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryRentVehicleVertex, TraverseMode.WALK);
+        verify(linkingGeoTools, times(1)).findLocationClosestToVertex(temporaryRentVehicleVertex, edge.getGeometry());
+        verifyNoMoreInteractions(edgesToLinkFinder, toEdgeLinker);
+        verifyZeroInteractions(edgesMaker);
+    }
+
+    @Test
+    public void shouldReturnFalseIfFailedToLinkBothWays() {
+        // given
+        when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(emptyList());
+
+        // when
+        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.WALK);
+
+        // then
+        assertFalse(linkTemporarily);
+        verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryVertex, TraverseMode.WALK);
+        verifyNoMoreInteractions(edgesToLinkFinder);
+        verifyZeroInteractions(toEdgeLinker, linkingGeoTools, edgesMaker);
     }
 }

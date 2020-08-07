@@ -7,8 +7,7 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
  */
 public class TemporaryRentVehicleSplitterVertex extends TemporarySplitterVertex {
 
-    public TemporaryRentVehicleSplitterVertex(String label, double x, double y, StreetEdge streetEdge,
-                                              boolean endVertex) {
-        super(label, x, y, streetEdge, endVertex);
+    public TemporaryRentVehicleSplitterVertex(String label, double x, double y, StreetEdge streetEdge) {
+        super(label, x, y, streetEdge, false);
     }
 }

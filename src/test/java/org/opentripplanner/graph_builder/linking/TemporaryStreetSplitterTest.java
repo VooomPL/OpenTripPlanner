@@ -6,14 +6,21 @@ import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
@@ -21,6 +28,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class TemporaryStreetSplitterTest {
+
+    private static final CarDescription CAR = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
 
     private Graph graph;
     private ToStreetEdgeLinker toStreetEdgeLinker;
@@ -137,5 +146,43 @@ public class TemporaryStreetSplitterTest {
 
         // then
         assertTrue(closestVertex.getOutgoing().isEmpty());
+    }
+
+    @Test
+    public void shouldReturnEmptyIfFailedToLinkVertex() {
+        // given
+        when(toStreetEdgeLinker.linkTemporarilyBothWays(any(), any())).thenReturn(false);
+
+        // when
+        Optional<TemporaryRentVehicleVertex> temporaryRentVehicleVertex = temporaryStreetSplitter.linkRentableVehicleToGraph(CAR);
+
+        // then
+
+        assertFalse(temporaryRentVehicleVertex.isPresent());
+        verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(any(), eq(CAR.getTraverseMode()));
+    }
+
+    @Test
+    public void shouldReturnVertexIfSucceededInLinking() {
+        // given
+        when(toStreetEdgeLinker.linkTemporarilyBothWays(any(), any())).thenReturn(true);
+
+        // when
+        Optional<TemporaryRentVehicleVertex> temporaryRentVehicleVertex = temporaryStreetSplitter.linkRentableVehicleToGraph(CAR);
+
+        // then
+
+        assertTrue(temporaryRentVehicleVertex.isPresent());
+        TemporaryRentVehicleVertex vertex = temporaryRentVehicleVertex.get();
+        assertEquals(1, vertex.getIncoming().size());
+        assertEquals(1, vertex.getOutgoing().size());
+        assertEquals(vertex.getIncoming(), vertex.getOutgoing());
+        assertEquals(CAR.getLatitude(), vertex.getLat(), 0.1);
+        assertEquals(CAR.getLongitude(), vertex.getLon(), 0.1);
+        Edge edge = vertex.getOutgoing().stream().findFirst().get();
+        assertTrue(edge instanceof RentVehicleEdge);
+        RentVehicleEdge rentVehicleEdge = (RentVehicleEdge) edge;
+        assertEquals(CAR, rentVehicleEdge.getVehicle());
+        verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR.getTraverseMode());
     }
 }

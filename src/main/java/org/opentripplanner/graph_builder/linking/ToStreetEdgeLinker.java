@@ -9,6 +9,7 @@ import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public class ToStreetEdgeLinker {
     }
 
     /**
-     * Temporarily link this vertex into the graph
+     * Temporarily link this vertex into the graph (make connection from `origin` or to `destination`)
      */
     public boolean linkTemporarily(TemporaryStreetLocation vertex, TraverseMode traverseMode, RoutingRequest options)
             throws TrivialPathException {
@@ -46,7 +47,16 @@ public class ToStreetEdgeLinker {
     }
 
     /**
-     * Permanently link this vertex into the graph
+     * Temporarily link this vertex to graph in both directions (make connections both to and from `vertex`)
+     */
+    public boolean linkTemporarilyBothWays(TemporaryRentVehicleVertex vertex, TraverseMode traverseMode) {
+        List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
+        streetEdges.forEach(edge -> linkTemporarilyToEdgeBothWays(vertex, edge));
+        return !streetEdges.isEmpty();
+    }
+
+    /**
+     * Permanently link this vertex into the graph (make connections both to and from `vertex` and remove original edge)
      */
     public boolean linkPermanently(Vertex vertex, TraverseMode traverseMode) {
         List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
@@ -65,6 +75,17 @@ public class ToStreetEdgeLinker {
             //This throws runtime TrivialPathException if same edge is split in origin and destination link
             options.canSplitEdge(edge);
             toEdgeLinker.linkVertexToEdgeTemporarily(vertex, edge, ll);
+        }
+    }
+
+    private void linkTemporarilyToEdgeBothWays(TemporaryRentVehicleVertex vertex, StreetEdge edge) {
+        LineString orig = edge.getGeometry();
+        LinearLocation ll = linkingGeoTools.findLocationClosestToVertex(vertex, orig);
+        Optional<Vertex> maybeVertexToLinkTo = maybeFindVertexToLinkTo(edge, orig, ll);
+        if (maybeVertexToLinkTo.isPresent()) {
+            edgesMaker.makeTemporaryEdgesBothWays(vertex, maybeVertexToLinkTo.get());
+        } else {
+            toEdgeLinker.linkVertexToEdgeBothWaysTemporarily(vertex, edge, ll);
         }
     }
 
