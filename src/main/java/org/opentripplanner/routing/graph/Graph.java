@@ -9,6 +9,8 @@ import com.esotericsoftware.kryo.serializers.ExternalizableSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.*;
+import com.google.protobuf.LazyStringArrayList;
+import org.geotools.xml.xsi.XSISimpleTypes;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -43,6 +45,7 @@ import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
 import org.opentripplanner.routing.core.TransferTable;
 import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.EdgeWithCleanup;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
@@ -65,6 +68,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * A graph is really just one or more indexes into a set of vertexes. It used to keep edgelists for each vertex, but those are in the vertex now.
  */
@@ -670,8 +676,9 @@ public class Graph implements Serializable {
         }
 
         LOG.info("Main graph read. |V|={} |E|={}", graph.countVertices(), graph.countEdges());
-        graph.index(new DefaultStreetVertexIndexFactory());
-        return graph;
+
+
+       return graph;
     }
 
     /**
@@ -754,7 +761,32 @@ public class Graph implements Serializable {
     public void save(File file) throws IOException {
         LOG.info("Main graph size: |V|={} |E|={}", this.countVertices(), this.countEdges());
         LOG.info("Writing graph " + file.getAbsolutePath() + " ...");
-        try {
+        this.index(new DefaultStreetVertexIndexFactory());
+        List <StreetEdge> edg = this.getStreetEdges().stream().filter(e-> e instanceof StreetEdge).map(e->(StreetEdge) e).filter(e->e.canTraverse(new TraverseModeSet(TraverseMode.CAR))).collect(Collectors.toList());
+        FileWriter nf= new FileWriter("vertexees4.csv");
+        for (StreetEdge e:edg
+        ) {
+            int eid= e.getId();
+            double lat = (e.fromv.getLat() + e.tov.getLat()) / 2;
+            double lon = (e.fromv.getLon() + e.tov.getLon())/2;
+      //      LOG.info("{},{},{} ",e.wayId ,lat,lon);
+
+            String s   =  String.valueOf(eid)+" "
+                    +String.valueOf(e.wayId)+" "
+                    + String.valueOf(e.getStartOsmNodeId())+" "
+                    + String.valueOf(e.fromv.getLat()) +" "
+                    + String.valueOf(e.fromv.getLon()) +" "
+                    + String.valueOf(e.getEndOsmNodeId())+" "
+                    + String.valueOf(e.tov.getLat()) +" "
+                    + String.valueOf(e.tov.getLon())+" "
+                    + String.valueOf(e.getAzimuth())+" "
+                    + (e.getDistanceInMeters())+" "
+                    +"\n";
+
+            nf.append(s);
+        }
+        nf.close();
+            try {
             save(new FileOutputStream(file));
         } catch (Exception e) {
             file.delete(); // remove half-written file
