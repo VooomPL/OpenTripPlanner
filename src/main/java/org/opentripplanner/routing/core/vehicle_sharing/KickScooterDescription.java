@@ -1,9 +1,9 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
-
-import static java.lang.Double.min;
 
 public class KickScooterDescription extends VehicleDescription {
     private static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 15. * (10. / 36.);
@@ -11,18 +11,23 @@ public class KickScooterDescription extends VehicleDescription {
 
     private static final TraverseMode TRAVERSE_MODE = TraverseMode.BICYCLE;
 
-    private static final int RENT_TIME_IN_SECONDS = 30;
-
-    private static final int DROPOFF_TIME_IN_SECONDS = 30;
-
     private static final VehicleType VEHICLE_TYPE = VehicleType.KICKSCOOTER;
-    //  We don't want to return routes with long kickscooter legs.
-    private static final double DEFAULT_RANGE_IN_METERS = 4 * 1000;
+
+    private static final double DEFAULT_RANGE_IN_METERS = 16 * 1000;
 
     public KickScooterDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                                   Gearbox gearbox, Provider provider, Double rangeInMeters) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, min(rangeInMeters, DEFAULT_RANGE_IN_METERS));
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
     }
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public KickScooterDescription(@JsonProperty("providerVehicleId") String providerVehicleId, @JsonProperty("longitude") double longitude,
+                                  @JsonProperty("latitude") double latitude, @JsonProperty("fuelType") FuelType fuelType,
+                                  @JsonProperty("gearbox") Gearbox gearbox, @JsonProperty("providerId") int providerId,
+                                  @JsonProperty("providerName") String providerName, @JsonProperty("rangeInMeters") Double rangeInMeters) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, new Provider(providerId, providerName), rangeInMeters);
+    }
+
 
     public KickScooterDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                                   Gearbox gearbox, Provider provider) {
@@ -43,16 +48,6 @@ public class KickScooterDescription extends VehicleDescription {
     }
 
     @Override
-    public int getRentTimeInSeconds() {
-        return RENT_TIME_IN_SECONDS;
-    }
-
-    @Override
-    public int getDropoffTimeInSeconds() {
-        return DROPOFF_TIME_IN_SECONDS;
-    }
-
-    @Override
     public VehicleType getVehicleType() {
         return VEHICLE_TYPE;
     }
@@ -60,5 +55,11 @@ public class KickScooterDescription extends VehicleDescription {
     @Override
     protected double getDefaultRangeInMeters() {
         return DEFAULT_RANGE_IN_METERS;
+    }
+
+    //  We don't want to return routes with long kickscooter legs.
+    @Override
+    protected Double getMaximumRangeInMeters() {
+        return getDefaultRangeInMeters();
     }
 }

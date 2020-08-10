@@ -2,6 +2,7 @@ package org.opentripplanner.routing.graph;
 
 import com.conveyal.kryo.TIntArrayListSerializer;
 import com.conveyal.kryo.TIntIntHashMapSerializer;
+import com.csvreader.CsvWriter;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -25,13 +26,10 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.joda.time.DateTime;
 import org.objenesis.strategy.SerializingInstantiatorStrategy;
 import org.opentripplanner.calendar.impl.CalendarServiceImpl;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.FeedInfo;
+import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.*;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.analyst.core.GeometryIndex;
 import org.opentripplanner.analyst.request.SampleFactory;
 import org.opentripplanner.common.MavenVersion;
@@ -39,7 +37,6 @@ import org.opentripplanner.common.geometry.GraphUtils;
 import org.opentripplanner.graph_builder.annotation.GraphBuilderAnnotation;
 import org.opentripplanner.graph_builder.annotation.NoFutureDates;
 import org.opentripplanner.kryo.HashBiMapSerializer;
-import org.opentripplanner.model.GraphBundle;
 import org.opentripplanner.profile.StopClusterMode;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
@@ -60,11 +57,17 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.updater.GraphUpdaterConfigurator;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
+import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
@@ -95,6 +98,12 @@ public class Graph implements Serializable {
     private long transitServiceEnds = 0;
 
     private Map<Class<?>, Object> _services = new HashMap<Class<?>, Object>();
+
+    private Collection<Route> transitRoutes = new ArrayList<>();
+
+    private Map<FeedScopedId, Stop> transitStops = new HashMap<>();
+
+    private Collection<StopTime> transitStopTimes = new ArrayList<>();
 
     private TransferTable transferTable = new TransferTable();
 
@@ -217,6 +226,8 @@ public class Graph implements Serializable {
 
     /** Areas for flex service */
     public Map<FeedScopedId, Geometry> flexAreasById = new HashMap<>();
+
+    public ParkingZonesCalculator parkingZonesCalculator;
 
     public Graph(Graph basedOn) {
         this();
@@ -441,6 +452,15 @@ public class Graph implements Serializable {
             _services.put(serviceType, t);
         }
         return t;
+    }
+
+    public void addTransitRoutes(Collection<Route> routes){
+        this.transitRoutes = Stream.of(this.transitRoutes, routes)
+                .flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    public Collection<Route> getTransitRoutes(){
+        return transitRoutes;
     }
 
     public void remove(Vertex vertex) {
@@ -758,6 +778,75 @@ public class Graph implements Serializable {
         return kryo;
     }
 
+    public void saveTransitLines(File file) throws IOException {
+        LOG.info("Writing transit lines to csv {} ...", file.getAbsolutePath());
+
+        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        try{
+            for (Route route:getTransitRoutes()) {
+                String routeTypeName = "UNSUPPORTED";
+                try{
+                    routeTypeName = GtfsLibrary.getTraverseMode(route).name();
+                }catch(IllegalArgumentException e) {
+                    LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
+                }
+                writer.writeRecord(new String[]{routeTypeName, Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName()});
+            }
+        } catch (IOException e) {
+            file.delete();
+            throw e;
+        } finally {
+            writer.close();
+        }
+    }
+
+    public void saveTransitLineStops(File file) throws IOException {
+        LOG.info("Writing transit line stops to csv {} ...", file.getAbsolutePath());
+
+        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        try{
+            for (Stop stop:this.transitStops.values()) {
+                writer.writeRecord(new String[]{stop.getId().getId(), ""+stop.getLat(), ""+stop.getLon(), stop.getName(), String.join("#", stop.getLineNames())});
+            }
+        } catch (IOException e) {
+            file.delete();
+            throw e;
+        }
+        finally {
+            writer.close();
+        }
+    }
+
+    public void saveTransitLineStopTimes(File file) throws IOException {
+        LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
+
+        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        try {
+            for (StopTime stopTime:this.transitStopTimes) {
+                Set<ServiceDate> serviceDates = calendarService.getServiceDatesForServiceId(stopTime.getTrip().getServiceId());
+                for (ServiceDate serviceDate : serviceDates) {
+                    LocalDate serviceDateToWrite = LocalDate.of(serviceDate.getYear(), serviceDate.getMonth(), serviceDate.getDay());
+                    int serviceTimeToWrite = stopTime.getArrivalTime();
+                    //if arrival time is eg. 25:30, convert it to 1:30 next day
+                    if (serviceTimeToWrite > LocalTime.MAX.toSecondOfDay()) {
+                        serviceTimeToWrite -= LocalTime.MAX.toSecondOfDay();
+                        serviceDateToWrite = serviceDateToWrite.plusDays(1);
+                    }
+                    if (!serviceDateToWrite.isBefore(LocalDate.now()) && !serviceDateToWrite.isAfter(LocalDate.now().plusDays(7))) {
+                        String arrivalDate = LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        String routeShortName = Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName);
+                        writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), routeShortName, arrivalDate});
+                    }
+                }
+            }
+        } catch (IOException e) {
+            file.delete();
+            throw e;
+        } finally {
+            writer.close();
+        }
+    }
+
     public void save(File file) throws IOException {
         LOG.info("Main graph size: |V|={} |E|={}", this.countVertices(), this.countEdges());
         LOG.info("Writing graph " + file.getAbsolutePath() + " ...");
@@ -1062,5 +1151,17 @@ public class Graph implements Serializable {
             flexIndex.init(this);
         }
         this.useFlexService = useFlexService;
+    }
+
+    public void addTransitStops(Collection<Stop> newStops){
+        newStops.stream().forEach(newStop -> this.transitStops.put(newStop.getId(), newStop));
+    }
+
+    public void addTransitStopTime(StopTime newStopTime){
+        this.transitStopTimes.add(newStopTime);
+        if(!this.transitStops.containsKey(newStopTime.getStop().getId())){
+            this.transitStops.put(newStopTime.getStop().getId(), newStopTime.getStop());
+        }
+        this.transitStops.get(newStopTime.getStop().getId()).addLine(Optional.ofNullable(newStopTime.getTrip().getRoute().getShortName()).orElseGet(newStopTime.getTrip().getRoute()::getLongName));
     }
 }
