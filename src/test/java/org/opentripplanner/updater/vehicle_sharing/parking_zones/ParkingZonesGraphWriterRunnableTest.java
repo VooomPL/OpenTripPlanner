@@ -45,7 +45,9 @@ public class ParkingZonesGraphWriterRunnableTest {
     public void shouldUpdateParkingZonesForExistingVehicles() {
         // given
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex("id", new CoordinateXY(1, 2), "name");
-        RentVehicleEdge edge = spy(new RentVehicleEdge(vertex, CAR));
+        RentVehicleEdge edge = mock(RentVehicleEdge.class);
+        vertex.addIncoming(edge);
+        vertex.addOutgoing(edge);
 
         Graph graph = new Graph();
         graph.vehiclesTriedToLink.put(CAR, Optional.of(vertex));
