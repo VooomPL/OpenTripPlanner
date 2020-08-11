@@ -4,7 +4,6 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.TemporaryEdge;
-import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
 import java.util.Locale;
@@ -14,20 +13,13 @@ import java.util.Locale;
  * This edge is a loop on {@link TemporaryRentVehicleVertex} which, when traversed, changes our current traverse mode,
  * but leaves us in the same location.
  */
-public class RentVehicleEdge extends Edge implements TemporaryEdge {
+public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEdge {
 
     private final VehicleDescription vehicle;
 
-    private final ParkingZoneInfo parkingZones;
-
-    private final ParkingZoneInfo parkingZonesEnabled;
-
-    public RentVehicleEdge(TemporaryRentVehicleVertex v, VehicleDescription vehicle, ParkingZoneInfo parkingZones,
-                           ParkingZoneInfo parkingZonesEnabled) {
+    public RentVehicleEdge(TemporaryRentVehicleVertex v, VehicleDescription vehicle) {
         super(v, v);
         this.vehicle = vehicle;
-        this.parkingZones = parkingZones;
-        this.parkingZonesEnabled = parkingZonesEnabled;
     }
 
     @Override
@@ -65,10 +57,6 @@ public class RentVehicleEdge extends Edge implements TemporaryEdge {
         stateEditor.doneVehicleRenting();
         stateEditor.beginVehicleRenting(vehicle);
         return stateEditor.makeState();
-    }
-
-    private boolean canDropoffVehicleHere(VehicleDescription vehicle) {
-        return !parkingZonesEnabled.appliesToVehicle(vehicle) || parkingZones.appliesToVehicle(vehicle);
     }
 
     private State beginVehicleRenting(State state, VehicleDescription vehicle) {
