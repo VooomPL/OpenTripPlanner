@@ -7,6 +7,7 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.edgetype.rentedgetype.EdgeWithParkingZones;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
@@ -134,7 +135,7 @@ public class TemporaryStreetSplitterTest {
         assertTrue(closestVertex.getIncoming().contains(edge));
         assertTrue(edge instanceof TemporaryDropoffVehicleEdge);
         verify(graph.parkingZonesCalculator, times(1)).getNewParkingZonesEnabled();
-        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge(edge, parkingZonesEnabled);
+        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge((EdgeWithParkingZones) edge, parkingZonesEnabled);
     }
 
     @Test
@@ -205,7 +206,7 @@ public class TemporaryStreetSplitterTest {
         Edge edge = vertex.getOutgoing().stream().findFirst().get();
 
         verify(graph.parkingZonesCalculator, times(1)).getNewParkingZonesEnabled();
-        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge(edge, parkingZonesEnabled);
+        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge((EdgeWithParkingZones) edge, parkingZonesEnabled);
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR.getTraverseMode());
     }
 }
