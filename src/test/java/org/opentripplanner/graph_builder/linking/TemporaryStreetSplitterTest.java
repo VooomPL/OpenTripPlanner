@@ -6,10 +6,7 @@ import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
-import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
-import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
-import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
-import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
@@ -23,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -30,6 +28,9 @@ import static org.mockito.Mockito.*;
 public class TemporaryStreetSplitterTest {
 
     private static final CarDescription CAR = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
+
+    private final List<ParkingZoneInfo.SingleParkingZone> parkingZonesEnabled = singletonList(new ParkingZoneInfo.SingleParkingZone(1, VehicleType.CAR));
+    private final List<ParkingZoneInfo.SingleParkingZone> parkingZonesForEdge = singletonList(new ParkingZoneInfo.SingleParkingZone(1, VehicleType.CAR));
 
     private Graph graph;
     private ToStreetEdgeLinker toStreetEdgeLinker;
@@ -122,7 +123,7 @@ public class TemporaryStreetSplitterTest {
         List<ParkingZoneInfo.SingleParkingZone> parkingZonesForEdge = emptyList();
         graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
         when(graph.parkingZonesCalculator.getNewParkingZonesEnabled()).thenReturn(parkingZonesEnabled);
-        when(graph.parkingZonesCalculator.getParkingZonesForRentEdge(any(), eq(parkingZonesEnabled))).thenReturn(parkingZonesForEdge);
+        when(graph.parkingZonesCalculator.getParkingZonesForEdge(any(), eq(parkingZonesEnabled))).thenReturn(parkingZonesForEdge);
 
         // when
         TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, true);
@@ -133,7 +134,7 @@ public class TemporaryStreetSplitterTest {
         assertTrue(closestVertex.getIncoming().contains(edge));
         assertTrue(edge instanceof TemporaryDropoffVehicleEdge);
         verify(graph.parkingZonesCalculator, times(1)).getNewParkingZonesEnabled();
-        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForRentEdge((TemporaryDropoffVehicleEdge) edge, parkingZonesEnabled);
+        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge(edge, parkingZonesEnabled);
     }
 
     @Test
@@ -157,7 +158,6 @@ public class TemporaryStreetSplitterTest {
         Optional<TemporaryRentVehicleVertex> temporaryRentVehicleVertex = temporaryStreetSplitter.linkRentableVehicleToGraph(CAR);
 
         // then
-
         assertFalse(temporaryRentVehicleVertex.isPresent());
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(any(), eq(CAR.getTraverseMode()));
     }
@@ -171,7 +171,6 @@ public class TemporaryStreetSplitterTest {
         Optional<TemporaryRentVehicleVertex> temporaryRentVehicleVertex = temporaryStreetSplitter.linkRentableVehicleToGraph(CAR);
 
         // then
-
         assertTrue(temporaryRentVehicleVertex.isPresent());
         TemporaryRentVehicleVertex vertex = temporaryRentVehicleVertex.get();
         assertEquals(1, vertex.getIncoming().size());
@@ -183,6 +182,30 @@ public class TemporaryStreetSplitterTest {
         assertTrue(edge instanceof RentVehicleEdge);
         RentVehicleEdge rentVehicleEdge = (RentVehicleEdge) edge;
         assertEquals(CAR, rentVehicleEdge.getVehicle());
+        verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR.getTraverseMode());
+    }
+
+    @Test
+    public void shouldAddParkingZonesForVehicleVertex() {
+        // given
+        graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
+        when(graph.parkingZonesCalculator.getNewParkingZonesEnabled()).thenReturn(parkingZonesEnabled);
+        when(graph.parkingZonesCalculator.getParkingZonesForEdge(any(), any())).thenReturn(parkingZonesForEdge);
+        when(toStreetEdgeLinker.linkTemporarilyBothWays(any(), any())).thenReturn(true);
+
+        // when
+        Optional<TemporaryRentVehicleVertex> temporaryRentVehicleVertex = temporaryStreetSplitter.linkRentableVehicleToGraph(CAR);
+
+        // then
+        assertTrue(temporaryRentVehicleVertex.isPresent());
+        TemporaryRentVehicleVertex vertex = temporaryRentVehicleVertex.get();
+        assertEquals(1, vertex.getIncoming().size());
+        assertEquals(1, vertex.getOutgoing().size());
+        assertEquals(vertex.getIncoming(), vertex.getOutgoing());
+        Edge edge = vertex.getOutgoing().stream().findFirst().get();
+
+        verify(graph.parkingZonesCalculator, times(1)).getNewParkingZonesEnabled();
+        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge(edge, parkingZonesEnabled);
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR.getTraverseMode());
     }
 }

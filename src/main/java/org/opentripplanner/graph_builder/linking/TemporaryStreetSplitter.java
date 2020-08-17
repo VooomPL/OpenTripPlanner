@@ -11,7 +11,7 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
+import org.opentripplanner.routing.edgetype.rentedgetype.EdgeWithParkingZones;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo.SingleParkingZone;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
@@ -104,6 +104,20 @@ public class TemporaryStreetSplitter {
         return closest;
     }
 
+    /**
+     * Wraps rentable vehicle in `TemporaryRentVehicleVertex` and links that vertex to graph with temporary edges.
+     * Split edges don't replace existing ones, so only temporary edges and vertices are created.
+     */
+    public Optional<TemporaryRentVehicleVertex> linkRentableVehicleToGraph(VehicleDescription vehicle) {
+        TemporaryRentVehicleVertex temporaryVertex = createTemporaryRentVehicleVertex(vehicle);
+        if (!toStreetEdgeLinker.linkTemporarilyBothWays(temporaryVertex, vehicle.getTraverseMode())) {
+            LOG.debug("Couldn't link vehicle {} to graph", vehicle);
+            return Optional.empty();
+        } else {
+            return Optional.of(temporaryVertex);
+        }
+    }
+
     private TemporaryStreetLocation createTemporaryStreetLocation(GenericLocation location, RoutingRequest options, boolean endVertex) {
         Coordinate coord = location.getCoordinate();
         String name;
@@ -141,33 +155,23 @@ public class TemporaryStreetSplitter {
     }
 
     private void addTemporaryDropoffVehicleEdge(Vertex destination) {
-        TemporaryDropoffVehicleEdge e = new TemporaryDropoffVehicleEdge(destination);
-        if (graph.parkingZonesCalculator != null) {
-            List<SingleParkingZone> parkingZonesEnabled = graph.parkingZonesCalculator.getNewParkingZonesEnabled();
-            List<SingleParkingZone> parkingZones = graph.parkingZonesCalculator.getParkingZonesForRentEdge(e, parkingZonesEnabled);
-            e.updateParkingZones(parkingZonesEnabled, parkingZones);
-        }
+        TemporaryDropoffVehicleEdge edge = new TemporaryDropoffVehicleEdge(destination);
+        addParkingZonesToEdge(edge);
     }
 
-    /**
-     * Wraps rentable vehicle in `TemporaryRentVehicleVertex` and links that vertex to graph with temporary edges.
-     * Split edges don't replace existing ones, so only temporary edges and vertices are created.
-     */
-    public Optional<TemporaryRentVehicleVertex> linkRentableVehicleToGraph(VehicleDescription vehicle) {
-        TemporaryRentVehicleVertex temporaryVertex = createTemporaryRentVehicleVertex(vehicle);
-        if (!toStreetEdgeLinker.linkTemporarilyBothWays(temporaryVertex, vehicle.getTraverseMode())) {
-            LOG.debug("Couldn't link vehicle {} to graph", vehicle);
-            return Optional.empty();
-        } else {
-            return Optional.of(temporaryVertex);
+    private void addParkingZonesToEdge(EdgeWithParkingZones edge) {
+        if (graph.parkingZonesCalculator != null) {
+            List<SingleParkingZone> parkingZonesEnabled = graph.parkingZonesCalculator.getNewParkingZonesEnabled();
+            List<SingleParkingZone> parkingZones = graph.parkingZonesCalculator.getParkingZonesForEdge(edge, parkingZonesEnabled);
+            edge.updateParkingZones(parkingZonesEnabled, parkingZones);
         }
     }
 
     private TemporaryRentVehicleVertex createTemporaryRentVehicleVertex(VehicleDescription vehicle) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(vehicle.getLongitude(), vehicle.getLatitude()), "Renting vehicle " + vehicle);
-        // TODO AdamWiktor VMP-4 Calculate parking zones
-        new RentVehicleEdge(vertex, vehicle, new ParkingZoneInfo(), new ParkingZoneInfo());
+        RentVehicleEdge edge = new RentVehicleEdge(vertex, vehicle);
+        addParkingZonesToEdge(edge);
         return vertex;
     }
 }
