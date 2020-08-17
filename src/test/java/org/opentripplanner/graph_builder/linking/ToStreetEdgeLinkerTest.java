@@ -34,7 +34,7 @@ public class ToStreetEdgeLinkerTest {
     private TemporaryStreetLocation temporaryVertex, otherTemporaryVertex;
     private TemporaryRentVehicleVertex temporaryRentVehicleVertex;
     private StreetVertex vertex;
-    private StreetEdge edge;
+    private StreetEdge edge, carOnlyEdge;
     private LinearLocation ll;
     private RoutingRequest options;
 
@@ -58,6 +58,8 @@ public class ToStreetEdgeLinkerTest {
         StreetVertex to = new StreetLocation("id2", new Coordinate(1, 1), "name");
         edge = new StreetEdge(from, to, GeometryUtils.makeLineString(0, 1, 0.5, 1, 1, 1),
                 "S. Crystal Dr", 100, StreetTraversalPermission.PEDESTRIAN, false);
+        carOnlyEdge = new StreetEdge(from, to, GeometryUtils.makeLineString(0, 1, 1, 1),
+                "S. Crystal Dr", 100, StreetTraversalPermission.CAR, false);
 
         options = new RoutingRequest();
     }
@@ -269,13 +271,37 @@ public class ToStreetEdgeLinkerTest {
         when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
 
         // when
-        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.WALK);
+        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.CAR);
 
         // then
         assertTrue(linkTemporarily);
         verify(toEdgeLinker, times(1)).linkVertexToEdgeBothWaysTemporarily(temporaryRentVehicleVertex, edge, ll);
 
+        verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryRentVehicleVertex, TraverseMode.CAR);
+        verify(linkingGeoTools, times(1)).findLocationClosestToVertex(temporaryRentVehicleVertex, edge.getGeometry());
+        verifyNoMoreInteractions(edgesToLinkFinder, toEdgeLinker);
+        verifyZeroInteractions(edgesMaker);
+    }
+
+    @Test
+    public void shouldReturnTrueIfTemporaryLinkWasMadeBothWaysToEdgeForcingExtraWalkEdges() {
+        // given
+        when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(singletonList(carOnlyEdge)).thenReturn(singletonList(edge));
+        when(linkingGeoTools.isLocationAtTheBeginning(any())).thenReturn(false);
+        when(linkingGeoTools.isLocationExactlyAtTheEnd(any(), any())).thenReturn(false);
+        when(linkingGeoTools.isLocationAtTheEnd(any(), any())).thenReturn(false);
+
+        // when
+        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.CAR);
+
+        // then
+        assertTrue(linkTemporarily);
+        verify(toEdgeLinker, times(1)).linkVertexToEdgeBothWaysTemporarily(temporaryRentVehicleVertex, edge, ll);
+        verify(toEdgeLinker, times(1)).linkVertexToEdgeBothWaysTemporarily(temporaryRentVehicleVertex, carOnlyEdge, ll);
+
+        verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryRentVehicleVertex, TraverseMode.CAR);
         verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryRentVehicleVertex, TraverseMode.WALK);
+        verify(linkingGeoTools, times(1)).findLocationClosestToVertex(temporaryRentVehicleVertex, carOnlyEdge.getGeometry());
         verify(linkingGeoTools, times(1)).findLocationClosestToVertex(temporaryRentVehicleVertex, edge.getGeometry());
         verifyNoMoreInteractions(edgesToLinkFinder, toEdgeLinker);
         verifyZeroInteractions(edgesMaker);
@@ -284,13 +310,14 @@ public class ToStreetEdgeLinkerTest {
     @Test
     public void shouldReturnFalseIfFailedToLinkBothWays() {
         // given
-        when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(emptyList());
+        when(edgesToLinkFinder.findEdgesToLink(any(), any())).thenReturn(emptyList()).thenReturn(emptyList());
 
         // when
-        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.WALK);
+        boolean linkTemporarily = toStreetEdgeLinker.linkTemporarilyBothWays(temporaryRentVehicleVertex, TraverseMode.CAR);
 
         // then
         assertFalse(linkTemporarily);
+        verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryVertex, TraverseMode.CAR);
         verify(edgesToLinkFinder, times(1)).findEdgesToLink(temporaryVertex, TraverseMode.WALK);
         verifyNoMoreInteractions(edgesToLinkFinder);
         verifyZeroInteractions(toEdgeLinker, linkingGeoTools, edgesMaker);

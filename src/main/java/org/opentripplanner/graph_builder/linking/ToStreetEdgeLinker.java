@@ -4,6 +4,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Vertex;
@@ -13,6 +14,9 @@ import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Tries to link vertices to all closest edges in graph. If possible, it maset links directly to vertexes
@@ -50,7 +54,7 @@ public class ToStreetEdgeLinker {
      * Temporarily link this vertex to graph in both directions (make connections both to and from `vertex`)
      */
     public boolean linkTemporarilyBothWays(TemporaryRentVehicleVertex vertex, TraverseMode traverseMode) {
-        List<StreetEdge> streetEdges = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
+        List<StreetEdge> streetEdges = getStreetEdgesForceIncludeWalkEdge(vertex, traverseMode);
         streetEdges.forEach(edge -> linkTemporarilyToEdgeBothWays(vertex, edge));
         return !streetEdges.isEmpty();
     }
@@ -76,6 +80,17 @@ public class ToStreetEdgeLinker {
             options.canSplitEdge(edge);
             toEdgeLinker.linkVertexToEdgeTemporarily(vertex, edge, ll);
         }
+    }
+
+    private List<StreetEdge> getStreetEdgesForceIncludeWalkEdge(TemporaryRentVehicleVertex vertex, TraverseMode traverseMode) {
+        List<StreetEdge> streetEdgesForRiding = edgesToLinkFinder.findEdgesToLink(vertex, traverseMode);
+        if (streetEdgesForRiding.stream().anyMatch(edge -> edge.canTraverse(new TraverseModeSet(TraverseMode.WALK)))) {
+            return streetEdgesForRiding;
+        }
+        List<StreetEdge> streetEdgesForWalking = edgesToLinkFinder.findEdgesToLink(vertex, TraverseMode.WALK);
+        return Stream.concat(streetEdgesForRiding.stream(), streetEdgesForWalking.stream())
+                .distinct()
+                .collect(toList());
     }
 
     private void linkTemporarilyToEdgeBothWays(TemporaryRentVehicleVertex vertex, StreetEdge edge) {
