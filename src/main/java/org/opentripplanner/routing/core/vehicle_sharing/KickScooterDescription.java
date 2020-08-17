@@ -70,9 +70,7 @@ public class KickScooterDescription extends VehicleDescription {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KickScooterDescription that = (KickScooterDescription) o;
-        return Double.compare(getLongitude(), that.getLongitude()) == 0 && // TODO AdamWiktor VMP-4 compare approximately
-                Double.compare(getLatitude(), that.getLatitude()) == 0 &&
-                Double.compare(getRangeInMeters(), that.getRangeInMeters()) == 0 &&
+        return Objects.equals(getProviderVehicleId(), that.getProviderVehicleId()) &&
                 Objects.equals(getProvider(), that.getProvider());
     }
 
