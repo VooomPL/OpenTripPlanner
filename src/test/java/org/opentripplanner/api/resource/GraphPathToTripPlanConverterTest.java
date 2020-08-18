@@ -7,11 +7,13 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.junit.Test;
 import org.opentripplanner.api.model.*;
 import org.opentripplanner.calendar.impl.CalendarServiceImpl;
+import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
@@ -189,6 +191,36 @@ public class GraphPathToTripPlanConverterTest {
 
         // then
         assertNotEquals(normal, leg.legGeometry);
+    }
+
+    @Test
+    public void testLegGeometryContinuity() {
+        // given
+        RoutingRequest options = new RoutingRequest("BICYCLE_RENT,TRANSIT, WALK");
+        GraphPath[] graphPaths = buildPaths();
+        List<Edge> edges = new ArrayList<>(graphPaths[0].edges);
+        LegStateSplit legStateSplit = new LegStateSplit(graphPaths[0].states, ImmutableList.of(
+                new State(
+                        graphPaths[0].states.get(3).getVertex(),
+                        new StreetTransitLink((StreetVertex) edges.get(edges.size() - 1).getToVertex(), ((TransitStop) graphPaths[0].edges.get(2).getToVertex()), false),
+                        30,
+                        options)
+        ));
+
+        // when
+        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], false, false, locale);
+
+        // then
+        Coordinate prev = null, next;
+        for (int i = 0; i < itinerary.legs.size() - 1; ++i) {
+            assertNotNull(itinerary.legs.get(i).legGeometry);
+            List<Coordinate> coordinates = PolylineEncoder.decode(itinerary.legs.get(i).legGeometry);
+            next = coordinates.get(0);
+            if (prev != null) {
+                assertEquals(0, next.distance(prev),  0.01);
+            }
+            prev = coordinates.get(coordinates.size() - 1);
+        }
     }
 
     /**
@@ -559,6 +591,8 @@ public class GraphPathToTripPlanConverterTest {
                 v8, v10, 0, TraverseMode.RAIL);
         PatternHop e11 = new PatternHop(
                 v10, v12, trainStopDepart, trainStopDwell, 0);
+        e11.setGeometry(createSimpleGeometryWithTwist(trainStopDepart, trainStopDwell));
+
         PatternDwell e13 = new PatternDwell(
                 v12, v14, 1, firstTripPattern);
         PatternHop e15 = new PatternHop(
@@ -2033,6 +2067,19 @@ public class GraphPathToTripPlanConverterTest {
     static TemporaryPartialStreetEdge newTemporaryPartialStreetEdge(StreetEdge parentEdge, StreetVertex v1, StreetVertex v2, LineString geometry, String name, double length) {
         return new TemporaryPartialStreetEdge(parentEdge, v1, v2, geometry, new NonLocalizedString(name), length);
     }
+
+    private LineString createSimpleGeometryWithTwist(Stop s0, Stop s1) {
+
+        Coordinate[] coordinates = new Coordinate[]{
+                new Coordinate(s0.getLon() + 2, s0.getLat() - 1),
+                new Coordinate(s0.getLon(), s0.getLat()),
+                new Coordinate(s1.getLon(), s1.getLat())
+        };
+        CoordinateSequence sequence = new PackedCoordinateSequence.Double(coordinates, 2);
+
+        return GeometryUtils.getGeometryFactory().createLineString(sequence);
+    }
+
 
     /**
      * This class extends the {@link CalendarServiceData} class to allow for easier testing.
