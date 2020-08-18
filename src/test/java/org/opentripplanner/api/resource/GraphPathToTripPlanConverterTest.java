@@ -168,7 +168,7 @@ public class GraphPathToTripPlanConverterTest {
     }
 
     /**
-     * Encoded polyline should contain non trival points from LEG_SWITCH states such as going to/from bus stop
+     * Encoded polyline should add last coordinate
      */
     @Test
     public void testLegGeometryPolylineGeneration() {
@@ -177,13 +177,7 @@ public class GraphPathToTripPlanConverterTest {
         RoutingRequest options = new RoutingRequest("BICYCLE_RENT,TRANSIT");
         GraphPath[] graphPaths = buildPaths();
         List<Edge> edges = new ArrayList<>(graphPaths[0].edges);
-        LegStateSplit legStateSplit = new LegStateSplit(graphPaths[0].states, ImmutableList.of(
-                new State(
-                        graphPaths[0].states.get(3).getVertex(),
-                        new StreetTransitLink((StreetVertex) edges.get(edges.size() - 1).getToVertex(), ((TransitStop) graphPaths[0].edges.get(2).getToVertex()), false),
-                        30,
-                        options)
-        ));
+        LegStateSplit legStateSplit = new LegStateSplit(graphPaths[0].states, new Coordinate(1, 2, 3));
 
         // when
         GraphPathToTripPlanConverter.addLegGeometryToLeg(leg, edges, legStateSplit);
@@ -198,14 +192,6 @@ public class GraphPathToTripPlanConverterTest {
         // given
         RoutingRequest options = new RoutingRequest("BICYCLE_RENT,TRANSIT, WALK");
         GraphPath[] graphPaths = buildPaths();
-        List<Edge> edges = new ArrayList<>(graphPaths[0].edges);
-        LegStateSplit legStateSplit = new LegStateSplit(graphPaths[0].states, ImmutableList.of(
-                new State(
-                        graphPaths[0].states.get(3).getVertex(),
-                        new StreetTransitLink((StreetVertex) edges.get(edges.size() - 1).getToVertex(), ((TransitStop) graphPaths[0].edges.get(2).getToVertex()), false),
-                        30,
-                        options)
-        ));
 
         // when
         Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], false, false, locale);
