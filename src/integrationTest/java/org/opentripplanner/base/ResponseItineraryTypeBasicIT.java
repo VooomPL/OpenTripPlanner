@@ -95,6 +95,6 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
         assertThat(response.getStatus(), equalTo(200));
         assertThat(body.getPlan().itinerary.size(), equalTo(3));
         assertThat(body.getPlan().itinerary.stream().map(it -> it.itineraryType).collect(Collectors.toList()),
-                Matchers.contains("WALK+KICKSCOOTER", "WALK+MOTORBIKE+TRANSIT", "WALK+KICKSCOOTER+TRANSIT"));
+                Matchers.containsInAnyOrder("WALK+KICKSCOOTER", "WALK+MOTORBIKE+TRANSIT", "WALK+KICKSCOOTER+TRANSIT"));
     }
 }
