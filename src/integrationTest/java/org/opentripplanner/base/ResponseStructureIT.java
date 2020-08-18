@@ -55,9 +55,22 @@ public class ResponseStructureIT extends IntegrationTest {
         assertThat(tripPlan.to.vertexType, equalTo(VertexType.NORMAL));
 
         assertThat(tripPlan.itinerary.size(), equalTo(3));
-        assertItinerary0(tripPlan.itinerary.get(0));
-        assertItinerary1(tripPlan.itinerary.get(1));
-        assertItinerary2(tripPlan.itinerary.get(2));
+        for(Itinerary itinerary: tripPlan.itinerary) {
+            switch (itinerary.itineraryType) {
+                case "WALK+MOTORBIKE":
+                    assertItinerary2(itinerary);
+                    break;
+                case "WALK+MOTORBIKE+TRANSIT":
+                    assertItinerary1(itinerary);
+                    break;
+                case "WALK+KICKSCOOTER+TRANSIT":
+                    assertItinerary0(itinerary);
+                    break;
+                default:
+                    assertThat("Not recoginsed itinerary", false);
+                    break;
+            }
+        }
     }
 
     private void assertItinerary2(Itinerary itinerary) {
