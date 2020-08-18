@@ -81,7 +81,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GraphPathToTripPlanConverterTest {
-    private static final double F_DISTANCE[] = {3, 9996806.8, 3539050.5, 7, 2478638.8, 4, 2, 1, 0};
+    private static final double F_DISTANCE[] = {3, 10245436.5, 3539050.5, 7, 2478638.8, 4, 2, 1, 0};
     private static final double O_DISTANCE = 7286193.2;
     private static final double OCTANT = Math.PI / 4;
     private static final double NORTH = OCTANT * 0;
@@ -1507,16 +1507,17 @@ public class GraphPathToTripPlanConverterTest {
      */
     private void compareGeometries(EncodedPolylineBean[] geometries, Type type) {
         if (type == Type.FORWARD || type == Type.BACKWARD) {
-            assertEquals(2, geometries[0].getLength());
-            assertEquals("??_ibE_ibE", geometries[0].getPoints());
+            assertEquals(3, geometries[0].getLength());
+            assertEquals("??_ibE_ibE~hbE_seK", geometries[0].getPoints());
         } else if (type == Type.ONBOARD) {
             assertNull(geometries[0]);
         }
 
-        assertEquals(3, geometries[1].getLength());
         if (type == Type.FORWARD || type == Type.BACKWARD) {
-            assertEquals("_ibE_ibE_{geC_wpkG_{geC_wpkG", geometries[1].getPoints());
+            assertEquals(4, geometries[1].getLength());
+            assertEquals("?_}hQ_ibE~reK_{geC_wpkG_{geC_wpkG", geometries[1].getPoints());
         } else if (type == Type.ONBOARD) {
+            assertEquals(3, geometries[1].getLength());
             assertEquals("_wfhA_ekkC_mcbA_{geC_{geC_wpkG", geometries[1].getPoints());
         }
 
