@@ -39,8 +39,8 @@ public class ResponseStructureIT extends IntegrationTest {
     }
 
     private void assertRequestParameters(Response response) {
-        assertThat(response.getRequestParameters().keySet(), Matchers.containsInAnyOrder("mode", "startingMode", "fromPlace", "toPlace", "locale", "rentingAllowed", "date", "time"));
-        assertThat(response.getRequestParameters(), Matchers.hasEntry("mode", "WALK,TRANSIT"));
+        assertThat(response.getRequestParameters().keySet(), Matchers.containsInAnyOrder("mode", "startingMode", "fromPlace", "toPlace", "locale", "rentingAllowed", "date", "time", "vehicleTypesAllowed"));
+        assertThat(response.getRequestParameters(), Matchers.hasEntry("mode", "WALK,TRANSIT, CAR, BICYCLE"));
     }
 
     private void assertPlan(TripPlan tripPlan) {
@@ -61,55 +61,16 @@ public class ResponseStructureIT extends IntegrationTest {
     }
 
     private void assertItinerary2(Itinerary itinerary) {
-        assertThat(itinerary.itineraryType, equalTo("WALK+KICKSCOOTER+TRANSIT"));
-        assertThat(itinerary.usedNotRecommendedRoute, equalTo(true));
-
-        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.BICYCLE, 2646.726000000001)); // MOTORBIKE is a CAR
-        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 134.779));
-        assertThat(itinerary.traverseDistance, equalTo(2646.726000000001 + 134.779));
-
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.TRANSIT, 240));
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 121));
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.BICYCLE, 832));
-        assertThat(itinerary.duration, equalTo((long) 240 + 832 + 121));
-
-        assertThat(itinerary.legs.size(), equalTo(4));
-
-        assertThat(itinerary.legs.get(0).mode, equalTo(TraverseMode.WALK));
-        assertThat(itinerary.legs.get(0).agencyName, equalTo(null));
-
-        assertThat(itinerary.legs.get(1).mode, equalTo(TraverseMode.BUS));
-        assertThat(itinerary.legs.get(1).agencyName, equalTo("ZDMiKP Bydgoszcz"));
-        assertThat(itinerary.legs.get(1).routeShortName, equalTo("52"));
-        assertThat(itinerary.legs.get(1).routeLongName, equalTo("Błonie — Dworzec Leśne"));
-        assertThat(itinerary.legs.get(1).intermediateTransitStops.size(), equalTo(3));
-
-        assertThat(itinerary.legs.get(2).mode, equalTo(TraverseMode.WALK));
-        assertThat(itinerary.legs.get(2).agencyName, equalTo(null));
-
-        assertThat(itinerary.legs.get(3).mode, equalTo(TraverseMode.BICYCLE));
-        assertThat(itinerary.legs.get(3).vehicleDescription, notNullValue());
-        assertThat(itinerary.legs.get(3).vehicleDescription.getVehicleType(), equalTo(VehicleType.KICKSCOOTER));
-        assertThat(itinerary.legs.get(3).vehicleDescription.getProvider().getProviderName(), equalTo("Blinkee"));
-        assertThat(itinerary.legs.get(3).vehicleDescription.getLatitude(), closeTo(itinerary.legs.get(3).from.lat, 0.001));
-        assertThat(itinerary.legs.get(3).vehicleDescription.getLongitude(), closeTo(itinerary.legs.get(3).from.lon, 0.001));
-
-        for (int i = 0; i < itinerary.legs.size() - 1; ++i) {
-            assertThat(itinerary.legs.get(i).to, equalTo(itinerary.legs.get(i + 1).from));
-        }
-    }
-
-    private void assertItinerary1(Itinerary itinerary) {
         assertThat(itinerary.itineraryType, equalTo("WALK+MOTORBIKE"));
         assertThat(itinerary.usedNotRecommendedRoute, equalTo(false)); // the best route?
 
-        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 3778.4299999999994)); // MOTORBIKE is a CAR
-        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 585.158));
-        assertThat(itinerary.traverseDistance, equalTo(3778.4299999999994 + 585.158));
+        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 4091.9950000000003)); // MOTORBIKE is a CAR
+        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 524.418));
+        assertThat(itinerary.traverseDistance, equalTo(4616.413));
 
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 942));
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 470));
-        assertThat(itinerary.duration, equalTo((long) 942 + 470));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 1006));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 417));
+        assertThat(itinerary.duration, equalTo((long) 1006 + 417));
 
         assertThat(itinerary.legs.size(), equalTo(2));
 
@@ -128,18 +89,57 @@ public class ResponseStructureIT extends IntegrationTest {
         }
     }
 
+    private void assertItinerary1(Itinerary itinerary) {
+        assertThat(itinerary.itineraryType, equalTo("WALK+MOTORBIKE+TRANSIT"));
+        assertThat(itinerary.usedNotRecommendedRoute, equalTo(false));
+
+        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 4091.9950000000003)); // MOTORBIKE is a CAR
+        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 229.357));
+        assertThat(itinerary.traverseDistance, equalTo(4321.351999999999));
+
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.TRANSIT, 60));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 199));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 1006));
+        assertThat(itinerary.duration, equalTo((long) 60 + 1006 + 199));
+
+        assertThat(itinerary.legs.size(), equalTo(4));
+
+        assertThat(itinerary.legs.get(0).mode, equalTo(TraverseMode.WALK));
+        assertThat(itinerary.legs.get(0).agencyName, equalTo(null));
+
+        assertThat(itinerary.legs.get(1).mode, equalTo(TraverseMode.BUS));
+        assertThat(itinerary.legs.get(1).agencyName, equalTo("ZDMiKP Bydgoszcz"));
+        assertThat(itinerary.legs.get(1).routeShortName, equalTo("51"));
+        assertThat(itinerary.legs.get(1).routeLongName, equalTo("Plac Kościeleckich — Czyżkówko"));
+        assertThat(itinerary.legs.get(1).intermediateTransitStops.size(), equalTo(2));
+
+        assertThat(itinerary.legs.get(2).mode, equalTo(TraverseMode.WALK));
+        assertThat(itinerary.legs.get(2).agencyName, equalTo(null));
+
+        assertThat(itinerary.legs.get(3).mode, equalTo(TraverseMode.CAR));
+        assertThat(itinerary.legs.get(3).vehicleDescription, notNullValue());
+        assertThat(itinerary.legs.get(3).vehicleDescription.getVehicleType(), equalTo(VehicleType.MOTORBIKE));
+        assertThat(itinerary.legs.get(3).vehicleDescription.getProvider().getProviderName(), equalTo("Blinkee"));
+        assertThat(itinerary.legs.get(3).vehicleDescription.getLatitude(), closeTo(itinerary.legs.get(3).from.lat, 0.001));
+        assertThat(itinerary.legs.get(3).vehicleDescription.getLongitude(), closeTo(itinerary.legs.get(3).from.lon, 0.001));
+
+        for (int i = 0; i < itinerary.legs.size() - 1; ++i) {
+            assertThat(itinerary.legs.get(i).to, equalTo(itinerary.legs.get(i + 1).from));
+        }
+    }
+
     private void assertItinerary0(Itinerary itinerary) {
         assertThat(itinerary.itineraryType, equalTo("WALK+KICKSCOOTER+TRANSIT"));
         assertThat(itinerary.usedNotRecommendedRoute, equalTo(true));
 
-        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.BICYCLE, 2646.726000000001)); // MOTORBIKE is a CAR
+        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.BICYCLE, 2663.844000000001)); // MOTORBIKE is a CAR
         assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 134.779));
-        assertThat(itinerary.traverseDistance, equalTo(2646.726000000001 + 134.779));
+        assertThat(itinerary.traverseDistance, equalTo(2663.844000000001 + 134.779));
 
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.BICYCLE, 832));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.BICYCLE, 833));
         assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 121));
         assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.TRANSIT, 240));
-        assertThat(itinerary.duration, equalTo((long) (832 + 121 + 240)));
+        assertThat(itinerary.duration, equalTo((long) (833 + 121 + 240)));
 
         assertThat(itinerary.legs.size(), equalTo(4));
 

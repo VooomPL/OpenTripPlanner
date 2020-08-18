@@ -277,7 +277,6 @@
                 <version>2.22.2</version>
                 <executions>
                     <execution>
-                        <id>integration-test</id>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
