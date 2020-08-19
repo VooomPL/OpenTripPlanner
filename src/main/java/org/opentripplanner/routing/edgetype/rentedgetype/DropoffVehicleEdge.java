@@ -18,12 +18,12 @@ public class DropoffVehicleEdge extends EdgeWithParkingZones {
 
     @Override
     public String getName() {
-        return "Rent vehicle in node " + getToVertex().getName();
+        return "Drop off vehicle in node " + tov.getName();
     }
 
     @Override
     public String getName(Locale locale) {
-        return "Rent vehicle in node " + getToVertex().getName(locale);
+        return "Drop off vehicle in node " + tov.getName(locale);
     }
 
     @Override
