@@ -67,6 +67,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
@@ -827,10 +828,13 @@ public class Graph implements Serializable {
         }
     }
 
-    public void saveTransitLineStopTimes(File file) throws IOException {
-        LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
-
+    public void saveTransitLineStopTimes(File file, long timeout) throws IOException {
+        LocalTime startTime = LocalTime.now();
+        LOG.info("Preparing to write transit line stop times to csv");
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
+        int totalNumberOfRecords = 0;
+        int numberOfWrittenRecords = 0;
         try {
             for (StopTime stopTime:this.transitStopTimes) {
                 Set<ServiceDate> serviceDates = calendarService.getServiceDatesForServiceId(stopTime.getTrip().getServiceId());
@@ -846,7 +850,9 @@ public class Graph implements Serializable {
                         String arrivalDate = LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         String routeShortName = Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName);
                         writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), routeShortName, arrivalDate});
+                        numberOfWrittenRecords++;
                     }
+                    totalNumberOfRecords++;
                 }
             }
         } catch (IOException e) {
@@ -854,6 +860,11 @@ public class Graph implements Serializable {
             throw e;
         } finally {
             writer.close();
+            long writingTime = startTime.until(LocalTime.now(), ChronoUnit.MINUTES);
+            if (writingTime >= timeout) {
+                LOG.warn("Writing transit line stop times to csv took {} minutes (considered entries: {}, written entries: {}",
+                        totalNumberOfRecords, numberOfWrittenRecords, writingTime);
+            }
         }
     }
 
