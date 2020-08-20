@@ -24,12 +24,12 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
 
     @Override
     public String getName() {
-        return "Rent vehicle " + vehicle;
+        return "Rent vehicle " + vehicle + " in node " + tov.getName();
     }
 
     @Override
     public String getName(Locale locale) {
-        return "Rent vehicle " + vehicle;
+        return "Rent vehicle " + vehicle + " in node " + tov.getName();
     }
 
     @Override
