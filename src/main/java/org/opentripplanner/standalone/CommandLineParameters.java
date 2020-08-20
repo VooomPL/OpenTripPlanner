@@ -57,9 +57,9 @@ public class CommandLineParameters implements Cloneable {
             description = "Disable export of transit line data to CSV.")
     public boolean disableGtfsDataExport = false;
 
-    @Parameter(names = {"--transitLineStopTimesExportTimeout"},
-            description = "If transit line stop times data export takes longer, a warning will be written to logs")
-    public long transitLineStopTimesExportTimeout = 1;
+    @Parameter(names = {"--transitStopTimesExportTimeout"},
+            description = "If transit line stop times data export takes longer than the specified number of seconds, the writing operation will be aborted")
+    public long transitStopTimesExportTimeout = 300;
 
     @Parameter(names = {"--cache"}, validateWith = ReadWriteDirectory.class,
             description = "The directory under which to cache OSM and NED tiles. Default is BASE_PATH/cache.")

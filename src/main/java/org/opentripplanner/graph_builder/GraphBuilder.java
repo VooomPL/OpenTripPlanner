@@ -169,6 +169,9 @@ public class GraphBuilder implements Runnable {
                     graph.saveTransitLineStops(transitLineStopsFile);
                     graph.saveTransitLineStopTimes(transitLineStopTimesFile, this.transitLineStopTimesExportTimeout);
                 }
+                else{
+                    LOG.info("Skipping transit line data export, as requested");
+                }
             } catch (Exception ex) {
                 throw new IllegalStateException(ex);
             }
@@ -206,7 +209,7 @@ public class GraphBuilder implements Runnable {
 
         GraphBuilder graphBuilder = new GraphBuilder(dir, builderParams);
         graphBuilder.setDisableGtfsDataExport(params.disableGtfsDataExport);
-        graphBuilder.setTransitLineStopTimesExportTimeout(params.transitLineStopTimesExportTimeout);
+        graphBuilder.setTransitLineStopTimesExportTimeout(params.transitStopTimesExportTimeout);
 
         // Load the router config JSON to fail fast, but we will only apply it later when a router starts up
         routerConfig = OTPMain.loadJson(new File(dir, Router.ROUTER_CONFIG_FILENAME));
