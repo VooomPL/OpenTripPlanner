@@ -255,7 +255,7 @@
                         <configuration>
                             <resources>
                                 <resource>
-                                    <directory>src/integration-test/resources</directory>
+                                    <directory>src/integrationTest/resources</directory>
                                 </resource>
                             </resources>
                         </configuration>
