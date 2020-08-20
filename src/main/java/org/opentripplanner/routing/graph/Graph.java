@@ -834,7 +834,7 @@ public class Graph implements Serializable {
         LOG.info("Preparing to write transit line stop times to csv");
         CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
         LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
-        int totalNumberOfRecords = 0;
+        int numberOfConsideredRecords = 0;
         int numberOfWrittenRecords = 0;
         long writingTime = 0;
         try {
@@ -854,11 +854,11 @@ public class Graph implements Serializable {
                         writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), routeShortName, arrivalDate});
                         numberOfWrittenRecords++;
                     }
+                    numberOfConsideredRecords++;
                     writingTime = startTime.until(LocalTime.now(), ChronoUnit.SECONDS);
                     if (writingTime > timeLimit) {
                          throw new TimeoutException();
                     }
-                    totalNumberOfRecords++;
                 }
             }
         } catch (IOException e) {
@@ -870,7 +870,7 @@ public class Graph implements Serializable {
         } finally {
             writer.close();
             LOG.info("Writing transit line stop times to csv took {} seconds (considered entries: {}, written entries: {}",
-                        writingTime, totalNumberOfRecords, numberOfWrittenRecords);
+                        writingTime, numberOfConsideredRecords, numberOfWrittenRecords);
         }
     }
 
