@@ -112,35 +112,34 @@ public class StateEditorTest {
         assertEquals(rentingState.weight + request.routingDelays.getDropoffTime(CAR_1) * request.routingReluctances.getRentingReluctance(), next.weight, DELTA);
     }
 
-    // TODO AdamWiktor VMP-76 reverse optimize
-//    @Test
-//    public void shouldAllowReverseRentingVehicles() {
-//        // given
-//        StateEditor stateEditor = rentingState.edit(rentVehicleAnywhereEdge);
-//
-//        // when
-//        stateEditor.reversedBeginVehicleRenting();
-//        State next = stateEditor.makeState();
-//
-//        // then: we drop off a car, but in renting time
-//        assertEquals(TraverseMode.WALK, next.getNonTransitMode());
-//        assertNull(next.getCurrentVehicle());
-//        assertEquals(rentingState.time + request.routingDelays.getRentingTime(CAR_1) * 1000, next.time);
-//    }
-//
-//    @Test
-//    public void shouldAllowReverseDroppingOffVehicles() {
-//        // given
-//        StateEditor stateEditor = state.edit(rentVehicleAnywhereEdge);
-//
-//        // when
-//        stateEditor.reversedDoneVehicleRenting(CAR_1);
-//        State next = stateEditor.makeState();
-//
-//        // then: we rent a car, but in dropoff time
-//        assertEquals(TraverseMode.CAR, next.getNonTransitMode());
-//        assertEquals(CAR_1, next.getCurrentVehicle());
-//        assertEquals(0, next.distanceTraversedInCurrentVehicle, DELTA);
-//        assertEquals(state.time + request.routingDelays.getDropoffTime(CAR_1) * 1000, next.time);
-//    }
+    @Test
+    public void shouldAllowReverseRentingVehicles() {
+        // given
+        StateEditor stateEditor = rentingState.edit(rentVehicleEdge);
+
+        // when
+        stateEditor.reversedBeginVehicleRenting();
+        State next = stateEditor.makeState();
+
+        // then: we drop off a car, but in renting time
+        assertEquals(TraverseMode.WALK, next.getNonTransitMode());
+        assertNull(next.getCurrentVehicle());
+        assertEquals(rentingState.time + request.routingDelays.getRentingTime(CAR_1) * 1000, next.time);
+    }
+
+    @Test
+    public void shouldAllowReverseDroppingOffVehicles() {
+        // given
+        StateEditor stateEditor = state.edit(dropoffVehicleEdge);
+
+        // when
+        stateEditor.reversedDoneVehicleRenting(CAR_1);
+        State next = stateEditor.makeState();
+
+        // then: we rent a car, but in dropoff time
+        assertEquals(TraverseMode.CAR, next.getNonTransitMode());
+        assertEquals(CAR_1, next.getCurrentVehicle());
+        assertEquals(0, next.distanceTraversedInCurrentVehicle, DELTA);
+        assertEquals(state.time + request.routingDelays.getDropoffTime(CAR_1) * 1000, next.time);
+    }
 }
