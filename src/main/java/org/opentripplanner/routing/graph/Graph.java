@@ -240,6 +240,15 @@ public class Graph implements Serializable {
      */
     public final Map<VehicleDescription, Optional<TemporaryRentVehicleVertex>> vehiclesTriedToLink = new HashMap<>();
 
+    public static final long DEFAULT_REMOVE_PROVIDER_IF_NO_UPDATES_LIMIT_SECONDS = 300;
+
+    public long removeProviderIfNoUpdatesLimitSeconds = DEFAULT_REMOVE_PROVIDER_IF_NO_UPDATES_LIMIT_SECONDS;
+
+    /**
+     * Timestamp for the last update of vehicles positions from each provider
+     */
+    public final Map<Integer, LocalTime> lastProviderVehiclesUpdateTimestamp = new HashMap<>();
+
     public Graph(Graph basedOn) {
         this();
         this.bundle = basedOn.getBundle();

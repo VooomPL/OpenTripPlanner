@@ -10,10 +10,8 @@ import org.opentripplanner.updater.GraphWriterRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -25,7 +23,6 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
     private final TemporaryStreetSplitter temporaryStreetSplitter;
 
     private final List<VehicleDescription> vehiclesFetchedFromApi;
-
 
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
                                       List<VehicleDescription> vehiclesFetchedFromApi) {
@@ -63,7 +60,13 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private void addAppearedRentableVehicles(Graph graph) {
         getAppearedVehicles(graph)
-                .forEach(v -> graph.vehiclesTriedToLink.put(v, temporaryStreetSplitter.linkRentableVehicleToGraph(v)));
+                .forEach(v -> {
+                    Optional<TemporaryRentVehicleVertex> linkedVehicle = temporaryStreetSplitter.linkRentableVehicleToGraph(v);
+                    graph.vehiclesTriedToLink.put(v, linkedVehicle);
+                    if(linkedVehicle.isPresent()){
+                        graph.lastProviderVehiclesUpdateTimestamp.put(new Integer(v.getProvider().getProviderId()), LocalTime.now());
+                    }
+                });
         long properlyLinked = graph.vehiclesTriedToLink.values().stream().filter(Optional::isPresent).count();
         LOG.info("Currently there are {} properly linked rentable vehicles in graph", properlyLinked);
         LOG.info("There are {} rentable vehicles which we failed to link to graph", graph.vehiclesTriedToLink.size() - properlyLinked);
