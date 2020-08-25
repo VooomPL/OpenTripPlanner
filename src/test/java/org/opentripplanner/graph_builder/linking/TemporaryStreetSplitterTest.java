@@ -174,7 +174,7 @@ public class TemporaryStreetSplitterTest {
         when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
 
         graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
-        when(graph.parkingZonesCalculator.getParkingZonesForEdge(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList()));
+        when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList()));
 
         // when
         TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, true);
@@ -184,7 +184,7 @@ public class TemporaryStreetSplitterTest {
         Edge edge = closestVertex.getOutgoing().stream().findFirst().get();
         assertTrue(closestVertex.getIncoming().contains(edge));
         assertTrue(edge instanceof TemporaryDropoffVehicleEdge);
-        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge((TemporaryDropoffVehicleEdge) edge);
+        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForLocation(closestVertex);
         verifyNoMoreInteractions(graph.parkingZonesCalculator);
         verifyZeroInteractions(toTransitStopLinker);
     }
@@ -245,7 +245,7 @@ public class TemporaryStreetSplitterTest {
     public void shouldAddParkingZonesForVehicleVertex() {
         // given
         graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
-        when(graph.parkingZonesCalculator.getParkingZonesForEdge(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList()));
+        when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList()));
         when(toStreetEdgeLinker.linkTemporarilyBothWays(any(), any())).thenReturn(true);
 
         // when
@@ -259,7 +259,7 @@ public class TemporaryStreetSplitterTest {
         assertEquals(vertex.getIncoming(), vertex.getOutgoing());
         Edge edge = vertex.getOutgoing().stream().findFirst().get();
 
-        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForEdge((RentVehicleEdge) edge);
+        verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForLocation(vertex);
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR);
         verifyNoMoreInteractions(graph.parkingZonesCalculator, toStreetEdgeLinker);
         verifyZeroInteractions(toTransitStopLinker);

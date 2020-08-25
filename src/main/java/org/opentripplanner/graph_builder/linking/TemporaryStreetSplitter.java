@@ -10,7 +10,6 @@ import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.edgetype.rentedgetype.EdgeWithParkingZones;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -146,21 +145,21 @@ public class TemporaryStreetSplitter {
     }
 
     private void addTemporaryDropoffVehicleEdge(Vertex destination) {
-        TemporaryDropoffVehicleEdge edge = new TemporaryDropoffVehicleEdge(destination);
-        addParkingZonesToEdge(edge);
-    }
-
-    private void addParkingZonesToEdge(EdgeWithParkingZones edge) {
-        if (graph.parkingZonesCalculator != null) {
-            edge.setParkingZones(graph.parkingZonesCalculator.getParkingZonesForEdge(edge));
+        if (graph.parkingZonesCalculator == null) {
+            new TemporaryDropoffVehicleEdge(destination);
+        } else {
+            new TemporaryDropoffVehicleEdge(destination, graph.parkingZonesCalculator.getParkingZonesForLocation(destination));
         }
     }
 
     private TemporaryRentVehicleVertex createTemporaryRentVehicleVertex(VehicleDescription vehicle) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(vehicle.getLongitude(), vehicle.getLatitude()), "Renting vehicle " + vehicle);
-        RentVehicleEdge edge = new RentVehicleEdge(vertex, vehicle);
-        addParkingZonesToEdge(edge);
+        if (graph.parkingZonesCalculator == null) {
+            new RentVehicleEdge(vertex, vehicle);
+        } else {
+            new RentVehicleEdge(vertex, vehicle, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        }
         return vertex;
     }
 }

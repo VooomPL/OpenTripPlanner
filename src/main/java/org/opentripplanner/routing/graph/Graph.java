@@ -61,6 +61,7 @@ import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
@@ -233,6 +234,7 @@ public class Graph implements Serializable {
     /**
      * Used for calculating parking zones for temporary vehicle dropoff edges added to graph
      */
+    @Nullable
     public ParkingZonesCalculator parkingZonesCalculator;
 
     /**
