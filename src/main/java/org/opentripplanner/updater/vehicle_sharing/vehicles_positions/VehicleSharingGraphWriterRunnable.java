@@ -1,6 +1,7 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -24,16 +25,27 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private final List<VehicleDescription> vehiclesFetchedFromApi;
 
+    private final List<Provider> responsiveProvidersFetchedFromApi;
+
+    private final LocalTime updateTimestamp;
+
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
-                                      List<VehicleDescription> vehiclesFetchedFromApi) {
+                                      List<VehicleDescription> vehiclesFetchedFromApi,
+                                      List<Provider> responsiveProvidersFetchedFromApi) {
         this.temporaryStreetSplitter = temporaryStreetSplitter;
         this.vehiclesFetchedFromApi = vehiclesFetchedFromApi;
+        this.responsiveProvidersFetchedFromApi = responsiveProvidersFetchedFromApi;
+        this.updateTimestamp = LocalTime.now();
     }
 
     @Override
     public void run(Graph graph) {
+        for (Provider responsiveProvider : responsiveProvidersFetchedFromApi) {
+            graph.getLastProviderVehiclesUpdateTimestamps().put(responsiveProvider, updateTimestamp);
+        }
         removeDisappearedRentableVehicles(graph);
         addAppearedRentableVehicles(graph);
+        graph.getLastProviderVehiclesUpdateTimestamps().entrySet().removeIf(entry -> graph.isUnresponsiveGracePeriodExceeded(entry.getKey(), updateTimestamp));
     }
 
     private void removeDisappearedRentableVehicles(Graph graph) {
@@ -47,7 +59,12 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private Map<VehicleDescription, Optional<TemporaryRentVehicleVertex>> getDisappearedVehicles(Graph graph) {
         return graph.vehiclesTriedToLink.entrySet().stream()
-                .filter(entry -> !vehiclesFetchedFromApi.contains(entry.getKey()))
+                .filter(entry ->
+                        !vehiclesFetchedFromApi.contains(entry.getKey()) &&
+                        (responsiveProvidersFetchedFromApi.contains(entry.getKey().getProvider()) ||
+                        graph.isUnresponsiveGracePeriodExceeded(entry.getKey().getProvider(), updateTimestamp))
+
+                )
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -60,13 +77,7 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private void addAppearedRentableVehicles(Graph graph) {
         getAppearedVehicles(graph)
-                .forEach(v -> {
-                    Optional<TemporaryRentVehicleVertex> linkedVehicle = temporaryStreetSplitter.linkRentableVehicleToGraph(v);
-                    graph.vehiclesTriedToLink.put(v, linkedVehicle);
-                    if(linkedVehicle.isPresent()){
-                        graph.lastProviderVehiclesUpdateTimestamp.put(new Integer(v.getProvider().getProviderId()), LocalTime.now());
-                    }
-                });
+                .forEach(v -> graph.vehiclesTriedToLink.put(v, temporaryStreetSplitter.linkRentableVehicleToGraph(v)));
         long properlyLinked = graph.vehiclesTriedToLink.values().stream().filter(Optional::isPresent).count();
         LOG.info("Currently there are {} properly linked rentable vehicles in graph", properlyLinked);
         LOG.info("There are {} rentable vehicles which we failed to link to graph", graph.vehiclesTriedToLink.size() - properlyLinked);

@@ -1,5 +1,6 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.util.HttpUtils;
@@ -7,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class VehiclePositionsGetter {
 
@@ -62,5 +65,11 @@ public class VehiclePositionsGetter {
         SharedVehiclesApiResponse response = HttpUtils.postData(url, body, SharedVehiclesApiResponse.class);
         LOG.info("Got {} vehicles from API", response.getData().getVehicles().size());
         return mapper.map(response.getData().getVehicles());
+    }
+
+    public List<Provider> getResponsiveProviders() {
+        return mapper.getNumberOfMappedVehiclesPerProvider().entrySet().stream()
+                .filter(entry -> entry.getValue()>0)
+                .map(Map.Entry::getKey).collect(Collectors.toList());
     }
 }

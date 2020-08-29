@@ -40,6 +40,7 @@ import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
 import org.opentripplanner.routing.core.TransferTable;
 import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.EdgeWithCleanup;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -67,6 +68,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
@@ -77,6 +79,8 @@ import java.util.stream.Stream;
  * A graph is really just one or more indexes into a set of vertexes. It used to keep edgelists for each vertex, but those are in the vertex now.
  */
 public class Graph implements Serializable {
+
+    public static final long REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS = 300;
 
     private static final Logger LOG = LoggerFactory.getLogger(Graph.class);
 
@@ -240,14 +244,10 @@ public class Graph implements Serializable {
      */
     public final Map<VehicleDescription, Optional<TemporaryRentVehicleVertex>> vehiclesTriedToLink = new HashMap<>();
 
-    public static final long DEFAULT_REMOVE_PROVIDER_IF_NO_UPDATES_LIMIT_SECONDS = 300;
-
-    public long removeProviderIfNoUpdatesLimitSeconds = DEFAULT_REMOVE_PROVIDER_IF_NO_UPDATES_LIMIT_SECONDS;
-
     /**
      * Timestamp for the last update of vehicles positions from each provider
      */
-    public final Map<Integer, LocalTime> lastProviderVehiclesUpdateTimestamp = new HashMap<>();
+    private final Map<Provider, LocalTime> lastProviderVehiclesUpdateTimestamps = new HashMap<>();
 
     public Graph(Graph basedOn) {
         this();
@@ -472,6 +472,17 @@ public class Graph implements Serializable {
             _services.put(serviceType, t);
         }
         return t;
+    }
+
+    public Map<Provider, LocalTime> getLastProviderVehiclesUpdateTimestamps() {
+        return lastProviderVehiclesUpdateTimestamps;
+    }
+
+    public boolean isUnresponsiveGracePeriodExceeded(Provider provider, LocalTime currentUpdateTimestamp){
+        if (lastProviderVehiclesUpdateTimestamps.containsKey(provider)) {
+            return lastProviderVehiclesUpdateTimestamps.get(provider).until(currentUpdateTimestamp, ChronoUnit.SECONDS) > REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS;
+        }
+        return false;
     }
 
     public void addTransitRoutes(Collection<Route> routes){

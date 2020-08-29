@@ -4,7 +4,9 @@ import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
@@ -13,7 +15,10 @@ public class VehiclePositionsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehiclePositionsMapper.class);
 
+    private Map<Provider, Long> numberOfMappedVehiclesPerProvider = new HashMap<>();
+
     public List<VehicleDescription> map(List<SharedVehiclesApiResponse.Vehicle> vehicles) {
+        numberOfMappedVehiclesPerProvider.clear();
         return vehicles.stream()
                 .map(this::mapToVehicleDescription)
                 .filter(Objects::nonNull)
@@ -41,17 +46,26 @@ public class VehiclePositionsMapper {
             LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicle.getType());
             return null;
         }
+        VehicleDescription mappedVehicle = null;
         switch (vehicleType) {
             case CAR:
-                return new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                mappedVehicle = new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                break;
             case MOTORBIKE:
-                return new MotorbikeDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                mappedVehicle = new MotorbikeDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                break;
             case KICKSCOOTER:
-                return new KickScooterDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                mappedVehicle = new KickScooterDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                break;
             default:
                 // this should never happen
                 LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicleType);
-                return null;
         }
+        numberOfMappedVehiclesPerProvider.merge(provider, 1L, Long::sum);
+        return mappedVehicle;
+    }
+
+    public Map<Provider, Long> getNumberOfMappedVehiclesPerProvider() {
+        return numberOfMappedVehiclesPerProvider;
     }
 }

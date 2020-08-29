@@ -49,6 +49,7 @@ public class VehiclePositionsMapperTest {
 
         // then
         assertTrue(vehicleDescriptions.isEmpty());
+        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().isEmpty());
     }
 
     @Test
@@ -61,6 +62,7 @@ public class VehiclePositionsMapperTest {
 
         // then
         assertTrue(vehicleDescriptions.isEmpty());
+        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().isEmpty());
     }
 
     @Test
@@ -74,6 +76,9 @@ public class VehiclePositionsMapperTest {
         // then
         assertEquals(1, vehicleDescriptions.size());
         assertTrue(vehicleDescriptions.get(0) instanceof CarDescription);
+        assertEquals(1, mapper.getNumberOfMappedVehiclesPerProvider().size());
+        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().containsKey(new Provider(1, "NextBike")));
+        assertEquals(new Long(1), mapper.getNumberOfMappedVehiclesPerProvider().get(new Provider(1, "NextBike")));
         CarDescription car = (CarDescription) vehicleDescriptions.get(0);
 
         assertBasicVehicleFieldsAreEqual(car);
@@ -90,6 +95,9 @@ public class VehiclePositionsMapperTest {
         // then
         assertEquals(1, vehicleDescriptions.size());
         assertTrue(vehicleDescriptions.get(0) instanceof MotorbikeDescription);
+        assertEquals(1, mapper.getNumberOfMappedVehiclesPerProvider().size());
+        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().containsKey(new Provider(1, "NextBike")));
+        assertEquals(new Long(1), mapper.getNumberOfMappedVehiclesPerProvider().get(new Provider(1, "NextBike")));
         MotorbikeDescription motorbike = (MotorbikeDescription) vehicleDescriptions.get(0);
 
         assertBasicVehicleFieldsAreEqual(motorbike);
@@ -106,7 +114,11 @@ public class VehiclePositionsMapperTest {
         // then
         assertEquals(1, vehicleDescriptions.size());
         assertTrue(vehicleDescriptions.get(0) instanceof KickScooterDescription);
+        assertEquals(1, mapper.getNumberOfMappedVehiclesPerProvider().size());
+        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().containsKey(new Provider(1, "NextBike")));
+        assertEquals(new Long(1), mapper.getNumberOfMappedVehiclesPerProvider().get(new Provider(1, "NextBike")));
         KickScooterDescription kickscooter = (KickScooterDescription) vehicleDescriptions.get(0);
+
         assertBasicVehicleFieldsAreEqual(kickscooter);
     }
 
@@ -140,6 +152,7 @@ public class VehiclePositionsMapperTest {
 
         // then
         assertTrue(vehicleDescriptions.isEmpty());
+        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().isEmpty());
     }
 
     private void assertBasicVehicleFieldsAreEqual(VehicleDescription vehicleDescription) {

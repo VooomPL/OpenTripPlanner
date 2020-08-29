@@ -11,12 +11,14 @@ import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class VehicleSharingGraphWriterRunnableTest {
@@ -30,6 +32,8 @@ public class VehicleSharingGraphWriterRunnableTest {
 
     private TemporaryRentVehicleVertex vertex;
 
+    private TemporaryRentVehicleVertex vertex2;
+
     @Before
     public void setUp() {
         graph = new Graph();
@@ -37,13 +41,15 @@ public class VehicleSharingGraphWriterRunnableTest {
         temporaryStreetSplitter = mock(TemporaryStreetSplitter.class);
 
         vertex = new TemporaryRentVehicleVertex("id", new CoordinateXY(1, 2), "name");
+        vertex2 = new TemporaryRentVehicleVertex("id2", new CoordinateXY(2, 2), "name2");
     }
 
     @Test
     public void shouldAddAppearedRentableVehicles() {
         // given
         when(temporaryStreetSplitter.linkRentableVehicleToGraph(CAR_1)).thenReturn(Optional.of(vertex));
-        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, singletonList(CAR_1));
+        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
+                singletonList(CAR_1), singletonList(new Provider(2, "PANEK")));
 
         // when
         runnable.run(graph);
@@ -53,13 +59,18 @@ public class VehicleSharingGraphWriterRunnableTest {
         assertTrue(graph.vehiclesTriedToLink.containsKey(CAR_1));
         verify(temporaryStreetSplitter, times(1)).linkRentableVehicleToGraph(CAR_1);
         verifyNoMoreInteractions(temporaryStreetSplitter);
+        assertEquals(1, graph.getLastProviderVehiclesUpdateTimestamps().size());
+        assertTrue(graph.getLastProviderVehiclesUpdateTimestamps().containsKey(new Provider(2, "PANEK")));
     }
 
     @Test
     public void shouldRemoveDisappearedRentableVehicles() {
         // given
         graph.vehiclesTriedToLink.put(CAR_1, Optional.of(vertex));
-        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, emptyList());
+        graph.getLastProviderVehiclesUpdateTimestamps().put(CAR_1.getProvider(),
+                LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS+1, ChronoUnit.SECONDS));
+        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
+                emptyList(), emptyList());
 
         // when
         runnable.run(graph);
@@ -67,13 +78,17 @@ public class VehicleSharingGraphWriterRunnableTest {
         // then
         assertTrue(graph.vehiclesTriedToLink.isEmpty());
         verifyZeroInteractions(temporaryStreetSplitter);
+        assertTrue(graph.getLastProviderVehiclesUpdateTimestamps().isEmpty());
     }
 
     @Test
-    public void shouldPreserveExistingRentableVehicles() {
+    public void shouldNotRemoveDisappearedRentableVehiclesDueToGracePeriod() {
         // given
         graph.vehiclesTriedToLink.put(CAR_1, Optional.of(vertex));
-        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, singletonList(CAR_1));
+        graph.getLastProviderVehiclesUpdateTimestamps().put(CAR_1.getProvider(),
+                LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS, ChronoUnit.SECONDS));
+        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
+                emptyList(), emptyList());
 
         // when
         runnable.run(graph);
@@ -82,5 +97,47 @@ public class VehicleSharingGraphWriterRunnableTest {
         assertEquals(1, graph.vehiclesTriedToLink.size());
         assertTrue(graph.vehiclesTriedToLink.containsKey(CAR_1));
         verifyZeroInteractions(temporaryStreetSplitter);
+        assertEquals(1, graph.getLastProviderVehiclesUpdateTimestamps().size());
+        assertTrue(graph.getLastProviderVehiclesUpdateTimestamps().containsKey(new Provider(2, "PANEK")));
+    }
+
+    @Test
+    public void shouldRemoveDisappearedRentableVehiclesAsProviderIsResponsive() {
+        graph.vehiclesTriedToLink.put(CAR_1, Optional.of(vertex));
+        when(temporaryStreetSplitter.linkRentableVehicleToGraph(CAR_2)).thenReturn(Optional.of(vertex2));
+        graph.getLastProviderVehiclesUpdateTimestamps().put(CAR_1.getProvider(),
+                LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS, ChronoUnit.SECONDS));
+        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
+                Collections.singletonList(CAR_2), Collections.singletonList(new Provider(2, "PANEK")));
+
+        // when
+        runnable.run(graph);
+
+        // then
+        assertEquals(1, graph.vehiclesTriedToLink.size());
+        assertFalse(graph.vehiclesTriedToLink.containsKey(CAR_1));
+        assertTrue(graph.vehiclesTriedToLink.containsKey(CAR_2));
+        verify(temporaryStreetSplitter, times(1)).linkRentableVehicleToGraph(CAR_2);
+        verifyNoMoreInteractions(temporaryStreetSplitter);
+        assertEquals(1, graph.getLastProviderVehiclesUpdateTimestamps().size());
+        assertTrue(graph.getLastProviderVehiclesUpdateTimestamps().containsKey(new Provider(2, "PANEK")));
+    }
+
+    @Test
+    public void shouldPreserveExistingRentableVehicles() {
+        // given
+        graph.vehiclesTriedToLink.put(CAR_1, Optional.of(vertex));
+        VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
+                singletonList(CAR_1), singletonList(new Provider(2, "PANEK")));
+
+        // when
+        runnable.run(graph);
+
+        // then
+        assertEquals(1, graph.vehiclesTriedToLink.size());
+        assertTrue(graph.vehiclesTriedToLink.containsKey(CAR_1));
+        verifyZeroInteractions(temporaryStreetSplitter);
+        assertEquals(1, graph.getLastProviderVehiclesUpdateTimestamps().size());
+        assertTrue(graph.getLastProviderVehiclesUpdateTimestamps().containsKey(new Provider(2, "PANEK")));
     }
 }
