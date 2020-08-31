@@ -227,6 +227,7 @@ public class VermontFlexRoutingTest {
         options.setArriveBy(arriveBy);
         // defaults in vermont router-config.json
         options.setMaxWalkDistance(maxWalkDistance);
+        options.setSoftWalkLimit(true);
         options.flexCallAndRideReluctance = callAndRideReluctance;
         options.routingReluctances.setWalkReluctance(walkReluctance);
         options.routingReluctances.setWaitAtBeginningFactor(waitAtBeginningFactor);
