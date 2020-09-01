@@ -1,5 +1,6 @@
 package org.opentripplanner.hasura_client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.opentripplanner.hasura_client.hasura_objects.ParkingZone;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.hasura_client.mappers.ParkingZonesMapper;
@@ -28,4 +29,12 @@ public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, Parkin
     protected HasuraToOTPMapper<ParkingZone, GeometryParkingZone> mapper() {
         return new ParkingZonesMapper();
     }
+
+    @Override
+    protected TypeReference<ApiResponse<ParkingZone>> hasuraType() {
+        return new TypeReference<ApiResponse<ParkingZone>>() {
+        };
+    }
+
+
 }

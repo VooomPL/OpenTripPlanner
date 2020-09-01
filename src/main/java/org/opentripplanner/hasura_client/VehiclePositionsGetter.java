@@ -1,5 +1,7 @@
 package org.opentripplanner.hasura_client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.aopalliance.reflect.Class;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.hasura_client.mappers.VehiclePositionsMapper;
@@ -8,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Vehicle> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(VehiclePositionsGetter.class);
 
     @Override
     protected String QUERY() {
@@ -47,5 +47,10 @@ public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Veh
     @Override
     protected HasuraToOTPMapper<Vehicle, VehicleDescription> mapper() {
         return new VehiclePositionsMapper();
+    }
+
+    @Override
+    protected TypeReference<ApiResponse<Vehicle>> hasuraType() {
+        return new TypeReference<ApiResponse<Vehicle>>() {};
     }
 }

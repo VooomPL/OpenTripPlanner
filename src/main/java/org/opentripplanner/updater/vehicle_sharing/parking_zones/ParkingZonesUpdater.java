@@ -49,8 +49,7 @@ public class ParkingZonesUpdater extends PollingGraphUpdater {
     @Override
     protected void runPolling() {
         LOG.info("Polling parking zones from API");
-        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.getFromHasura(graph, url, new TypeToken<ApiResponse<ParkingZone>>() {
-        }.getType());
+        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.getFromHasura(graph, url);
         ParkingZonesCalculator calculator = new ParkingZonesCalculator(geometryParkingZones);
         LOG.info("Grouping parking zones");
         List<SingleParkingZone> parkingZonesEnabled = calculator.getNewParkingZonesEnabled();
