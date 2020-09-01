@@ -55,10 +55,8 @@ public abstract class StreetVertex extends Vertex {
                 .distinct()
                 .limit(2)
                 .collect(toList());
-
         if (uniqueNames.size() > 1) {
-            return Optional.of(new LocalizedString("corner", new String[]{uniqueNames.get(0),
-                    uniqueNames.get(1)}));
+            return Optional.of(new LocalizedString("corner", new String[]{uniqueNames.get(0), uniqueNames.get(1)}));
         } else if (uniqueNames.size() == 1) {
             return Optional.of(new NonLocalizedString(uniqueNames.get(0)));
         } else {
