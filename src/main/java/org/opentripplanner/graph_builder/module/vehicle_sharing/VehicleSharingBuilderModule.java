@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 
-// TODO AdamWiktor VMP-37 add tests
 public class VehicleSharingBuilderModule implements GraphBuilderModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehicleSharingBuilderModule.class);
