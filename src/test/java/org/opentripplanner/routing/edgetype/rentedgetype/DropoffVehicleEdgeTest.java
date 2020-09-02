@@ -38,7 +38,6 @@ public class DropoffVehicleEdgeTest {
         StateEditor se = state.edit(edge);
         se.beginVehicleRenting(CAR_1);
         rentingState = se.makeState();
-
     }
 
     @Test
@@ -66,7 +65,6 @@ public class DropoffVehicleEdgeTest {
     @Test
     public void shouldReturnVehicleIfCanDropoffHere() {
         // given
-        request.rentingAllowed = true;
         when(parkingZoneInfo.canDropoffVehicleHere(CAR_1)).thenReturn(true);
 
         // when

@@ -8,13 +8,13 @@ import static java.util.Collections.emptyList;
 
 public abstract class EdgeWithParkingZones extends Edge {
 
-    private static final ParkingZoneInfo emptyParkingZones = new ParkingZoneInfo(emptyList(), emptyList());
+    private static final ParkingZoneInfo EMPTY_PARKING_ZONES = new ParkingZoneInfo(emptyList(), emptyList());
 
     private final ParkingZoneInfo parkingZones;
 
     protected EdgeWithParkingZones(Vertex v) {
         super(v, v);
-        this.parkingZones = emptyParkingZones;
+        this.parkingZones = EMPTY_PARKING_ZONES;
     }
 
     public EdgeWithParkingZones(Vertex v, ParkingZoneInfo parkingZones) {

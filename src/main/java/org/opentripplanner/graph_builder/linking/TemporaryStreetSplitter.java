@@ -155,11 +155,8 @@ public class TemporaryStreetSplitter {
     private TemporaryRentVehicleVertex createTemporaryRentVehicleVertex(VehicleDescription vehicle) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(vehicle.getLongitude(), vehicle.getLatitude()), "Renting vehicle " + vehicle);
-        if (graph.parkingZonesCalculator == null) {
-            new RentVehicleEdge(vertex, vehicle);
-        } else {
-            new RentVehicleEdge(vertex, vehicle, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
-        }
+        RentVehicleEdge edge = new RentVehicleEdge(vertex, vehicle);
+        addParkingZonesToEdge(edge);
         return vertex;
     }
 }
