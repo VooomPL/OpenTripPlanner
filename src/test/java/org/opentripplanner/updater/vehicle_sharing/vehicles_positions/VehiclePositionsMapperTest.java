@@ -29,7 +29,6 @@ public class VehiclePositionsMapperTest {
         provider = new VehicleProvider();
         provider.setId(1);
         provider.setName("NextBike");
-        provider.setAvailable(true);
 
         defaultVehicle = new Vehicle();
         defaultVehicle.setProvider(provider);
@@ -130,17 +129,6 @@ public class VehiclePositionsMapperTest {
         assertEquals(200000.0, car.getRangeInMeters(), 0.1); // default range if fetched null from database
     }
 
-    @Test
-    public void shouldNotMapVehicleIfProviderIsUnavailable() {
-        // given
-        provider.setAvailable(false);
-
-        // when
-        List<VehicleDescription> vehicleDescriptions = mapper.map(Collections.singletonList(defaultVehicle));
-
-        // then
-        assertTrue(vehicleDescriptions.isEmpty());
-    }
 
     private void assertBasicVehicleFieldsAreEqual(VehicleDescription vehicleDescription) {
         assertEquals(defaultVehicle.getProvider().getId(), vehicleDescription.getProvider().getProviderId());
