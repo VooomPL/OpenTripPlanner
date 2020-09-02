@@ -336,8 +336,9 @@ public class GraphBuilder implements Runnable {
         if (System.getProperties().containsKey("sharedVehiclesApi")) {
             graphBuilder.addModule(new VehicleSharingBuilderModule(System.getProperty("sharedVehiclesApi")));
         } else {
-            // TODO AdamWiktor VMP-37 fallback add edges without parking zones?
-            LOG.warn("Building graph without rentable vehicles. If you want to use rentable vehicles, please provide program parameter `--sharedVehiclesApi <URL>`");
+            graphBuilder.addModule(VehicleSharingBuilderModule.withoutParkingZones());
+            LOG.warn("Building graph without rentable vehicles parking zones. If you want to add parking zones, " +
+                    "please provide program parameter `--sharedVehiclesApi <URL>`");
         }
     }
 
