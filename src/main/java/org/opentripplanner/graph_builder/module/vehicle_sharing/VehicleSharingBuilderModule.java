@@ -1,13 +1,13 @@
 package org.opentripplanner.graph_builder.module.vehicle_sharing;
 
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
+import org.opentripplanner.hasura_client.ParkingZonesGetter;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZone;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
-import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     }
 
     private void createParkingZonesCalculator(Graph graph) {
-        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.getParkingZones(url, graph);
+        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.getFromHasura(graph, url);
         graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones);
     }
 

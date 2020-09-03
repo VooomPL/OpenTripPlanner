@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, ParkingZone> {
+
     private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
 
     @Override
@@ -44,6 +45,4 @@ public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, Parkin
         return new TypeReference<ApiResponse<ParkingZone>>() {
         };
     }
-
-
 }
