@@ -90,8 +90,8 @@ public class ShareBikeRentalDataSource extends GenericJsonBikeRentalDataSource {
         brstation.networks.add(this.networkID);
 		
 		brstation.id = networkID+"_"+rentalStationNode.path("StationID").toString();
-		brstation.x = rentalStationNode.path("Longitude").asDouble();
-		brstation.y = rentalStationNode.path("Latitude").asDouble();
+		brstation.longitude = rentalStationNode.path("Longitude").asDouble();
+		brstation.latitude = rentalStationNode.path("Latitude").asDouble();
 		brstation.name = new NonLocalizedString(rentalStationNode.path("StationName").asText("").trim());
 		brstation.bikesAvailable = rentalStationNode.path("AvailableBikeCount").asInt();
 		brstation.spacesAvailable = rentalStationNode.path("AvailableSlotCount").asInt();

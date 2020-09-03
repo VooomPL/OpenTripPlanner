@@ -41,8 +41,8 @@ public class NextBikeRentalDataSource extends GenericXmlBikeRentalDataSource {
         brstation.networks.add(this.networkName);
 
         brstation.id = attributes.get("number");
-        brstation.x = Double.parseDouble(attributes.get("lng"));
-        brstation.y = Double.parseDouble(attributes.get("lat"));
+        brstation.longitude = Double.parseDouble(attributes.get("lng"));
+        brstation.latitude = Double.parseDouble(attributes.get("lat"));
         brstation.name = new NonLocalizedString(attributes.get("name"));
         brstation.spacesAvailable = Integer.parseInt(attributes.get("bike_racks"));
 

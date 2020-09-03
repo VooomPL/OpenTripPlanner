@@ -61,8 +61,8 @@ public class TestBikeRental extends TestCase {
         BikeRentalStation station = new BikeRentalStation();
         station.id = "id";
         station.name = new NonLocalizedString("station");
-        station.x = -77.049;
-        station.y = 36.856;
+        station.longitude = -77.049;
+        station.latitude = 36.856;
         station.bikesAvailable = 5;
         station.spacesAvailable = 5;
         BikeRentalStationVertex stationVertex = new BikeRentalStationVertex(graph, station);
@@ -85,8 +85,8 @@ public class TestBikeRental extends TestCase {
         BikeRentalStation station2 = new BikeRentalStation();
         station2.id = "id2";
         station2.name = new NonLocalizedString("station2");
-        station2.x = -77.049;
-        station2.y = 36.857;
+        station2.longitude = -77.049;
+        station2.latitude = 36.857;
         station2.bikesAvailable = 5;
         station2.spacesAvailable = 5;
         BikeRentalStationVertex stationVertex2 = new BikeRentalStationVertex(graph, station2);

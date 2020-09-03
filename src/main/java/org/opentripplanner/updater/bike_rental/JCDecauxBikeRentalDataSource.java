@@ -46,8 +46,8 @@ public class JCDecauxBikeRentalDataSource extends GenericJsonBikeRentalDataSourc
         }
         BikeRentalStation station = new BikeRentalStation();
         station.id = String.format("%d", node.path("number").asInt());
-        station.x = node.path("position").path("lng").asDouble();
-        station.y = node.path("position").path("lat").asDouble();
+        station.longitude = node.path("position").path("lng").asDouble();
+        station.latitude = node.path("position").path("lat").asDouble();
         station.name = new NonLocalizedString(node.path("name").asText());
         station.bikesAvailable = node.path("available_bikes").asInt();
         station.spacesAvailable = node.path("available_bike_stands").asInt();

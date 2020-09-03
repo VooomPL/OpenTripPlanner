@@ -53,7 +53,7 @@ public class BikeRental {
         Collection<BikeRentalStation> stations = bikeRentalService.getBikeRentalStations();
         List<BikeRentalStation> out = new ArrayList<>();
         for (BikeRentalStation station : stations) {
-            if (envelope.contains(station.x, station.y)) {
+            if (envelope.contains(station.longitude, station.latitude)) {
                 BikeRentalStation station_localized = station.clone();
                 station_localized.locale = locale;
                 out.add(station_localized);

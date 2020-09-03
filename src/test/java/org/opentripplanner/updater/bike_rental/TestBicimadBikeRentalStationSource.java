@@ -33,16 +33,16 @@ public class TestBicimadBikeRentalStationSource extends TestCase {
                 BikeRentalStation puertaDelSolA = rentalStations.get(0);
                 assertEquals("Puerta del Sol A", puertaDelSolA.name.toString());
                 assertEquals("1", puertaDelSolA.id);
-                assertEquals(-3.7024255, puertaDelSolA.x);
-                assertEquals(40.4168961, puertaDelSolA.y);
+                assertEquals(-3.7024255, puertaDelSolA.longitude);
+                assertEquals(40.4168961, puertaDelSolA.latitude);
                 assertEquals(18, puertaDelSolA.spacesAvailable);
                 assertEquals(4, puertaDelSolA.bikesAvailable);
 
                 BikeRentalStation plazaDeLavapies = rentalStations.get(55);
                 assertEquals("Plaza de Lavapiés", plazaDeLavapies.name.toString());
                 assertEquals("57", plazaDeLavapies.id);
-                assertEquals(-3.7008803, plazaDeLavapies.x);
-                assertEquals(40.4089282, plazaDeLavapies.y);
+                assertEquals(-3.7008803, plazaDeLavapies.longitude);
+                assertEquals(40.4089282, plazaDeLavapies.latitude);
                 assertEquals(1, plazaDeLavapies.spacesAvailable);
                 assertEquals(22, plazaDeLavapies.bikesAvailable);
         }

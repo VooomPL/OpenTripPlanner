@@ -13,9 +13,9 @@ public class OVFietsKMLDataSource extends GenericXmlBikeRentalDataSource {
         BikeRentalStation brstation = new BikeRentalStation();
         brstation.id = attributes.get("name")+attributes.get("Point").trim();
         String[] coordinates = attributes.get("Point").trim().split(",");
-        brstation.x = Double.parseDouble(coordinates[0]);
-        brstation.y = Double.parseDouble(coordinates[1]);
-        if ( brstation.x == 0 || brstation.y == 0)
+        brstation.longitude = Double.parseDouble(coordinates[0]);
+        brstation.latitude = Double.parseDouble(coordinates[1]);
+        if ( brstation.longitude == 0 || brstation.latitude == 0)
             return null;
         brstation.name = new NonLocalizedString(attributes.get("name"));
         return brstation;

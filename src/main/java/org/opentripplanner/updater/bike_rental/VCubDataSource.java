@@ -27,10 +27,10 @@ public class VCubDataSource extends GenericXmlBikeRentalDataSource {
         brstation.id = attributes.get("bm:GID").trim();
         String[] coordinates = attributes.get("bm:geometry").trim().split(" ");
         if (coordinates.length >= 2) {
-            brstation.x = Double.parseDouble(coordinates[1]);
-            brstation.y = Double.parseDouble(coordinates[0]);
+            brstation.longitude = Double.parseDouble(coordinates[1]);
+            brstation.latitude = Double.parseDouble(coordinates[0]);
         }
-        if (brstation.x == 0 || brstation.y == 0)
+        if (brstation.longitude == 0 || brstation.latitude == 0)
             return null;
         brstation.name = new NonLocalizedString(attributes.get("bm:NOM"));
         boolean connected = "CONNECTEE".equalsIgnoreCase(attributes.get("bm:ETAT"));

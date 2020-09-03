@@ -1,6 +1,5 @@
 package org.opentripplanner.api.resource;
 
-import com.google.common.collect.ImmutableList;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
@@ -477,20 +476,20 @@ public class GraphPathToTripPlanConverterTest {
 
         enterPickupStation.id = "Enter pickup";
         enterPickupStation.name = new NonLocalizedString("Enter pickup station");
-        enterPickupStation.x = 180;
-        enterPickupStation.y = 90;
+        enterPickupStation.longitude = 180;
+        enterPickupStation.latitude = 90;
         exitPickupStation.id = "Exit pickup";
         exitPickupStation.name = new NonLocalizedString("Exit pickup station");
-        exitPickupStation.x = 180;
-        exitPickupStation.y = 90;
+        exitPickupStation.longitude = 180;
+        exitPickupStation.latitude = 90;
         enterDropoffStation.id = "Enter dropoff";
         enterDropoffStation.name = new NonLocalizedString("Enter dropoff station");
-        enterDropoffStation.x = 0;
-        enterDropoffStation.y = 90;
+        enterDropoffStation.longitude = 0;
+        enterDropoffStation.latitude = 90;
         exitDropoffStation.id = "Exit dropoff";
         exitDropoffStation.name = new NonLocalizedString("Exit dropoff station");
-        exitDropoffStation.x = 0;
-        exitDropoffStation.y = 90;
+        exitDropoffStation.longitude = 0;
+        exitDropoffStation.latitude = 90;
 
         // Vertices for legs 5 and 6
         BikeRentalStationVertex v44 = new BikeRentalStationVertex(

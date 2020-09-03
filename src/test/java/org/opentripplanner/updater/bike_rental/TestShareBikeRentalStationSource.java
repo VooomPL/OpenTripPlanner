@@ -25,8 +25,8 @@ public class TestShareBikeRentalStationSource extends TestCase {
         
         assertEquals("01", prinsen.name.toString());
         assertEquals("dummyid_1", prinsen.id);
-        assertEquals(10.392981, prinsen.x);
-        assertEquals(63.426637, prinsen.y);
+        assertEquals(10.392981, prinsen.longitude);
+        assertEquals(63.426637, prinsen.latitude);
         assertEquals(9, prinsen.spacesAvailable);
         assertEquals(6, prinsen.bikesAvailable);
     }

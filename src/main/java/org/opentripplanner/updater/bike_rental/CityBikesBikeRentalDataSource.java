@@ -8,7 +8,6 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -80,8 +79,8 @@ public class CityBikesBikeRentalDataSource implements BikeRentalDataSource, Json
             BikeRentalStation brStation = new BikeRentalStation();
             // We need string IDs but they are in JSON as numbers. Avoid null from textValue(). See pull req #1450.
             brStation.id = String.valueOf(stationNode.get("id").intValue());
-            brStation.x = stationNode.get("lng").doubleValue() / 1000000.0;
-            brStation.y = stationNode.get("lat").doubleValue() / 1000000.0;
+            brStation.longitude = stationNode.get("lng").doubleValue() / 1000000.0;
+            brStation.latitude = stationNode.get("lat").doubleValue() / 1000000.0;
             brStation.name = new NonLocalizedString(stationNode.get("name").textValue());
             brStation.bikesAvailable = stationNode.get("bikes").intValue();
             brStation.spacesAvailable = stationNode.get("free").intValue();
