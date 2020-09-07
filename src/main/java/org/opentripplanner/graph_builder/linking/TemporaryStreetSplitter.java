@@ -116,7 +116,11 @@ public class TemporaryStreetSplitter {
         }
     }
 
-    public Optional<TemporaryRentVehicleVertex> linkStationToGraph(BikeRentalStation station) {
+    /**
+     * Wraps bike rental station in `TemporaryRentVehicleVertex` and links that vertex to graph with temporary edges.
+     * Split edges don't replace existing ones, so only temporary edges and vertices are created.
+     */
+    public Optional<TemporaryRentVehicleVertex> linkBikeRentalStationToGraph(BikeRentalStation station) {
         TemporaryRentVehicleVertex temporaryVertex = createTemporaryRentBikeVertex(station);
         if (!toStreetEdgeLinker.linkTemporarilyBothWays(temporaryVertex, station.getBikeFromStation())) {
             LOG.debug("Couldn't link station {} to graph", station);
@@ -182,8 +186,15 @@ public class TemporaryStreetSplitter {
     private TemporaryRentVehicleVertex createTemporaryRentBikeVertex(BikeRentalStation station) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(station.longitude, station.latitude), "Renting station " + station);
-        RentBikeEdge edge = new RentBikeEdge(vertex, station);
-        addParkingZonesToEdge(edge);
+        addRentBikeEdge(vertex, station);
         return vertex;
+    }
+
+    private void addRentBikeEdge(TemporaryRentVehicleVertex vertex, BikeRentalStation station) {
+        if (graph.parkingZonesCalculator == null) {
+            new RentBikeEdge(vertex, station);
+        } else {
+            new RentBikeEdge(vertex, station, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        }
     }
 }

@@ -1,6 +1,5 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropBikeEdge;
@@ -31,27 +30,17 @@ public class BikeStationsGraphWriterRunnable implements GraphWriterRunnable {
         this.bikeRentalStationsFetchedFromApi = bikeRentalStations;
     }
 
-    @VisibleForTesting
     private boolean addBikeStationToGraph(BikeRentalStation station, Graph graph) {
-        Optional<TemporaryRentVehicleVertex> vertex = temporaryStreetSplitter.linkStationToGraph(station);
-        RentBikeEdge edge;
-        if (vertex.isPresent()) {
-            edge = vertex.get().getOutgoing().stream()
-                    .filter(RentBikeEdge.class::isInstance)
-                    .map(RentBikeEdge.class::cast)
-                    .findFirst().get();
-        } else {
+        Optional<TemporaryRentVehicleVertex> vertex = temporaryStreetSplitter.linkBikeRentalStationToGraph(station);
+        if (!vertex.isPresent()) {
             return false;
         }
-
-        if (graph.parkingZonesCalculator != null) {
-            edge.setParkingZones(graph.parkingZonesCalculator.getParkingZonesForEdge(edge));
-        }
-
-        DropBikeEdge dropBikeEdge = new DropBikeEdge(vertex.get(), station);
-
+        new DropBikeEdge(vertex.get(), station);
+        RentBikeEdge edge = vertex.get().getOutgoing().stream()
+                .filter(RentBikeEdge.class::isInstance)
+                .map(RentBikeEdge.class::cast)
+                .findFirst().get();
         graph.bikeRentalStationsInGraph.put(station, edge);
-
         return true;
     }
 
