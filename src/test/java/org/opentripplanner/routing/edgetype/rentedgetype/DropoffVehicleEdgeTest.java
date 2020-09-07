@@ -54,7 +54,6 @@ public class DropoffVehicleEdgeTest {
     public void shouldNotReturnVehicleIfCannotDropoffHere() {
         // given
         when(parkingZoneInfo.canDropoffVehicleHere(CAR_1)).thenReturn(false);
-
         // when
         State traversed = edge.traverse(rentingState);
 

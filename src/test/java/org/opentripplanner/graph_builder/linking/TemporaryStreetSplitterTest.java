@@ -12,6 +12,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.SingleParkingZone;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;

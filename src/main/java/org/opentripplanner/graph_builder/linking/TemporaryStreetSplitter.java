@@ -7,9 +7,11 @@ import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
 import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
+import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -114,6 +116,16 @@ public class TemporaryStreetSplitter {
         }
     }
 
+    public Optional<TemporaryRentVehicleVertex> linkStationToGraph(BikeRentalStation station) {
+        TemporaryRentVehicleVertex temporaryVertex = createTemporaryRentBikeVertex(station);
+        if (!toStreetEdgeLinker.linkTemporarilyBothWays(temporaryVertex, station.getBikeFromStation())) {
+            LOG.debug("Couldn't link station {} to graph", station);
+            return Optional.empty();
+        } else {
+            return Optional.of(temporaryVertex);
+        }
+    }
+
     private TemporaryStreetLocation createTemporaryStreetLocation(GenericLocation location, RoutingRequest options, boolean endVertex) {
         Coordinate coord = location.getCoordinate();
         String name;
@@ -165,5 +177,13 @@ public class TemporaryStreetSplitter {
         } else {
             new RentVehicleEdge(vertex, vehicle, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
         }
+    }
+
+    private TemporaryRentVehicleVertex createTemporaryRentBikeVertex(BikeRentalStation station) {
+        TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
+                new CoordinateXY(station.longitude, station.latitude), "Renting station " + station);
+        RentBikeEdge edge = new RentBikeEdge(vertex, station);
+        addParkingZonesToEdge(edge);
+        return vertex;
     }
 }
