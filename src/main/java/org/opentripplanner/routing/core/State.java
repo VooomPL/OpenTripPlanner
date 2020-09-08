@@ -16,6 +16,7 @@ import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,12 @@ public class State implements Cloneable {
     protected TraversalStatistics traversalStatistics;
 
     protected double distanceTraversedInCurrentVehicle;
+
+    protected int timeTraversedInCurrentVehicleInSeconds;
+
+    protected BigDecimal priceForCurrentVehicle;
+
+    protected int freeSecondsForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -125,6 +132,8 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
+        this.priceForCurrentVehicle = BigDecimal.ZERO;
+        this.freeSecondsForCurrentVehicle = 0;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -306,6 +315,10 @@ public class State implements Cloneable {
 
     public double getTraverseDistanceInMeters() {
         return traverseDistanceInMeters;
+    }
+
+    public BigDecimal getTraversalPrice(){
+        return traversalStatistics.getPrice();
     }
 
     public int getPreTransitTime() {
@@ -737,7 +750,7 @@ public class State implements Cloneable {
             // note the distinction between setFromState and setBackState
             editor.setFromState(orig);
 
-            editor.incrementTimeInSeconds(orig.getAbsTimeDeltaSeconds());
+            editor.incrementTimeInSeconds(orig.getAbsTimeDeltaSeconds(), false);
             editor.incrementWeight(orig.getWeightDelta());
             editor.incrementWalkDistanceInMeters(orig.getWalkDistanceDelta());
             editor.incrementPreTransitTime(orig.getPreTransitTimeDelta());

@@ -48,7 +48,7 @@ public class PreBoardEdge extends FreeEdge implements StationEdge {
             TransitStop fromVertex = (TransitStop) getFromVertex();
 
             //apply board slack
-            s1.incrementTimeInSeconds(options.boardSlack);
+            s1.incrementTimeInSeconds(options.boardSlack, false);
             s1.alightTransit();
             s1.setBackMode(getMode());
             return s1.makeState();

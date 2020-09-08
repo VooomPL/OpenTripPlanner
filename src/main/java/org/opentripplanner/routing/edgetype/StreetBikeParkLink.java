@@ -75,7 +75,7 @@ public class StreetBikeParkLink extends Edge {
 
         StateEditor s1 = s0.edit(this);
         // Assume bike park are more-or-less on-street
-        s1.incrementTimeInSeconds(1);
+        s1.incrementTimeInSeconds(1, false);
         s1.incrementWeight(1);
         // Do not force any mode, will use the latest one (walking bike or bike)
         return s1.makeState();

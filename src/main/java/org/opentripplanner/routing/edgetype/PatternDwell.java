@@ -55,7 +55,7 @@ public class PatternDwell extends TablePatternEdge implements OnboardEdge, Dwell
         int dwellTime = tripTimes.getDwellTime(stopIndex);
         StateEditor s1 = state0.edit(this);
         s1.setBackMode(getMode());
-        s1.incrementTimeInSeconds(dwellTime);
+        s1.incrementTimeInSeconds(dwellTime, false);
         s1.incrementWeight(dwellTime);
         return s1.makeState();
     }
@@ -64,7 +64,7 @@ public class PatternDwell extends TablePatternEdge implements OnboardEdge, Dwell
     public State optimisticTraverse(State s0) {
         int dwellTime = getPattern().scheduledTimetable.getBestDwellTime(stopIndex);
         StateEditor s1 = s0.edit(this);
-        s1.incrementTimeInSeconds(dwellTime);
+        s1.incrementTimeInSeconds(dwellTime, false);
         s1.setBackMode(getMode());
         s1.incrementWeight(dwellTime);
         return s1.makeState();

@@ -35,6 +35,11 @@ public class CarDescription extends VehicleDescription {
         super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider);
     }
 
+    public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                          Gearbox gearbox, Provider provider, VehicleSharingPackage sharingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, sharingPackage);
+    }
+
     @Override
     public double getMaxSpeedInMetersPerSecond(StreetEdge streetEdge) {
         return MAX_SPEED_IN_METERS_PER_SECOND;

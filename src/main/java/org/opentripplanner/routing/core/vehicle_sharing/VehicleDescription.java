@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static java.lang.Double.min;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "vehicleType")
@@ -21,6 +24,10 @@ public abstract class VehicleDescription {
     private final double latitude;
     private final double rangeInMeters;
 
+    private final List<VehicleSharingPackage> vehicleSharingPackages;
+
+    private int activePackageIndex;
+
     @JsonSerialize
     private final FuelType fuelType;
 
@@ -33,11 +40,16 @@ public abstract class VehicleDescription {
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null);
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, new VehicleSharingPackage());
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters) {
+                              Gearbox gearbox, Provider provider, Double rangeInMeters){
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, new VehicleSharingPackage());
+    }
+
+    public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehicleSharingPackage vehicleSharingPackage) {
         if (rangeInMeters == null)
             rangeInMeters = this.getDefaultRangeInMeters();
 
@@ -50,6 +62,9 @@ public abstract class VehicleDescription {
         this.gearbox = gearbox;
         this.provider = provider;
         this.rangeInMeters = rangeInMeters;
+        this.vehicleSharingPackages = new ArrayList<>();
+        this.vehicleSharingPackages.add(vehicleSharingPackage);
+        this.activePackageIndex = 0;
     }
 
     @Override
@@ -109,5 +124,21 @@ public abstract class VehicleDescription {
 
     protected Double getMaximumRangeInMeters() {
         return Double.MAX_VALUE;
+    }
+
+    public VehicleSharingPackage getVehicleSharingPackage(int index) {
+        return vehicleSharingPackages.get(index);
+    }
+
+    public int getActivePackageIndex() {
+        return activePackageIndex;
+    }
+
+    public void setActivePackageIndex(int activePackageIndex) {
+        this.activePackageIndex = activePackageIndex;
+    }
+
+    public VehicleSharingPackage getActivePackage(){
+        return this.vehicleSharingPackages.get(this.getActivePackageIndex());
     }
 }

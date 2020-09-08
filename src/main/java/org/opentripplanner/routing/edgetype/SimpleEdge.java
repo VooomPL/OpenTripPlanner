@@ -19,7 +19,7 @@ public class SimpleEdge extends FreeEdge {
     @Override
     public State traverse(State s0) {
         StateEditor s1 = s0.edit(this);
-        s1.incrementTimeInSeconds(seconds);
+        s1.incrementTimeInSeconds(seconds, false);
         s1.incrementWeight(weight);
         // SimpleEdges don't concern themselves with mode
         return s1.makeState();

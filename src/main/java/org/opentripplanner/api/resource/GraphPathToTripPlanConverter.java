@@ -185,6 +185,7 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.traverseDistance = lastState.getTraverseDistanceInMeters();
         itinerary.distanceTraversedInMode = lastState.createDistanceTraversedInModeMap();
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
+        itinerary.price = lastState.getTraversalPrice();
 
 
         itinerary.transfers = lastState.getNumBoardings();

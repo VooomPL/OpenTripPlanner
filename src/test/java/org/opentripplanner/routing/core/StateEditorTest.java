@@ -47,7 +47,7 @@ public class StateEditorTest {
         StateEditor stateEditor = new StateEditor(routingRequest, null);
 
         stateEditor.setTimeSeconds(0);
-        stateEditor.incrementTimeInSeconds(999999999);
+        stateEditor.incrementTimeInSeconds(999999999, false);
 
         assertEquals(999999999, stateEditor.child.getTimeSeconds());
     }
@@ -94,6 +94,21 @@ public class StateEditorTest {
         assertEquals(0, next.distanceTraversedInCurrentVehicle, DELTA);
         assertEquals(state.time + request.routingDelays.getRentingTime(CAR_1) * 1000, next.time);
         assertEquals(state.weight + request.routingDelays.getRentingTime(CAR_1) * request.routingReluctances.getRentingReluctance(), next.weight, DELTA);
+    }
+
+    @Test
+    public void shouldComputeStartingPriceWithoutRentingTimePrice() {
+        // given
+        StateEditor stateEditor = state.edit(rentVehicleEdge);
+
+        // when
+        stateEditor.beginVehicleRenting(CAR_1);
+        State next = stateEditor.makeState();
+
+        // then
+        assertTrue(next.traversalStatistics.getPrice().compareTo(next.getCurrentVehicle().getActivePackage().getStartPrice()) == 0);
+        assertEquals(next.getCurrentVehicle().getActivePackage().getFreeSeconds(), next.freeSecondsForCurrentVehicle);
+        assertEquals(0, next.timeTraversedInCurrentVehicleInSeconds);
     }
 
     @Test

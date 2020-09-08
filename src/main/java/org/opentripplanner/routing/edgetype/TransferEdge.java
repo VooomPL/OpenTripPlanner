@@ -78,7 +78,7 @@ public class TransferEdge extends Edge {
         if (s0.getOptions().wheelchairAccessible && !wheelchairAccessible) return null;
         if (this.getDistanceInMeters() > s0.getOptions().maxTransferWalkDistance) return null;
         StateEditor s1 = s0.edit(this);
-        s1.incrementTimeInSeconds(time);
+        s1.incrementTimeInSeconds(time, false);
         s1.incrementWeight(time);
         s1.setBackMode(TraverseMode.WALK);
         return s1.makeState();

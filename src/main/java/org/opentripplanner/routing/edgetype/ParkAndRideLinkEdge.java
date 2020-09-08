@@ -103,14 +103,14 @@ public class ParkAndRideLinkEdge extends Edge {
             // Walking
             double walkTime = linkDistance * WALK_OBSTRUCTION_FACTOR
                     / s0.getOptions().walkSpeed;
-            s1.incrementTimeInSeconds((int) Math.round(walkTime));
+            s1.incrementTimeInSeconds((int) Math.round(walkTime), false);
             s1.incrementWeight(walkTime);
             s1.incrementWalkDistanceInMeters(linkDistance);
             s1.setBackMode(TraverseMode.WALK);
         } else if (mode == TraverseMode.CAR) {
             // Driving
             double driveTime = linkDistance * DRIVE_OBSTRUCTION_FACTOR / DRIVE_SPEED_MS;
-            s1.incrementTimeInSeconds((int) Math.round(driveTime));
+            s1.incrementTimeInSeconds((int) Math.round(driveTime), false);
             s1.incrementWeight(driveTime);
             s1.setBackMode(TraverseMode.CAR);
         } else {
