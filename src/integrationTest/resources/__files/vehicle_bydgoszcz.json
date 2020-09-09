@@ -11,8 +11,8 @@
         "range": 266.25,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -25,8 +25,8 @@
         "range": 105,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -39,8 +39,8 @@
         "range": 352.5,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -53,8 +53,8 @@
         "range": 228.75,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -67,8 +67,8 @@
         "range": 296.25,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -81,8 +81,8 @@
         "range": 375,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -95,8 +95,8 @@
         "range": 243.75,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -109,8 +109,8 @@
         "range": 204.25,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -123,8 +123,8 @@
         "range": 231.12,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -137,8 +137,8 @@
         "range": 537.5,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -151,8 +151,8 @@
         "range": 400,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -165,8 +165,8 @@
         "range": 437.5,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -179,8 +179,8 @@
         "range": 406.25,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -193,8 +193,8 @@
         "range": 158.33,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -207,8 +207,8 @@
         "range": 243.81,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -221,8 +221,8 @@
         "range": 333.33,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -235,8 +235,8 @@
         "range": 700,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -249,8 +249,8 @@
         "range": 714.29,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -263,8 +263,8 @@
         "range": 114.29,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -277,8 +277,8 @@
         "range": 209.52,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -291,8 +291,8 @@
         "range": 228.57,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -305,8 +305,8 @@
         "range": 171.43,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -319,8 +319,8 @@
         "range": 247.62,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -333,8 +333,8 @@
         "range": 152.38,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -347,8 +347,8 @@
         "range": 342.86,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -361,8 +361,8 @@
         "range": 228.57,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -375,8 +375,8 @@
         "range": 255.24,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -389,8 +389,8 @@
         "range": 198.1,
         "provider": {
           "available": true,
-          "id": 2,
-          "name": "Panek"
+          "providerId": 2,
+          "providerName": "Panek"
         }
       },
       {
@@ -403,8 +403,8 @@
         "range": 24.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -417,8 +417,8 @@
         "range": 16.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -431,8 +431,8 @@
         "range": 23.9,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -445,8 +445,8 @@
         "range": 27.9,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -459,8 +459,8 @@
         "range": 58.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -473,8 +473,8 @@
         "range": 61.6,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -487,8 +487,8 @@
         "range": 28.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -501,8 +501,8 @@
         "range": 58.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -515,8 +515,8 @@
         "range": 59.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -529,8 +529,8 @@
         "range": 55.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -543,8 +543,8 @@
         "range": 38.2,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -557,8 +557,8 @@
         "range": 42.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -571,8 +571,8 @@
         "range": 9.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -585,8 +585,8 @@
         "range": 50.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -599,8 +599,8 @@
         "range": 63.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -613,8 +613,8 @@
         "range": 54.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -627,8 +627,8 @@
         "range": 16,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -641,8 +641,8 @@
         "range": 57,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -655,8 +655,8 @@
         "range": 8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -669,8 +669,8 @@
         "range": 59.9,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -683,8 +683,8 @@
         "range": 16,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -697,8 +697,8 @@
         "range": 54.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -711,8 +711,8 @@
         "range": 30.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -725,8 +725,8 @@
         "range": 25.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -739,8 +739,8 @@
         "range": 35.9,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -753,8 +753,8 @@
         "range": 60.4,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -767,8 +767,8 @@
         "range": 54.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -781,8 +781,8 @@
         "range": 45.6,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -795,8 +795,8 @@
         "range": 59.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -809,8 +809,8 @@
         "range": 24.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -823,8 +823,8 @@
         "range": 63.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -837,8 +837,8 @@
         "range": 58.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -851,8 +851,8 @@
         "range": 61.6,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -865,8 +865,8 @@
         "range": 63.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -879,8 +879,8 @@
         "range": 38.2,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -893,8 +893,8 @@
         "range": 58.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -907,8 +907,8 @@
         "range": 10.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -921,8 +921,8 @@
         "range": 63.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -935,8 +935,8 @@
         "range": 17.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -949,8 +949,8 @@
         "range": 21.6,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -963,8 +963,8 @@
         "range": 24,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -977,8 +977,8 @@
         "range": 24.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -991,8 +991,8 @@
         "range": 23.4,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1005,8 +1005,8 @@
         "range": 24,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1019,8 +1019,8 @@
         "range": 24.3,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1033,8 +1033,8 @@
         "range": 22.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1047,8 +1047,8 @@
         "range": 22.2,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1061,8 +1061,8 @@
         "range": 7.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1075,8 +1075,8 @@
         "range": 10.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1089,8 +1089,8 @@
         "range": 22.2,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1103,8 +1103,8 @@
         "range": 24,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1117,8 +1117,8 @@
         "range": 22.2,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1131,8 +1131,8 @@
         "range": 12.6,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1145,8 +1145,8 @@
         "range": 22.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1159,8 +1159,8 @@
         "range": 24,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1173,8 +1173,8 @@
         "range": 22.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1187,8 +1187,8 @@
         "range": 24.6,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1201,8 +1201,8 @@
         "range": 22.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1215,8 +1215,8 @@
         "range": 24,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1229,8 +1229,8 @@
         "range": 17.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1243,8 +1243,8 @@
         "range": 23.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1257,8 +1257,8 @@
         "range": 22.5,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1271,8 +1271,8 @@
         "range": 18.9,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1285,8 +1285,8 @@
         "range": 23.4,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1299,8 +1299,8 @@
         "range": 22.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1313,8 +1313,8 @@
         "range": 7.2,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1327,8 +1327,8 @@
         "range": 23.4,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1341,8 +1341,8 @@
         "range": 5.1,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1355,8 +1355,8 @@
         "range": 23.7,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1369,8 +1369,8 @@
         "range": 23.4,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1383,8 +1383,8 @@
         "range": 22.8,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       },
       {
@@ -1397,8 +1397,8 @@
         "range": 23.4,
         "provider": {
           "available": true,
-          "id": 8,
-          "name": "Blinkee"
+          "providerId": 8,
+          "providerName": "Blinkee"
         }
       }
     ]
