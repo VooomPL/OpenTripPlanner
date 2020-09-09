@@ -4,7 +4,7 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleSharingPackage;
+import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
@@ -419,10 +419,10 @@ public class StateEditor {
         incrementWeight(rentingTime * child.getOptions().routingReluctances.getRentingReluctance());
         incrementTimeInSeconds(rentingTime, true);
 
-        VehicleSharingPackage sharingPackage = vehicleDescription.getActivePackage();
+        VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
         //"-1" because it is the beginning and don't know the initial remainingFreeSeconds value
-        child.freeSecondsForCurrentVehicle = sharingPackage.computeRemainingFreeSeconds(-1,0);
-        BigDecimal priceForVehicle = sharingPackage.computeStartPrice();
+        child.freeSecondsForCurrentVehicle = pricingPackage.computeRemainingFreeSeconds(-1,0);
+        BigDecimal priceForVehicle = pricingPackage.computeStartPrice();
         child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceForVehicle);
         child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceForVehicle));
     }

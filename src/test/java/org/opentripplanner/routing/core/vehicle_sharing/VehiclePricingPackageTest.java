@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
-public class VehicleSharingPackageTest {
+public class VehiclePricingPackageTest {
 
     @Test
     public void shouldReturnProperOneKilometerPrice(){
@@ -41,57 +41,57 @@ public class VehicleSharingPackageTest {
 
     @Test
     public void shouldReduceTimeByFreeSecondsToNonZeroAndComputeZeroPrice(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 0, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 10).compareTo(BigDecimal.ZERO)==0);
     }
 
     @Test
     public void shouldReduceTimeByFreeSecondsToZeroAndComputeZeroPrice(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 0, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"),sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"),pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 15).compareTo(BigDecimal.ZERO) == 0);
     }
 
     @Test
     public void shouldReduceTimeByFreeSecondsToBelowZeroAndComputeProperPriceWithinThePackage(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 20).compareTo(BigDecimal.valueOf(5)) == 0);
    }
 
     @Test
     public void shouldReduceTimeByFreeSecondsToBelowZeroAndComputeZeroPriceDueToPackagePaymentAtTheBeginning(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.valueOf(90.0), 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.valueOf(90.0), 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 20).compareTo(BigDecimal.ZERO) == 0);
    }
 
     @Test
     public void shouldReduceTimeByFreeSecondsToBelowZeroAndComputeProperPriceWithinThePackageWhenTwoSecondsTimeTick(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 2, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 2, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 20).compareTo(BigDecimal.valueOf(2.5)) == 0);
     }
 
     @Test
     public void shouldReduceTimeByFreeSecondsByFreeSecondsToBelowZeroAndComputeProperPriceWhenPackageLimitReached(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 30).compareTo(BigDecimal.valueOf(15)) == 0);
     }
 
     @Test
     public void shouldNotReduceTimeByFreeSecondsAndComputeProperPriceWhenPackageExceeded(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(0, 55, 5).compareTo(BigDecimal.valueOf(7.5)) == 0);
     }
 
     @Test
     public void shouldNotReduceTimeByFreeSecondsAndComputeProperPriceWhenPackageExceededWhenTwoSecondsTimeTick(){
-        VehicleSharingPackage sharingPackage = new VehicleSharingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 2, 1, BigDecimal.ZERO);
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), sharingPackage);
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 2, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(0, 50, 5).compareTo(BigDecimal.valueOf(2.5)) == 0);
     }
 }

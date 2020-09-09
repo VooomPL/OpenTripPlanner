@@ -2,7 +2,7 @@ package org.opentripplanner.routing.core.vehicle_sharing;
 
 import java.math.BigDecimal;
 
-public class VehicleSharingPackage {
+public class VehiclePricingPackage {
 
     private final BigDecimal packagePrice;
 
@@ -31,14 +31,14 @@ public class VehicleSharingPackage {
 
     private final BigDecimal maxRentingPrice;
 
-    public VehicleSharingPackage(){
+    public VehiclePricingPackage(){
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
         this(BigDecimal.ZERO, 0, 5, /*BigDecimal.valueOf(1000.59)*/BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
     }
 
-    public VehicleSharingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice) {
+    public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice) {
         this.packagePrice = packagePrice;
         this.packageTimeLimitInSeconds = packageTimeLimitInSeconds;
         this.freeSeconds = freeSeconds;

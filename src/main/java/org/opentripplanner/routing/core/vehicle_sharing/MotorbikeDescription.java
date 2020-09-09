@@ -22,8 +22,8 @@ public class MotorbikeDescription extends VehicleDescription {
     }
 
     public MotorbikeDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                                Gearbox gearbox, Provider provider, Double rangeInMeters, VehicleSharingPackage sharingPackage) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, sharingPackage);
+                                Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)

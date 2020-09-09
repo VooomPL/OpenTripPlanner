@@ -36,8 +36,8 @@ public class CarDescription extends VehicleDescription {
     }
 
     public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                          Gearbox gearbox, Provider provider, VehicleSharingPackage sharingPackage) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, sharingPackage);
+                          Gearbox gearbox, Provider provider, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, pricingPackage);
     }
 
     @Override
