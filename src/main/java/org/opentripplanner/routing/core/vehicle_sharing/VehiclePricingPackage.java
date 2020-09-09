@@ -31,14 +31,16 @@ public class VehiclePricingPackage {
 
     private final BigDecimal maxRentingPrice;
 
+    private final boolean kilometerPriceEnabledAboveMaxRentingPrice;
+
     public VehiclePricingPackage(){
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
-        this(BigDecimal.ZERO, 0, 0, /*BigDecimal.valueOf(1000.59)*/BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        this(BigDecimal.ZERO, 0, 0, /*BigDecimal.valueOf(1000.59)*/BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.TEN, false);
     }
 
-    public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice) {
+    public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice, boolean kilometerPriceEnabledAboveMaxRentingPrice) {
         this.packagePrice = packagePrice;
         this.packageTimeLimitInSeconds = packageTimeLimitInSeconds;
         this.freeSeconds = freeSeconds;
@@ -52,6 +54,7 @@ public class VehiclePricingPackage {
         this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage;
         this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded;
         this.maxRentingPrice = maxRentingPrice;
+        this.kilometerPriceEnabledAboveMaxRentingPrice = kilometerPriceEnabledAboveMaxRentingPrice;
     }
 
     public BigDecimal computeStartPrice(){
@@ -100,12 +103,15 @@ public class VehiclePricingPackage {
 
     public BigDecimal computeDistanceAssociatedPriceChange(BigDecimal currentTotalVehiclePrice, double previousDistanceInMeters, double distanceModificationInMeters){
         if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0 || //max renting time not used
-                (maxRentingPrice.compareTo(BigDecimal.ZERO) > 0 && //max renting time used, but not exceeded
-                        currentTotalVehiclePrice.compareTo(maxRentingPrice) < 0)) {
+                (maxRentingPrice.compareTo(BigDecimal.ZERO) > 0 && //max renting time used ...
+                        (currentTotalVehiclePrice.compareTo(maxRentingPrice) < 0) || //... but not exceeded
+                        kilometerPriceEnabledAboveMaxRentingPrice)) // ...or counting full kilometer price anyway
+        {
             int previousDistanceInKilometers = (int) (previousDistanceInMeters / 1000);
             int newDistanceInKilometers = (int) ((previousDistanceInMeters + distanceModificationInMeters) / 1000);
             BigDecimal priceChange = (new BigDecimal(newDistanceInKilometers - previousDistanceInKilometers)).multiply(kilometerPrice);
-            if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0){ //max renting time not used
+            if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0 || kilometerPriceEnabledAboveMaxRentingPrice){
+                // max renting time not used or counting full kilometer price anyway
                 return priceChange;
             } else{ //max renting time used, check whether it is going to be exceeded after adding price change
                 return currentTotalVehiclePrice.add(priceChange).compareTo(maxRentingPrice) < 1 ? priceChange : maxRentingPrice.subtract(currentTotalVehiclePrice);
