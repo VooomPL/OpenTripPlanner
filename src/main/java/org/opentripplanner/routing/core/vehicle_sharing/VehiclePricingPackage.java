@@ -35,7 +35,7 @@ public class VehiclePricingPackage {
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
-        this(BigDecimal.ZERO, 0, 0, /*BigDecimal.valueOf(1000.59)*/BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.TEN);
+        this(BigDecimal.ZERO, 0, 0, /*BigDecimal.valueOf(1000.59)*/BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
     }
 
     public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice) {
@@ -83,7 +83,7 @@ public class VehiclePricingPackage {
             else{ //max renting time used, check whether it is going to be exceeded after adding price change
                 return currentTotalVehiclePrice.add(priceChange).compareTo(maxRentingPrice) < 1 ? priceChange : maxRentingPrice.subtract(currentTotalVehiclePrice);
             }
-        } else {
+        } else { //max renting time used and exceeded
             return BigDecimal.ZERO;
         }
     }
@@ -98,10 +98,21 @@ public class VehiclePricingPackage {
         }
     }
 
-    public BigDecimal computeDistanceAssociatedPriceChange(double previousDistanceInMeters, double distanceModificationInMeters){
-        int previousDistanceInKilometers = (int)(previousDistanceInMeters/1000);
-        int newDistanceInKilometers = (int)((previousDistanceInMeters+distanceModificationInMeters)/1000);
-        return (new BigDecimal(newDistanceInKilometers-previousDistanceInKilometers)).multiply(kilometerPrice);
+    public BigDecimal computeDistanceAssociatedPriceChange(BigDecimal currentTotalVehiclePrice, double previousDistanceInMeters, double distanceModificationInMeters){
+        if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0 || //max renting time not used
+                (maxRentingPrice.compareTo(BigDecimal.ZERO) > 0 && //max renting time used, but not exceeded
+                        currentTotalVehiclePrice.compareTo(maxRentingPrice) < 0)) {
+            int previousDistanceInKilometers = (int) (previousDistanceInMeters / 1000);
+            int newDistanceInKilometers = (int) ((previousDistanceInMeters + distanceModificationInMeters) / 1000);
+            BigDecimal priceChange = (new BigDecimal(newDistanceInKilometers - previousDistanceInKilometers)).multiply(kilometerPrice);
+            if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0){ //max renting time not used
+                return priceChange;
+            } else{ //max renting time used, check whether it is going to be exceeded after adding price change
+                return currentTotalVehiclePrice.add(priceChange).compareTo(maxRentingPrice) < 1 ? priceChange : maxRentingPrice.subtract(currentTotalVehiclePrice);
+            }
+        } else { //max renting time used and exceeded
+            return BigDecimal.ZERO;
+        }
     }
 
     public BigDecimal computeFinalPrice(BigDecimal totalPriceForCurrentVehicle){

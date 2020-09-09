@@ -11,14 +11,30 @@ public class VehiclePricingPackageTest {
 
     @Test
     public void shouldReturnProperOneKilometerPrice(){
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(1200, 800).compareTo(car.getActivePackage().getKilometerPrice()) == 0);
+        VehiclePricingPackage vehiclePricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"),vehiclePricingPackage);
+        assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(BigDecimal.ZERO, 1200, 800).compareTo(car.getActivePackage().getKilometerPrice()) == 0);
     }
 
     @Test
     public void shouldReturnZeroKilometerPrice(){
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(1200, 799).compareTo(BigDecimal.ZERO) == 0);
+        VehiclePricingPackage vehiclePricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"),vehiclePricingPackage);
+        assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(BigDecimal.ZERO, 1200, 799).compareTo(BigDecimal.ZERO) == 0);
+    }
+
+    @Test
+    public void shouldReturnZeroKilometerPriceDueToMaxRentingPrice(){
+        VehiclePricingPackage vehiclePricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.valueOf(3));
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), vehiclePricingPackage);
+        assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(BigDecimal.valueOf(3), 2200, 800).compareTo(BigDecimal.ZERO) == 0);
+    }
+
+    @Test
+    public void shouldReturnKilometerPriceFractionDueToMaxRentingPrice(){
+        VehiclePricingPackage vehiclePricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.valueOf(3));
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"),vehiclePricingPackage);
+        assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(BigDecimal.ONE, 1000, 3000).compareTo(BigDecimal.valueOf(2)) == 0);
     }
 
     @Test
@@ -29,13 +45,15 @@ public class VehiclePricingPackageTest {
 
     @Test
     public void shouldReduceFreeSecondsToNonZeroValue(){
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
+        VehiclePricingPackage vehiclePricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), vehiclePricingPackage);
         assertEquals(50, car.getActivePackage().computeRemainingFreeSeconds(100, 50), 0.0);
     }
 
     @Test
     public void shouldReduceFreeSecondsToZeroValue(){
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
+        VehiclePricingPackage vehiclePricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.0), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 1, 1, BigDecimal.ZERO);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), vehiclePricingPackage);
         assertEquals(0, car.getActivePackage().computeRemainingFreeSeconds(100, 300), 0.0);
     }
 

@@ -662,7 +662,7 @@ public class StateEditor {
     private void incrementDistanceInCurrentVehicle(double distanceInMeters) {
         if (child.getCurrentVehicle() != null) {
             BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPriceChange(
-                    child.distanceTraversedInCurrentVehicle, distanceInMeters);
+                    child.priceForCurrentVehicle, child.distanceTraversedInCurrentVehicle, distanceInMeters);
             child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
             //TODO: zamienić na setter?
             child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceChange);
