@@ -217,7 +217,7 @@ public class StateEditor {
         child.traversalStatistics.increaseTime(child.stateData.currentTraverseMode, timeInSec);
         if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
             child.timeTraversedInCurrentVehicleInSeconds += timeInSec;
-            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.freeSecondsForCurrentVehicle,
+            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.priceForCurrentVehicle, child.freeSecondsForCurrentVehicle,
                     child.timeTraversedInCurrentVehicleInSeconds, timeInSec);
             child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceChange);
             child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
