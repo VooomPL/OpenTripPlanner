@@ -431,9 +431,10 @@ public class StateEditor {
         cloneStateDataAsNeeded();
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime, false);
+        BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(child.priceForCurrentVehicle);
         // If there are more than one vehicles in the itinerary, we only want to modify the total price for the current vehicle
-        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().subtract(child.priceForCurrentVehicle).
-                add(child.getCurrentVehicle().getActivePackage().computeFinalPrice(child.priceForCurrentVehicle)));
+        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().subtract(child.priceForCurrentVehicle).add(finalVehiclePrice));
+        child.priceForCurrentVehicle = finalVehiclePrice;
         incrementWeight(droppingTime * child.getOptions().routingReluctances.getRentingReluctance());
         child.stateData.currentTraverseMode = TraverseMode.WALK;
         child.stateData.currentVehicle = null;
@@ -660,9 +661,11 @@ public class StateEditor {
 
     private void incrementDistanceInCurrentVehicle(double distanceInMeters) {
         if (child.getCurrentVehicle() != null) {
-            child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(
-                    child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPriceChange(
-                            child.distanceTraversedInCurrentVehicle, distanceInMeters)));
+            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPriceChange(
+                    child.distanceTraversedInCurrentVehicle, distanceInMeters);
+            child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
+            //TODO: zamienić na setter?
+            child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceChange);
             child.distanceTraversedInCurrentVehicle += distanceInMeters;
         }
     }
