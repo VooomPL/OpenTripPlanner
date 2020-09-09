@@ -217,11 +217,11 @@ public class StateEditor {
         child.traversalStatistics.increaseTime(child.stateData.currentTraverseMode, timeInSec);
         if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
             child.timeTraversedInCurrentVehicleInSeconds += timeInSec;
-            child.freeSecondsForCurrentVehicle = child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.freeSecondsForCurrentVehicle, timeInSec);
             BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.freeSecondsForCurrentVehicle,
                     child.timeTraversedInCurrentVehicleInSeconds, timeInSec);
             child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceChange);
             child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
+            child.freeSecondsForCurrentVehicle = child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.freeSecondsForCurrentVehicle, timeInSec);
         }
     }
 
