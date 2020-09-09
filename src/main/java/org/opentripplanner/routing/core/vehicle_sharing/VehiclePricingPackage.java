@@ -69,9 +69,9 @@ public class VehiclePricingPackage {
         }
         if (timeChangeInSeconds > 0) {
             if (totalDrivingTimeInSeconds <= packageTimeLimitInSeconds+freeSeconds) {
-                priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage))).multiply(drivingPricePerTimeTickInPackage);
+                priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
             } else {
-                priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded))).multiply(drivingPricePerTimeTickInPackageExceeded);
+                priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackageExceeded);
             }
         }
         return priceChange;
