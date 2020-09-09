@@ -71,7 +71,9 @@ public class VehiclePricingPackageTest {
     public void shouldReduceTimeByFreeSecondsToBelowZeroAndComputeProperPriceWithinThePackageWhenTwoSecondsTimeTick(){
         VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 80, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 2, 1, BigDecimal.ZERO);
         CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
-        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 20).compareTo(BigDecimal.valueOf(2.5)) == 0);
+        BigDecimal priceCahnge = car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 20);
+        //The expected value is higher due to rounding up
+        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(15, 50, 20).compareTo(BigDecimal.valueOf(3)) == 0);
     }
 
     @Test
@@ -92,6 +94,7 @@ public class VehiclePricingPackageTest {
     public void shouldNotReduceTimeByFreeSecondsAndComputeProperPriceWhenPackageExceededWhenTwoSecondsTimeTick(){
         VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 30, 20, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(1.5), BigDecimal.ZERO, BigDecimal.valueOf(3.0), 2, 1, BigDecimal.ZERO);
         CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
-        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(0, 50, 5).compareTo(BigDecimal.valueOf(2.5)) == 0);
+        //The expected value is higher due to rounding up
+        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(0, 50, 5).compareTo(BigDecimal.valueOf(3)) == 0);
     }
 }
