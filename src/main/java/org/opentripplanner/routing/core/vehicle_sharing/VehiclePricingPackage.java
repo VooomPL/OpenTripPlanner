@@ -17,6 +17,7 @@ public class VehiclePricingPackage {
 
     //Necessary for scenarios like: for the first 47 min you pay X per minute, and after that, you pay Y per hour
     private final BigDecimal drivingPricePerTimeTickInPackage;
+
     private final BigDecimal parkingPricePerTimeTickInPackage;
 
     private final BigDecimal drivingPricePerTimeTickInPackageExceeded;

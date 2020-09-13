@@ -400,8 +400,6 @@ public class StateEditor {
         cloneStateDataAsNeeded();
         child.stateData.usingRentedBike = true;
         child.stateData.currentTraverseMode = vehicleMode;
-        /*TODO: Zrobić to samo co w begin i doneVehicleRenting dla rowerów i jakoś przetestować (może w RentBikeAbstractEdge?)
-        */
     }
 
     public void doneBikeRenting() {
@@ -421,9 +419,9 @@ public class StateEditor {
 
         VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
         //"-1" because it is the beginning and don't know the initial remainingFreeSeconds value
-        child.freeSecondsForCurrentVehicle = pricingPackage.computeRemainingFreeSeconds(-1,0);
+        child.setFreeSecondsForCurrentVehicle(pricingPackage.computeRemainingFreeSeconds(-1,0));
         BigDecimal priceForVehicle = pricingPackage.computeStartPrice();
-        child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceForVehicle);
+        child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceForVehicle));
         child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceForVehicle));
     }
 
@@ -431,10 +429,10 @@ public class StateEditor {
         cloneStateDataAsNeeded();
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime, false);
-        BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(child.priceForCurrentVehicle);
+        BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(child.getPriceForCurrentVehicle());
         // If there are more than one vehicles in the itinerary, we only want to modify the total price for the current vehicle
-        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().subtract(child.priceForCurrentVehicle).add(finalVehiclePrice));
-        child.priceForCurrentVehicle = finalVehiclePrice;
+        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().subtract(child.getPriceForCurrentVehicle()).add(finalVehiclePrice));
+        child.setPriceForCurrentVehicle(finalVehiclePrice);
         incrementWeight(droppingTime * child.getOptions().routingReluctances.getRentingReluctance());
         child.stateData.currentTraverseMode = TraverseMode.WALK;
         child.stateData.currentVehicle = null;
@@ -445,9 +443,9 @@ public class StateEditor {
         child.stateData.currentTraverseMode = vehicleDescription.getTraverseMode();
         child.stateData.currentVehicle = vehicleDescription;
         child.distanceTraversedInCurrentVehicle = 0;
-        child.timeTraversedInCurrentVehicleInSeconds = 0;
-        child.priceForCurrentVehicle = BigDecimal.ZERO;
-        child.freeSecondsForCurrentVehicle = vehicleDescription.getActivePackage().computeRemainingFreeSeconds(-1, 0);
+        child.setTimeTraversedInCurrentVehicleInSeconds(0);
+        child.setPriceForCurrentVehicle(BigDecimal.ZERO);
+        child.setFreeSecondsForCurrentVehicle(vehicleDescription.getActivePackage().computeRemainingFreeSeconds(-1, 0));
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime, false);
     }
@@ -662,10 +660,9 @@ public class StateEditor {
     private void incrementDistanceInCurrentVehicle(double distanceInMeters) {
         if (child.getCurrentVehicle() != null) {
             BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPriceChange(
-                    child.priceForCurrentVehicle, child.distanceTraversedInCurrentVehicle, distanceInMeters);
+                    child.getPriceForCurrentVehicle(), child.distanceTraversedInCurrentVehicle, distanceInMeters);
             child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
-            //TODO: zamienić na setter?
-            child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceChange);
+            child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceChange));
             child.distanceTraversedInCurrentVehicle += distanceInMeters;
         }
     }

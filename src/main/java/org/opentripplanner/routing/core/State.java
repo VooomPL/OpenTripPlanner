@@ -897,4 +897,28 @@ public class State implements Cloneable {
             return distanceTraversedInCurrentVehicle + distanceInMeters <= getCurrentVehicle().getRangeInMeters();
         return true;
     }
+
+    public int getTimeTraversedInCurrentVehicleInSeconds() {
+        return timeTraversedInCurrentVehicleInSeconds;
+    }
+
+    public void setTimeTraversedInCurrentVehicleInSeconds(int timeTraversedInCurrentVehicleInSeconds) {
+        this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
+    }
+
+    public int getFreeSecondsForCurrentVehicle() {
+        return freeSecondsForCurrentVehicle;
+    }
+
+    public void setFreeSecondsForCurrentVehicle(int freeSecondsForCurrentVehicle) {
+        this.freeSecondsForCurrentVehicle = freeSecondsForCurrentVehicle;
+    }
+
+    public BigDecimal getPriceForCurrentVehicle() {
+        return priceForCurrentVehicle;
+    }
+
+    public void setPriceForCurrentVehicle(BigDecimal priceForCurrentVehicle) {
+        this.priceForCurrentVehicle = priceForCurrentVehicle;
+    }
 }
