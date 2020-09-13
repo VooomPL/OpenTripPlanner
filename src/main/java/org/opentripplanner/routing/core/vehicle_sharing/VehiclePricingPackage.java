@@ -52,8 +52,8 @@ public class VehiclePricingPackage {
         this.drivingPricePerTimeTickInPackageExceeded = drivingPricePerTimeTickInPackageExceeded;
         this.parkingPricePerTimeTickInPackageExceeded = parkingPricePerTimeTickPackageExceeded;
         this.kilometerPrice = kilometerPrice;
-        this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage;
-        this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded;
+        this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage>0?secondsPerTimeTickInPackage:1;
+        this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded>0?secondsPerTimeTickInPackageExceeded:1;
         this.maxRentingPrice = maxRentingPrice;
         this.kilometerPriceEnabledAboveMaxRentingPrice = kilometerPriceEnabledAboveMaxRentingPrice;
     }
