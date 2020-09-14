@@ -28,11 +28,11 @@ public class State implements Cloneable {
 
     protected double distanceTraversedInCurrentVehicle;
 
-    protected int timeTraversedInCurrentVehicleInSeconds;
+    private int timeTraversedInCurrentVehicleInSeconds;
 
-    protected BigDecimal priceForCurrentVehicle;
+    private BigDecimal priceForCurrentVehicle;
 
-    protected int freeSecondsForCurrentVehicle;
+    private int freeSecondsForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;

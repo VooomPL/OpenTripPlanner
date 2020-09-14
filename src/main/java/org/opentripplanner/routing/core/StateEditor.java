@@ -216,12 +216,12 @@ public class StateEditor {
         }
         child.traversalStatistics.increaseTime(child.stateData.currentTraverseMode, timeInSec);
         if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
-            child.timeTraversedInCurrentVehicleInSeconds += timeInSec;
-            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.priceForCurrentVehicle, child.freeSecondsForCurrentVehicle,
-                    child.timeTraversedInCurrentVehicleInSeconds, timeInSec);
-            child.priceForCurrentVehicle = child.priceForCurrentVehicle.add(priceChange);
+            child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds()+timeInSec);
+            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.getPriceForCurrentVehicle(), child.getFreeSecondsForCurrentVehicle(),
+                    child.getTimeTraversedInCurrentVehicleInSeconds(), timeInSec);
+            child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceChange));
             child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
-            child.freeSecondsForCurrentVehicle = child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.freeSecondsForCurrentVehicle, timeInSec);
+            child.setFreeSecondsForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.getFreeSecondsForCurrentVehicle(), timeInSec));
         }
     }
 

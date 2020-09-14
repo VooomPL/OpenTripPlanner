@@ -143,5 +143,34 @@ public class VehiclePricingPackageTest {
         assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(BigDecimal.valueOf(2), 0, 50, 5).compareTo(BigDecimal.ONE) == 0);
     }
 
+    @Test
+    public void shouldCountPartOfTimeChangeAsInPackageAndSomeAsPackageExceeded(){
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 5, 5, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, 1, 1, BigDecimal.ZERO, false);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
+        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(BigDecimal.ZERO, 1, 12, 8).compareTo(BigDecimal.valueOf(9)) == 0);
+    }
+
+    @Test
+    public void shouldCountPartOfTimeChangeAsInPackageAndSomeAsPackageExceededWithoutFreeSeconds(){
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 5, 5, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, 1, 1, BigDecimal.ZERO, false);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
+        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(BigDecimal.ZERO, 0, 12, 7).compareTo(BigDecimal.valueOf(9)) == 0);
+    }
+
+    @Test
+    public void shouldCountLastSecondOfPackageAsInPackageAndRestAsAbovePackage(){
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 5, 5, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, 1, 1, BigDecimal.ZERO, false);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
+        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(BigDecimal.ZERO, 0, 20, 11).compareTo(BigDecimal.valueOf(21)) == 0);
+    }
+
+    @Test
+    public void shouldEntireTimeAsPackageExceeded(){
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.ZERO, 5, 5, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(2.0), BigDecimal.ZERO, BigDecimal.ZERO, 1, 1, BigDecimal.ZERO, false);
+        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"), pricingPackage);
+        assertTrue(car.getActivePackage().computeTimeAssociatedPriceChange(BigDecimal.ZERO, 0, 20, 10).compareTo(BigDecimal.valueOf(20)) == 0);
+    }
+
+
 
 }

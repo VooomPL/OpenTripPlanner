@@ -107,8 +107,8 @@ public class StateEditorTest {
 
         // then
         assertTrue(next.traversalStatistics.getPrice().compareTo(next.getCurrentVehicle().getActivePackage().getStartPrice()) == 0);
-        assertEquals(next.getCurrentVehicle().getActivePackage().getFreeSeconds(), next.freeSecondsForCurrentVehicle);
-        assertEquals(0, next.timeTraversedInCurrentVehicleInSeconds);
+        assertEquals(next.getCurrentVehicle().getActivePackage().getFreeSeconds(), next.getFreeSecondsForCurrentVehicle());
+        assertEquals(0, next.getTimeTraversedInCurrentVehicleInSeconds());
     }
 
     @Test
