@@ -38,7 +38,7 @@ public class VehiclePricingPackage {
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
-        this(BigDecimal.ZERO, 0, 0, BigDecimal.valueOf(5.99), BigDecimal.valueOf(2.59), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.valueOf(3.5), 1, 1, BigDecimal.ZERO, false);
+        this(BigDecimal.ZERO, 50, 10, BigDecimal.valueOf(5.99), BigDecimal.valueOf(2.59), BigDecimal.valueOf(0.65), BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.valueOf(3.5), 1, 60, BigDecimal.ZERO, false);
     }
 
     public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice, boolean kilometerPriceEnabledAboveMaxRentingPrice) {
@@ -77,18 +77,17 @@ public class VehiclePricingPackage {
             if (timeChangeInSeconds > 0) {
                 if (totalDrivingTimeInSeconds <= packageTimeLimitInSeconds + freeSeconds) {
                     //all the seconds are included in the package
-                    priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
+                    priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
                 } else {
                     //at least some seconds are above package limit
-                    //priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackageExceeded);
                     if((totalDrivingTimeInSeconds - timeChangeInSeconds) < (packageTimeLimitInSeconds + freeSeconds)){
                         //some seconds from the time change should be a part of the package
                         int secondsInPackage = (packageTimeLimitInSeconds + freeSeconds) - (totalDrivingTimeInSeconds - timeChangeInSeconds);
-                        priceChange = (BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
+                        priceChange = (BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
                         timeChangeInSeconds -= secondsInPackage;
                     }
                     //the rest of the seconds should be treated as above package
-                    priceChange = priceChange.add((BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackageExceeded));
+                    priceChange = priceChange.add((BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackageExceeded));
                 }
             }
             if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0){ //max renting time not used
