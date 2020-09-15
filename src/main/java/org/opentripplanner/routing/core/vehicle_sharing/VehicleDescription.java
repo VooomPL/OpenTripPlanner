@@ -130,6 +130,7 @@ public abstract class VehicleDescription {
         return vehiclePricingPackages.get(index);
     }
 
+    @JsonIgnore
     public int getActivePackageIndex() {
         return activePackageIndex;
     }

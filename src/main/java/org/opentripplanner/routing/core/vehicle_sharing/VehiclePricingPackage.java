@@ -1,12 +1,13 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.math.BigDecimal;
 
 public class VehiclePricingPackage {
 
     private final BigDecimal packagePrice;
 
-    //Change to timeLimit collection for scenarios like: : for the first 47 min you pay X per minute, and after that, you pay Y per hour, after 4 hours you pay the same amount as for 23 hours?
     private final int packageTimeLimitInSeconds;
 
     private final int freeSeconds;
@@ -15,7 +16,6 @@ public class VehiclePricingPackage {
 
     private final BigDecimal startPrice;
 
-    //Necessary for scenarios like: for the first 47 min you pay X per minute, and after that, you pay Y per hour
     private final BigDecimal drivingPricePerTimeTickInPackage;
 
     private final BigDecimal parkingPricePerTimeTickInPackage;
@@ -38,7 +38,7 @@ public class VehiclePricingPackage {
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
-        this(BigDecimal.ZERO, 50, 10, BigDecimal.valueOf(5.99), BigDecimal.valueOf(2.59), BigDecimal.valueOf(0.65), BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.valueOf(3.5), 1, 60, BigDecimal.ZERO, false);
+        this(BigDecimal.valueOf(20), 50, 10, BigDecimal.valueOf(5.99), BigDecimal.valueOf(2.59), BigDecimal.valueOf(0.65), BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.valueOf(3.5), 60, 60, BigDecimal.ZERO, false);
     }
 
     public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice, boolean kilometerPriceEnabledAboveMaxRentingPrice) {
@@ -133,6 +133,50 @@ public class VehiclePricingPackage {
 
     public BigDecimal computeFinalPrice(BigDecimal totalPriceForCurrentVehicle){
         return totalPriceForCurrentVehicle.compareTo(minRentingPrice)>=0?totalPriceForCurrentVehicle:minRentingPrice;
+    }
+
+    public BigDecimal getPackagePrice() {
+        return packagePrice;
+    }
+
+    public int getPackageTimeLimitInSeconds() {
+        return packageTimeLimitInSeconds;
+    }
+
+    public BigDecimal getMinRentingPrice() {
+        return minRentingPrice;
+    }
+
+    public BigDecimal getDrivingPricePerTimeTickInPackage() {
+        return drivingPricePerTimeTickInPackage;
+    }
+
+    public BigDecimal getParkingPricePerTimeTickInPackage() {
+        return parkingPricePerTimeTickInPackage;
+    }
+
+    public BigDecimal getDrivingPricePerTimeTickInPackageExceeded() {
+        return drivingPricePerTimeTickInPackageExceeded;
+    }
+
+    public BigDecimal getParkingPricePerTimeTickInPackageExceeded() {
+        return parkingPricePerTimeTickInPackageExceeded;
+    }
+
+    public int getSecondsPerTimeTickInPackage() {
+        return secondsPerTimeTickInPackage;
+    }
+
+    public int getSecondsPerTimeTickInPackageExceeded() {
+        return secondsPerTimeTickInPackageExceeded;
+    }
+
+    public BigDecimal getMaxRentingPrice() {
+        return maxRentingPrice;
+    }
+
+    public boolean isKilometerPriceEnabledAboveMaxRentingPrice() {
+        return kilometerPriceEnabledAboveMaxRentingPrice;
     }
 
     public BigDecimal getStartPrice() {
