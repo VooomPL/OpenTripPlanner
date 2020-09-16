@@ -1,44 +1,42 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.math.BigDecimal;
 
 public class VehiclePricingPackage {
 
-    private final BigDecimal packagePrice;
+    private BigDecimal packagePrice;
 
-    private final int packageTimeLimitInSeconds;
+    private int packageTimeLimitInSeconds;
 
-    private final int freeSeconds;
+    private int freeSeconds;
 
-    private final BigDecimal minRentingPrice;
+    private BigDecimal minRentingPrice;
 
-    private final BigDecimal startPrice;
+    private BigDecimal startPrice;
 
-    private final BigDecimal drivingPricePerTimeTickInPackage;
+    private BigDecimal drivingPricePerTimeTickInPackage;
 
-    private final BigDecimal parkingPricePerTimeTickInPackage;
+    private BigDecimal parkingPricePerTimeTickInPackage;
 
-    private final BigDecimal drivingPricePerTimeTickInPackageExceeded;
+    private BigDecimal drivingPricePerTimeTickInPackageExceeded;
 
-    private final BigDecimal parkingPricePerTimeTickInPackageExceeded;
+    private BigDecimal parkingPricePerTimeTickInPackageExceeded;
 
-    private final BigDecimal kilometerPrice;
+    private BigDecimal kilometerPrice;
 
-    private final int secondsPerTimeTickInPackage;
+    private int secondsPerTimeTickInPackage;
 
-    private final int secondsPerTimeTickInPackageExceeded;
+    private int secondsPerTimeTickInPackageExceeded;
 
-    private final BigDecimal maxRentingPrice;
+    private BigDecimal maxRentingPrice;
 
-    private final boolean kilometerPriceEnabledAboveMaxRentingPrice;
+    private boolean kilometerPriceEnabledAboveMaxRentingPrice;
 
     public VehiclePricingPackage(){
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
-        this(BigDecimal.valueOf(20), 50, 10, BigDecimal.valueOf(5.99), BigDecimal.valueOf(2.59), BigDecimal.valueOf(0.65), BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.valueOf(3.5), 60, 60, BigDecimal.ZERO, false);
+        this(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 60, 60, BigDecimal.ZERO, false);
     }
 
     public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice, boolean kilometerPriceEnabledAboveMaxRentingPrice) {
@@ -189,5 +187,61 @@ public class VehiclePricingPackage {
 
     public BigDecimal getKilometerPrice() {
         return kilometerPrice;
+    }
+
+    public void setPackagePrice(BigDecimal packagePrice) {
+        this.packagePrice = packagePrice;
+    }
+
+    public void setPackageTimeLimitInSeconds(int packageTimeLimitInSeconds) {
+        this.packageTimeLimitInSeconds = packageTimeLimitInSeconds;
+    }
+
+    public void setFreeSeconds(int freeSeconds) {
+        this.freeSeconds = freeSeconds;
+    }
+
+    public void setMinRentingPrice(BigDecimal minRentingPrice) {
+        this.minRentingPrice = minRentingPrice;
+    }
+
+    public void setStartPrice(BigDecimal startPrice) {
+        this.startPrice = startPrice;
+    }
+
+    public void setDrivingPricePerTimeTickInPackage(BigDecimal drivingPricePerTimeTickInPackage) {
+        this.drivingPricePerTimeTickInPackage = drivingPricePerTimeTickInPackage;
+    }
+
+    public void setParkingPricePerTimeTickInPackage(BigDecimal parkingPricePerTimeTickInPackage) {
+        this.parkingPricePerTimeTickInPackage = parkingPricePerTimeTickInPackage;
+    }
+
+    public void setDrivingPricePerTimeTickInPackageExceeded(BigDecimal drivingPricePerTimeTickInPackageExceeded) {
+        this.drivingPricePerTimeTickInPackageExceeded = drivingPricePerTimeTickInPackageExceeded;
+    }
+
+    public void setParkingPricePerTimeTickInPackageExceeded(BigDecimal parkingPricePerTimeTickInPackageExceeded) {
+        this.parkingPricePerTimeTickInPackageExceeded = parkingPricePerTimeTickInPackageExceeded;
+    }
+
+    public void setKilometerPrice(BigDecimal kilometerPrice) {
+        this.kilometerPrice = kilometerPrice;
+    }
+
+    public void setSecondsPerTimeTickInPackage(int secondsPerTimeTickInPackage) {
+        this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage;
+    }
+
+    public void setSecondsPerTimeTickInPackageExceeded(int secondsPerTimeTickInPackageExceeded) {
+        this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded;
+    }
+
+    public void setMaxRentingPrice(BigDecimal maxRentingPrice) {
+        this.maxRentingPrice = maxRentingPrice;
+    }
+
+    public void setKilometerPriceEnabledAboveMaxRentingPrice(boolean kilometerPriceEnabledAboveMaxRentingPrice) {
+        this.kilometerPriceEnabledAboveMaxRentingPrice = kilometerPriceEnabledAboveMaxRentingPrice;
     }
 }

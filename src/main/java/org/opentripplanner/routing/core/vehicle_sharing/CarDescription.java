@@ -18,8 +18,8 @@ public class CarDescription extends VehicleDescription {
     private static final double DEFAULT_RANGE_IN_METERS = 200 * 1000;
 
     public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                          Gearbox gearbox, Provider provider, Double rangeInMeters) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+                          Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
@@ -33,11 +33,6 @@ public class CarDescription extends VehicleDescription {
     public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                           Gearbox gearbox, Provider provider) {
         super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider);
-    }
-
-    public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                          Gearbox gearbox, Provider provider, VehiclePricingPackage pricingPackage) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, pricingPackage);
     }
 
     @Override
