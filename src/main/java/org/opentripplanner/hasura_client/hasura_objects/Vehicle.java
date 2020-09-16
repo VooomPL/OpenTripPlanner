@@ -1,6 +1,6 @@
 package org.opentripplanner.hasura_client.hasura_objects;
 
-import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.VehicleProvider;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 import java.math.BigDecimal;
 
@@ -12,7 +12,7 @@ public class Vehicle extends HasuraObject {
     private String fuelType;
     private String gearbox;
     private String type;
-    private VehicleProvider provider;
+    private Provider provider;
     private Double range;
     private BigDecimal kmPrice;
     private BigDecimal drivingPrice;
@@ -75,11 +75,11 @@ public class Vehicle extends HasuraObject {
         this.type = type;
     }
 
-    public VehicleProvider getProvider() {
+    public Provider getProvider() {
         return provider;
     }
 
-    public void setProvider(VehicleProvider provider) {
+    public void setProvider(Provider provider) {
         this.provider = provider;
     }
 

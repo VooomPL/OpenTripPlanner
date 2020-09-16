@@ -16,6 +16,7 @@ import static java.lang.Double.min;
         @JsonSubTypes.Type(value = KickScooterDescription.class, name = "KICKSCOOTER"),
         @JsonSubTypes.Type(value = CarDescription.class, name = "CAR"),
         @JsonSubTypes.Type(value = MotorbikeDescription.class, name = "MOTORBIKE"),
+        @JsonSubTypes.Type(value = BikeDescription.class, name = "BIKE"),
 })
 public abstract class VehicleDescription {
 
@@ -28,6 +29,8 @@ public abstract class VehicleDescription {
 
     private int activePackageIndex;
 
+    protected boolean requiresHubToDrop;
+
     @JsonSerialize
     private final FuelType fuelType;
 
@@ -37,6 +40,11 @@ public abstract class VehicleDescription {
     @JsonUnwrapped
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final Provider provider;
+
+    public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                              Gearbox gearbox, Provider provider, boolean requiresHubToDrop) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, requiresHubToDrop);
+    }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider) {
@@ -50,6 +58,13 @@ public abstract class VehicleDescription {
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage vehiclePricingPackage) {
+                              Gearbox gearbox, Provider provider, Double rangeInMeters) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false);
+
+    }
+
+    public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, boolean requiresHubToDrop) {
         if (rangeInMeters == null)
             rangeInMeters = this.getDefaultRangeInMeters();
 
@@ -65,6 +80,7 @@ public abstract class VehicleDescription {
         this.vehiclePricingPackages = new ArrayList<>();
         this.vehiclePricingPackages.add(vehiclePricingPackage);
         this.activePackageIndex = 0;
+        this.requiresHubToDrop = requiresHubToDrop;
     }
 
     @Override
@@ -141,5 +157,9 @@ public abstract class VehicleDescription {
 
     public VehiclePricingPackage getActivePackage(){
         return this.vehiclePricingPackages.get(this.getActivePackageIndex());
+    }
+
+    public boolean requiresHubToDrop() {
+        return requiresHubToDrop;
     }
 }
