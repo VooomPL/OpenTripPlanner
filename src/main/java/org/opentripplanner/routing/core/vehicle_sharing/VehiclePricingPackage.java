@@ -70,6 +70,7 @@ public class VehiclePricingPackage {
             */
             BigDecimal priceChange = BigDecimal.ZERO;
             if (remainingFreeSeconds > 0) {
+                //some seconds may be free of charge
                 timeChangeInSeconds -= remainingFreeSeconds;
             }
             if (timeChangeInSeconds > 0) {
@@ -78,13 +79,15 @@ public class VehiclePricingPackage {
                     priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
                 } else {
                     //at least some seconds are above package limit
-                    if((totalDrivingTimeInSeconds - timeChangeInSeconds) < (packageTimeLimitInSeconds + freeSeconds)){
-                        //some seconds from the time change should be a part of the package
-                        int secondsInPackage = (packageTimeLimitInSeconds + freeSeconds) - (totalDrivingTimeInSeconds - timeChangeInSeconds);
+                    int travelTimeBeforeThisStepInSeconds = totalDrivingTimeInSeconds - timeChangeInSeconds;
+                    int packageAndFreeTimeLimitInSeconds = packageTimeLimitInSeconds + freeSeconds;
+                    if(travelTimeBeforeThisStepInSeconds < packageAndFreeTimeLimitInSeconds){
+                        //some seconds from the current time change should be counted as "within the package limit"
+                        int secondsInPackage = packageAndFreeTimeLimitInSeconds - travelTimeBeforeThisStepInSeconds;
                         priceChange = (BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
                         timeChangeInSeconds -= secondsInPackage;
                     }
-                    //the rest of the seconds should be treated as above package
+                    //the rest of the seconds should be treated as above package limit
                     priceChange = priceChange.add((BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackageExceeded));
                 }
             }
