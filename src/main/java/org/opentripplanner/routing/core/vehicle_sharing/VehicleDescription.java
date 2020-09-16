@@ -43,28 +43,27 @@ public abstract class VehicleDescription {
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider, boolean requiresHubToDrop) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, requiresHubToDrop);
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, requiresHubToDrop, new VehiclePricingPackage());
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, new VehiclePricingPackage());
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, false, new VehiclePricingPackage());
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters){
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, new VehiclePricingPackage());
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage){
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, pricingPackage);
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage vehiclePricingPackage) {
                               Gearbox gearbox, Provider provider, Double rangeInMeters) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false);
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, new VehiclePricingPackage());
 
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters, boolean requiresHubToDrop) {
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, boolean requiresHubToDrop, VehiclePricingPackage vehiclePricingPackage) {
         if (rangeInMeters == null)
             rangeInMeters = this.getDefaultRangeInMeters();
 
