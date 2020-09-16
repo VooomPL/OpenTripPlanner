@@ -44,11 +44,11 @@ public class VehiclePricingPackageTest {
         assertTrue(car.getActivePackage().computeDistanceAssociatedPriceChange(BigDecimal.ONE, 1000, 3000).compareTo(BigDecimal.valueOf(9)) == 0);
     }
 
-    @Test
+    /*@Test
     public void shouldProperlyInitializeFreeSeconds(){
         CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
         assertEquals(car.getActivePackage().getFreeSeconds(), car.getActivePackage().computeRemainingFreeSeconds(-1, 0), 0.0);
-    }
+    }*/
 
     @Test
     public void shouldReduceFreeSecondsToNonZeroValue(){

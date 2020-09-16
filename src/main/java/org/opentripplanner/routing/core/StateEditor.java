@@ -418,8 +418,7 @@ public class StateEditor {
         incrementTimeInSeconds(rentingTime, true);
 
         VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
-        //"-1" because it is the beginning and don't know the initial remainingFreeSeconds value
-        child.setFreeSecondsForCurrentVehicle(pricingPackage.computeRemainingFreeSeconds(-1,0));
+        child.setFreeSecondsForCurrentVehicle(pricingPackage.getFreeSeconds());
         BigDecimal priceForVehicle = pricingPackage.computeStartPrice();
         child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceForVehicle));
         child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceForVehicle));

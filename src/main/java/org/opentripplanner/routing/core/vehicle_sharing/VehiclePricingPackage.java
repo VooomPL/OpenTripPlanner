@@ -100,13 +100,8 @@ public class VehiclePricingPackage {
     }
 
     public int computeRemainingFreeSeconds(int remainingFreeSeconds, int timeChangeInSeconds){
-        if(remainingFreeSeconds<0){
-            return freeSeconds;
-        }
-        else{
-            int newRemainingFreeSeconds = remainingFreeSeconds-timeChangeInSeconds;
-            return newRemainingFreeSeconds>0?newRemainingFreeSeconds:0;
-        }
+        int newRemainingFreeSeconds = remainingFreeSeconds-timeChangeInSeconds;
+        return newRemainingFreeSeconds>0?newRemainingFreeSeconds:0;
     }
 
     public BigDecimal computeDistanceAssociatedPriceChange(BigDecimal currentTotalVehiclePrice, double previousDistanceInMeters, double distanceModificationInMeters){
