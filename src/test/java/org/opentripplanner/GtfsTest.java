@@ -145,7 +145,7 @@ public abstract class GtfsTest extends TestCase {
         List<GraphPath> paths = new GraphPathFinder(router).getPaths(routingRequest);
         if (paths.isEmpty())
             return new Leg[] { null };
-        TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, routingRequest);
+        TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, routingRequest, graph.streetIndex);
         // Stored in instance field for use in individual tests
         itinerary = tripPlan.itinerary.get(0);
 

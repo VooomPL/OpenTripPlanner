@@ -28,6 +28,7 @@ import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.services.FareService;
 import org.opentripplanner.routing.services.notes.StreetNotesService;
@@ -64,6 +65,8 @@ public class GraphPathToTripPlanConverterTest {
 
     private static final Locale locale = new Locale("en");
 
+    private static final StreetVertexIndexServiceImpl EMPTY_STREET_INDEX = new StreetVertexIndexServiceImpl(new Graph());
+
     /**
      * Test the generateItinerary() method. This test is intended to be comprehensive but fast.
      * Any future changes to the generateItinerary() method should be accompanied by changes in this
@@ -73,9 +76,9 @@ public class GraphPathToTripPlanConverterTest {
     public void testGenerateItinerary() {
         GraphPath[] graphPaths = buildPaths();
 
-        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], true, false, locale), Type.FORWARD);
-        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[1], true, false, locale), Type.BACKWARD);
-        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[2], true, false, locale), Type.ONBOARD);
+        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], true, false, locale, EMPTY_STREET_INDEX), Type.FORWARD);
+        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[1], true, false, locale, EMPTY_STREET_INDEX), Type.BACKWARD);
+        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[2], true, false, locale, EMPTY_STREET_INDEX), Type.ONBOARD);
     }
 
     /**
@@ -87,7 +90,7 @@ public class GraphPathToTripPlanConverterTest {
         // Reuse testGenerateItinerary()'s graph path, but shorten it
         GraphPath graphPath = new GraphPath(buildPaths()[0].states.get(3), false);
 
-        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale, EMPTY_STREET_INDEX);
 
         assertEquals(1, itinerary.legs.size());
         assertEquals(TraverseMode.WALK, itinerary.legs.get(0).mode);
@@ -106,7 +109,7 @@ public class GraphPathToTripPlanConverterTest {
 
         GraphPath graphPath = new GraphPath(new State(options), false);
 
-        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale, EMPTY_STREET_INDEX);
     }
 
     /**
@@ -130,7 +133,7 @@ public class GraphPathToTripPlanConverterTest {
 
         GraphPath graphPath = new GraphPath(arrive.traverse(intermediate), false);
 
-        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale, EMPTY_STREET_INDEX);
     }
 
     /**
@@ -160,7 +163,7 @@ public class GraphPathToTripPlanConverterTest {
         GraphPath[] graphPaths = buildPaths();
 
         // when
-        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], false, false, locale);
+        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], false, false, locale, EMPTY_STREET_INDEX);
 
         // then
         Coordinate prev = null, next;

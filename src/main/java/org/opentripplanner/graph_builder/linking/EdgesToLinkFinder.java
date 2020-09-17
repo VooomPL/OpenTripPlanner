@@ -1,14 +1,17 @@
 package org.opentripplanner.graph_builder.linking;
 
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.util.I18NString;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -16,6 +19,8 @@ import static java.util.stream.Collectors.toList;
  * Finds all closest edges in graph that given vertex could be linked to
  */
 public class EdgesToLinkFinder {
+
+    protected static final double MAX_DISTANCE_FOR_VERTEX_NAME = SphericalDistanceLibrary.metersToDegrees(100);
 
     private final HashGridSpatialIndex<Edge> idx;
 
@@ -46,6 +51,23 @@ public class EdgesToLinkFinder {
         List<StreetEdge> candidateEdges =
                 filterEdgesForGivenVehicle(getCandidateEdges(vertex, vehicle.getTraverseMode()), vehicle);
         return bestCandidatesGetter.getBestCandidates(candidateEdges, edge -> linkingGeoTools.distance(vertex, edge));
+    }
+
+    /**
+     * Finds proper (non bogus) name for a given vertex. Returns a closest street name that is closer than
+     * `MAX_DISTANCE_FOR_VERTEX_NAME` or empty optional if there is no such street name.
+     */
+    public Optional<I18NString> findNameForVertex(Vertex vertex) {
+        List<StreetEdge> collect = idx.query(linkingGeoTools.createEnvelope(vertex)).stream()
+                .filter(StreetEdge.class::isInstance)
+                .map(StreetEdge.class::cast)
+                .filter(edge -> !edge.hasBogusName())
+                .collect(toList());
+        List<StreetEdge> bestCandidates = bestCandidatesGetter.getBestCandidates(
+                collect, edge -> linkingGeoTools.distance(vertex, edge), MAX_DISTANCE_FOR_VERTEX_NAME);
+        return bestCandidates.stream()
+                .findFirst()
+                .map(StreetEdge::getRawName);
     }
 
     private List<StreetEdge> filterEdgesForGivenVehicle(List<StreetEdge> streetEdges, VehicleDescription vehicle) {
