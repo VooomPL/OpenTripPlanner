@@ -4,9 +4,10 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZone;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class SingleParkingZone {
+public class SingleParkingZone implements Serializable {
 
     private final int providerId;
 
