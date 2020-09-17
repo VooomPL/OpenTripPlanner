@@ -11,7 +11,6 @@ import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.edgetype.rentedgetype.EdgeWithParkingZones;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
@@ -117,7 +116,11 @@ public class TemporaryStreetSplitter {
         }
     }
 
-    public Optional<TemporaryRentVehicleVertex> linkStationToGraph(BikeRentalStation station) {
+    /**
+     * Wraps bike rental station in `TemporaryRentVehicleVertex` and links that vertex to graph with temporary edges.
+     * Split edges don't replace existing ones, so only temporary edges and vertices are created.
+     */
+    public Optional<TemporaryRentVehicleVertex> linkBikeRentalStationToGraph(BikeRentalStation station) {
         TemporaryRentVehicleVertex temporaryVertex = createTemporaryRentBikeVertex(station);
         if (!toStreetEdgeLinker.linkTemporarilyBothWays(temporaryVertex, station.getBikeFromStation())) {
             LOG.debug("Couldn't link station {} to graph", station);
@@ -158,29 +161,40 @@ public class TemporaryStreetSplitter {
     }
 
     private void addTemporaryDropoffVehicleEdge(Vertex destination) {
-        TemporaryDropoffVehicleEdge edge = new TemporaryDropoffVehicleEdge(destination);
-        addParkingZonesToEdge(edge);
-    }
-
-    private void addParkingZonesToEdge(EdgeWithParkingZones edge) {
-        if (graph.parkingZonesCalculator != null) {
-            edge.setParkingZones(graph.parkingZonesCalculator.getParkingZonesForEdge(edge));
+        if (graph.parkingZonesCalculator == null) {
+            new TemporaryDropoffVehicleEdge(destination);
+        } else {
+            new TemporaryDropoffVehicleEdge(destination, graph.parkingZonesCalculator.getParkingZonesForLocation(destination));
         }
     }
 
     private TemporaryRentVehicleVertex createTemporaryRentVehicleVertex(VehicleDescription vehicle) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(vehicle.getLongitude(), vehicle.getLatitude()), "Renting vehicle " + vehicle);
-        RentVehicleEdge edge = new RentVehicleEdge(vertex, vehicle);
-        addParkingZonesToEdge(edge);
+        addRentVehicleEdge(vertex, vehicle);
         return vertex;
+    }
+
+    private void addRentVehicleEdge(TemporaryRentVehicleVertex vertex, VehicleDescription vehicle) {
+        if (graph.parkingZonesCalculator == null) {
+            new RentVehicleEdge(vertex, vehicle);
+        } else {
+            new RentVehicleEdge(vertex, vehicle, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        }
     }
 
     private TemporaryRentVehicleVertex createTemporaryRentBikeVertex(BikeRentalStation station) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(station.longitude, station.latitude), "Renting station " + station);
-        RentBikeEdge edge = new RentBikeEdge(vertex, station);
-        addParkingZonesToEdge(edge);
+        addRentBikeEdge(vertex, station);
         return vertex;
+    }
+
+    private void addRentBikeEdge(TemporaryRentVehicleVertex vertex, BikeRentalStation station) {
+        if (graph.parkingZonesCalculator == null) {
+            new RentBikeEdge(vertex, station);
+        } else {
+            new RentBikeEdge(vertex, station, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        }
     }
 }

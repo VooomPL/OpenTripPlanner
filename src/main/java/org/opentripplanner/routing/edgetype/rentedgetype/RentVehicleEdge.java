@@ -22,6 +22,11 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
         this.vehicle = vehicle;
     }
 
+    public RentVehicleEdge(TemporaryRentVehicleVertex v, VehicleDescription vehicle, ParkingZoneInfo parkingZones) {
+        super(v, parkingZones);
+        this.vehicle = vehicle;
+    }
+
     @Override
     public String getName() {
         return "Rent vehicle " + vehicle + " in node " + tov.getName();

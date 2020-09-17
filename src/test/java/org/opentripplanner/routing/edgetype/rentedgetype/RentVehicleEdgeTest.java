@@ -32,9 +32,8 @@ public class RentVehicleEdgeTest {
         request.setStartingMode(TraverseMode.WALK);
         request.vehicleValidator = mock(VehicleValidator.class);
         state = new State(vertex, request);
-        edge = new RentVehicleEdge(vertex, CAR_1);
         parkingZones = mock(ParkingZoneInfo.class);
-        edge.setParkingZones(parkingZones);
+        edge = new RentVehicleEdge(vertex, CAR_1, parkingZones);
         StateEditor se = state.edit(edge);
         se.beginVehicleRenting(CAR_2);
         rentingState = se.makeState();

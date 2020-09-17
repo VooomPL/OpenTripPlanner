@@ -48,14 +48,13 @@ public class RentAndDropBikeEdgeTest {
         request.rentingAllowed = true;
         state = new State(v1, request);
 
-        rentEdge11 = new RentBikeEdge(v1, station11);
+        ParkingZoneInfo parkingZones = mock(ParkingZoneInfo.class);
+        rentEdge11 = new RentBikeEdge(v1, station11, parkingZones);
 
         dropEdge11 = new DropBikeEdge(v1, station11);
         dropEdge21 = new DropBikeEdge(v1, station21);
 
-        ParkingZoneInfo parkingZones = mock(ParkingZoneInfo.class);
 
-        rentEdge11.setParkingZones(parkingZones);
         StateEditor se = state.edit(rentEdge11);
         se.beginVehicleRenting(bike1);
         rentingState = se.makeState();

@@ -338,12 +338,23 @@ public class GraphBuilder implements Runnable {
         }
         graphBuilder.serializeGraph = (!params.inMemory) || params.preFlight;
 
-        graphBuilder.addModule(new VehicleSharingBuilderModule());
+        tryAddVehicleSharingBuilderModule(graphBuilder);
+
         if (jsonFile != null) {
             graphBuilder.addModule(new TrafifcPredictionBuilderModule(jsonFile));
         }
 
         return graphBuilder;
+    }
+
+    private static void tryAddVehicleSharingBuilderModule(GraphBuilder graphBuilder) {
+        if (System.getProperties().containsKey("sharedVehiclesApi")) {
+            graphBuilder.addModule(new VehicleSharingBuilderModule(System.getProperty("sharedVehiclesApi")));
+        } else {
+            graphBuilder.addModule(VehicleSharingBuilderModule.withoutParkingZones());
+            LOG.warn("Building graph without rentable vehicles parking zones. If you want to add parking zones, " +
+                    "please provide program parameter `--sharedVehiclesApi <URL>`");
+        }
     }
 
     /**
