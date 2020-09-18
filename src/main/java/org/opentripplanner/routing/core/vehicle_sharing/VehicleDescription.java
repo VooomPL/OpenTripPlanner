@@ -154,6 +154,11 @@ public abstract class VehicleDescription {
         this.activePackageIndex = activePackageIndex;
     }
 
+    public void setActivePackage(VehiclePricingPackage pricingPackage){
+        this.vehiclePricingPackages.add(pricingPackage);
+        this.activePackageIndex = this.vehiclePricingPackages.size()-1;
+    }
+
     public VehiclePricingPackage getActivePackage(){
         return this.vehiclePricingPackages.get(this.getActivePackageIndex());
     }
