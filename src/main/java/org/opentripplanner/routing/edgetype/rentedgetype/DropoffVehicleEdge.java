@@ -16,6 +16,10 @@ public class DropoffVehicleEdge extends EdgeWithParkingZones {
         super(v);
     }
 
+    public DropoffVehicleEdge(Vertex v, ParkingZoneInfo parkingZones) {
+        super(v, parkingZones);
+    }
+
     @Override
     public String getName() {
         return "Drop off vehicle in node " + tov.getName();

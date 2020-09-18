@@ -2,12 +2,13 @@ package org.opentripplanner.updater.vehicle_sharing.parking_zones;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
-import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.SingleParkingZone;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.routing.location.StreetLocation;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class ParkingZonesCalculatorTest {
 
     private static final CarDescription CAR_1 = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(1, "PANEK"));
 
-    private DropoffVehicleEdge edge;
+    private Vertex vertex;
     private Geometry geometryAllowed;
     private Geometry geometryDisallowed;
     private ParkingZonesCalculator calculator;
@@ -33,10 +34,7 @@ public class ParkingZonesCalculatorTest {
 
     @Before
     public void setUp() {
-        Vertex vertex = mock(Vertex.class);
-        when(vertex.getLat()).thenReturn(1.1);
-        when(vertex.getLon()).thenReturn(2.2);
-        edge = new DropoffVehicleEdge(vertex);
+        vertex = new StreetLocation("id", new Coordinate(1.1, 2.2), "name");
         geometryAllowed = mock(Geometry.class);
         geometryDisallowed = mock(Geometry.class);
         GeometryParkingZone geometryParkingZone = new GeometryParkingZone(1, VehicleType.CAR, singletonList(geometryAllowed), singletonList(geometryDisallowed));
@@ -76,7 +74,7 @@ public class ParkingZonesCalculatorTest {
         when(geometryDisallowed.contains(any())).thenReturn(true);
 
         // when
-        ParkingZoneInfo parkingZones = calculator.getParkingZonesForEdge(edge);
+        ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
 
         // then
         assertFalse(parkingZones.canDropoffVehicleHere(CAR_1));
@@ -89,7 +87,7 @@ public class ParkingZonesCalculatorTest {
         when(geometryDisallowed.contains(any())).thenReturn(false);
 
         // when
-        ParkingZoneInfo parkingZones = calculator.getParkingZonesForEdge(edge);
+        ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
 
         // then
         assertTrue(parkingZones.canDropoffVehicleHere(CAR_1));
@@ -101,7 +99,7 @@ public class ParkingZonesCalculatorTest {
         when(geometryAllowed.contains(any())).thenReturn(false);
 
         // when
-        ParkingZoneInfo parkingZones = calculator.getParkingZonesForEdge(edge);
+        ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
 
         // then
         assertFalse(parkingZones.canDropoffVehicleHere(CAR_1));

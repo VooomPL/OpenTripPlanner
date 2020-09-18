@@ -5,10 +5,16 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
 public class RentBikeEdge extends RentVehicleEdge {
-    final private BikeRentalStation station;
+
+    private final BikeRentalStation station;
 
     public RentBikeEdge(TemporaryRentVehicleVertex v, BikeRentalStation station) {
         super(v, station.getBikeFromStation());
+        this.station = station;
+    }
+
+    public RentBikeEdge(TemporaryRentVehicleVertex v, BikeRentalStation station, ParkingZoneInfo parkingZones) {
+        super(v, station.getBikeFromStation(), parkingZones);
         this.station = station;
     }
 

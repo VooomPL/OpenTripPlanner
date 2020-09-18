@@ -18,7 +18,7 @@ public class DropoffVehicleEdgeTest {
 
     private static final CarDescription CAR_1 = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
 
-    private DropoffVehicleEdge edge;
+    private DropoffVehicleEdge edgeWithoutParkingZones, edge;
     private RoutingRequest request;
     private State rentingState;
     private ParkingZoneInfo parkingZoneInfo;
@@ -27,7 +27,9 @@ public class DropoffVehicleEdgeTest {
     public void setUp() {
         Graph graph = new Graph();
         IntersectionVertex v = new IntersectionVertex(graph, "v_name", 0, 0);
-        edge = new DropoffVehicleEdge(v);
+        parkingZoneInfo = mock(ParkingZoneInfo.class);
+        edgeWithoutParkingZones = new DropoffVehicleEdge(v);
+        edge = new DropoffVehicleEdge(v, parkingZoneInfo);
         request = new RoutingRequest();
         request.setDummyRoutingContext(graph);
         request.setModes(new TraverseModeSet(TraverseMode.WALK, TraverseMode.CAR));
@@ -36,14 +38,21 @@ public class DropoffVehicleEdgeTest {
         StateEditor se = state.edit(edge);
         se.beginVehicleRenting(CAR_1);
         rentingState = se.makeState();
+    }
 
-        parkingZoneInfo = mock(ParkingZoneInfo.class);
+    @Test
+    public void shouldReturnVehicleIfParkingZonesDisabled() {
+        // when
+        State traversed = edgeWithoutParkingZones.traverse(rentingState);
+
+        // then
+        assertNotNull(traversed);
+        assertFalse(traversed.isCurrentlyRentingVehicle());
     }
 
     @Test
     public void shouldNotReturnVehicleIfCannotDropoffHere() {
         // given
-        edge.setParkingZones(parkingZoneInfo);
         when(parkingZoneInfo.canDropoffVehicleHere(CAR_1)).thenReturn(false);
         // when
         State traversed = edge.traverse(rentingState);
@@ -55,8 +64,6 @@ public class DropoffVehicleEdgeTest {
     @Test
     public void shouldReturnVehicleIfCanDropoffHere() {
         // given
-        request.rentingAllowed = true;
-        edge.setParkingZones(parkingZoneInfo);
         when(parkingZoneInfo.canDropoffVehicleHere(CAR_1)).thenReturn(true);
 
         // when
