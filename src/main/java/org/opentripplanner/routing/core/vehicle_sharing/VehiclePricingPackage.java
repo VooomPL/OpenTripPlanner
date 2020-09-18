@@ -74,9 +74,12 @@ public class VehiclePricingPackage {
                 timeChangeInSeconds -= remainingFreeSeconds;
             }
             if (timeChangeInSeconds > 0) {
+                //not all seconds were free of charge
                 if (totalDrivingTimeInSeconds <= packageTimeLimitInSeconds + freeSeconds) {
                     //all the seconds are included in the package
-                    priceChange = (BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
+                    BigDecimal previousTimeTicksInPackage = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds-timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
+                    BigDecimal currentTotalTimeTicks = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
+                    priceChange = currentTotalTimeTicks.subtract(previousTimeTicksInPackage).multiply(drivingPricePerTimeTickInPackage);
                 } else {
                     //at least some seconds are above package limit
                     int travelTimeBeforeThisStepInSeconds = totalDrivingTimeInSeconds - timeChangeInSeconds;
@@ -84,11 +87,34 @@ public class VehiclePricingPackage {
                     if(travelTimeBeforeThisStepInSeconds < packageAndFreeTimeLimitInSeconds){
                         //some seconds from the current time change should be counted as "within the package limit"
                         int secondsInPackage = packageAndFreeTimeLimitInSeconds - travelTimeBeforeThisStepInSeconds;
-                        priceChange = (BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackage);
-                        timeChangeInSeconds -= secondsInPackage;
+                        BigDecimal timeTicksInPackage = BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
+                        priceChange = timeTicksInPackage.multiply(drivingPricePerTimeTickInPackage);
+                        //we charge for all the started time ticks, not only for the "completed" ones
+                        int secondsInTimeTicksStartedWithinPackage = timeTicksInPackage.intValue()*secondsPerTimeTickInPackage;
+                        timeChangeInSeconds -= secondsInTimeTicksStartedWithinPackage<=timeChangeInSeconds?secondsInTimeTicksStartedWithinPackage:timeChangeInSeconds;
                     }
                     //the rest of the seconds should be treated as above package limit
-                    priceChange = priceChange.add((BigDecimal.valueOf(timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 3, BigDecimal.ROUND_HALF_UP)).multiply(drivingPricePerTimeTickInPackageExceeded));
+
+                    /*
+                     * If package time limit = 50 s and seconds per time tick in the package = 60, than time tick can start
+                     * within a package, and "complete" when package is exceeded. In such (probably extremely rare) cases
+                     * the borderline time tick has "within package" price. The remaining seconds for this time tick need
+                     * to be excluded from counting "above package" time ticks.
+                     */
+                    BigDecimal totalTimeTicksThatCanStartInPackage = BigDecimal.valueOf(packageTimeLimitInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
+                    int totalSecondsInTimeTicksThatCanStartInPackage = totalTimeTicksThatCanStartInPackage.intValue()*secondsPerTimeTickInPackage;
+                    int previousTimeTicksAbovePackage = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds-totalSecondsInTimeTicksThatCanStartInPackage-timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP).intValue();
+                    /*
+                     * If we have not "completed" the entire time tick that has started within the package in the previous step,
+                     * the value of previousTimeTicksAbovePackage may be negative. In such cases we know, that we have not
+                     * started any time tick above package yet (therefore correcting the negative previousTimeTicksAbovePackage
+                     * value and setting it to 0)
+                     */
+                    previousTimeTicksAbovePackage = previousTimeTicksAbovePackage>=0?previousTimeTicksAbovePackage:0;
+                    int currentTotalTimeTicksAbovePackage = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds-totalSecondsInTimeTicksThatCanStartInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP).intValue();
+                    //Similar explanation as for the "previous time ticks" above
+                    currentTotalTimeTicksAbovePackage = currentTotalTimeTicksAbovePackage>=0?currentTotalTimeTicksAbovePackage:0;
+                    priceChange = priceChange.add(BigDecimal.valueOf(currentTotalTimeTicksAbovePackage-previousTimeTicksAbovePackage).multiply(drivingPricePerTimeTickInPackageExceeded));
                 }
             }
             if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0){ //max renting time not used

@@ -443,8 +443,6 @@ public class StateEditor {
         child.stateData.currentVehicle = vehicleDescription;
         child.distanceTraversedInCurrentVehicle = 0;
         child.setTimeTraversedInCurrentVehicleInSeconds(0);
-        child.setPriceForCurrentVehicle(BigDecimal.ZERO);
-        child.setFreeSecondsForCurrentVehicle(vehicleDescription.getActivePackage().computeRemainingFreeSeconds(-1, 0));
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime, false);
     }
