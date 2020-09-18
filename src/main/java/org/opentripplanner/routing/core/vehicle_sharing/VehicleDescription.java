@@ -25,6 +25,7 @@ public abstract class VehicleDescription {
     private final double latitude;
     private final double rangeInMeters;
 
+    @JsonSerialize
     private final List<VehiclePricingPackage> vehiclePricingPackages;
 
     private int activePackageIndex;
@@ -145,7 +146,6 @@ public abstract class VehicleDescription {
         return vehiclePricingPackages.get(index);
     }
 
-    @JsonIgnore
     public int getActivePackageIndex() {
         return activePackageIndex;
     }
@@ -154,11 +154,7 @@ public abstract class VehicleDescription {
         this.activePackageIndex = activePackageIndex;
     }
 
-    public void setActivePackage(VehiclePricingPackage pricingPackage){
-        this.vehiclePricingPackages.add(pricingPackage);
-        this.activePackageIndex = this.vehiclePricingPackages.size()-1;
-    }
-
+    @JsonIgnore
     public VehiclePricingPackage getActivePackage(){
         return this.vehiclePricingPackages.get(this.getActivePackageIndex());
     }
