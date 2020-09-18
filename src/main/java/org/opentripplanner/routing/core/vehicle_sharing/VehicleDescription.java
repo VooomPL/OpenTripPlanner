@@ -142,6 +142,7 @@ public abstract class VehicleDescription {
         return Double.MAX_VALUE;
     }
 
+    @JsonIgnore
     public VehiclePricingPackage getVehicleSharingPackage(int index) {
         return vehiclePricingPackages.get(index);
     }
@@ -152,6 +153,10 @@ public abstract class VehicleDescription {
 
     public void setActivePackageIndex(int activePackageIndex) {
         this.activePackageIndex = activePackageIndex;
+    }
+
+    public List<VehiclePricingPackage> getVehiclePricingPackages() {
+        return vehiclePricingPackages;
     }
 
     @JsonIgnore
