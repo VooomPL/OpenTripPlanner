@@ -217,11 +217,11 @@ public class StateEditor {
         child.traversalStatistics.increaseTime(child.stateData.currentTraverseMode, timeInSec);
         if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
             child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds()+timeInSec);
-            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.getPriceForCurrentVehicle(), child.getFreeSecondsForCurrentVehicle(),
+            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.getPriceForCurrentVehicle(), child.getRemainingFreeSecondsForCurrentVehicle(),
                     child.getTimeTraversedInCurrentVehicleInSeconds(), timeInSec);
             child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceChange));
             child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
-            child.setFreeSecondsForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.getFreeSecondsForCurrentVehicle(), timeInSec));
+            child.setRemainingFreeSecondsForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.getRemainingFreeSecondsForCurrentVehicle(), timeInSec));
         }
     }
 
@@ -418,7 +418,7 @@ public class StateEditor {
         incrementTimeInSeconds(rentingTime, true);
 
         VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
-        child.setFreeSecondsForCurrentVehicle(pricingPackage.getFreeSeconds());
+        child.setRemainingFreeSecondsForCurrentVehicle(pricingPackage.getFreeSeconds());
         BigDecimal priceForVehicle = pricingPackage.computeStartPrice();
         child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceForVehicle));
         child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceForVehicle));

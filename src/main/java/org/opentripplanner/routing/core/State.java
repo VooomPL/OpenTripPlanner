@@ -32,7 +32,7 @@ public class State implements Cloneable {
 
     private BigDecimal priceForCurrentVehicle;
 
-    private int freeSecondsForCurrentVehicle;
+    private int remainingFreeSecondsForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -133,7 +133,7 @@ public class State implements Cloneable {
         }
         this.traverseDistanceInMeters = 0;
         this.priceForCurrentVehicle = BigDecimal.ZERO;
-        this.freeSecondsForCurrentVehicle = 0;
+        this.remainingFreeSecondsForCurrentVehicle = 0;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -906,12 +906,12 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
-    public int getFreeSecondsForCurrentVehicle() {
-        return freeSecondsForCurrentVehicle;
+    public int getRemainingFreeSecondsForCurrentVehicle() {
+        return remainingFreeSecondsForCurrentVehicle;
     }
 
-    public void setFreeSecondsForCurrentVehicle(int freeSecondsForCurrentVehicle) {
-        this.freeSecondsForCurrentVehicle = freeSecondsForCurrentVehicle;
+    public void setRemainingFreeSecondsForCurrentVehicle(int remainingFreeSecondsForCurrentVehicle) {
+        this.remainingFreeSecondsForCurrentVehicle = remainingFreeSecondsForCurrentVehicle;
     }
 
     public BigDecimal getPriceForCurrentVehicle() {
