@@ -26,8 +26,15 @@ public class BestCandidatesGetter {
      * Returns edges/vertexes closest to a given vertex
      */
     public <T> List<T> getBestCandidates(List<T> candidates, Function<T, Double> distanceObtainer) {
+        return getBestCandidates(candidates, distanceObtainer, RADIUS_DEG);
+    }
+
+    /**
+     * Returns edges/vertexes closest to a given vertex, but only if they are closer than `maxDistance`
+     */
+    public <T> List<T> getBestCandidates(List<T> candidates, Function<T, Double> distanceObtainer, double maxDistance) {
         List<Map.Entry<T, Double>> sortedCandidates = getSortedCandidatesWithDistances(candidates, distanceObtainer);
-        if (sortedCandidates.isEmpty() || sortedCandidates.get(0).getValue() > RADIUS_DEG) {
+        if (sortedCandidates.isEmpty() || sortedCandidates.get(0).getValue() > maxDistance) {
             return emptyList();
         }
         return filterBestCandidates(sortedCandidates);
