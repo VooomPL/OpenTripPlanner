@@ -91,7 +91,7 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
             StateEditor s1 = s0.edit(this);
             TransitStop toVertex = (TransitStop) getToVertex();
             s1.alightTransit();
-            s1.incrementTimeInSeconds(options.alightSlack, false);
+            s1.incrementTimeInSeconds(options.alightSlack);
             s1.setBackMode(getMode());
             return s1.makeState();
         }

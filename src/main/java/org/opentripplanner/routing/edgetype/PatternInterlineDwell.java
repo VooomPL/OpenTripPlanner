@@ -102,7 +102,7 @@ public class PatternInterlineDwell extends Edge implements OnboardEdge {
     @Override
     public State optimisticTraverse(State s0) {
         StateEditor s1 = s0.edit(this);
-        s1.incrementTimeInSeconds(0, false); // FIXME too optimistic
+        s1.incrementTimeInSeconds(0); // FIXME too optimistic
         return s1.makeState();
     }
     
@@ -151,7 +151,7 @@ public class PatternInterlineDwell extends Edge implements OnboardEdge {
         if (dwellTime < 0) return null;
 
         StateEditor s1 = state0.edit(this);
-        s1.incrementTimeInSeconds(dwellTime, false);
+        s1.incrementTimeInSeconds(dwellTime);
         s1.setTripId(newTrip.getId()); // TODO check meaning
         s1.setPreviousTrip(oldTrip);   // TODO check meaning
         s1.setTripTimes(newTripTimes);

@@ -56,7 +56,7 @@ public class ElevatorHopEdge extends Edge implements ElevatorEdge {
         StateEditor s1 = s0.edit(this);
         s1.setBackMode(TraverseMode.WALK);
         s1.incrementWeight(options.elevatorHopCost);
-        s1.incrementTimeInSeconds(options.elevatorHopTime, false);
+        s1.incrementTimeInSeconds(options.elevatorHopTime);
         return s1.makeState();
     }
 

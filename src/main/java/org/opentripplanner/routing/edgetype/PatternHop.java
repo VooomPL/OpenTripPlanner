@@ -81,7 +81,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
 
         int runningTime = (int) timeLowerBound(options);
     	StateEditor s1 = state0.edit(this);
-    	s1.incrementTimeInSeconds(runningTime, false);
+    	s1.incrementTimeInSeconds(runningTime);
     	s1.setBackMode(getMode());
     	s1.incrementWeight(runningTime);
     	return s1.makeState();
@@ -116,7 +116,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
 
         int runningTime = getRunningTime(s0);
 
-        s1.incrementTimeInSeconds(runningTime, false);
+        s1.incrementTimeInSeconds(runningTime);
         if (s0.getOptions().arriveBy)
             s1.setZone(getBeginStop().getZoneId());
         else

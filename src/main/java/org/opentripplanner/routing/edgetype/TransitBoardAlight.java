@@ -169,13 +169,13 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
                 int boardingTime = options.getBoardTime(this.getPattern().mode);
                 if (boardingTime != 0) {
                     // When traveling backwards the time travels also backwards
-                    s1.incrementTimeInSeconds(boardingTime, false);
+                    s1.incrementTimeInSeconds(boardingTime);
                     s1.incrementWeight(boardingTime * options.routingReluctances.getWaitReluctance());
                 }
             } else {
                 int alightTime = options.getAlightTime(this.getPattern().mode);
                 if (alightTime != 0) {
-                    s1.incrementTimeInSeconds(alightTime, false);
+                    s1.incrementTimeInSeconds(alightTime);
                     s1.incrementWeight(alightTime * options.routingReluctances.getWaitReluctance());
                     // TODO: should we have different cost for alighting and boarding compared to regular waiting?
                 }
@@ -186,7 +186,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             if (arrivalTimeAtStop > 0) { // FIXME what is this arrivalTimeAtStop?
                 int wait = (int) Math.abs(s0.getTimeSeconds() - arrivalTimeAtStop);
                 
-                s1.incrementTimeInSeconds(wait, false);
+                s1.incrementTimeInSeconds(wait);
                 // this should only occur at the beginning
                 s1.incrementWeight(wait * options.routingReluctances.getWaitAtBeginningFactor());
 
@@ -286,7 +286,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             // Save the trip times in the State to ensure that router has a consistent view 
             // and constant-time access to them.
             s1.setTripTimes(bestTripTimes);
-            s1.incrementTimeInSeconds(bestWait, false);
+            s1.incrementTimeInSeconds(bestWait);
             s1.incrementNumBoardings();
             s1.setTripId(trip.getId());
             s1.setPreviousTrip(trip);

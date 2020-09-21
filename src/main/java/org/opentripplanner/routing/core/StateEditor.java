@@ -246,6 +246,10 @@ public class StateEditor {
      * time is inferred from the direction of traversal. This is the only element of state that runs
      * backward when traversing backward.
      */
+    public void incrementTimeInSeconds(int seconds) {
+        incrementTimeInSeconds(seconds, false);
+    }
+
     public void incrementTimeInSeconds(int seconds, boolean beginningVehicleRenting) {
         incrementTimeInMilliseconds(seconds * 1000L);
         incrementTimeTraversedInMode(seconds, beginningVehicleRenting);
@@ -427,7 +431,7 @@ public class StateEditor {
     public void doneVehicleRenting() {
         cloneStateDataAsNeeded();
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
-        incrementTimeInSeconds(droppingTime, false);
+        incrementTimeInSeconds(droppingTime);
         BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(child.getPriceForCurrentVehicle());
         // If there are more than one vehicles in the itinerary, we only want to modify the total price for the current vehicle
         child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().subtract(child.getPriceForCurrentVehicle()).add(finalVehiclePrice));
@@ -444,13 +448,13 @@ public class StateEditor {
         child.distanceTraversedInCurrentVehicle = 0;
         child.setTimeTraversedInCurrentVehicleInSeconds(0);
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
-        incrementTimeInSeconds(droppingTime, false);
+        incrementTimeInSeconds(droppingTime);
     }
 
     public void reversedBeginVehicleRenting() {
         cloneStateDataAsNeeded();
         int rentingTime = child.getOptions().routingDelays.getRentingTime(child.stateData.currentVehicle);
-        incrementTimeInSeconds(rentingTime, false);
+        incrementTimeInSeconds(rentingTime);
         child.stateData.currentTraverseMode = TraverseMode.WALK;
         child.stateData.currentVehicle = null;
     }

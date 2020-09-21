@@ -455,7 +455,7 @@ public class StreetEdge extends Edge implements Cloneable {
 
         if (walkingBike || TraverseMode.BICYCLE.equals(traverseMode)) {
             if (!(backWalkingBike || TraverseMode.BICYCLE.equals(backMode))) {
-                s1.incrementTimeInSeconds(options.bikeSwitchTime, false);
+                s1.incrementTimeInSeconds(options.bikeSwitchTime);
                 s1.incrementWeight(options.bikeSwitchCost);
             }
         }
@@ -497,7 +497,7 @@ public class StreetEdge extends Edge implements Cloneable {
         if(!canTraverse(options, traverseMode)) { // Walking bike/kickscooter
             s1.setUsedNotRecommendedRoutes();
         }
-        s1.incrementTimeInSeconds(roundedTime, false);
+        s1.incrementTimeInSeconds(roundedTime);
         s1.incrementWalkDistanceInMeters(getDistanceInMeters());
         s1.incrementWeight(weight);
 
