@@ -161,6 +161,9 @@ public class Graph implements Serializable {
     //Envelope of all OSM and transit vertices. Calculated during build time
     private WorldEnvelope envelope = null;
 
+    //Envelope of all OSM vertices. Calculated during build time
+    private WorldEnvelope osmEnvelope = null;
+
     //ConvexHull of all the graph vertices. Generated at Graph build time.
     private Geometry convexHull = null;
 
@@ -1118,12 +1121,14 @@ public class Graph implements Serializable {
      * <p>
      * Transit stops are added to the envelope as they are added to the graph
      */
-    public void calculateEnvelope() {
+    public void calculateEnvelopeOsmVertices() {
         this.envelope = new WorldEnvelope();
+        this.osmEnvelope = new WorldEnvelope();
 
         for (Vertex v : this.getVertices()) {
             Coordinate c = v.getCoordinate();
             this.envelope.expandToInclude(c);
+            this.osmEnvelope.expandToInclude(c);
         }
     }
 
@@ -1154,13 +1159,17 @@ public class Graph implements Serializable {
     public void expandToInclude(double x, double y) {
         //Envelope can be empty if graph building is run without OSM data
         if (this.envelope == null) {
-            calculateEnvelope();
+            calculateEnvelopeOsmVertices();
         }
         this.envelope.expandToInclude(x, y);
     }
 
     public WorldEnvelope getEnvelope() {
         return this.envelope;
+    }
+
+    public WorldEnvelope getOsmEnvelope() {
+        return this.osmEnvelope;
     }
 
     // lazy-init geom index on an as needed basis
