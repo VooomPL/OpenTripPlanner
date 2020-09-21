@@ -209,20 +209,12 @@ public class StateEditor {
      *
      * @param timeInSec
      */
-    public void incrementTimeTraversedInMode(int timeInSec, boolean beginningVehicleRenting) {
+    public void incrementTimeTraversedInMode(int timeInSec) {
         if (timeInSec < 0) {
             LOG.warn("A state's traversed in mode is being incremented by a negative amount while traversing edge ");
             return;
         }
         child.traversalStatistics.increaseTime(child.stateData.currentTraverseMode, timeInSec);
-        if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
-            child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds()+timeInSec);
-            BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.getPriceForCurrentVehicle(), child.getRemainingFreeSecondsForCurrentVehicle(),
-                    child.getTimeTraversedInCurrentVehicleInSeconds(), timeInSec);
-            child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceChange));
-            child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
-            child.setRemainingFreeSecondsForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.getRemainingFreeSecondsForCurrentVehicle(), timeInSec));
-        }
     }
 
     public void incrementWeight(double weight) {
@@ -252,7 +244,19 @@ public class StateEditor {
 
     public void incrementTimeInSeconds(int seconds, boolean beginningVehicleRenting) {
         incrementTimeInMilliseconds(seconds * 1000L);
-        incrementTimeTraversedInMode(seconds, beginningVehicleRenting);
+        incrementTimeTraversedInMode(seconds);
+        if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
+            incrementTimeAssociatedVehiclePrice(seconds);
+        }
+    }
+
+    private void incrementTimeAssociatedVehiclePrice(int seconds){
+        child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds() + seconds);
+        BigDecimal priceChange = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPriceChange(child.getPriceForCurrentVehicle(), child.getRemainingFreeSecondsForCurrentVehicle(),
+                child.getTimeTraversedInCurrentVehicleInSeconds(), seconds);
+        child.setPriceForCurrentVehicle(child.getPriceForCurrentVehicle().add(priceChange));
+        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(priceChange));
+        child.setRemainingFreeSecondsForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeRemainingFreeSeconds(child.getRemainingFreeSecondsForCurrentVehicle(), seconds));
     }
 
     private void incrementTimeInMilliseconds(long milliseconds) {
