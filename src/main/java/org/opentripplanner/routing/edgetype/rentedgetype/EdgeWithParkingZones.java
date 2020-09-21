@@ -8,17 +8,21 @@ import static java.util.Collections.emptyList;
 
 public abstract class EdgeWithParkingZones extends Edge {
 
-    private ParkingZoneInfo parkingZones = new ParkingZoneInfo(emptyList(), emptyList());
+    private static final ParkingZoneInfo EMPTY_PARKING_ZONES = new ParkingZoneInfo(emptyList(), emptyList());
+
+    private final ParkingZoneInfo parkingZones;
 
     protected EdgeWithParkingZones(Vertex v) {
         super(v, v);
+        this.parkingZones = EMPTY_PARKING_ZONES;
+    }
+
+    public EdgeWithParkingZones(Vertex v, ParkingZoneInfo parkingZones) {
+        super(v, v);
+        this.parkingZones = parkingZones;
     }
 
     protected boolean canDropoffVehicleHere(VehicleDescription vehicle) {
         return parkingZones.canDropoffVehicleHere(vehicle);
-    }
-
-    public void setParkingZones(ParkingZoneInfo parkingZones) {
-        this.parkingZones = parkingZones;
     }
 }
