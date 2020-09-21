@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 
 /**
  * Exit on window close.
- * 
  */
 class ExitListener extends WindowAdapter {
     public void windowClosing(WindowEvent event) {
@@ -114,27 +113,27 @@ class VertexList extends AbstractListModel<DisplayVertex> {
 };
 
 /**
- * A simple visualizer for graphs. It shows (using ShowGraph) a map of the graph, intersections and 
- * TransitStops only, and allows a user to select stops, examine incoming and outgoing edges, and 
- * examine trip patterns. It's meant mainly for debugging, so it's totally OK if it develops (say) 
+ * A simple visualizer for graphs. It shows (using ShowGraph) a map of the graph, intersections and
+ * TransitStops only, and allows a user to select stops, examine incoming and outgoing edges, and
+ * examine trip patterns. It's meant mainly for debugging, so it's totally OK if it develops (say)
  * a bunch of weird buttons designed to debug specific cases.
  */
 public class GraphVisualizer extends JFrame implements VertexSelectionListener {
-	
-	private final class ComparePathStatesClickListener implements ListSelectionListener {
-		private JList<String> outputList;
 
-		ComparePathStatesClickListener(JList<String> outputList){
-			this.outputList = outputList;
-		}
-		
-		@Override
-		public void valueChanged(ListSelectionEvent e) {
-			@SuppressWarnings("unchecked")
-			JList<State> theList = (JList<State>)e.getSource();
-			State st = (State)theList.getSelectedValue();
-			if(st==null){
-				return;
+    private final class ComparePathStatesClickListener implements ListSelectionListener {
+        private JList<String> outputList;
+
+        ComparePathStatesClickListener(JList<String> outputList) {
+            this.outputList = outputList;
+        }
+
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            @SuppressWarnings("unchecked")
+            JList<State> theList = (JList<State>) e.getSource();
+            State st = (State) theList.getSelectedValue();
+            if (st == null) {
+                return;
             }
 
             DefaultListModel<String> stateListModel = new DefaultListModel<String>();
@@ -151,122 +150,124 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
 
             lastStateClicked = st;
         }
-	}
+    }
 
-	private final class OnPopupMenuClickListener implements ActionListener {
-		private final class DiffListCellRenderer extends DefaultListCellRenderer {
-			private final int diverge;
-			private final int converge;
+    private final class OnPopupMenuClickListener implements ActionListener {
+        private final class DiffListCellRenderer extends DefaultListCellRenderer {
+            private final int diverge;
+            private final int converge;
 
-			private DiffListCellRenderer(int diverge, int converge) {
-				this.diverge = diverge;
-				this.converge = converge;
-			}
+            private DiffListCellRenderer(int diverge, int converge) {
+                this.diverge = diverge;
+                this.converge = converge;
+            }
 
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus) {
-				Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				if(isSelected){
-					return c;
-				}
-				
-				if(index <= diverge){
-					c.setBackground(new Color(196,201,255));
-				}
-				if(index >= converge){
-					c.setBackground(new Color(255,196,196));
-				}
-				
-				return c;
-			}
-		}
-		
-		private int[] diffPaths() {
-			if(firstComparePath == null || secondComparePath == null) {
-				int[] failboat = {-2,-2};
-				return failboat;
-			}
-			
-			int l1 = firstComparePath.states.size();
-			int l2 = secondComparePath.states.size();
-			int minlen = l1 < l2 ? l1 : l2;
-			
-			int divergence=-1;
-			int convergence=-1;
-			
-			// find divergence
-			for(int i=0; i<minlen; i++){
-				Vertex v1 = firstComparePath.states.get(i).getVertex();
-				Vertex v2 = secondComparePath.states.get(i).getVertex();
-				if(!v1.equals(v2)){
-					divergence = i-1;
-					break;
-				}
-			}
-			
-			// find convergence
-			for(int i=0; i<minlen; i++){
-				Vertex v1 = firstComparePath.states.get(l1-i-1).getVertex();
-				Vertex v2 = secondComparePath.states.get(l2-i-1).getVertex();
-				if(!v1.equals(v2)){
-					convergence = i-1;
-					break;
-				}
-			}
-			
-			int[] ret = {divergence,convergence};
-			return ret;
-		}
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (isSelected) {
+                    return c;
+                }
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			PathPrinter pp = ((PathPrinter) pathsList.getSelectedValue());
-			if(pp==null){
-				return;
-			}
-			GraphPath path = pp.gp;
-			
-			firstComparePath = secondComparePath;
-			secondComparePath = path;
-			
-			if(firstComparePath != null) {
-				DefaultListModel<State> pathModel = new DefaultListModel<State>();
-				for( State st : firstComparePath.states ){
-					pathModel.addElement( st );
-				}
-				firstComparePathStates.setModel( pathModel );
-			}
-			if(secondComparePath != null){
-				DefaultListModel<State> pathModel = new DefaultListModel<State>();
-				for( State st : secondComparePath.states ){
-					pathModel.addElement( st );
-				}
-				secondComparePathStates.setModel( pathModel );
-			}
-			
-			int[] diff = diffPaths();
-			final int diverge = diff[0];
-			final int converge = diff[1];
-			if(diff[0]>=0){
-				firstComparePathStates.setCellRenderer(new DiffListCellRenderer(diverge,firstComparePath.states.size()-converge-1));
-				secondComparePathStates.setCellRenderer(new DiffListCellRenderer(diverge,secondComparePath.states.size()-converge-1));
-			}
-		}
-	}
+                if (index <= diverge) {
+                    c.setBackground(new Color(196, 201, 255));
+                }
+                if (index >= converge) {
+                    c.setBackground(new Color(255, 196, 196));
+                }
 
-	class PathPrinter{
-		GraphPath gp;
-		PathPrinter(GraphPath gp){
-			this.gp=gp;
-		}
-		public String toString() {
+                return c;
+            }
+        }
+
+        private int[] diffPaths() {
+            if (firstComparePath == null || secondComparePath == null) {
+                int[] failboat = {-2, -2};
+                return failboat;
+            }
+
+            int l1 = firstComparePath.states.size();
+            int l2 = secondComparePath.states.size();
+            int minlen = l1 < l2 ? l1 : l2;
+
+            int divergence = -1;
+            int convergence = -1;
+
+            // find divergence
+            for (int i = 0; i < minlen; i++) {
+                Vertex v1 = firstComparePath.states.get(i).getVertex();
+                Vertex v2 = secondComparePath.states.get(i).getVertex();
+                if (!v1.equals(v2)) {
+                    divergence = i - 1;
+                    break;
+                }
+            }
+
+            // find convergence
+            for (int i = 0; i < minlen; i++) {
+                Vertex v1 = firstComparePath.states.get(l1 - i - 1).getVertex();
+                Vertex v2 = secondComparePath.states.get(l2 - i - 1).getVertex();
+                if (!v1.equals(v2)) {
+                    convergence = i - 1;
+                    break;
+                }
+            }
+
+            int[] ret = {divergence, convergence};
+            return ret;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            PathPrinter pp = ((PathPrinter) pathsList.getSelectedValue());
+            if (pp == null) {
+                return;
+            }
+            GraphPath path = pp.gp;
+
+            firstComparePath = secondComparePath;
+            secondComparePath = path;
+
+            if (firstComparePath != null) {
+                DefaultListModel<State> pathModel = new DefaultListModel<State>();
+                for (State st : firstComparePath.states) {
+                    pathModel.addElement(st);
+                }
+                firstComparePathStates.setModel(pathModel);
+            }
+            if (secondComparePath != null) {
+                DefaultListModel<State> pathModel = new DefaultListModel<State>();
+                for (State st : secondComparePath.states) {
+                    pathModel.addElement(st);
+                }
+                secondComparePathStates.setModel(pathModel);
+            }
+
+            int[] diff = diffPaths();
+            final int diverge = diff[0];
+            final int converge = diff[1];
+            if (diff[0] >= 0) {
+                firstComparePathStates.setCellRenderer(new DiffListCellRenderer(diverge, firstComparePath.states.size() - converge - 1));
+                secondComparePathStates.setCellRenderer(new DiffListCellRenderer(diverge, secondComparePath.states.size() - converge - 1));
+            }
+        }
+    }
+
+    class PathPrinter {
+        GraphPath gp;
+
+        PathPrinter(GraphPath gp) {
+            this.gp = gp;
+        }
+
+        public String toString() {
             SimpleDateFormat shortDateFormat = new SimpleDateFormat("HH:mm:ss z");
             String startTime = shortDateFormat.format(new Date(gp.getStartTime() * 1000));
             String endTime = shortDateFormat.format(new Date(gp.getEndTime() * 1000));
             return "Path (" + startTime + "-" + endTime + ") weight:" + gp.getWeight() + " dur:" + (gp.getDuration() / 60.0) + " timeInModes:" + gp.getTimeTraversedInMode() + " nTrips:" + gp.getTrips().size();
         }
-	}
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -338,73 +339,73 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     /* The graph from the router we are visualizing, note that it will not be updated if the router reloads. */
     private final Graph graph;
 
-	private JRadioButton opQuick;
+    private JRadioButton opQuick;
 
-	private JRadioButton opSafe;
+    private JRadioButton opSafe;
 
-	private JRadioButton opFlat;
+    private JRadioButton opFlat;
 
-	private JRadioButton opGreenways;
+    private JRadioButton opGreenways;
 
-	private ButtonGroup optimizeTypeGrp;
+    private ButtonGroup optimizeTypeGrp;
 
-	private JTextField maxWalkField;
+    private JTextField maxWalkField;
 
-	private JTextField walkSpeed;
+    private JTextField walkSpeed;
 
-	private JTextField bikeSpeed;
+    private JTextField bikeSpeed;
 
-	private JTextField heuristicWeight;
+    private JTextField heuristicWeight;
 
-	private JCheckBox softWalkLimiting;
+    private JCheckBox softWalkLimiting;
 
-	private JTextField softWalkPenalty;
+    private JTextField softWalkPenalty;
 
-	private JTextField softWalkOverageRate;
+    private JTextField softWalkOverageRate;
 
-	private JCheckBox arriveByCheckBox;
+    private JCheckBox arriveByCheckBox;
 
-	private JLabel searchTimeElapsedLabel;
+    private JLabel searchTimeElapsedLabel;
 
-	private JCheckBox dontUseGraphicalCallbackCheckBox;
-	
-	private JTextField nPaths;
-	
-	private JList<PathPrinter> pathsList;
-	
-	private JList<State> pathStates;
-	
-	private JCheckBox showTransitCheckbox;
+    private JCheckBox dontUseGraphicalCallbackCheckBox;
 
-	private JCheckBox showStreetsCheckbox;
-	
-	private JCheckBox showMultistateVerticesCheckbox;
+    private JTextField nPaths;
 
-	private JCheckBox showHighlightedCheckbox;
-	
-	private JCheckBox showSPTCheckbox;
-	
-	private ShortestPathTree spt;
-	
-	private JTextField sptFlattening;
-	
-	private JTextField sptThickness;
-	
-	private JPopupMenu popup;
+    private JList<PathPrinter> pathsList;
 
-	private GraphPath firstComparePath;
-	private GraphPath secondComparePath;
+    private JList<State> pathStates;
 
-	private JList<State> firstComparePathStates;
-	private JList<State> secondComparePathStates;
+    private JCheckBox showTransitCheckbox;
 
-	private JList<String> secondStateData;
+    private JCheckBox showStreetsCheckbox;
 
-	private JList<String> firstStateData;
+    private JCheckBox showMultistateVerticesCheckbox;
 
-	protected State lastStateClicked=null;
+    private JCheckBox showHighlightedCheckbox;
 
-	private JCheckBox longDistanceModeCheckbox;
+    private JCheckBox showSPTCheckbox;
+
+    private ShortestPathTree spt;
+
+    private JTextField sptFlattening;
+
+    private JTextField sptThickness;
+
+    private JPopupMenu popup;
+
+    private GraphPath firstComparePath;
+    private GraphPath secondComparePath;
+
+    private JList<State> firstComparePathStates;
+    private JList<State> secondComparePathStates;
+
+    private JList<String> secondStateData;
+
+    private JList<String> firstStateData;
+
+    protected State lastStateClicked = null;
+
+    private JCheckBox longDistanceModeCheckbox;
 
     public GraphVisualizer(Router router) {
         super();
@@ -415,122 +416,122 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         init();
     }
 
-    public void run () {
+    public void run() {
         this.setVisible(true);
     }
-    
+
     public void init() {
-    	final JTabbedPane tabbedPane = new JTabbedPane();
-    	
-    	final Container mainTab = makeMainTab();
-    	Container prefsPanel = makePrefsPanel();
-    	Container diffTab = makeDiffTab();
-         
-    	tabbedPane.addTab("Main", null, mainTab,
+        final JTabbedPane tabbedPane = new JTabbedPane();
+
+        final Container mainTab = makeMainTab();
+        Container prefsPanel = makePrefsPanel();
+        Container diffTab = makeDiffTab();
+
+        tabbedPane.addTab("Main", null, mainTab,
                 "Pretty much everything");
-         
-    	tabbedPane.addTab("Prefs", null, prefsPanel,
+
+        tabbedPane.addTab("Prefs", null, prefsPanel,
                 "Routing preferences");
-    	
-    	tabbedPane.addTab("Diff", null, diffTab, "multistate path diffs");
-         
+
+        tabbedPane.addTab("Diff", null, diffTab, "multistate path diffs");
+
         //Add the tabbed pane to this panel.
         add(tabbedPane);
-         
+
         //The following line enables to use scrolling tabs.
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
+
         // startup the graphical pane; ensure closing works; draw the window
         showGraph.init();
         addWindowListener(new ExitListener());
         pack();
-        
+
         // make sure the showGraph quits drawing when we switch tabs
-        tabbedPane.addChangeListener(new ChangeListener(){
-        	@Override
-        	public void stateChanged(ChangeEvent e) {
-        		if( tabbedPane.getSelectedComponent().equals(mainTab) ){
-        			showGraph.loop();	
-        		} else{
-        			showGraph.noLoop();
-        		}
-        	}
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (tabbedPane.getSelectedComponent().equals(mainTab)) {
+                    showGraph.loop();
+                } else {
+                    showGraph.noLoop();
+                }
+            }
         });
     }
 
-	private Container makeDiffTab() {
+    private Container makeDiffTab() {
         JPanel pane = new JPanel();
         pane.setLayout(new GridLayout(0, 2));
-        
+
         firstStateData = new JList<String>();
         secondStateData = new JList<String>();
-        
+
         // a place to list the states of the first path
-        firstComparePathStates = new JList<State>();        
+        firstComparePathStates = new JList<State>();
         JScrollPane stScrollPane = new JScrollPane(firstComparePathStates);
         stScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pane.add(stScrollPane);
         firstComparePathStates.addListSelectionListener(new ComparePathStatesClickListener(firstStateData));
-        
+
         // a place to list the states of the second path
         secondComparePathStates = new JList<State>();
         stScrollPane = new JScrollPane(secondComparePathStates);
         stScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pane.add(stScrollPane);
         secondComparePathStates.addListSelectionListener(new ComparePathStatesClickListener(secondStateData));
-        
+
         // a place to list details of a state selected from the first path
         stScrollPane = new JScrollPane(firstStateData);
         stScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pane.add(stScrollPane);
-        
+
         // a place to list details of a state selected from the second path
         stScrollPane = new JScrollPane(secondStateData);
         stScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pane.add(stScrollPane);
-        
+
         // A button that executes the 'dominates' function between the two states
         // this is useful only if you have a breakpoint set up
         JButton dominateButton = new JButton();
         dominateButton.setText("dominates");
-        dominateButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
+        dominateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 State s1 = firstComparePathStates.getSelectedValue();
-				State s2 = secondComparePathStates.getSelectedValue();
+                State s2 = secondComparePathStates.getSelectedValue();
                 DominanceFunction pareto = new DominanceFunction.Pareto();
-				System.out.println("s1 dominates s2:" + pareto.betterOrEqualAndComparable(s1, s2));
-				System.out.println("s2 dominates s1:" + pareto.betterOrEqualAndComparable(s2, s1));
-			}
+                System.out.println("s1 dominates s2:" + pareto.betterOrEqualAndComparable(s1, s2));
+                System.out.println("s2 dominates s1:" + pareto.betterOrEqualAndComparable(s2, s1));
+            }
         });
         pane.add(dominateButton);
-        
+
         // A button that executes the 'traverse' function leading to the last clicked state
         // in either window. Also only useful if you set a breakpoint.
         JButton traverseButton = new JButton();
         traverseButton.setText("traverse");
-        traverseButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(lastStateClicked==null){
-					return;
-				}
-				
-				Edge backEdge = lastStateClicked.getBackEdge();
-				State backState = lastStateClicked.getBackState();
-				
-				backEdge.traverse(backState);
-			}
+        traverseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (lastStateClicked == null) {
+                    return;
+                }
+
+                Edge backEdge = lastStateClicked.getBackEdge();
+                State backState = lastStateClicked.getBackState();
+
+                backEdge.traverse(backState);
+            }
         });
         pane.add(traverseButton);
-        
-        return pane;
-	}
 
-	private Container makeMainTab() {
-		Container pane = new JPanel();
-    	pane.setLayout(new BorderLayout());
-    	
+        return pane;
+    }
+
+    private Container makeMainTab() {
+        Container pane = new JPanel();
+        pane.setLayout(new BorderLayout());
+
         // init center graphical panel
         showGraph = new ShowGraph(this, getGraph());
         pane.add(showGraph, BorderLayout.CENTER);
@@ -548,9 +549,9 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
 
         // init right panel
         initRightPanel(pane);
-		return pane;
-	}
-	
+        return pane;
+    }
+
     private JComponent makePrefsPanel() {
         JPanel pane = new JPanel();
         pane.setLayout(new GridLayout(0, 2));
@@ -559,20 +560,27 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         walkCheckBox = new JCheckBox("walk");
         walkCheckBox.setSelected(true);
         pane.add(walkCheckBox);
+
         bikeCheckBox = new JCheckBox("bike");
         pane.add(bikeCheckBox);
+
         rentingAllowedBox = new JCheckBox("renting allowed");
         rentingAllowedBox.setSelected(true);
         pane.add(rentingAllowedBox);
+
         trainCheckBox = new JCheckBox("trainish");
         pane.add(trainCheckBox);
+
         busCheckBox = new JCheckBox("busish");
         pane.add(busCheckBox);
+
         ferryCheckBox = new JCheckBox("ferry");
         pane.add(ferryCheckBox);
+
         transitCheckBox = new JCheckBox("transit");
         transitCheckBox.setSelected(true);
         pane.add(transitCheckBox);
+
         carCheckBox = new JCheckBox("car");
         pane.add(carCheckBox);
 
@@ -728,24 +736,24 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
 
         return pane;
     }
-	
-	OptimizeType getSelectedOptimizeType(){
-		if(opQuick.isSelected()){
-			return OptimizeType.QUICK;
-		}
-		if(opSafe.isSelected()){
-			return OptimizeType.SAFE;
-		}
-		if(opFlat.isSelected()){
-			return OptimizeType.FLAT;
-		}
-		if(opGreenways.isSelected()){
-			return OptimizeType.GREENWAYS;
-		}
-		return OptimizeType.QUICK;
-	}
-	
-    
+
+    OptimizeType getSelectedOptimizeType() {
+        if (opQuick.isSelected()) {
+            return OptimizeType.QUICK;
+        }
+        if (opSafe.isSelected()) {
+            return OptimizeType.SAFE;
+        }
+        if (opFlat.isSelected()) {
+            return OptimizeType.FLAT;
+        }
+        if (opGreenways.isSelected()) {
+            return OptimizeType.GREENWAYS;
+        }
+        return OptimizeType.QUICK;
+    }
+
+
     protected JComponent makeTextPanel(String text) {
         JPanel panel = new JPanel(false);
         JLabel filler = new JLabel(text);
@@ -755,8 +763,8 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         return panel;
     }
 
-	private void initRightPanel(Container pane) {
-		/* right panel holds trip pattern and stop metadata */
+    private void initRightPanel(Container pane) {
+        /* right panel holds trip pattern and stop metadata */
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
         pane.add(rightPanel, BorderLayout.LINE_END);
@@ -764,28 +772,28 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         JTabbedPane rightPanelTabs = new JTabbedPane();
 
         rightPanel.add(rightPanelTabs, BorderLayout.LINE_END);
-        
+
         // a place to print out the details of a path
         pathStates = new JList<State>();
         JScrollPane stScrollPane = new JScrollPane(pathStates);
         stScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         rightPanelTabs.addTab("path states", stScrollPane);
-        
+
         // when you select a path component state, it prints the backedge's metadata
-        pathStates.addListSelectionListener(new ListSelectionListener(){
-	        @Override
-	        public void valueChanged(ListSelectionEvent e) {
-	        	outgoingEdges.clearSelection();
-	        	incomingEdges.clearSelection();
-		
-	        	@SuppressWarnings("unchecked")
-				JList<State> theList = (JList<State>)e.getSource();
-	        	State st = (State)theList.getSelectedValue();
-	        	Edge edge = st.getBackEdge();
-	        	reactToEdgeSelection( edge, false );
-	        }
+        pathStates.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                outgoingEdges.clearSelection();
+                incomingEdges.clearSelection();
+
+                @SuppressWarnings("unchecked")
+                JList<State> theList = (JList<State>) e.getSource();
+                State st = (State) theList.getSelectedValue();
+                Edge edge = st.getBackEdge();
+                reactToEdgeSelection(edge, false);
+            }
         });
-         
+
 
         metadataList = new JList<String>();
         metadataModel = new DefaultListModel<String>();
@@ -799,8 +807,8 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         annotationMatches.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 @SuppressWarnings("unchecked")
-				JList<GraphBuilderAnnotation> theList = (JList<GraphBuilderAnnotation>) e.getSource();
-                
+                JList<GraphBuilderAnnotation> theList = (JList<GraphBuilderAnnotation>) e.getSource();
+
                 GraphBuilderAnnotation anno = theList.getSelectedValue();
                 if (anno == null)
                     return;
@@ -824,10 +832,10 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         mdScrollPane.setPreferredSize(size);
         rightPanelTabs.setMaximumSize(size);
         rightPanel.setMaximumSize(size);
-	}
+    }
 
-	private void initControlButtons() {
-		/* buttons at bottom */
+    private void initControlButtons() {
+        /* buttons at bottom */
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(0, 3));
         leftPanel.add(buttonPanel, BorderLayout.PAGE_END);
@@ -974,7 +982,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
             }
         });
         buttonPanel.add(findEdgeByIdButton);
-        
+
         JButton snapButton = new JButton("Snap location");
         snapButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -982,101 +990,101 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
             }
         });
         buttonPanel.add(snapButton);
-	}
-	
-		
-	    private void getMetadata(Object selected) {
-	        Class<?> c = selected.getClass();
-	        Field[] fields;
-	        while (c != null && c != Object.class) {
-	            metadataModel.addElement("Class:" + c);
-	            fields = c.getDeclaredFields();
-	            for (int i = 0; i < fields.length; i++) {
-	                Field field = fields[i];
-	                int modifiers = field.getModifiers();
-	                if ((modifiers & Modifier.STATIC) != 0) {
-	                    continue;
-	                }
-	                field.setAccessible(true);
-	                String name = field.getName();
-	
-	                String value = "(unknown -- see console for stack trace)";
-	                try {
-	                    value = "" + field.get(selected);
-	                } catch (IllegalArgumentException e1) {
-						LOG.error("IllegalArgumentException", e1);
-	                } catch (IllegalAccessException e1) {
-	                    LOG.error("IllegalAccessException", e1);
-	                }
-	                metadataModel.addElement(name + ": " + value);
-	            }
-	            c = c.getSuperclass();
-	        }
-	    }
-		
-		private void reactToEdgeSelection(Edge selected, boolean outgoing){
-	        if (selected == null) {
-	            return;
-	        }
-	        showGraph.highlightEdge(selected);
-	
-	        /* for turns, highlight the outgoing street's ends */
-	        if (selected instanceof StreetEdge) {
-	            List<Vertex> vertices = new ArrayList<Vertex>();
-	            List<Edge> edges = new ArrayList<Edge>();
-	            Vertex tov = selected.getToVertex();
-	            for (Edge og : tov.getOutgoing()) {
-	                if (og instanceof StreetEdge) {
-	                    edges.add(og);
-	                    vertices.add(og.getToVertex());
-	                    break;
-	                }
-	            }
-	            Vertex fromv = selected.getFromVertex();
-	            for (Edge ic : fromv.getIncoming()) {
-	                if (ic instanceof StreetEdge) {
-	                    edges.add(ic);
-	                    vertices.add(ic.getFromVertex());
-	                    break;
-	                }
-	            }
-	            // showGraph.setHighlightedVertices(vertices);
-	            showGraph.setHighlightedEdges(edges);
-	        }
-	
-	        /* add the connected vertices to the list of vertices */
-	        VertexList nearbyModel = (VertexList) nearbyVertices.getModel();
-	        List<Vertex> vertices = nearbyModel.selected;
-	
-	        Vertex v;
-	        if (outgoing) {
-	            v = selected.getToVertex();
-	        } else {
-	            v = selected.getFromVertex();
-	        }
-	        if (!vertices.contains(v)) {
-	            vertices.add(v);
-	            nearbyModel = new VertexList(vertices);
-	            nearbyVertices.setModel(nearbyModel); // this should just be an event, but for
-	                                                  // some reason, JList doesn't implement
-	                                                  // the right event.
-	        }
-	
-	        /* set up metadata tab */
-	        metadataModel.clear();
-	        getMetadata(selected);
-	        // fromv
-	        Vertex fromv = selected.getFromVertex();
-	        getMetadata(fromv);
-	        if (selected instanceof StreetEdge) {
-	            //TODO ElevationProfileSegment do not exist anymore
-	            //getMetadata(((StreetEdge) selected).getElevationProfileSegment());
-	        }
-	        metadataList.revalidate();
-	
-		}
+    }
 
-	private void initVertexInfoSubpanel() {
+
+    private void getMetadata(Object selected) {
+        Class<?> c = selected.getClass();
+        Field[] fields;
+        while (c != null && c != Object.class) {
+            metadataModel.addElement("Class:" + c);
+            fields = c.getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                Field field = fields[i];
+                int modifiers = field.getModifiers();
+                if ((modifiers & Modifier.STATIC) != 0) {
+                    continue;
+                }
+                field.setAccessible(true);
+                String name = field.getName();
+
+                String value = "(unknown -- see console for stack trace)";
+                try {
+                    value = "" + field.get(selected);
+                } catch (IllegalArgumentException e1) {
+                    LOG.error("IllegalArgumentException", e1);
+                } catch (IllegalAccessException e1) {
+                    LOG.error("IllegalAccessException", e1);
+                }
+                metadataModel.addElement(name + ": " + value);
+            }
+            c = c.getSuperclass();
+        }
+    }
+
+    private void reactToEdgeSelection(Edge selected, boolean outgoing) {
+        if (selected == null) {
+            return;
+        }
+        showGraph.highlightEdge(selected);
+
+        /* for turns, highlight the outgoing street's ends */
+        if (selected instanceof StreetEdge) {
+            List<Vertex> vertices = new ArrayList<Vertex>();
+            List<Edge> edges = new ArrayList<Edge>();
+            Vertex tov = selected.getToVertex();
+            for (Edge og : tov.getOutgoing()) {
+                if (og instanceof StreetEdge) {
+                    edges.add(og);
+                    vertices.add(og.getToVertex());
+                    break;
+                }
+            }
+            Vertex fromv = selected.getFromVertex();
+            for (Edge ic : fromv.getIncoming()) {
+                if (ic instanceof StreetEdge) {
+                    edges.add(ic);
+                    vertices.add(ic.getFromVertex());
+                    break;
+                }
+            }
+            // showGraph.setHighlightedVertices(vertices);
+            showGraph.setHighlightedEdges(edges);
+        }
+
+        /* add the connected vertices to the list of vertices */
+        VertexList nearbyModel = (VertexList) nearbyVertices.getModel();
+        List<Vertex> vertices = nearbyModel.selected;
+
+        Vertex v;
+        if (outgoing) {
+            v = selected.getToVertex();
+        } else {
+            v = selected.getFromVertex();
+        }
+        if (!vertices.contains(v)) {
+            vertices.add(v);
+            nearbyModel = new VertexList(vertices);
+            nearbyVertices.setModel(nearbyModel); // this should just be an event, but for
+            // some reason, JList doesn't implement
+            // the right event.
+        }
+
+        /* set up metadata tab */
+        metadataModel.clear();
+        getMetadata(selected);
+        // fromv
+        Vertex fromv = selected.getFromVertex();
+        getMetadata(fromv);
+        if (selected instanceof StreetEdge) {
+            //TODO ElevationProfileSegment do not exist anymore
+            //getMetadata(((StreetEdge) selected).getElevationProfileSegment());
+        }
+        metadataList.revalidate();
+
+    }
+
+    private void initVertexInfoSubpanel() {
         JPanel vertexDataPanel = new JPanel();
         vertexDataPanel.setLayout(new BoxLayout(vertexDataPanel, BoxLayout.PAGE_AXIS));
         vertexDataPanel.setPreferredSize(new Dimension(300, 600));
@@ -1102,19 +1110,19 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
                 }
             }
         });
-        
+
         // listener useful for both incoming and outgoing edge list panes
         // when a different edge is selected, change up the pattern pane and list of nearby nodes
         ListSelectionListener edgeChanged = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
 
                 @SuppressWarnings("unchecked")
-				JList<Edge> edgeList = (JList<Edge>) e.getSource();
-                
+                JList<Edge> edgeList = (JList<Edge>) e.getSource();
+
                 Edge selected = (Edge) edgeList.getSelectedValue();
-                
-                boolean outgoing = (edgeList==outgoingEdges);
-                reactToEdgeSelection( selected, outgoing );
+
+                boolean outgoing = (edgeList == outgoingEdges);
+                reactToEdgeSelection(selected, outgoing);
             }
 
         };
@@ -1140,64 +1148,68 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         JLabel pathsLabel = new JLabel("Paths");
         vertexDataPanel.add(pathsLabel);
         pathsList = new JList<PathPrinter>();
-        
+
         popup = new JPopupMenu();
         JMenuItem compareMenuItem = new JMenuItem("compare");
         compareMenuItem.addActionListener(new OnPopupMenuClickListener());
         popup.add(compareMenuItem);
-        
+
         // make paths list right-clickable
-        pathsList.addMouseListener(new MouseListener(){
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if( SwingUtilities.isRightMouseButton(e) ){
-					@SuppressWarnings("unchecked")
-					JList<PathPrinter> list = (JList<PathPrinter>)e.getSource();
-		            int row = list.locationToIndex(e.getPoint());
-		            list.setSelectedIndex(row);
-		            
-		            popup.show(list, e.getX(), e.getY());
-				}
-			}
+        pathsList.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    @SuppressWarnings("unchecked")
+                    JList<PathPrinter> list = (JList<PathPrinter>) e.getSource();
+                    int row = list.locationToIndex(e.getPoint());
+                    list.setSelectedIndex(row);
 
-			@Override
-			public void mousePressed(MouseEvent e) {}
+                    popup.show(list, e.getX(), e.getY());
+                }
+            }
 
-			@Override
-			public void mouseReleased(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
 
-			@Override
-			public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
 
-			@Override
-			public void mouseExited(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
         });
-        pathsList.addListSelectionListener(new ListSelectionListener(){
-			@Override
-			public void valueChanged(ListSelectionEvent ev) {
-				
-				PathPrinter pp = ((PathPrinter) pathsList.getSelectedValue());
-				if(pp==null){
-					return;
-				}
-				GraphPath path = pp.gp;
-				
-				DefaultListModel<State> pathModel = new DefaultListModel<State>();
-				for( State st : path.states ){
-					pathModel.addElement( st );
-				}
-				pathStates.setModel( pathModel );
-				
-				showGraph.highlightGraphPath(path);		
-			}
-	
+        pathsList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent ev) {
+
+                PathPrinter pp = ((PathPrinter) pathsList.getSelectedValue());
+                if (pp == null) {
+                    return;
+                }
+                GraphPath path = pp.gp;
+
+                DefaultListModel<State> pathModel = new DefaultListModel<State>();
+                for (State st : path.states) {
+                    pathModel.addElement(st);
+                }
+                pathStates.setModel(pathModel);
+
+                showGraph.highlightGraphPath(path);
+            }
+
         });
         JScrollPane pathsScrollPane = new JScrollPane(pathsList);
         vertexDataPanel.add(pathsScrollPane);
-	}
+    }
 
-	private void initRoutingSubpanel() {
-		/* ROUTING SUBPANEL */
+    private void initRoutingSubpanel() {
+        /* ROUTING SUBPANEL */
         JPanel routingPanel = new JPanel();
         routingPanel.setLayout(new GridLayout(0, 2));
         leftPanel.add(routingPanel, BorderLayout.NORTH);
@@ -1243,7 +1255,6 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         routingPanel.add(searchDate);
 
 
-
         // row: launch, continue, and clear path search
         JButton routeButton = new JButton("path search");
         routeButton.addActionListener(new ActionListener() {
@@ -1256,9 +1267,9 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         routingPanel.add(routeButton);
         JButton continueButton = new JButton("continue");
         continueButton.addActionListener(new ActionListener() {
-	        public void actionPerformed(ActionEvent e) {
-	        	//TODO continue search
-	        }
+            public void actionPerformed(ActionEvent e) {
+                //TODO continue search
+            }
         });
         routingPanel.add(continueButton);
         JButton clearRouteButton = new JButton("clear path");
@@ -1270,15 +1281,15 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
             }
         });
         routingPanel.add(clearRouteButton);
-        
+
         //label: search time elapsed
         searchTimeElapsedLabel = new JLabel("search time elapsed:");
         routingPanel.add(searchTimeElapsedLabel);
-        
+
         //option: don't use graphical callback. useful for doing a quick profile
         dontUseGraphicalCallbackCheckBox = new JCheckBox("no graphics");
         routingPanel.add(dontUseGraphicalCallbackCheckBox);
-	}
+    }
 
     protected void trace() {
         DisplayVertex selected = (DisplayVertex) nearbyVertices.getSelectedValue();
@@ -1419,9 +1430,9 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         System.out.println("Path from " + from + " to " + to + " at " + when);
         System.out.println("\tModes: " + modeSet);
         System.out.println("\tOptions: " + options);
-        
-        options.numItineraries = ( Integer.parseInt( this.nPaths.getText() ) );
-        
+
+        options.numItineraries = (Integer.parseInt(this.nPaths.getText()));
+
         // apply callback if the options call for it
         // if( dontUseGraphicalCallbackCheckBox.isSelected() ){
         // TODO perhaps avoid using a GraphPathFinder and go one level down the call chain directly to a GenericAStar
@@ -1432,8 +1443,8 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         // TODO: check options properly intialized (AMB)
         List<GraphPath> paths = finder.graphPathFinderEntryPoint(options);
         long dt = System.currentTimeMillis() - t0;
-        searchTimeElapsedLabel.setText( "search time elapsed: "+dt+"ms" );
-        
+        searchTimeElapsedLabel.setText("search time elapsed: " + dt + "ms");
+
         // grab the spt from the visitor
         // TODO somehow yank the SPT out of the depths of the call stack... but there multiple SPTs here.
         // This is why we should probably just use AStar directly.
@@ -1448,28 +1459,28 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
             showGraph.highlightGraphPath(null);
             return;
         }
-        
+
         // now's a convenient time to set graphical SPT weights
         showGraph.simpleSPT.setWeights();
-                        
+
         showPathsInPanel(paths);
-        
+
         // now's a good time to set showGraph's SPT drawing weights
-        showGraph.setSPTFlattening( Float.parseFloat(sptFlattening.getText()) );
-        showGraph.setSPTThickness( Float.parseFloat(sptThickness.getText()) );
+        showGraph.setSPTFlattening(Float.parseFloat(sptFlattening.getText()));
+        showGraph.setSPTThickness(Float.parseFloat(sptThickness.getText()));
         showGraph.redraw();
-        
+
         options.cleanup();
     }
-    
-	private void showPathsInPanel(List<GraphPath> paths) {
-		// show paths in a list panel
-		DefaultListModel<PathPrinter> data = new DefaultListModel<PathPrinter>();
-		for(GraphPath gp : paths ){
-			data.addElement( new PathPrinter(gp) );
-		}
-		pathsList.setModel(data);
-	}
+
+    private void showPathsInPanel(List<GraphPath> paths) {
+        // show paths in a list panel
+        DefaultListModel<PathPrinter> data = new DefaultListModel<PathPrinter>();
+        for (GraphPath gp : paths) {
+            data.addElement(new PathPrinter(gp));
+        }
+        pathsList.setModel(data);
+    }
 
     protected void findAnnotation() {
         Set<Class<? extends GraphBuilderAnnotation>> gbaClasses = Sets.newHashSet();
@@ -1519,16 +1530,16 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
 
         // pick out an intersection vertex and find the path
         // if the spt is already available
-        Vertex target=null;
-        for(Vertex vv : selected){
-        	if( vv instanceof IntersectionVertex ){
-        		target = vv;
-        		break;
-        	}
+        Vertex target = null;
+        for (Vertex vv : selected) {
+            if (vv instanceof IntersectionVertex) {
+                target = vv;
+                break;
+            }
         }
-        if(target!=null && spt!=null){
-        	List<GraphPath> paths = spt.getPaths(target,true);
-        	showPathsInPanel( paths );
+        if (target != null && spt != null) {
+            List<GraphPath> paths = spt.getPaths(target, true);
+            showPathsInPanel(paths);
         }
     }
 
