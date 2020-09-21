@@ -26,11 +26,11 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
         Double rangeInMeters = vehicle.getRangeInMeters();
         VehicleType vehicleType = VehicleType.fromDatabaseVehicleType(vehicle.getType());
         VehiclePricingPackage pricingPackage = new VehiclePricingPackage();
-        pricingPackage.setStartPrice(Optional.ofNullable(vehicle.getStartPrice()).orElse(pricingPackage.getStartPrice()));
-        pricingPackage.setMaxRentingPrice(Optional.ofNullable(vehicle.getMaxDailyPrice()).orElse(pricingPackage.getMaxRentingPrice()));
-        pricingPackage.setDrivingPricePerTimeTickInPackageExceeded(Optional.ofNullable(vehicle.getDrivingPrice()).orElse(pricingPackage.getDrivingPricePerTimeTickInPackageExceeded()));
-        pricingPackage.setKilometerPrice(Optional.ofNullable(vehicle.getKmPrice()).orElse(pricingPackage.getKilometerPrice()));
-        pricingPackage.setParkingPricePerTimeTickInPackageExceeded(Optional.ofNullable(vehicle.getStopPrice()).orElse(pricingPackage.getParkingPricePerTimeTickInPackageExceeded()));
+        Optional.ofNullable(vehicle.getStartPrice()).ifPresent(pricingPackage::setStartPrice);
+        Optional.ofNullable(vehicle.getMaxDailyPrice()).ifPresent(pricingPackage::setMaxRentingPrice);
+        Optional.ofNullable(vehicle.getDrivingPrice()).ifPresent(pricingPackage::setDrivingPricePerTimeTickInPackageExceeded);
+        Optional.ofNullable(vehicle.getKmPrice()).ifPresent(pricingPackage::setKilometerPrice);
+        Optional.ofNullable(vehicle.getStopPrice()).ifPresent(pricingPackage::setParkingPricePerTimeTickInPackageExceeded);
 
         if (vehicleType == null) {
             LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicle.getType());
