@@ -21,7 +21,6 @@ import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -40,11 +39,12 @@ public class TestIntermediatePlaces {
 
     private static TimeZone timeZone;
 
+    private static Graph graph;
     private static GraphPathFinder graphPathFinder;
 
     @BeforeClass public static void setUp() {
         try {
-            Graph graph = FakeGraph.buildGraphNoTransit();
+            graph = FakeGraph.buildGraphNoTransit();
             FakeGraph.addPerpendicularRoutes(graph);
             FakeGraph.link(graph);
             graph.index(new DefaultStreetVertexIndexFactory());
@@ -143,7 +143,7 @@ public class TestIntermediatePlaces {
         assertNotNull(pathList);
         assertFalse(pathList.isEmpty());
 
-        TripPlan plan = GraphPathToTripPlanConverter.generatePlan(pathList, request);
+        TripPlan plan = GraphPathToTripPlanConverter.generatePlan(pathList, request, graph.streetIndex);
         assertLocationIsVeryCloseToPlace(from, plan.from);
         assertLocationIsVeryCloseToPlace(to, plan.to);
         assertTrue(1 <= plan.itinerary.size());

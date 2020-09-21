@@ -20,6 +20,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
+import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
@@ -46,10 +47,14 @@ public class TemporaryStreetSplitter {
 
     private final ToTransitStopLinker toTransitStopLinker;
 
-    public TemporaryStreetSplitter(Graph graph, ToStreetEdgeLinker toStreetEdgeLinker, ToTransitStopLinker toTransitStopLinker) {
+    private final EdgesToLinkFinder edgesToLinkFinder;
+
+    public TemporaryStreetSplitter(Graph graph, ToStreetEdgeLinker toStreetEdgeLinker,
+                                   ToTransitStopLinker toTransitStopLinker, EdgesToLinkFinder edgesToLinkFinder) {
         this.graph = graph;
         this.toStreetEdgeLinker = toStreetEdgeLinker;
         this.toTransitStopLinker = toTransitStopLinker;
+        this.edgesToLinkFinder = edgesToLinkFinder;
     }
 
     /**
@@ -73,7 +78,7 @@ public class TemporaryStreetSplitter {
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, false);
         ToStreetEdgeLinker toStreetEdgeLinker = new ToStreetEdgeLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
         ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker, bestCandidatesGetter);
-        return new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker);
+        return new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker, edgesToLinkFinder);
     }
 
     /**
@@ -128,6 +133,10 @@ public class TemporaryStreetSplitter {
         } else {
             return Optional.of(temporaryVertex);
         }
+    }
+
+    public Optional<I18NString> findNameForVertex(Vertex vertex) {
+        return edgesToLinkFinder.findNameForVertex(vertex);
     }
 
     private TemporaryStreetLocation createTemporaryStreetLocation(GenericLocation location, RoutingRequest options, boolean endVertex) {

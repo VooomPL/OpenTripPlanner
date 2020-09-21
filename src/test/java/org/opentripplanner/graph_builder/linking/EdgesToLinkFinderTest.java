@@ -15,16 +15,18 @@ import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
+import org.opentripplanner.util.I18NString;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static org.opentripplanner.graph_builder.linking.EdgesToLinkFinder.MAX_DISTANCE_FOR_VERTEX_NAME;
 
 public class EdgesToLinkFinderTest {
 
@@ -54,8 +56,10 @@ public class EdgesToLinkFinderTest {
                 "S. Crystal Dr", 100, StreetTraversalPermission.PEDESTRIAN, false);
         edgeCar = new StreetEdge(from, to, GeometryUtils.makeLineString(0, 1, 0.5, 1, 1, 1),
                 "S. Crystal Dr", 100, StreetTraversalPermission.CAR, false);
+        edgeCar.setHasBogusName(true);
         highway = new StreetEdge(from, to, GeometryUtils.makeLineString(0, 1, 0.5, 1, 1, 1),
                 "S. Crystal Dr", 100, StreetTraversalPermission.CAR, false);
+        highway.setHasBogusName(false);
         highway.setMaxStreetTraverseSpeed(33.3f); // 120km/h
     }
 
@@ -126,5 +130,34 @@ public class EdgesToLinkFinderTest {
         // then
         assertTrue(returnedEdges.isEmpty());
         verify(bestCandidatesGetter, times(1)).getBestCandidates(eq(emptyList()), any());
+    }
+
+    @Test
+    public void shouldFilterOutEdgeWithBogusName() {
+        // given
+        when(index.query(any())).thenReturn(singletonList(edgeCar));
+        when(bestCandidatesGetter.getBestCandidates(eq(emptyList()), any(), eq(MAX_DISTANCE_FOR_VERTEX_NAME))).thenReturn(emptyList());
+
+        // when
+        Optional<I18NString> nameForVertex = edgesToLinkFinder.findNameForVertex(vertex);
+
+        // then
+        assertFalse(nameForVertex.isPresent());
+        verify(bestCandidatesGetter, times(1)).getBestCandidates(eq(emptyList()), any(), eq(MAX_DISTANCE_FOR_VERTEX_NAME));
+    }
+
+    @Test
+    public void shouldReturnNonBogusName() {
+        // given
+        when(index.query(any())).thenReturn(singletonList(highway));
+        when(bestCandidatesGetter.getBestCandidates(eq(singletonList(highway)), any(), eq(MAX_DISTANCE_FOR_VERTEX_NAME))).thenReturn(singletonList(highway));
+
+        // when
+        Optional<I18NString> nameForVertex = edgesToLinkFinder.findNameForVertex(vertex);
+
+        // then
+        assertTrue(nameForVertex.isPresent());
+        assertEquals(nameForVertex.get(), highway.getRawName());
+        verify(bestCandidatesGetter, times(1)).getBestCandidates(eq(singletonList(highway)), any(), eq(MAX_DISTANCE_FOR_VERTEX_NAME));
     }
 }
