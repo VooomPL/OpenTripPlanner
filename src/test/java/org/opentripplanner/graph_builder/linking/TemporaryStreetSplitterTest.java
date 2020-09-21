@@ -2,6 +2,7 @@ package org.opentripplanner.graph_builder.linking;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.CoordinateXY;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -12,13 +13,16 @@ import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
-import org.opentripplanner.routing.edgetype.rentedgetype.SingleParkingZone;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
+import org.opentripplanner.util.I18NString;
+import org.opentripplanner.util.NonLocalizedString;
 
 import java.util.Optional;
 
@@ -34,6 +38,7 @@ public class TemporaryStreetSplitterTest {
     private Graph graph;
     private ToStreetEdgeLinker toStreetEdgeLinker;
     private ToTransitStopLinker toTransitStopLinker;
+    private EdgesToLinkFinder edgesToLinkFinder;
 
     private TemporaryStreetSplitter temporaryStreetSplitter;
 
@@ -46,7 +51,8 @@ public class TemporaryStreetSplitterTest {
 
         toStreetEdgeLinker = mock(ToStreetEdgeLinker.class);
         toTransitStopLinker = mock(ToTransitStopLinker.class);
-        temporaryStreetSplitter = new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker);
+        edgesToLinkFinder = mock(EdgesToLinkFinder.class);
+        temporaryStreetSplitter = new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker, edgesToLinkFinder);
 
         genericLocation = new GenericLocation(10, 23);
         routingRequest = new RoutingRequest();
@@ -65,7 +71,7 @@ public class TemporaryStreetSplitterTest {
         assertFalse(closestVertex.isEndVertex());
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
         verifyNoMoreInteractions(toStreetEdgeLinker);
-        verifyZeroInteractions(toTransitStopLinker);
+        verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
     }
 
     @Test
@@ -82,6 +88,7 @@ public class TemporaryStreetSplitterTest {
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
         verify(toTransitStopLinker, times(1)).tryLinkVertexToStop(closestVertex);
         verifyNoMoreInteractions(toStreetEdgeLinker, toTransitStopLinker);
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -97,7 +104,8 @@ public class TemporaryStreetSplitterTest {
         assertEquals(genericLocation.getCoordinate(), closestVertex.getCoordinate());
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
         verify(toTransitStopLinker, times(1)).tryLinkVertexToStop(closestVertex);
-        verifyNoMoreInteractions(toStreetEdgeLinker, toTransitStopLinker);
+        verifyNoMoreInteractions(toStreetEdgeLinker, toTransitStopLinker, edgesToLinkFinder);
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -111,6 +119,7 @@ public class TemporaryStreetSplitterTest {
 
         // then
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -125,7 +134,7 @@ public class TemporaryStreetSplitterTest {
         // then
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.CAR, routingRequest);
         verifyNoMoreInteractions(toStreetEdgeLinker);
-        verifyZeroInteractions(toTransitStopLinker);
+        verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
     }
 
     @Test
@@ -139,6 +148,7 @@ public class TemporaryStreetSplitterTest {
 
         // then
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.WALK, routingRequest);
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -152,6 +162,7 @@ public class TemporaryStreetSplitterTest {
 
         // then
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.BICYCLE, routingRequest);
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -165,6 +176,7 @@ public class TemporaryStreetSplitterTest {
 
         // then
         verify(toStreetEdgeLinker, times(1)).linkTemporarily(closestVertex, TraverseMode.CAR, routingRequest);
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -185,7 +197,7 @@ public class TemporaryStreetSplitterTest {
         assertTrue(edge instanceof TemporaryDropoffVehicleEdge);
         verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForLocation(closestVertex);
         verifyNoMoreInteractions(graph.parkingZonesCalculator);
-        verifyZeroInteractions(toTransitStopLinker);
+        verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
     }
 
     @Test
@@ -198,6 +210,7 @@ public class TemporaryStreetSplitterTest {
 
         // then
         assertTrue(closestVertex.getOutgoing().isEmpty());
+        verifyZeroInteractions(edgesToLinkFinder);
     }
 
     @Test
@@ -212,7 +225,7 @@ public class TemporaryStreetSplitterTest {
         assertFalse(temporaryRentVehicleVertex.isPresent());
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(any(), eq(CAR));
         verifyNoMoreInteractions(toStreetEdgeLinker);
-        verifyZeroInteractions(toTransitStopLinker);
+        verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
     }
 
     @Test
@@ -237,7 +250,7 @@ public class TemporaryStreetSplitterTest {
         assertEquals(CAR, rentVehicleEdge.getVehicle());
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR);
         verifyNoMoreInteractions(toStreetEdgeLinker);
-        verifyZeroInteractions(toTransitStopLinker);
+        verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
     }
 
     @Test
@@ -261,6 +274,23 @@ public class TemporaryStreetSplitterTest {
         verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForLocation(vertex);
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR);
         verifyNoMoreInteractions(graph.parkingZonesCalculator, toStreetEdgeLinker);
-        verifyZeroInteractions(toTransitStopLinker);
+        verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
+    }
+
+    @Test
+    public void shouldReturnProperNameForVertex() {
+        // given
+        Vertex vertex = new StreetLocation("id", new CoordinateXY(1, 2), "bogus name");
+        Optional<I18NString> someName = Optional.of(new NonLocalizedString("actual name"));
+        when(edgesToLinkFinder.findNameForVertex(vertex)).thenReturn(someName);
+
+        // when
+        Optional<I18NString> returnedName = temporaryStreetSplitter.findNameForVertex(vertex);
+
+        // then
+        assertEquals(someName, returnedName);
+        verify(edgesToLinkFinder, times(1)).findNameForVertex(vertex);
+        verifyNoMoreInteractions(edgesToLinkFinder);
+        verifyZeroInteractions(toStreetEdgeLinker, toTransitStopLinker);
     }
 }
