@@ -25,10 +25,10 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
     }
 
     private String getGeolocationArguments(Graph graph) {
-        double latMin = graph.getEnvelope().getLowerLeftLatitude();
-        double lonMin = graph.getEnvelope().getLowerLeftLongitude();
-        double latMax = graph.getEnvelope().getUpperRightLatitude();
-        double lonMax = graph.getEnvelope().getUpperRightLongitude();
+        double latMin = graph.getOsmEnvelope().getLowerLeftLatitude();
+        double lonMin = graph.getOsmEnvelope().getLowerLeftLongitude();
+        double latMax = graph.getOsmEnvelope().getUpperRightLatitude();
+        double lonMax = graph.getOsmEnvelope().getUpperRightLongitude();
         return "\"variables\": {" +
                 "  \"latMin\": " + latMin + "," +
                 "  \"lonMin\": " + lonMin + "," +
