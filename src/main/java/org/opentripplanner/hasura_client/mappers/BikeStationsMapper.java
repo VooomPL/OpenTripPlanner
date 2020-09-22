@@ -6,7 +6,7 @@ import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 public class BikeStationsMapper extends HasuraToOTPMapper<BikeStationHasura, BikeRentalStation> {
     @Override
     protected BikeRentalStation mapSingleHasuraObject(BikeStationHasura hasuraObject) {
-        return new BikeRentalStation(Long.toString(hasuraObject.getId()),
+        return new BikeRentalStation(hasuraObject.getProviderStationId(),
                 hasuraObject.getLongitude(),
                 hasuraObject.getLatitude(),
                 hasuraObject.getBikesAvailable(),
