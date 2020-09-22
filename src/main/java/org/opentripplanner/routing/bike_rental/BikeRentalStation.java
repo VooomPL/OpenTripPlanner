@@ -34,10 +34,10 @@ public class BikeRentalStation implements Serializable, Cloneable {
     @JsonSerialize
     public boolean isCarStation = false;
 
-    private BikeDescription bikeDescription;
+    private BikeDescription bikeDescription = null;
 
     public BikeRentalStation() {
-        bikeDescription = new BikeDescription(this);
+
     }
 
     public BikeRentalStation(String id, double longitude, double latitude, int bikesAvailable, int spacesAvailable, Provider provider) {
@@ -47,10 +47,13 @@ public class BikeRentalStation implements Serializable, Cloneable {
         this.bikesAvailable = bikesAvailable;
         this.spacesAvailable = spacesAvailable;
         this.provider = provider;
-        bikeDescription = new BikeDescription(this);
     }
 
     public BikeDescription getBikeFromStation() {
+//        Couldn't figure out nicer way to initialize it.
+        if (bikeDescription == null) {
+            bikeDescription = new BikeDescription(this);
+        }
         return bikeDescription;
     }
 
