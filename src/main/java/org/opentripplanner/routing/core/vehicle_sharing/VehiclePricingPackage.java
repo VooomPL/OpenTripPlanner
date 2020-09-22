@@ -5,8 +5,6 @@ import java.util.Map;
 
 public class VehiclePricingPackage {
 
-    public enum PricingCategory {START_ASSOCIATED, TIME_ASSOCIATED, DISTANCE_ASSOCIATED};
-
     private BigDecimal packagePrice;
 
     private int packageTimeLimitInSeconds;
@@ -39,7 +37,7 @@ public class VehiclePricingPackage {
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
-        this(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 60, 60, BigDecimal.ZERO, false);
+        this(BigDecimal.ZERO, 0, 0, BigDecimal.ZERO, BigDecimal.valueOf(2), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.valueOf(3), 60, 60, BigDecimal.ZERO, false);
     }
 
     public VehiclePricingPackage(BigDecimal packagePrice, int packageTimeLimitInSeconds, int freeSeconds, BigDecimal minRentingPrice, BigDecimal startPrice, BigDecimal drivingPricePerTimeTickInPackage, BigDecimal parkingPricePerTimeTickInPackage, BigDecimal drivingPricePerTimeTickInPackageExceeded, BigDecimal parkingPricePerTimeTickPackageExceeded, BigDecimal kilometerPrice, int secondsPerTimeTickInPackage, int secondsPerTimeTickInPackageExceeded, BigDecimal maxRentingPrice, boolean kilometerPriceEnabledAboveMaxRentingPrice) {
@@ -63,8 +61,8 @@ public class VehiclePricingPackage {
         return packagePrice.add(startPrice);
     }
 
-    public BigDecimal computeTimeAssociatedPrice(Map<PricingCategory, BigDecimal> currentVehiclePrice, int totalDrivingTimeInSeconds){
-        BigDecimal previousTotalPrice = currentVehiclePrice.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal computeTimeAssociatedPrice(BigDecimal currentStartPrice, BigDecimal currentTimePrice, BigDecimal currentDistancePrice, int totalDrivingTimeInSeconds){
+        BigDecimal previousTotalPrice = currentStartPrice.add(currentTimePrice).add(currentDistancePrice);
         if (!isMaxRentingPriceUsed() || (isMaxRentingPriceUsed() && !isMaxRentingPriceExceeded(previousTotalPrice))) {
             BigDecimal newTimeAssociatedPrice = BigDecimal.ZERO;
 
@@ -87,14 +85,14 @@ public class VehiclePricingPackage {
                 return newTimeAssociatedPrice;
             }
             else{ //max renting price used, check whether it is going to be exceeded after adding price change
-                BigDecimal newTotalPrice = previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.TIME_ASSOCIATED))
+                BigDecimal newTotalPrice = previousTotalPrice.subtract(currentTimePrice)
                         .add(newTimeAssociatedPrice);
                 return isMaxRentingPriceExceeded(newTotalPrice)?maxRentingPrice.subtract(
-                        previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.TIME_ASSOCIATED)))
+                        previousTotalPrice.subtract(currentTimePrice))
                         :newTimeAssociatedPrice;
             }
         } else { //max renting price used and exceeded - do not increase price at this point
-            return currentVehiclePrice.get(PricingCategory.TIME_ASSOCIATED);
+            return currentTimePrice;
         }
     }
 
@@ -106,8 +104,8 @@ public class VehiclePricingPackage {
         return totalVehiclePrice.compareTo(maxRentingPrice) >= 0;
     }
 
-    public BigDecimal computeDistanceAssociatedPrice(Map<PricingCategory, BigDecimal> currentVehiclePrice, double totalDistanceInMeters){
-        BigDecimal previousTotalPrice = currentVehiclePrice.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal computeDistanceAssociatedPrice(BigDecimal currentStartPrice, BigDecimal currentTimePrice, BigDecimal currentDistancePrice, double totalDistanceInMeters){
+        BigDecimal previousTotalPrice = currentStartPrice.add(currentTimePrice).add(currentDistancePrice);
         if (!isMaxRentingPriceUsed() || (isMaxRentingPriceUsed() && !isMaxRentingPriceExceeded(previousTotalPrice)) ||
                         kilometerPriceEnabledAboveMaxRentingPrice)
         {
@@ -117,14 +115,14 @@ public class VehiclePricingPackage {
                 // max renting price not used or counting full kilometer price anyway
                 return newDistancePrice;
             } else{ //max renting price used, check whether it is going to be exceeded after adding price change
-                BigDecimal newTotalPrice = previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.DISTANCE_ASSOCIATED))
+                BigDecimal newTotalPrice = previousTotalPrice.subtract(currentDistancePrice)
                         .add(newDistancePrice);
                 return isMaxRentingPriceExceeded(newTotalPrice) ? maxRentingPrice.subtract(
-                        previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.DISTANCE_ASSOCIATED)))
+                        previousTotalPrice.subtract(currentDistancePrice))
                         :newDistancePrice;
             }
         } else { //max renting time used and exceeded
-            return currentVehiclePrice.get(PricingCategory.DISTANCE_ASSOCIATED);
+            return currentDistancePrice;
         }
     }
 

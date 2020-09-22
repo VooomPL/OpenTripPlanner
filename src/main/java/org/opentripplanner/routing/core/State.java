@@ -30,7 +30,9 @@ public class State implements Cloneable {
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
-    private Map<VehiclePricingPackage.PricingCategory, BigDecimal> priceForCurrentVehicle;
+    public BigDecimal distancePrice;
+    public BigDecimal timePrice;
+    public BigDecimal startPrice;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -130,8 +132,9 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
-        this.priceForCurrentVehicle = new HashMap<>();
-        Arrays.stream(VehiclePricingPackage.PricingCategory.values()).sequential().forEach(category -> this.priceForCurrentVehicle.put(category, BigDecimal.ZERO));
+        distancePrice = BigDecimal.ZERO;
+        timePrice = BigDecimal.ZERO;
+        startPrice = BigDecimal.ZERO;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -904,15 +907,4 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
-    public BigDecimal getTotalPriceForCurrentVehicle() {
-        return priceForCurrentVehicle.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public Map<VehiclePricingPackage.PricingCategory, BigDecimal> getPriceForCurrentVehicle() {
-        return priceForCurrentVehicle;
-    }
-
-    public void setPriceForCurrentVehicle(VehiclePricingPackage.PricingCategory category, BigDecimal priceForCurrentVehicle) {
-        this.priceForCurrentVehicle.put(category, priceForCurrentVehicle);
-    }
 }

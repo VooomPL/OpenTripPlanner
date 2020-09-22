@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
@@ -252,10 +249,9 @@ public class StateEditor {
 
     private void incrementTimeAssociatedVehiclePrice(int seconds){
         child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds() + seconds);
-        child.setPriceForCurrentVehicle(VehiclePricingPackage.PricingCategory.TIME_ASSOCIATED,
-                child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPrice(child.getPriceForCurrentVehicle(),
-                        child.getTimeTraversedInCurrentVehicleInSeconds()));
-        child.traversalStatistics.setPrice(child.getTotalPriceForCurrentVehicle());
+        child.timePrice = child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPrice(
+                child.startPrice, child.timePrice, child.distancePrice,
+                child.getTimeTraversedInCurrentVehicleInSeconds());
     }
 
     private void incrementTimeInMilliseconds(long milliseconds) {
@@ -425,21 +421,19 @@ public class StateEditor {
         incrementTimeInSeconds(rentingTime, true);
 
         VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
-        child.setPriceForCurrentVehicle(VehiclePricingPackage.PricingCategory.START_ASSOCIATED, pricingPackage.computeStartPrice());
-        child.traversalStatistics.setPrice(child.getTotalPriceForCurrentVehicle());
+        child.startPrice = pricingPackage.computeStartPrice();
     }
 
     public void doneVehicleRenting() {
         cloneStateDataAsNeeded();
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime);
-        BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(child.getTotalPriceForCurrentVehicle());
-        // If there are more than one vehicles in the itinerary, we only want to modify the total price for the current vehicle
-        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().subtract(child.getTotalPriceForCurrentVehicle()).add(finalVehiclePrice));
-        child.getPriceForCurrentVehicle().clear();
+        BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(/*child.getTotalPriceForCurrentVehicle()*/child.timePrice.add(child.distancePrice).add(child.startPrice));
+        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(finalVehiclePrice));
         incrementWeight(droppingTime * child.getOptions().routingReluctances.getRentingReluctance());
         child.stateData.currentTraverseMode = TraverseMode.WALK;
         child.stateData.currentVehicle = null;
+
     }
 
     public void reversedDoneVehicleRenting(VehicleDescription vehicleDescription) {
@@ -662,10 +656,8 @@ public class StateEditor {
     private void incrementDistanceInCurrentVehicle(double distanceInMeters) {
         if (child.getCurrentVehicle() != null) {
             child.distanceTraversedInCurrentVehicle += distanceInMeters;
-            BigDecimal distanceAssociatedPrice = child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPrice(
-                    child.getPriceForCurrentVehicle(), child.distanceTraversedInCurrentVehicle);
-            child.setPriceForCurrentVehicle(VehiclePricingPackage.PricingCategory.DISTANCE_ASSOCIATED, distanceAssociatedPrice);
-            child.traversalStatistics.setPrice(child.getTotalPriceForCurrentVehicle());
+            child.distancePrice = child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPrice(
+                    child.startPrice, child.timePrice, child.distancePrice, child.distanceTraversedInCurrentVehicle);;
         }
     }
 
