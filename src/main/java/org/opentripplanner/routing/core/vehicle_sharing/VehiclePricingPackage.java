@@ -1,7 +1,6 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 public class VehiclePricingPackage {
 

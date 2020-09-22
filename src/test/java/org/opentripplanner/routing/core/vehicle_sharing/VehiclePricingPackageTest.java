@@ -97,14 +97,17 @@ public class VehiclePricingPackageTest {
         BigDecimal startPrice =  BigDecimal.ZERO;
         //used 5 seconds of non free seconds - started 1st time tick:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 25).compareTo(BigDecimal.valueOf(0.65)) == 0);
+        timePrice = BigDecimal.valueOf(0.65);
         //completed previously counted time tick - next one not started yet:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 80).compareTo(BigDecimal.valueOf(0.65)) == 0);
         //started next time tick:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 82).compareTo(BigDecimal.valueOf(1.3)) == 0);
+        timePrice = BigDecimal.valueOf(1.3);
         //finished package but the last minute within package has not finished yet:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 100).compareTo(BigDecimal.valueOf(1.3)) == 0);
         //started first time tick above package:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 141).compareTo(BigDecimal.valueOf(2.8)) == 0);
+        timePrice = BigDecimal.valueOf(2.8);
         //it is still only first time tick above package due to time tick length change:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 3500).compareTo(BigDecimal.valueOf(2.8)) == 0);
     }
@@ -118,6 +121,7 @@ public class VehiclePricingPackageTest {
         BigDecimal startPrice =  BigDecimal.ZERO;
         //used 5 seconds of non free seconds - started 1st time tick:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 25).compareTo(BigDecimal.valueOf(1.5)) == 0);
+        timePrice = BigDecimal.valueOf(1.5);
         //completed previously counted time tick - next one not started yet:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 80).compareTo(BigDecimal.valueOf(1.5)) == 0);
         //started next time tick:
