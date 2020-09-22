@@ -4,14 +4,20 @@ import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropBikeEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
+import org.opentripplanner.routing.vertextype.TemporaryVertex;
 import org.opentripplanner.updater.GraphWriterRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This edge allows us to rent bike from station (or leave current vehicle and rent bike).
@@ -44,21 +50,46 @@ public class BikeStationsGraphWriterRunnable implements GraphWriterRunnable {
         return true;
     }
 
-    private boolean updateBikeStationInfo(BikeRentalStation station, Graph graph) {
-        RentBikeEdge rentVehicleEdge = graph.bikeRentalStationsInGraph.getOrDefault(station, null);
-        if (rentVehicleEdge != null) {
-            rentVehicleEdge.getBikeRentalStation().bikesAvailable = station.bikesAvailable;
-            rentVehicleEdge.getBikeRentalStation().spacesAvailable = station.spacesAvailable;
-        } else {
-            return addBikeStationToGraph(station, graph);
-        }
-        return true;
+    private void updateBikeStationInfo(BikeRentalStation station, RentBikeEdge rentBikeEdge) {
+        rentBikeEdge.getBikeRentalStation().bikesAvailable = station.bikesAvailable;
+        rentBikeEdge.getBikeRentalStation().spacesAvailable = station.spacesAvailable;
     }
 
 
     @Override
     public void run(Graph graph) {
-        int count = (int) bikeRentalStationsFetchedFromApi.stream().filter(station -> updateBikeStationInfo(station, graph)).count();
-        LOG.info("Placed {} bike stations on a map", count);
+        int updatedStationsCount = 0;
+        int removedStationsCount;
+        int placedStationsCount = 0;
+        int failedToPlaceCount = 0;
+        Map<BikeRentalStation, RentBikeEdge> oldStations = graph.bikeRentalStationsInGraph;
+        graph.bikeRentalStationsInGraph = new HashMap<>();
+
+        for (BikeRentalStation station : bikeRentalStationsFetchedFromApi) {
+            RentBikeEdge oldStationEdge = oldStations.getOrDefault(station, null);
+            if (oldStationEdge != null) {
+                updatedStationsCount++;
+                updateBikeStationInfo(station, oldStationEdge);
+                oldStations.remove(station);
+                graph.bikeRentalStationsInGraph.put(station, oldStationEdge);
+            } else {
+                if (addBikeStationToGraph(station, graph))
+                    placedStationsCount++;
+                else
+                    failedToPlaceCount++;
+            }
+        }
+        List<Vertex> dissappearedStations = oldStations.values().stream()
+                .map(Edge::getFromVertex)
+                .collect(Collectors.toList());
+        removedStationsCount = dissappearedStations.size();
+
+        TemporaryVertex.disposeAll(dissappearedStations);
+
+        LOG.info("Placed {} bike stations on a map", placedStationsCount);
+        LOG.info("Failed to place {} bike stations on a map", failedToPlaceCount);
+        LOG.info("Updated {} bike stations on a map", updatedStationsCount);
+        LOG.info("Removed {} bike stations from map", removedStationsCount);
     }
 }
+

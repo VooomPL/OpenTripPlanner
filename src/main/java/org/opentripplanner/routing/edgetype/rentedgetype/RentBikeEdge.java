@@ -25,7 +25,13 @@ public class RentBikeEdge extends RentVehicleEdge {
 
     @Override
     public State traverse(State state) {
+        if (!state.getOptions().rentingAllowed) {
+            return null;
+        }
         if (station.bikesAvailable <= 0) {
+            return null;
+        }
+        if (!state.getOptions().vehicleValidator.isValid(state.getCurrentVehicle())) {
             return null;
         }
         if (state.getCurrentVehicle() == null) {
@@ -33,6 +39,7 @@ public class RentBikeEdge extends RentVehicleEdge {
         } else {
             return trySwitchVehicles(state);
         }
+
     }
 
     public BikeRentalStation getBikeRentalStation() {
