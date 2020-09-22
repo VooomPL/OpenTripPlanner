@@ -48,7 +48,7 @@ public abstract class StreetVertex extends Vertex {
         return getNonBogusName(locale).orElseGet(() -> getBogusName(locale));
     }
 
-    private Optional<I18NString> getNonBogusName(Locale locale) {
+    public Optional<I18NString> getNonBogusName(Locale locale) {
         List<String> uniqueNames = getOutgoing().stream()
                 .filter(e -> e instanceof StreetEdge && !e.hasBogusName())
                 .map(e -> e.getName(locale))
@@ -64,7 +64,7 @@ public abstract class StreetVertex extends Vertex {
         }
     }
 
-    private I18NString getBogusName(Locale locale) {
+    public I18NString getBogusName(Locale locale) {
         return getOutgoing().stream()
                 .filter(e -> e instanceof StreetEdge && e.hasBogusName())
                 .map(e -> e.getName(locale))

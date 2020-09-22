@@ -27,6 +27,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.services.FareService;
+import org.opentripplanner.routing.services.StreetVertexIndexService;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.*;
@@ -50,7 +51,7 @@ public abstract class GraphPathToTripPlanConverter {
     /**
      * Generates a TripPlan from a set of paths
      */
-    public static TripPlan generatePlan(List<GraphPath> paths, RoutingRequest request) {
+    public static TripPlan generatePlan(List<GraphPath> paths, RoutingRequest request, StreetVertexIndexService streetIndex) {
 
         Locale requestedLocale = request.locale;
 
@@ -79,7 +80,7 @@ public abstract class GraphPathToTripPlanConverter {
         long bestNonTransitTime = Long.MAX_VALUE;
         List<Itinerary> itineraries = new LinkedList<>();
         for (GraphPath path : paths) {
-            Itinerary itinerary = generateItinerary(path, request.showIntermediateStops, request.disableAlertFiltering, requestedLocale);
+            Itinerary itinerary = generateItinerary(path, request.showIntermediateStops, request.disableAlertFiltering, requestedLocale, streetIndex);
             itinerary = adjustItinerary(request, itinerary);
             if (itinerary.transitTime == 0 && itinerary.walkTime < bestNonTransitTime) {
                 bestNonTransitTime = itinerary.walkTime;
@@ -147,7 +148,9 @@ public abstract class GraphPathToTripPlanConverter {
      * @param showIntermediateStops Whether to include intermediate stops in the itinerary or not
      * @return The generated itinerary
      */
-    public static Itinerary generateItinerary(GraphPath path, boolean showIntermediateStops, boolean disableAlertFiltering, Locale requestedLocale) {
+    public static Itinerary generateItinerary(GraphPath path, boolean showIntermediateStops,
+                                              boolean disableAlertFiltering, Locale requestedLocale,
+                                              StreetVertexIndexService streetIndex) {
         Itinerary itinerary = new Itinerary();
 
         State lastState = path.states.getLast();
@@ -167,7 +170,7 @@ public abstract class GraphPathToTripPlanConverter {
         }
 
         for (LegStateSplit legStates : legsStates) {
-            itinerary.addLeg(generateLeg(graph, legStates, showIntermediateStops, disableAlertFiltering, requestedLocale));
+            itinerary.addLeg(generateLeg(graph, legStates, showIntermediateStops, disableAlertFiltering, requestedLocale, streetIndex));
         }
 
         addWalkSteps(graph, itinerary.legs, legsStates, requestedLocale);
@@ -365,7 +368,9 @@ public abstract class GraphPathToTripPlanConverter {
      * @param showIntermediateStops Whether to include intermediate stops in the leg or not
      * @return The generated leg
      */
-    private static Leg generateLeg(Graph graph, LegStateSplit legStateSplit, boolean showIntermediateStops, boolean disableAlertFiltering, Locale requestedLocale) {
+    private static Leg generateLeg(Graph graph, LegStateSplit legStateSplit, boolean showIntermediateStops,
+                                   boolean disableAlertFiltering, Locale requestedLocale,
+                                   StreetVertexIndexService streetIndex) {
         Leg leg = new Leg();
         List<Edge> edges = new ArrayList<>(legStateSplit.getStates().size() - 1);
         List<State> states = legStateSplit.getStates();
@@ -385,7 +390,7 @@ public abstract class GraphPathToTripPlanConverter {
 
         addTripFields(leg, states, requestedLocale);
 
-        addPlaces(leg, states, edges, showIntermediateStops, requestedLocale);
+        addPlaces(leg, states, edges, showIntermediateStops, requestedLocale, streetIndex);
 
         addLegGeometryToLeg(leg, edges, legStateSplit);
 
@@ -731,7 +736,7 @@ public abstract class GraphPathToTripPlanConverter {
      * @param showIntermediateStops Whether to include intermediate stops in the leg or not
      */
     private static void addPlaces(Leg leg, List<State> states, List<Edge> edges, boolean showIntermediateStops,
-                                  Locale requestedLocale) {
+                                  Locale requestedLocale, StreetVertexIndexService streetIndex) {
         Vertex firstVertex = states.get(0).getVertex();
         Vertex lastVertex = states.get(states.size() - 1).getVertex();
 
@@ -741,9 +746,9 @@ public abstract class GraphPathToTripPlanConverter {
                 ((TransitVertex) lastVertex).getStop() : null;
         TripTimes tripTimes = states.get(states.size() - 1).getTripTimes();
 
-        leg.from = makePlace(states.get(0), firstVertex, edges.get(0), firstStop, tripTimes, requestedLocale);
+        leg.from = makePlace(states.get(0), firstVertex, edges.get(0), firstStop, tripTimes, requestedLocale, streetIndex);
         leg.from.arrival = null;
-        leg.to = makePlace(states.get(states.size() - 1), lastVertex, null, lastStop, tripTimes, requestedLocale);
+        leg.to = makePlace(states.get(states.size() - 1), lastVertex, null, lastStop, tripTimes, requestedLocale, streetIndex);
         leg.to.departure = null;
 
         if (showIntermediateStops) {
@@ -768,7 +773,7 @@ public abstract class GraphPathToTripPlanConverter {
                 previousStop = currentStop;
                 if (currentStop == lastStop) break;
 
-                leg.stop.add(makePlace(states.get(i), vertex, edges.get(i), currentStop, tripTimes, requestedLocale));
+                leg.stop.add(makePlace(states.get(i), vertex, edges.get(i), currentStop, tripTimes, requestedLocale, streetIndex));
             }
         }
     }
@@ -783,17 +788,13 @@ public abstract class GraphPathToTripPlanConverter {
      * @param tripTimes The {@link TripTimes} associated with the {@link Leg}.
      * @return The resulting {@link Place} object.
      */
-    private static Place makePlace(State state, Vertex vertex, Edge edge, Stop stop, TripTimes tripTimes, Locale requestedLocale) {
+    private static Place makePlace(State state, Vertex vertex, Edge edge, Stop stop, TripTimes tripTimes,
+                                   Locale requestedLocale, StreetVertexIndexService streetIndex) {
         // If no edge was given, it means we're at the end of this leg and need to work around that.
         boolean endOfLeg = (edge == null);
-        String name = vertex.getName(requestedLocale);
 
-        //This gets nicer names instead of osm:node:id when changing mode of transport
-        //Names are generated from all the streets in a corner, same as names in origin and destination
-        //We use name in TemporaryStreetLocation since this name generation already happened when temporary location was generated
-        if (vertex instanceof StreetVertex && !(vertex instanceof TemporaryStreetLocation)) {
-            name = ((StreetVertex) vertex).getIntersectionName(requestedLocale).toString(requestedLocale);
-        }
+        String name = makeName(vertex, requestedLocale, streetIndex);
+
         Place place = new Place(vertex.getX(), vertex.getY(), name,
                 makeCalendar(state), makeCalendar(state));
 
@@ -837,6 +838,29 @@ public abstract class GraphPathToTripPlanConverter {
         }
 
         return place;
+    }
+
+    /**
+     * We try to generate human-readable (non bogus) name for a given vertex. We do it in this way:
+     * 1. We return `ORIGIN` and `DESTINATION` vertices' names ignoring proper street naming
+     * 2. We try to return non bogus name from a street or street splitting edges
+     * 3. We try to find a closest street with non bogus name via `streetIndex`
+     * 4. We give up and return bogus name from a street edge (or `UNNAMED_STREET` if there are no street edges connected)
+     */
+    private static String makeName(Vertex vertex, Locale locale, StreetVertexIndexService streetIndex) {
+        //We use name in TemporaryStreetLocation since this name generation already happened when temporary location was generated
+        if (!(vertex instanceof StreetVertex) || vertex instanceof TemporaryStreetLocation) {
+            return vertex.getName(locale);
+        } else {
+            return makeStreetVertexName((StreetVertex) vertex, locale, streetIndex);
+        }
+    }
+
+    private static String makeStreetVertexName(StreetVertex vertex, Locale locale,
+                                               StreetVertexIndexService streetIndex) {
+        return vertex.getNonBogusName(locale).map(name -> name.toString(locale))
+                .orElseGet(() -> streetIndex.findNameForVertex(vertex).map(name -> name.toString(locale))
+                        .orElseGet(() -> vertex.getBogusName(locale).toString(locale)));
     }
 
     /**
