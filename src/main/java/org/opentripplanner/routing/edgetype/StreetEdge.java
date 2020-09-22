@@ -836,37 +836,42 @@ public class StreetEdge extends Edge implements Cloneable {
                 throw new IllegalStateException("Split street is longer than original street!");
             }
 
-            for (StreetEdge e : new StreetEdge[] { e1, e2 }) {
-                e.setBicycleSafetyFactor(getBicycleSafetyFactor());
-                e.setHasBogusName(hasBogusName());
-                e.setStairs(isStairs());
-                e.setWheelchairAccessible(isWheelchairAccessible());
-                e.setBack(isBack());
-            }
+            copyCommonFields(e1);
+            copyCommonFields(e2);
         } else {
             if (((TemporarySplitterVertex) v).isEndVertex() || v instanceof TemporaryRentVehicleSplitterVertex) {
                 e1 = new TemporaryPartialStreetEdge(this, (StreetVertex) fromv, v, geoms.first, name);
                 e1.setNoThruTraffic(this.isNoThruTraffic());
                 e1.setStreetClass(this.getStreetClass());
+                copyCommonFields(e1);
             }
             if (!((TemporarySplitterVertex) v).isEndVertex() || v instanceof TemporaryRentVehicleSplitterVertex) {
                 e2 = new TemporaryPartialStreetEdge(this, v, (StreetVertex) tov, geoms.second, name);
                 e2.setNoThruTraffic(this.isNoThruTraffic());
                 e2.setStreetClass(this.getStreetClass());
+                copyCommonFields(e2);
             }
         }
         return new P2<>(e1, e2);
+    }
+
+    private void copyCommonFields(StreetEdge edge) {
+        edge.setBicycleSafetyFactor(getBicycleSafetyFactor());
+        edge.setHasBogusName(hasBogusName());
+        edge.setStairs(isStairs());
+        edge.setWheelchairAccessible(isWheelchairAccessible());
+        edge.setBack(isBack());
     }
 
     /**
      * Get the starting OSM node ID of this edge. Note that this information is preserved when an
      * edge is split, so both edges will have the same starting and ending nodes.
      */
-    public long getStartOsmNodeId () {
+    public long getStartOsmNodeId() {
         if (fromv instanceof OsmVertex)
             return ((OsmVertex) fromv).nodeId;
-        // get information from the splitter vertex so this edge gets the same traffic information it got before
-        // it was split.
+            // get information from the splitter vertex so this edge gets the same traffic information it got before
+            // it was split.
         else if (fromv instanceof SplitterVertex)
             return ((SplitterVertex) fromv).previousNodeId;
         else
