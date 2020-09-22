@@ -5,6 +5,7 @@ import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.algorithm.NegativeWeightException;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
@@ -17,11 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class State implements Cloneable {
+
     /* Data which is likely to change at most traversals */
 
     protected TraversalStatistics traversalStatistics;
@@ -30,9 +30,7 @@ public class State implements Cloneable {
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
-    private BigDecimal priceForCurrentVehicle;
-
-    private int remainingFreeSecondsForCurrentVehicle;
+    private Map<VehiclePricingPackage.PricingCategory, BigDecimal> priceForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -132,8 +130,8 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
-        this.priceForCurrentVehicle = BigDecimal.ZERO;
-        this.remainingFreeSecondsForCurrentVehicle = 0;
+        this.priceForCurrentVehicle = new HashMap<>();
+        Arrays.stream(VehiclePricingPackage.PricingCategory.values()).sequential().forEach(category -> this.priceForCurrentVehicle.put(category, BigDecimal.ZERO));
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -906,19 +904,15 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
-    public int getRemainingFreeSecondsForCurrentVehicle() {
-        return remainingFreeSecondsForCurrentVehicle;
+    public BigDecimal getTotalPriceForCurrentVehicle() {
+        return priceForCurrentVehicle.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void setRemainingFreeSecondsForCurrentVehicle(int remainingFreeSecondsForCurrentVehicle) {
-        this.remainingFreeSecondsForCurrentVehicle = remainingFreeSecondsForCurrentVehicle;
-    }
-
-    public BigDecimal getPriceForCurrentVehicle() {
+    public Map<VehiclePricingPackage.PricingCategory, BigDecimal> getPriceForCurrentVehicle() {
         return priceForCurrentVehicle;
     }
 
-    public void setPriceForCurrentVehicle(BigDecimal priceForCurrentVehicle) {
-        this.priceForCurrentVehicle = priceForCurrentVehicle;
+    public void setPriceForCurrentVehicle(VehiclePricingPackage.PricingCategory category, BigDecimal priceForCurrentVehicle) {
+        this.priceForCurrentVehicle.put(category, priceForCurrentVehicle);
     }
 }

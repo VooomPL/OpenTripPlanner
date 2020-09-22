@@ -1,8 +1,11 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 public class VehiclePricingPackage {
+
+    public enum PricingCategory {START_ASSOCIATED, TIME_ASSOCIATED, DISTANCE_ASSOCIATED};
 
     private BigDecimal packagePrice;
 
@@ -60,96 +63,68 @@ public class VehiclePricingPackage {
         return packagePrice.add(startPrice);
     }
 
-    public BigDecimal computeTimeAssociatedPriceChange(BigDecimal currentTotalVehiclePrice, int remainingFreeSeconds, int totalDrivingTimeInSeconds, int timeChangeInSeconds){
-        if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0 || //max renting time not used
-                (maxRentingPrice.compareTo(BigDecimal.ZERO) > 0 && //max renting time used, but not exceeded
-                        currentTotalVehiclePrice.compareTo(maxRentingPrice) < 0)) {
-            /* Assuming that before entering this method:
-               totalDrivingTimeInSeconds = previous totalDrivingTimeInSeconds + timeChangeInSeconds
-               (so it does not take into account free seconds)
-            */
-            BigDecimal priceChange = BigDecimal.ZERO;
-            if (remainingFreeSeconds > 0) {
-                //some seconds may be free of charge
-                timeChangeInSeconds -= remainingFreeSeconds;
-            }
-            if (timeChangeInSeconds > 0) {
-                //not all seconds were free of charge
-                if (totalDrivingTimeInSeconds <= packageTimeLimitInSeconds + freeSeconds) {
-                    //all the seconds are included in the package
-                    BigDecimal previousTimeTicksInPackage = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds-timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
-                    BigDecimal currentTotalTimeTicks = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
-                    priceChange = currentTotalTimeTicks.subtract(previousTimeTicksInPackage).multiply(drivingPricePerTimeTickInPackage);
-                } else {
-                    //at least some seconds are above package limit
-                    int travelTimeBeforeThisStepInSeconds = totalDrivingTimeInSeconds - timeChangeInSeconds;
-                    int packageAndFreeTimeLimitInSeconds = packageTimeLimitInSeconds + freeSeconds;
-                    if(travelTimeBeforeThisStepInSeconds < packageAndFreeTimeLimitInSeconds){
-                        //some seconds from the current time change should be counted as "within the package limit"
-                        int secondsInPackage = packageAndFreeTimeLimitInSeconds - travelTimeBeforeThisStepInSeconds;
-                        BigDecimal timeTicksInPackage = BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
-                        priceChange = timeTicksInPackage.multiply(drivingPricePerTimeTickInPackage);
-                        //we charge for all the started time ticks, not only for the "completed" ones
-                        int secondsInTimeTicksStartedWithinPackage = timeTicksInPackage.intValue()*secondsPerTimeTickInPackage;
-                        timeChangeInSeconds -= secondsInTimeTicksStartedWithinPackage<=timeChangeInSeconds?secondsInTimeTicksStartedWithinPackage:timeChangeInSeconds;
-                    }
-                    //the rest of the seconds should be treated as above package limit
+    public BigDecimal computeTimeAssociatedPrice(Map<PricingCategory, BigDecimal> currentVehiclePrice, int totalDrivingTimeInSeconds){
+        BigDecimal previousTotalPrice = currentVehiclePrice.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (!isMaxRentingPriceUsed() || (isMaxRentingPriceUsed() && !isMaxRentingPriceExceeded(previousTotalPrice))) {
+            BigDecimal newTimeAssociatedPrice = BigDecimal.ZERO;
 
-                    /*
-                     * If package time limit = 50 s and seconds per time tick in the package = 60, than time tick can start
-                     * within a package, and "complete" when package is exceeded. In such (probably extremely rare) cases
-                     * the borderline time tick has "within package" price. The remaining seconds for this time tick need
-                     * to be excluded from counting "above package" time ticks.
-                     */
-                    BigDecimal totalTimeTicksThatCanStartInPackage = BigDecimal.valueOf(packageTimeLimitInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
-                    int totalSecondsInTimeTicksThatCanStartInPackage = totalTimeTicksThatCanStartInPackage.intValue()*secondsPerTimeTickInPackage;
-                    int previousTimeTicksAbovePackage = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds-totalSecondsInTimeTicksThatCanStartInPackage-timeChangeInSeconds).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP).intValue();
-                    /*
-                     * If we have not "completed" the entire time tick that has started within the package in the previous step,
-                     * the value of previousTimeTicksAbovePackage may be negative. In such cases we know, that we have not
-                     * started any time tick above package yet (therefore correcting the negative previousTimeTicksAbovePackage
-                     * value and setting it to 0)
-                     */
-                    previousTimeTicksAbovePackage = previousTimeTicksAbovePackage>=0?previousTimeTicksAbovePackage:0;
-                    int currentTotalTimeTicksAbovePackage = BigDecimal.valueOf(totalDrivingTimeInSeconds-freeSeconds-totalSecondsInTimeTicksThatCanStartInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP).intValue();
-                    //Similar explanation as for the "previous time ticks" above
-                    currentTotalTimeTicksAbovePackage = currentTotalTimeTicksAbovePackage>=0?currentTotalTimeTicksAbovePackage:0;
-                    priceChange = priceChange.add(BigDecimal.valueOf(currentTotalTimeTicksAbovePackage-previousTimeTicksAbovePackage).multiply(drivingPricePerTimeTickInPackageExceeded));
+            totalDrivingTimeInSeconds -= freeSeconds;
+
+            if (totalDrivingTimeInSeconds > 0) { //not all seconds of travel were free of charge
+                //Computing price associated with time ticks in package
+                int secondsInPackage = Math.min(totalDrivingTimeInSeconds, packageTimeLimitInSeconds);
+                BigDecimal timeTicksInPackage = BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
+                newTimeAssociatedPrice = timeTicksInPackage.multiply(drivingPricePerTimeTickInPackage);
+
+                //Computing price associated with time ticks above package
+                int secondsAbovePackage = totalDrivingTimeInSeconds-timeTicksInPackage.intValue()*secondsPerTimeTickInPackage;
+                if(secondsAbovePackage > 0){
+                    BigDecimal timeTicksAbovePackage = BigDecimal.valueOf(secondsAbovePackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP);
+                    newTimeAssociatedPrice = newTimeAssociatedPrice.add(timeTicksAbovePackage.multiply(drivingPricePerTimeTickInPackageExceeded));
                 }
             }
-            if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0){ //max renting time not used
-                return priceChange;
+            if (!isMaxRentingPriceUsed()){ //max renting time not used, no need to check anything else
+                return newTimeAssociatedPrice;
             }
-            else{ //max renting time used, check whether it is going to be exceeded after adding price change
-                return currentTotalVehiclePrice.add(priceChange).compareTo(maxRentingPrice) < 1 ? priceChange : maxRentingPrice.subtract(currentTotalVehiclePrice);
+            else{ //max renting price used, check whether it is going to be exceeded after adding price change
+                BigDecimal newTotalPrice = previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.TIME_ASSOCIATED))
+                        .add(newTimeAssociatedPrice);
+                return isMaxRentingPriceExceeded(newTotalPrice)?maxRentingPrice.subtract(
+                        previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.TIME_ASSOCIATED)))
+                        :newTimeAssociatedPrice;
             }
-        } else { //max renting time used and exceeded
-            return BigDecimal.ZERO;
+        } else { //max renting price used and exceeded - do not increase price at this point
+            return currentVehiclePrice.get(PricingCategory.TIME_ASSOCIATED);
         }
     }
 
-    public int computeRemainingFreeSeconds(int remainingFreeSeconds, int timeChangeInSeconds){
-        int newRemainingFreeSeconds = remainingFreeSeconds-timeChangeInSeconds;
-        return newRemainingFreeSeconds>0?newRemainingFreeSeconds:0;
+    private boolean isMaxRentingPriceUsed(){
+        return maxRentingPrice.compareTo(BigDecimal.ZERO) == 1;
     }
 
-    public BigDecimal computeDistanceAssociatedPriceChange(BigDecimal currentTotalVehiclePrice, double previousDistanceInMeters, double distanceModificationInMeters){
-        if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0 || //max renting time not used
-                (maxRentingPrice.compareTo(BigDecimal.ZERO) > 0 && //max renting time used ...
-                        (currentTotalVehiclePrice.compareTo(maxRentingPrice) < 0) || //... but not exceeded
-                        kilometerPriceEnabledAboveMaxRentingPrice)) // ...or counting full kilometer price anyway
+    private boolean isMaxRentingPriceExceeded(BigDecimal totalVehiclePrice){
+        return totalVehiclePrice.compareTo(maxRentingPrice) >= 0;
+    }
+
+    public BigDecimal computeDistanceAssociatedPrice(Map<PricingCategory, BigDecimal> currentVehiclePrice, double totalDistanceInMeters){
+        BigDecimal previousTotalPrice = currentVehiclePrice.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (!isMaxRentingPriceUsed() || (isMaxRentingPriceUsed() && !isMaxRentingPriceExceeded(previousTotalPrice)) ||
+                        kilometerPriceEnabledAboveMaxRentingPrice)
         {
-            int previousDistanceInKilometers = (int) (previousDistanceInMeters / 1000);
-            int newDistanceInKilometers = (int) ((previousDistanceInMeters + distanceModificationInMeters) / 1000);
-            BigDecimal priceChange = (new BigDecimal(newDistanceInKilometers - previousDistanceInKilometers)).multiply(kilometerPrice);
-            if (maxRentingPrice.compareTo(BigDecimal.ZERO) == 0 || kilometerPriceEnabledAboveMaxRentingPrice){
-                // max renting time not used or counting full kilometer price anyway
-                return priceChange;
-            } else{ //max renting time used, check whether it is going to be exceeded after adding price change
-                return currentTotalVehiclePrice.add(priceChange).compareTo(maxRentingPrice) < 1 ? priceChange : maxRentingPrice.subtract(currentTotalVehiclePrice);
+            int newDistanceInKilometers = (int) (totalDistanceInMeters / 1000);
+            BigDecimal newDistancePrice = new BigDecimal(newDistanceInKilometers).multiply(kilometerPrice);
+            if (!isMaxRentingPriceUsed() || kilometerPriceEnabledAboveMaxRentingPrice){
+                // max renting price not used or counting full kilometer price anyway
+                return newDistancePrice;
+            } else{ //max renting price used, check whether it is going to be exceeded after adding price change
+                BigDecimal newTotalPrice = previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.DISTANCE_ASSOCIATED))
+                        .add(newDistancePrice);
+                return isMaxRentingPriceExceeded(newTotalPrice) ? maxRentingPrice.subtract(
+                        previousTotalPrice.subtract(currentVehiclePrice.get(PricingCategory.DISTANCE_ASSOCIATED)))
+                        :newDistancePrice;
             }
         } else { //max renting time used and exceeded
-            return BigDecimal.ZERO;
+            return currentVehiclePrice.get(PricingCategory.DISTANCE_ASSOCIATED);
         }
     }
 
