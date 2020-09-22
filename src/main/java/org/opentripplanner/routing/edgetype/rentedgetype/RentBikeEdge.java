@@ -31,7 +31,7 @@ public class RentBikeEdge extends RentVehicleEdge {
         if (station.bikesAvailable <= 0) {
             return null;
         }
-        if (!state.getOptions().vehicleValidator.isValid(state.getCurrentVehicle())) {
+        if (!state.getOptions().vehicleValidator.isValid(getVehicle())) {
             return null;
         }
         if (state.getCurrentVehicle() == null) {

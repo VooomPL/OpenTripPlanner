@@ -34,8 +34,10 @@ public class BikeRentalStation implements Serializable, Cloneable {
     @JsonSerialize
     public boolean isCarStation = false;
 
-    public BikeRentalStation() {
+    private BikeDescription bikeDescription;
 
+    public BikeRentalStation() {
+        bikeDescription = new BikeDescription(this);
     }
 
     public BikeRentalStation(String id, double longitude, double latitude, int bikesAvailable, int spacesAvailable, Provider provider) {
@@ -45,10 +47,11 @@ public class BikeRentalStation implements Serializable, Cloneable {
         this.bikesAvailable = bikesAvailable;
         this.spacesAvailable = spacesAvailable;
         this.provider = provider;
+        bikeDescription = new BikeDescription(this);
     }
 
     public BikeDescription getBikeFromStation() {
-        return new BikeDescription(this);
+        return bikeDescription;
     }
 
     public boolean isStationCompatible(VehicleDescription vehicle) {
@@ -74,13 +77,12 @@ public class BikeRentalStation implements Serializable, Cloneable {
      * This is used for localization. Currently "bike rental station" isn't part of the name.
      * It can be added on the client. But since it is used as Station: name, and Recommended Pick Up: name.
      * It isn't used.
-     *
+     * <p>
      * Names can be different in different languages if name tags in OSM have language tags.
-     *
+     * <p>
      * It is set in {@link org.opentripplanner.api.resource.BikeRental} from URL parameter.
-     *
+     * <p>
      * Sets default locale on start
-     *
      */
     @JsonIgnore
     public Locale locale = ResourceBundleSingleton.INSTANCE.getLocale(null);
@@ -96,12 +98,12 @@ public class BikeRentalStation implements Serializable, Cloneable {
         BikeRentalStation other = (BikeRentalStation) o;
         return other.id.equals(id);
     }
-    
+
     public int hashCode() {
         return id.hashCode() + 1;
     }
-    
-    public String toString () {
+
+    public String toString() {
         return String.format(Locale.US, "Bike rental station %s at %.6f, %.6f", name, latitude, longitude);
     }
 
