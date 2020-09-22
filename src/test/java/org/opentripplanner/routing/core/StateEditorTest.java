@@ -97,20 +97,6 @@ public class StateEditorTest {
     }
 
     @Test
-    public void shouldComputeStartingPriceWithoutRentingTimePrice() {
-        // given
-        StateEditor stateEditor = state.edit(rentVehicleEdge);
-
-        // when
-        stateEditor.beginVehicleRenting(CAR_1);
-        State next = stateEditor.makeState();
-
-        // then
-        assertTrue(next.traversalStatistics.getPrice().compareTo(next.getCurrentVehicle().getActivePackage().getStartPrice()) == 0);
-        assertEquals(0, next.getTimeTraversedInCurrentVehicleInSeconds());
-    }
-
-    @Test
     public void shouldAllowDroppingOffVehicles() {
         // given
         StateEditor stateEditor = rentingState.edit(dropoffVehicleEdge);

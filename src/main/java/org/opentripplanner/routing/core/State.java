@@ -30,9 +30,11 @@ public class State implements Cloneable {
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
-    public BigDecimal distancePrice;
-    public BigDecimal timePrice;
-    public BigDecimal startPrice;
+    private BigDecimal distancePrice;
+
+    private BigDecimal timePrice;
+
+    private BigDecimal startPrice;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -907,4 +909,27 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
+    public BigDecimal getDistancePrice() {
+        return distancePrice;
+    }
+
+    public void setDistancePrice(BigDecimal distancePrice) {
+        this.distancePrice = distancePrice;
+    }
+
+    public BigDecimal getTimePrice() {
+        return timePrice;
+    }
+
+    public void setTimePrice(BigDecimal timePrice) {
+        this.timePrice = timePrice;
+    }
+
+    public BigDecimal getStartPrice() {
+        return startPrice;
+    }
+
+    public void setStartPrice(BigDecimal startPrice) {
+        this.startPrice = startPrice;
+    }
 }
