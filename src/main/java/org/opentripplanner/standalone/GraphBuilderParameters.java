@@ -1,13 +1,12 @@
 package org.opentripplanner.standalone;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource;
 import org.opentripplanner.graph_builder.services.osm.CustomNamer;
 import org.opentripplanner.profile.StopClusterMode;
 import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.impl.DefaultFareServiceFactory;
 import org.opentripplanner.routing.services.FareServiceFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -214,7 +213,7 @@ public class GraphBuilderParameters {
         staticBikeParkAndRide = config.path("staticBikeParkAndRide").asBoolean(false);
         maxHtmlAnnotationsPerFile = config.path("maxHtmlAnnotationsPerFile").asInt(1000);
         maxInterlineDistance = config.path("maxInterlineDistance").asInt(200);
-        pruningThresholdIslandWithoutStops = config.path("islandWithoutStopsMaxSize").asInt(40);
+        pruningThresholdIslandWithoutStops = config.path("islandWithoutStopsMaxSize").asInt(160);
         pruningThresholdIslandWithStops = config.path("islandWithStopsMaxSize").asInt(5);
         banDiscouragedWalking = config.path("banDiscouragedWalking").asBoolean(false);
         banDiscouragedBiking = config.path("banDiscouragedBiking").asBoolean(false);
