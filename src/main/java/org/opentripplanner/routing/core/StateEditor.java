@@ -249,8 +249,8 @@ public class StateEditor {
 
     private void incrementTimeAssociatedVehiclePrice(int seconds){
         child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds() + seconds);
-        child.setTimePrice(child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPrice(
-                child.getStartPrice(), child.getTimePrice(), child.getDistancePrice(),
+        child.setTimePriceForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPrice(
+                child.getStartPriceForCurrentVehicle(), child.getTimePriceForCurrentVehicle(), child.getDistancePriceForCurrentVehicle(),
                 child.getTimeTraversedInCurrentVehicleInSeconds()));
     }
 
@@ -421,7 +421,7 @@ public class StateEditor {
         incrementTimeInSeconds(rentingTime, true);
 
         VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
-        child.setStartPrice(pricingPackage.computeStartPrice());
+        child.setStartPriceForCurrentVehicle(pricingPackage.computeStartPrice());
     }
 
     public void doneVehicleRenting() {
@@ -429,14 +429,14 @@ public class StateEditor {
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime);
         BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(
-                child.getTimePrice().add(child.getDistancePrice()).add(child.getStartPrice()));
+                child.getTimePriceForCurrentVehicle().add(child.getDistancePriceForCurrentVehicle()).add(child.getStartPriceForCurrentVehicle()));
         child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(finalVehiclePrice));
         incrementWeight(droppingTime * child.getOptions().routingReluctances.getRentingReluctance());
         child.stateData.currentTraverseMode = TraverseMode.WALK;
         child.stateData.currentVehicle = null;
-        child.setStartPrice(BigDecimal.ZERO);
-        child.setTimePrice(BigDecimal.ZERO);
-        child.setDistancePrice(BigDecimal.ZERO);
+        child.setStartPriceForCurrentVehicle(BigDecimal.ZERO);
+        child.setTimePriceForCurrentVehicle(BigDecimal.ZERO);
+        child.setDistancePriceForCurrentVehicle(BigDecimal.ZERO);
         child.setTimeTraversedInCurrentVehicleInSeconds(0);
 
     }
@@ -661,8 +661,8 @@ public class StateEditor {
     private void incrementDistanceInCurrentVehicle(double distanceInMeters) {
         if (child.getCurrentVehicle() != null) {
             child.distanceTraversedInCurrentVehicle += distanceInMeters;
-            child.setDistancePrice(child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPrice(
-                    child.getStartPrice(), child.getTimePrice(), child.getDistancePrice(),
+            child.setDistancePriceForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPrice(
+                    child.getStartPriceForCurrentVehicle(), child.getTimePriceForCurrentVehicle(), child.getDistancePriceForCurrentVehicle(),
                     child.distanceTraversedInCurrentVehicle));
         }
     }

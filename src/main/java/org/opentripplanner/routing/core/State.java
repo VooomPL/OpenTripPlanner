@@ -5,7 +5,6 @@ import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.algorithm.NegativeWeightException;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
@@ -30,11 +29,11 @@ public class State implements Cloneable {
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
-    private BigDecimal distancePrice;
+    private BigDecimal distancePriceForCurrentVehicle;
 
-    private BigDecimal timePrice;
+    private BigDecimal timePriceForCurrentVehicle;
 
-    private BigDecimal startPrice;
+    private BigDecimal startPriceForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -134,9 +133,9 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
-        distancePrice = BigDecimal.ZERO;
-        timePrice = BigDecimal.ZERO;
-        startPrice = BigDecimal.ZERO;
+        distancePriceForCurrentVehicle = BigDecimal.ZERO;
+        timePriceForCurrentVehicle = BigDecimal.ZERO;
+        startPriceForCurrentVehicle = BigDecimal.ZERO;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -909,27 +908,27 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
-    public BigDecimal getDistancePrice() {
-        return distancePrice;
+    public BigDecimal getDistancePriceForCurrentVehicle() {
+        return distancePriceForCurrentVehicle;
     }
 
-    public void setDistancePrice(BigDecimal distancePrice) {
-        this.distancePrice = distancePrice;
+    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle) {
+        this.distancePriceForCurrentVehicle = distancePriceForCurrentVehicle;
     }
 
-    public BigDecimal getTimePrice() {
-        return timePrice;
+    public BigDecimal getTimePriceForCurrentVehicle() {
+        return timePriceForCurrentVehicle;
     }
 
-    public void setTimePrice(BigDecimal timePrice) {
-        this.timePrice = timePrice;
+    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle) {
+        this.timePriceForCurrentVehicle = timePriceForCurrentVehicle;
     }
 
-    public BigDecimal getStartPrice() {
-        return startPrice;
+    public BigDecimal getStartPriceForCurrentVehicle() {
+        return startPriceForCurrentVehicle;
     }
 
-    public void setStartPrice(BigDecimal startPrice) {
-        this.startPrice = startPrice;
+    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle) {
+        this.startPriceForCurrentVehicle = startPriceForCurrentVehicle;
     }
 }
