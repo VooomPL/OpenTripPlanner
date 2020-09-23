@@ -47,7 +47,7 @@ public class StateEditorTest {
         StateEditor stateEditor = new StateEditor(routingRequest, null);
 
         stateEditor.setTimeSeconds(0);
-        stateEditor.incrementTimeInSeconds(999999999, false);
+        stateEditor.incrementTimeInSeconds(999999999);
 
         assertEquals(999999999, stateEditor.child.getTimeSeconds());
     }
