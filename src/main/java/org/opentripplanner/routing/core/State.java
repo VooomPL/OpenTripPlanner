@@ -752,7 +752,7 @@ public class State implements Cloneable {
             // note the distinction between setFromState and setBackState
             editor.setFromState(orig);
 
-            editor.incrementTimeInSeconds(orig.getAbsTimeDeltaSeconds(), false);
+            editor.incrementTimeInSeconds(orig.getAbsTimeDeltaSeconds());
             editor.incrementWeight(orig.getWeightDelta());
             editor.incrementWalkDistanceInMeters(orig.getWalkDistanceDelta());
             editor.incrementPreTransitTime(orig.getPreTransitTimeDelta());
