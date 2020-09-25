@@ -102,7 +102,6 @@ public class StreetUtils {
         }
         LOG.info(islands.size() + " sub graphs found");
         /* remove all tiny subgraphs and large subgraphs without stops */
-        int removedIslandsCounter = 0;
         for (Subgraph island : islands) {
             boolean hadRemoved = false;
             if(island.stopSize() > 0){
@@ -110,22 +109,17 @@ public class StreetUtils {
                 if (island.streetSize() < islandWithStopMaxSize) {
                     depedestrianizeOrRemove(graph, island);
                     hadRemoved = true;
-                    removedIslandsCounter++;
                 }
             }else{
             //for islands without stops
                 if (island.streetSize() < maxIslandSize) {
                     depedestrianizeOrRemove(graph, island);
                     hadRemoved = true;
-                    removedIslandsCounter++;
                 }
             }
             if (islandLog != null) {
                 WriteNodesInSubGraph(island, islandLog, hadRemoved);
             }
-        }
-        if (islands.size() - removedIslandsCounter > 1) {
-            LOG.warn("There are {} subgraphs left after pruning islands", islands.size() - removedIslandsCounter);
         }
         if (graph.removeEdgelessVertices() > 0) {
             LOG.warn("Removed edgeless vertices after pruning islands");
