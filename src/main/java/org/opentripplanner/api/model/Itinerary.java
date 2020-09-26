@@ -1,5 +1,6 @@
 package org.opentripplanner.api.model;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.opentripplanner.model.calendar.CalendarServiceData;
@@ -53,6 +54,8 @@ public class Itinerary {
     public Map<TraverseMode, Integer> timeTraversedInMode = new HashMap<>();
 
     public String itineraryType;
+
+    public BigDecimal price;
 
     /**
      * Indicates that the walk limit distance has been exceeded for this itinerary when true.

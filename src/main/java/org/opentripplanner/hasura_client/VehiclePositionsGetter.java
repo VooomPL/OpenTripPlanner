@@ -33,6 +33,11 @@ public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Veh
                         "      providerId: id\\n" +
                         "      providerName: name\\n" +
                         "    }\\n" +
+                        "    kmPrice\\n" +
+                        "    drivingPrice\\n" +
+                        "    startPrice\\n" +
+                        "    stopPrice\\n" +
+                        "    maxDailyPrice\\n" +
                         "  }\\n" +
                         "}\",";
 
