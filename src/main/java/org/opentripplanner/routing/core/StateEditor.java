@@ -242,12 +242,12 @@ public class StateEditor {
     public void incrementTimeInSeconds(int seconds, boolean beginningVehicleRenting) {
         incrementTimeInMilliseconds(seconds * 1000L);
         incrementTimeTraversedInMode(seconds);
-        if(!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())){
+        if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
             incrementTimeAssociatedVehiclePrice(seconds);
         }
     }
 
-    private void incrementTimeAssociatedVehiclePrice(int seconds){
+    private void incrementTimeAssociatedVehiclePrice(int seconds) {
         child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds() + seconds);
         child.setTimePriceForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPrice(
                 child.getStartPriceForCurrentVehicle(), child.getTimePriceForCurrentVehicle(), child.getDistancePriceForCurrentVehicle(),

@@ -343,15 +343,15 @@ public abstract class GraphPathToTripPlanConverter {
 
             State nextState = Optional.of(i)
                     .filter(it -> it < legsIndexes.size() - 1)
-                    .map(it -> legsIndexes.get(it+1))
-                    .map(it -> it[0] + 1 ) // We are interested with 2nd state in next leg, or rather in edge between 1st and 2nd state
-                    .filter(it -> it < states.size() )
+                    .map(it -> legsIndexes.get(it + 1))
+                    .map(it -> it[0] + 1) // We are interested with 2nd state in next leg, or rather in edge between 1st and 2nd state
+                    .filter(it -> it < states.size())
                     .map(states::get).orElse(null);
             Coordinate coordinate = Optional.ofNullable(nextState)
                     .map(State::getBackEdge)
                     .map(Edge::getDisplayGeometry)
                     .map(LineString::getCoordinates)
-                    .filter(it -> it.length !=0)
+                    .filter(it -> it.length != 0)
                     .map(it -> it[0])
                     .orElse(null);
 
@@ -414,7 +414,7 @@ public abstract class GraphPathToTripPlanConverter {
     static void addLegGeometryToLeg(Leg leg, List<Edge> edges, LegStateSplit legStateSplit) {
 
         CoordinateArrayListSequence coordinates = makeCoordinates(edges);
-        if(legStateSplit.getNextSplitBeginning() != null && !coordinates.getCoordinate(coordinates.size()-1).equals(legStateSplit.getNextSplitBeginning())) {
+        if (legStateSplit.getNextSplitBeginning() != null && !coordinates.getCoordinate(coordinates.size() - 1).equals(legStateSplit.getNextSplitBeginning())) {
             coordinates.add(legStateSplit.getNextSplitBeginning());
         }
         Geometry geometry = GeometryUtils.getGeometryFactory().createLineString(coordinates);

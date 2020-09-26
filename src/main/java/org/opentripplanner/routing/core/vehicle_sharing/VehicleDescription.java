@@ -53,7 +53,7 @@ public abstract class VehicleDescription {
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage){
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
         this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, pricingPackage);
     }
 
@@ -160,7 +160,7 @@ public abstract class VehicleDescription {
     }
 
     @JsonIgnore
-    public VehiclePricingPackage getActivePackage(){
+    public VehiclePricingPackage getActivePackage() {
         return this.vehiclePricingPackages.get(this.getActivePackageIndex());
     }
 

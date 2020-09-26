@@ -319,7 +319,7 @@ public class State implements Cloneable {
         return traverseDistanceInMeters;
     }
 
-    public BigDecimal getTraversalPrice(){
+    public BigDecimal getTraversalPrice() {
         return traversalStatistics.getPrice();
     }
 

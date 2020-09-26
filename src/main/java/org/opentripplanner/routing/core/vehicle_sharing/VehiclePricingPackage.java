@@ -32,7 +32,7 @@ public class VehiclePricingPackage {
 
     private boolean kilometerPriceEnabledAboveMaxRentingPrice;
 
-    public VehiclePricingPackage(){
+    public VehiclePricingPackage() {
         /* By default creating a "no predefined package" configuration
          * (package time limit is set to 0, so we only use the package exceeded properties to compute the price)
          */
@@ -50,19 +50,19 @@ public class VehiclePricingPackage {
         this.drivingPricePerTimeTickInPackageExceeded = drivingPricePerTimeTickInPackageExceeded;
         this.parkingPricePerTimeTickInPackageExceeded = parkingPricePerTimeTickPackageExceeded;
         this.kilometerPrice = kilometerPrice;
-        this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage>0?secondsPerTimeTickInPackage:1;
-        this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded>0?secondsPerTimeTickInPackageExceeded:1;
+        this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage > 0 ? secondsPerTimeTickInPackage : 1;
+        this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded > 0 ? secondsPerTimeTickInPackageExceeded : 1;
         this.maxRentingPrice = maxRentingPrice;
         this.kilometerPriceEnabledAboveMaxRentingPrice = kilometerPriceEnabledAboveMaxRentingPrice;
     }
 
-    public BigDecimal computeStartPrice(){
+    public BigDecimal computeStartPrice() {
         return packagePrice.add(startPrice);
     }
 
-    public BigDecimal computeTimeAssociatedPrice(BigDecimal currentStartPrice, BigDecimal currentTimePrice, BigDecimal currentDistancePrice, int totalDrivingTimeInSeconds){
+    public BigDecimal computeTimeAssociatedPrice(BigDecimal currentStartPrice, BigDecimal currentTimePrice, BigDecimal currentDistancePrice, int totalDrivingTimeInSeconds) {
         BigDecimal previousTotalPrice = currentStartPrice.add(currentTimePrice).add(currentDistancePrice);
-        if (!isMaxRentingPriceUsed() || (isMaxRentingPriceUsed() && !isMaxRentingPriceExceeded(previousTotalPrice))) {
+        if (!isMaxRentingPriceUsed() || !isMaxRentingPriceExceeded(previousTotalPrice)) {
             BigDecimal newTimeAssociatedPrice = BigDecimal.ZERO;
 
             totalDrivingTimeInSeconds -= freeSeconds;
@@ -74,59 +74,57 @@ public class VehiclePricingPackage {
                 newTimeAssociatedPrice = timeTicksInPackage.multiply(drivingPricePerTimeTickInPackage);
 
                 //Computing price associated with time ticks above package
-                int secondsAbovePackage = totalDrivingTimeInSeconds-timeTicksInPackage.intValue()*secondsPerTimeTickInPackage;
-                if(secondsAbovePackage > 0){
+                int secondsAbovePackage = totalDrivingTimeInSeconds - timeTicksInPackage.intValue() * secondsPerTimeTickInPackage;
+                if (secondsAbovePackage > 0) {
                     BigDecimal timeTicksAbovePackage = BigDecimal.valueOf(secondsAbovePackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP);
                     newTimeAssociatedPrice = newTimeAssociatedPrice.add(timeTicksAbovePackage.multiply(drivingPricePerTimeTickInPackageExceeded));
                 }
             }
-            if (!isMaxRentingPriceUsed()){ //max renting time not used, no need to check anything else
+            if (!isMaxRentingPriceUsed()) { //max renting time not used, no need to check anything else
                 return newTimeAssociatedPrice;
-            }
-            else{ //max renting price used, check whether it is going to be exceeded after adding price change
+            } else { //max renting price used, check whether it is going to be exceeded after adding price change
                 BigDecimal newTotalPrice = previousTotalPrice.subtract(currentTimePrice)
                         .add(newTimeAssociatedPrice);
-                return isMaxRentingPriceExceeded(newTotalPrice)?maxRentingPrice.subtract(
+                return isMaxRentingPriceExceeded(newTotalPrice) ? maxRentingPrice.subtract(
                         previousTotalPrice.subtract(currentTimePrice))
-                        :newTimeAssociatedPrice;
+                        : newTimeAssociatedPrice;
             }
         } else { //max renting price used and exceeded - do not increase price at this point
             return currentTimePrice;
         }
     }
 
-    private boolean isMaxRentingPriceUsed(){
-        return maxRentingPrice.compareTo(BigDecimal.ZERO) == 1;
+    private boolean isMaxRentingPriceUsed() {
+        return maxRentingPrice.compareTo(BigDecimal.ZERO) > 0;
     }
 
-    private boolean isMaxRentingPriceExceeded(BigDecimal totalVehiclePrice){
+    private boolean isMaxRentingPriceExceeded(BigDecimal totalVehiclePrice) {
         return totalVehiclePrice.compareTo(maxRentingPrice) >= 0;
     }
 
-    public BigDecimal computeDistanceAssociatedPrice(BigDecimal currentStartPrice, BigDecimal currentTimePrice, BigDecimal currentDistancePrice, double totalDistanceInMeters){
+    public BigDecimal computeDistanceAssociatedPrice(BigDecimal currentStartPrice, BigDecimal currentTimePrice, BigDecimal currentDistancePrice, double totalDistanceInMeters) {
         BigDecimal previousTotalPrice = currentStartPrice.add(currentTimePrice).add(currentDistancePrice);
-        if (!isMaxRentingPriceUsed() || (isMaxRentingPriceUsed() && !isMaxRentingPriceExceeded(previousTotalPrice)) ||
-                        kilometerPriceEnabledAboveMaxRentingPrice)
-        {
+        if (!isMaxRentingPriceUsed() || !isMaxRentingPriceExceeded(previousTotalPrice) ||
+                kilometerPriceEnabledAboveMaxRentingPrice) {
             int newDistanceInKilometers = (int) (totalDistanceInMeters / 1000);
             BigDecimal newDistancePrice = new BigDecimal(newDistanceInKilometers).multiply(kilometerPrice);
-            if (!isMaxRentingPriceUsed() || kilometerPriceEnabledAboveMaxRentingPrice){
+            if (!isMaxRentingPriceUsed() || kilometerPriceEnabledAboveMaxRentingPrice) {
                 // max renting price not used or counting full kilometer price anyway
                 return newDistancePrice;
-            } else{ //max renting price used, check whether it is going to be exceeded after adding price change
+            } else { //max renting price used, check whether it is going to be exceeded after adding price change
                 BigDecimal newTotalPrice = previousTotalPrice.subtract(currentDistancePrice)
                         .add(newDistancePrice);
                 return isMaxRentingPriceExceeded(newTotalPrice) ? maxRentingPrice.subtract(
                         previousTotalPrice.subtract(currentDistancePrice))
-                        :newDistancePrice;
+                        : newDistancePrice;
             }
         } else { //max renting time used and exceeded
             return currentDistancePrice;
         }
     }
 
-    public BigDecimal computeFinalPrice(BigDecimal totalPriceForCurrentVehicle){
-        return totalPriceForCurrentVehicle.compareTo(minRentingPrice)>=0?totalPriceForCurrentVehicle:minRentingPrice;
+    public BigDecimal computeFinalPrice(BigDecimal totalPriceForCurrentVehicle) {
+        return totalPriceForCurrentVehicle.compareTo(minRentingPrice) >= 0 ? totalPriceForCurrentVehicle : minRentingPrice;
     }
 
     public BigDecimal getPackagePrice() {
