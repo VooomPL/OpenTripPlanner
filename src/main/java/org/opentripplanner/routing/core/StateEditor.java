@@ -4,6 +4,7 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
@@ -14,9 +15,8 @@ import org.opentripplanner.routing.vertextype.TemporaryVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
@@ -236,8 +236,22 @@ public class StateEditor {
      * backward when traversing backward.
      */
     public void incrementTimeInSeconds(int seconds) {
+        incrementTimeInSeconds(seconds, false);
+    }
+
+    public void incrementTimeInSeconds(int seconds, boolean beginningVehicleRenting) {
         incrementTimeInMilliseconds(seconds * 1000L);
         incrementTimeTraversedInMode(seconds);
+        if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
+            incrementTimeAssociatedVehiclePrice(seconds);
+        }
+    }
+
+    private void incrementTimeAssociatedVehiclePrice(int seconds) {
+        child.setTimeTraversedInCurrentVehicleInSeconds(child.getTimeTraversedInCurrentVehicleInSeconds() + seconds);
+        child.setTimePriceForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeTimeAssociatedPrice(
+                child.getStartPriceForCurrentVehicle(), child.getTimePriceForCurrentVehicle(), child.getDistancePriceForCurrentVehicle(),
+                child.getTimeTraversedInCurrentVehicleInSeconds()));
     }
 
     private void incrementTimeInMilliseconds(long milliseconds) {
@@ -404,16 +418,27 @@ public class StateEditor {
         child.distanceTraversedInCurrentVehicle = 0;
         int rentingTime = child.getOptions().routingDelays.getRentingTime(vehicleDescription);
         incrementWeight(rentingTime * child.getOptions().routingReluctances.getRentingReluctance());
-        incrementTimeInSeconds(rentingTime);
+        incrementTimeInSeconds(rentingTime, true);
+
+        VehiclePricingPackage pricingPackage = vehicleDescription.getActivePackage();
+        child.setStartPriceForCurrentVehicle(pricingPackage.computeStartPrice());
     }
 
     public void doneVehicleRenting() {
         cloneStateDataAsNeeded();
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime);
+        BigDecimal finalVehiclePrice = child.getCurrentVehicle().getActivePackage().computeFinalPrice(
+                child.getTimePriceForCurrentVehicle().add(child.getDistancePriceForCurrentVehicle()).add(child.getStartPriceForCurrentVehicle()));
+        child.traversalStatistics.setPrice(child.traversalStatistics.getPrice().add(finalVehiclePrice));
         incrementWeight(droppingTime * child.getOptions().routingReluctances.getRentingReluctance());
         child.stateData.currentTraverseMode = TraverseMode.WALK;
         child.stateData.currentVehicle = null;
+        child.setStartPriceForCurrentVehicle(BigDecimal.ZERO);
+        child.setTimePriceForCurrentVehicle(BigDecimal.ZERO);
+        child.setDistancePriceForCurrentVehicle(BigDecimal.ZERO);
+        child.setTimeTraversedInCurrentVehicleInSeconds(0);
+
     }
 
     public void reversedDoneVehicleRenting(VehicleDescription vehicleDescription) {
@@ -421,6 +446,7 @@ public class StateEditor {
         child.stateData.currentTraverseMode = vehicleDescription.getTraverseMode();
         child.stateData.currentVehicle = vehicleDescription;
         child.distanceTraversedInCurrentVehicle = 0;
+        child.setTimeTraversedInCurrentVehicleInSeconds(0);
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime);
     }
@@ -633,8 +659,12 @@ public class StateEditor {
     }
 
     private void incrementDistanceInCurrentVehicle(double distanceInMeters) {
-        if (child.getCurrentVehicle() != null)
+        if (child.getCurrentVehicle() != null) {
             child.distanceTraversedInCurrentVehicle += distanceInMeters;
+            child.setDistancePriceForCurrentVehicle(child.getCurrentVehicle().getActivePackage().computeDistanceAssociatedPrice(
+                    child.getStartPriceForCurrentVehicle(), child.getTimePriceForCurrentVehicle(), child.getDistancePriceForCurrentVehicle(),
+                    child.distanceTraversedInCurrentVehicle));
+        }
     }
 
 }

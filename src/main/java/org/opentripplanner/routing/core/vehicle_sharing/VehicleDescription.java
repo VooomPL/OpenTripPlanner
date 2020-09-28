@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static java.lang.Double.min;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "vehicleType")
@@ -22,6 +25,11 @@ public abstract class VehicleDescription {
     private final double latitude;
     private final double rangeInMeters;
 
+    @JsonSerialize
+    private final List<VehiclePricingPackage> vehiclePricingPackages;
+
+    private int activePackageIndex;
+
     protected boolean requiresHubToDrop;
 
     @JsonSerialize
@@ -36,22 +44,27 @@ public abstract class VehicleDescription {
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider, boolean requiresHubToDrop) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, requiresHubToDrop);
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, requiresHubToDrop, new VehiclePricingPackage());
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null);
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, false, new VehiclePricingPackage());
+    }
+
+    public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, pricingPackage);
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                               Gearbox gearbox, Provider provider, Double rangeInMeters) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false);
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, new VehiclePricingPackage());
 
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters, boolean requiresHubToDrop) {
+                              Gearbox gearbox, Provider provider, Double rangeInMeters, boolean requiresHubToDrop, VehiclePricingPackage vehiclePricingPackage) {
         if (rangeInMeters == null)
             rangeInMeters = this.getDefaultRangeInMeters();
 
@@ -64,6 +77,9 @@ public abstract class VehicleDescription {
         this.gearbox = gearbox;
         this.provider = provider;
         this.rangeInMeters = rangeInMeters;
+        this.vehiclePricingPackages = new ArrayList<>();
+        this.vehiclePricingPackages.add(vehiclePricingPackage);
+        this.activePackageIndex = 0;
         this.requiresHubToDrop = requiresHubToDrop;
     }
 
@@ -124,6 +140,28 @@ public abstract class VehicleDescription {
 
     protected Double getMaximumRangeInMeters() {
         return Double.MAX_VALUE;
+    }
+
+    @JsonIgnore
+    public VehiclePricingPackage getVehicleSharingPackage(int index) {
+        return vehiclePricingPackages.get(index);
+    }
+
+    public int getActivePackageIndex() {
+        return activePackageIndex;
+    }
+
+    public void setActivePackageIndex(int activePackageIndex) {
+        this.activePackageIndex = activePackageIndex;
+    }
+
+    public List<VehiclePricingPackage> getVehiclePricingPackages() {
+        return vehiclePricingPackages;
+    }
+
+    @JsonIgnore
+    public VehiclePricingPackage getActivePackage() {
+        return this.vehiclePricingPackages.get(this.getActivePackageIndex());
     }
 
     public boolean requiresHubToDrop() {
