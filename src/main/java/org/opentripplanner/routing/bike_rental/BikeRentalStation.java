@@ -34,6 +34,8 @@ public class BikeRentalStation implements Serializable, Cloneable {
     @JsonSerialize
     public boolean isCarStation = false;
 
+    private BikeDescription bikeDescription = null;
+
     public BikeRentalStation() {
 
     }
@@ -48,7 +50,11 @@ public class BikeRentalStation implements Serializable, Cloneable {
     }
 
     public BikeDescription getBikeFromStation() {
-        return new BikeDescription(this);
+//        Couldn't figure out nicer way to initialize it.
+        if (bikeDescription == null) {
+            bikeDescription = new BikeDescription(this);
+        }
+        return bikeDescription;
     }
 
     public boolean isStationCompatible(VehicleDescription vehicle) {
@@ -74,13 +80,12 @@ public class BikeRentalStation implements Serializable, Cloneable {
      * This is used for localization. Currently "bike rental station" isn't part of the name.
      * It can be added on the client. But since it is used as Station: name, and Recommended Pick Up: name.
      * It isn't used.
-     *
+     * <p>
      * Names can be different in different languages if name tags in OSM have language tags.
-     *
+     * <p>
      * It is set in {@link org.opentripplanner.api.resource.BikeRental} from URL parameter.
-     *
+     * <p>
      * Sets default locale on start
-     *
      */
     @JsonIgnore
     public Locale locale = ResourceBundleSingleton.INSTANCE.getLocale(null);
@@ -96,12 +101,12 @@ public class BikeRentalStation implements Serializable, Cloneable {
         BikeRentalStation other = (BikeRentalStation) o;
         return other.id.equals(id);
     }
-    
+
     public int hashCode() {
         return id.hashCode() + 1;
     }
-    
-    public String toString () {
+
+    public String toString() {
         return String.format(Locale.US, "Bike rental station %s at %.6f, %.6f", name, latitude, longitude);
     }
 
