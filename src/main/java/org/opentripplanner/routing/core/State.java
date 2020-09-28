@@ -16,16 +16,24 @@ import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 
 public class State implements Cloneable {
+
     /* Data which is likely to change at most traversals */
 
     protected TraversalStatistics traversalStatistics;
 
     protected double distanceTraversedInCurrentVehicle;
+
+    private int timeTraversedInCurrentVehicleInSeconds;
+
+    private BigDecimal distancePriceForCurrentVehicle;
+
+    private BigDecimal timePriceForCurrentVehicle;
+
+    private BigDecimal startPriceForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -125,6 +133,9 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
+        distancePriceForCurrentVehicle = BigDecimal.ZERO;
+        timePriceForCurrentVehicle = BigDecimal.ZERO;
+        startPriceForCurrentVehicle = BigDecimal.ZERO;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -306,6 +317,10 @@ public class State implements Cloneable {
 
     public double getTraverseDistanceInMeters() {
         return traverseDistanceInMeters;
+    }
+
+    public BigDecimal getTraversalPrice() {
+        return traversalStatistics.getPrice();
     }
 
     public int getPreTransitTime() {
@@ -883,5 +898,37 @@ public class State implements Cloneable {
         if (getCurrentVehicle() != null)
             return distanceTraversedInCurrentVehicle + distanceInMeters <= getCurrentVehicle().getRangeInMeters();
         return true;
+    }
+
+    public int getTimeTraversedInCurrentVehicleInSeconds() {
+        return timeTraversedInCurrentVehicleInSeconds;
+    }
+
+    public void setTimeTraversedInCurrentVehicleInSeconds(int timeTraversedInCurrentVehicleInSeconds) {
+        this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
+    }
+
+    public BigDecimal getDistancePriceForCurrentVehicle() {
+        return distancePriceForCurrentVehicle;
+    }
+
+    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle) {
+        this.distancePriceForCurrentVehicle = distancePriceForCurrentVehicle;
+    }
+
+    public BigDecimal getTimePriceForCurrentVehicle() {
+        return timePriceForCurrentVehicle;
+    }
+
+    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle) {
+        this.timePriceForCurrentVehicle = timePriceForCurrentVehicle;
+    }
+
+    public BigDecimal getStartPriceForCurrentVehicle() {
+        return startPriceForCurrentVehicle;
+    }
+
+    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle) {
+        this.startPriceForCurrentVehicle = startPriceForCurrentVehicle;
     }
 }

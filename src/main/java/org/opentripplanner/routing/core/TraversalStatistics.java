@@ -2,6 +2,7 @@ package org.opentripplanner.routing.core;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,8 @@ public class TraversalStatistics implements Cloneable {
     private int timeInBicycle = 0;
     private int timeInTransit = 0;
 
+    private BigDecimal price = BigDecimal.ZERO;
+
     protected TraversalStatistics copy() {
         TraversalStatistics copy = new TraversalStatistics();
         copy.distanceInWalk = this.distanceInWalk;
@@ -27,6 +30,7 @@ public class TraversalStatistics implements Cloneable {
         copy.timeInCar = this.timeInCar;
         copy.timeInBicycle = this.timeInBicycle;
         copy.timeInTransit = this.timeInTransit;
+        copy.price = this.price;
         return copy;
     }
 
@@ -92,5 +96,13 @@ public class TraversalStatistics implements Cloneable {
         ).entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 }

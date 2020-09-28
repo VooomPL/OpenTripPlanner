@@ -22,6 +22,11 @@ public class KickScooterDescription extends BikePathVehicleDescription {
         super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
     }
 
+    public KickScooterDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                                  Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+    }
+
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public KickScooterDescription(@JsonProperty("providerVehicleId") String providerVehicleId, @JsonProperty("longitude") double longitude,
                                   @JsonProperty("latitude") double latitude, @JsonProperty("fuelType") FuelType fuelType,

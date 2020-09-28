@@ -2,6 +2,8 @@ package org.opentripplanner.hasura_client.hasura_objects;
 
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
+import java.math.BigDecimal;
+
 public class Vehicle extends HasuraObject {
 
     private String providerVehicleId;
@@ -12,6 +14,11 @@ public class Vehicle extends HasuraObject {
     private String type;
     private Provider provider;
     private Double range;
+    private BigDecimal kmPrice;
+    private BigDecimal drivingPrice;
+    private BigDecimal startPrice;
+    private BigDecimal stopPrice;
+    private BigDecimal maxDailyPrice;
 
     public Double getRangeInMeters() {
         if (range != null)
@@ -78,5 +85,49 @@ public class Vehicle extends HasuraObject {
 
     public void setRange(Double range) {
         this.range = range;
+    }
+
+    public Double getRange() {
+        return range;
+    }
+
+    public BigDecimal getKmPrice() {
+        return kmPrice;
+    }
+
+    public void setKmPrice(BigDecimal kmPrice) {
+        this.kmPrice = kmPrice;
+    }
+
+    public BigDecimal getDrivingPrice() {
+        return drivingPrice;
+    }
+
+    public void setDrivingPrice(BigDecimal drivingPrice) {
+        this.drivingPrice = drivingPrice;
+    }
+
+    public BigDecimal getStartPrice() {
+        return startPrice;
+    }
+
+    public void setStartPrice(BigDecimal startPrice) {
+        this.startPrice = startPrice;
+    }
+
+    public BigDecimal getStopPrice() {
+        return stopPrice;
+    }
+
+    public void setStopPrice(BigDecimal stopPrice) {
+        this.stopPrice = stopPrice;
+    }
+
+    public BigDecimal getMaxDailyPrice() {
+        return maxDailyPrice;
+    }
+
+    public void setMaxDailyPrice(BigDecimal maxDailyPrice) {
+        this.maxDailyPrice = maxDailyPrice;
     }
 }
