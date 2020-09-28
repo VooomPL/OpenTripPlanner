@@ -22,7 +22,8 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.EarliestArrival;
+import org.opentripplanner.routing.spt.DominanceFunction.LeastWalk;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
@@ -242,11 +243,11 @@ public class RepeatedRaptorProfileRouter {
             // Non-transit mode. Search out to the full 120 minutes.
             // Should really use directModes.
             rr.worstTime = rr.dateTime + RaptorWorker.MAX_DURATION;
-            rr.dominanceFunction = new DominanceFunction.EarliestArrival();
+            rr.dominanceFunction = new EarliestArrival();
         } else {
             // Transit mode, limit pre-transit travel.
             if (rr.modes.contains(TraverseMode.BICYCLE)) {
-                rr.dominanceFunction = new DominanceFunction.EarliestArrival();
+                rr.dominanceFunction = new EarliestArrival();
                 rr.worstTime = rr.dateTime + request.maxBikeTime * 60;
             } else {
                 // We use walk-distance limiting and a least-walk dominance function in order to be consistent with egress walking
@@ -260,7 +261,7 @@ public class RepeatedRaptorProfileRouter {
                 // and so that symmetry is preserved.
                 rr.maxWalkDistance = Math.min(request.maxWalkTime * 60 * request.walkSpeed, GraphIndex.MAX_WALK_METERS); // FIXME kind of arbitrary
                 rr.softWalkLimiting = false;
-                rr.dominanceFunction = new DominanceFunction.LeastWalk();
+                rr.dominanceFunction = new LeastWalk();
             }
         }
 

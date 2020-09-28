@@ -27,6 +27,10 @@ public class State implements Cloneable {
 
     protected double distanceTraversedInCurrentVehicle;
 
+    public double getDistanceTraversedInCurrentVehicle() {
+        return distanceTraversedInCurrentVehicle;
+    }
+
     // the current time at this state, in milliseconds
     protected long time;
 

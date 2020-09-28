@@ -3,11 +3,12 @@ package org.opentripplanner.routing.algorithm;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.edgetype.SimpleTransfer;
 import org.opentripplanner.routing.edgetype.TimedTransferEdge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
-import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.spt.DominanceFunction.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.MinimumWeight;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
 
@@ -17,7 +18,7 @@ import static org.mockito.Mockito.mock;
 public class TestDominanceFunction extends TestCase {
 
     public void testGeneralDominanceFunction() {
-        DominanceFunction minimumWeightDominanceFunction = new DominanceFunction.MinimumWeight();
+        DominanceFunction minimumWeightDominanceFunction = new MinimumWeight();
         Vertex fromVertex = mock(TransitStopArrive.class);
         Vertex toVertex = mock(TransitStopDepart.class);
         RoutingRequest request = new RoutingRequest();

@@ -14,7 +14,8 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.impl.GraphPathFinder;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.Pareto;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
@@ -499,7 +500,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
             public void actionPerformed(ActionEvent e) {
                 State s1 = firstComparePathStates.getSelectedValue();
                 State s2 = secondComparePathStates.getSelectedValue();
-                DominanceFunction pareto = new DominanceFunction.Pareto();
+                DominanceFunction pareto = new Pareto();
                 System.out.println("s1 dominates s2:" + pareto.betterOrEqualAndComparable(s1, s2));
                 System.out.println("s2 dominates s1:" + pareto.betterOrEqualAndComparable(s2, s1));
             }

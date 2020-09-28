@@ -15,15 +15,11 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.analyst.SampleSet;
 import org.opentripplanner.analyst.cluster.TaskStatistics;
-import org.opentripplanner.analyst.scenario.AddTripPattern;
-import org.opentripplanner.analyst.scenario.ConvertToFrequency;
-import org.opentripplanner.analyst.scenario.Scenario;
-import org.opentripplanner.analyst.scenario.TransferRule;
-import org.opentripplanner.analyst.scenario.TripPatternFilter;
+import org.opentripplanner.analyst.scenario.*;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -33,7 +29,7 @@ import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.error.VertexNotFoundException;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.LeastWalk;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.trippattern.FrequencyEntry;
 import org.opentripplanner.routing.trippattern.TripTimes;
@@ -318,7 +314,7 @@ public class RaptorWorkerData implements Serializable {
             // so we need not preserve symmetry.
             rr.maxWalkDistance = 2000;
             rr.softWalkLimiting = false;
-            rr.dominanceFunction = new DominanceFunction.LeastWalk();
+            rr.dominanceFunction = new LeastWalk();
             rr.longDistance = true;
             rr.numItineraries = 1;
 

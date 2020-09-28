@@ -1,14 +1,13 @@
 package org.opentripplanner.profile;
 
 import com.beust.jcommander.internal.Maps;
-
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.LeastWalk;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
@@ -46,7 +45,7 @@ public class StopTreeCache {
             // we need to optimize on distance here as well.
             rr.maxWalkDistance = maxWalkMeters;
             rr.softWalkLimiting = false;
-            rr.dominanceFunction = new DominanceFunction.LeastWalk();
+            rr.dominanceFunction = new LeastWalk();
 
             ShortestPathTree spt = astar.getShortestPathTree(rr, 5); // timeout in seconds
             // Copy vertex indices and distances into a flattened 2D array

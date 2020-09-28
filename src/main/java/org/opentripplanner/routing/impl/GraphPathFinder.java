@@ -1,9 +1,9 @@
 package org.opentripplanner.routing.impl;
 
 import com.google.common.collect.Lists;
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.InterleavedBidirectionalHeuristic;
@@ -19,7 +19,7 @@ import org.opentripplanner.routing.flex.DeviatedRouteGraphModifier;
 import org.opentripplanner.routing.flex.FlagStopGraphModifier;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.EarliestArrival;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
@@ -92,7 +92,11 @@ public class GraphPathFinder {
         if (!options.modes.isTransit()) {
             options.numItineraries = 1;
         }
-        options.dominanceFunction = new DominanceFunction.EarliestArrival();
+//        options.dominanceFunction = new EarliestArrival();
+
+        options.dominanceFunction.setSettings(options.dominanceFunctionSettings);
+
+
         LOG.debug("rreq={}", options);
 
         // Choose an appropriate heuristic for goal direction.
@@ -348,7 +352,7 @@ public class GraphPathFinder {
         reversedOptions.dateTime = dateTime;
         reversedOptions.setArriveBy(!originalReq.arriveBy);
         reversedOptions.setRoutingContext(router.graph, fromVertex, toVertex);
-        reversedOptions.dominanceFunction = new DominanceFunction.EarliestArrival();
+        reversedOptions.dominanceFunction = new EarliestArrival();
         reversedOptions.rctx.remainingWeightHeuristic = remainingWeightHeuristic;
         reversedOptions.maxTransfers = 4;
         reversedOptions.longDistance = true;

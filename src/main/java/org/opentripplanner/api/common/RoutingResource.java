@@ -9,6 +9,9 @@ import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.routing.request.BannedStopSet;
+import org.opentripplanner.routing.spt.DominanceFunction.EarliestArrival;
+import org.opentripplanner.routing.spt.DominanceFunction.MinimumWeight;
+import org.opentripplanner.routing.spt.DominanceFunction.Pareto;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 import org.opentripplanner.util.ResourceBundleSingleton;
@@ -494,6 +497,17 @@ public abstract class RoutingResource {
     @QueryParam("disableRemainingWeightHeuristic")
     protected Boolean disableRemainingWeightHeuristic;
 
+    @QueryParam("differProviders")
+    protected Boolean differProviders;
+    @QueryParam("differEnoughRange")
+    protected Boolean differEnoughRange;
+    @QueryParam("differDestinZone")
+    protected Boolean differDestinZone;
+    @QueryParam("dominanceFunction")
+    protected String dominanceFunctionName;
+    @QueryParam("remainingWeightWeight")
+    protected Double remainingWeightWeight;
+
     /*
      * Control the size of flag-stop buffer returned in API response. This parameter only applies
      * to GTFS-Flex routing, which must be explicitly turned on via the useFlexService parameter in
@@ -649,6 +663,31 @@ public abstract class RoutingResource {
         if (bikeSpeed != null)
             request.bikeSpeed = bikeSpeed;
 
+        if (differProviders != null)
+            request.dominanceFunctionSettings.setDifferProvider(differProviders);
+
+        if (differEnoughRange != null)
+            request.dominanceFunctionSettings.setDifferEnoughRange(differEnoughRange);
+
+        if (differDestinZone != null)
+            request.dominanceFunctionSettings.setDifferMayLeaveAtDestination(differDestinZone);
+        if (dominanceFunctionName != null)
+            switch (dominanceFunctionName) {
+                case "Pareto":
+                    request.dominanceFunction = new Pareto();
+                    break;
+                case "MinimumWeight":
+                    request.dominanceFunction = new MinimumWeight();
+                    break;
+                case "EarliestArrival":
+                    request.dominanceFunction = new EarliestArrival();
+                    break;
+                default:
+                    request.dominanceFunction = new EarliestArrival();
+                    break;
+            }
+        if (remainingWeightWeight != null)
+            request.remainingWeightWeight = remainingWeightWeight;
         if (bikeSwitchTime != null)
             request.bikeSwitchTime = bikeSwitchTime;
 

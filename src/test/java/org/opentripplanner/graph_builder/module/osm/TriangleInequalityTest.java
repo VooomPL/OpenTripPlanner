@@ -12,7 +12,7 @@ import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.EarliestArrival;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 
@@ -84,7 +84,7 @@ public class TriangleInequalityTest {
         prototypeOptions.walkSpeed = 1.0;
         prototypeOptions.bikeSpeed = 1.0;
         prototypeOptions.traversalCostModel = (new ConstantIntersectionTraversalCostModel(10.0));
-        prototypeOptions.dominanceFunction = new DominanceFunction.EarliestArrival();
+        prototypeOptions.dominanceFunction = new EarliestArrival();
 
         
         if (traverseModes != null) {

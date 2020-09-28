@@ -19,7 +19,9 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.impl.DurationComparator;
 import org.opentripplanner.routing.impl.PathComparator;
 import org.opentripplanner.routing.request.BannedStopSet;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.DominanceFunctionSettings;
+import org.opentripplanner.routing.spt.DominanceFunction.EarliestArrival;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.util.DateUtils;
@@ -633,7 +635,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * The function that compares paths converging on the same vertex to decide which ones continue to be explored.
      */
-    public DominanceFunction dominanceFunction = new DominanceFunction.Pareto();
+    public DominanceFunction dominanceFunction = new EarliestArrival();
+    public double remainingWeightWeight = 1.0;
+
+    public DominanceFunctionSettings dominanceFunctionSettings = new DominanceFunctionSettings();
 
     /**
      * Accept only paths that use transit (no street-only paths).

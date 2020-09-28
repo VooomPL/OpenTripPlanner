@@ -1,16 +1,12 @@
 package org.opentripplanner.routing.algorithm;
 
-import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
-import org.opentripplanner.routing.algorithm.strategies.SkipEdgeStrategy;
-import org.opentripplanner.routing.algorithm.strategies.SkipTraverseResultStrategy;
-import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
-import org.opentripplanner.routing.core.State;
+import org.opentripplanner.common.pqueue.BinHeap;
+import org.opentripplanner.routing.algorithm.strategies.*;
 import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.common.pqueue.BinHeap;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.MinimumWeight;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 
 /**
@@ -56,7 +52,7 @@ public class GenericDijkstra {
         if (options.rctx != null) {
             target = initialState.getOptions().rctx.target;
         }
-        ShortestPathTree spt = new DominanceFunction.MinimumWeight().getNewShortestPathTree(options);
+        ShortestPathTree spt = new MinimumWeight().getNewShortestPathTree(options);
         BinHeap<State> queue = new BinHeap<State>(1000);
 
         spt.add(initialState);

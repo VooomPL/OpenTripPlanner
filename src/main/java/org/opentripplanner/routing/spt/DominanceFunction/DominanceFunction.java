@@ -1,11 +1,13 @@
-package org.opentripplanner.routing.spt;
+package org.opentripplanner.routing.spt.DominanceFunction;
 
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.SimpleTransfer;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TimedTransferEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.spt.ShortestPathTree;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -25,6 +27,12 @@ import java.util.Objects;
  * in OTPA Cluster.
  */
 public abstract class DominanceFunction implements Serializable {
+    protected DominanceFunctionSettings settings = new DominanceFunctionSettings();
+
+    public void setSettings(DominanceFunctionSettings settings) {
+        this.settings = settings;
+    }
+
     private static final long serialVersionUID = 1;
 
     /**
@@ -86,8 +94,55 @@ public abstract class DominanceFunction implements Serializable {
         }
 
         if (a.getCurrentVehicle() != null && b.getCurrentVehicle() != null) {
-            if (a.getCurrentVehicle().getVehicleType() != b.getCurrentVehicle().getVehicleType())
+            if (settings.isDifferProvider() && a.getCurrentVehicle().getProvider() != b.getCurrentVehicle().getProvider()) {
                 return false;
+            }
+            if (a.getCurrentVehicle().getVehicleType() != b.getCurrentVehicle().getVehicleType()) {
+                return false;
+            }
+            if (settings.isDifferEnoughRange()) {
+                double remainingDistanceFromA = SphericalDistanceLibrary
+                        .fastDistance(a.getVertex().getLat(), a.getVertex().getLon(),
+                                a.getOptions().to.getCoordinate().x, a.getOptions().to.getCoordinate().y);
+
+                double remainingDistanceFromB = SphericalDistanceLibrary
+                        .fastDistance(b.getVertex().getLat(), b.getVertex().getLon(),
+                                b.getOptions().to.getCoordinate().x, b.getOptions().to.getCoordinate().y);
+
+                double remainingRangeA = a.getCurrentVehicle().getRangeInMeters() - a.getDistanceTraversedInCurrentVehicle();
+                double remainingRangeB = b.getCurrentVehicle().getRangeInMeters() - b.getDistanceTraversedInCurrentVehicle();
+
+                if (((remainingDistanceFromA * 1.5 - remainingRangeA) > 0) != ((remainingDistanceFromB * 1.5 - remainingRangeB) > 0)) {
+                    return false;
+                }
+
+            }
+            if (settings.isDifferRange()) {
+                double remainingRangeA = a.getCurrentVehicle().getRangeInMeters() - a.getDistanceTraversedInCurrentVehicle();
+                double remainingRangeB = b.getCurrentVehicle().getRangeInMeters() - b.getDistanceTraversedInCurrentVehicle();
+
+                if (remainingRangeA > remainingRangeB * 3 || remainingRangeB > remainingRangeB * 3) {
+                    return false;
+                }
+            }
+            if (settings.isDifferMayLeaveAtDestination()) {
+                boolean canDroppA = a.getOptions().getRoutingContext().toVertex
+                        .getOutgoingStreetEdges()
+                        .stream()
+                        .filter(DropoffVehicleEdge.class::isInstance)
+                        .anyMatch(e -> e.traverse(a) != null);
+
+                boolean canDroppB = b.getOptions().getRoutingContext().toVertex
+                        .getOutgoingStreetEdges()
+                        .stream()
+                        .filter(DropoffVehicleEdge.class::isInstance)
+                        .anyMatch(e -> e.traverse(b) != null);
+
+                if (canDroppA != canDroppB) {
+                    System.out.println("\n\nDifferent destination zones\n\n");
+                    return false;
+                }
+            }
         }
 
         // Are the two states arriving at a vertex from two different directions where turn restrictions apply?
@@ -109,61 +164,4 @@ public abstract class DominanceFunction implements Serializable {
         return new ShortestPathTree(routingRequest, this);
     }
 
-    public static class MinimumWeight extends DominanceFunction {
-        /**
-         * Return true if the first state has lower weight than the second state.
-         */
-        @Override
-        public boolean betterOrEqual(State a, State b) {
-            return a.weight <= b.weight;
-        }
-    }
-
-    /**
-     * This approach is more coherent in Analyst when we are extracting travel times from the optimal
-     * paths. It also leads to less branching and faster response times when building large shortest path trees.
-     */
-    public static class EarliestArrival extends DominanceFunction {
-        /**
-         * Return true if the first state has lower elapsed time than the second state.
-         */
-        @Override
-        public boolean betterOrEqual(State a, State b) {
-            return a.getElapsedTimeSeconds() <= b.getElapsedTimeSeconds();
-        }
-    }
-
-    /**
-     * A dominance function that prefers the least walking. This should only be used with walk-only searches because
-     * it does not include any functions of time, and once transit is boarded walk distance is constant.
-     * <p>
-     * It is used when building stop tree caches for egress from transit stops.
-     */
-    public static class LeastWalk extends DominanceFunction {
-
-        @Override
-        protected boolean betterOrEqual(State a, State b) {
-            return a.getDistanceInWalk() <= b.getDistanceInWalk();
-        }
-    }
-
-    /**
-     * In this implementation the relation is not symmetric. There are sets of mutually co-dominant states.
-     */
-    public static class Pareto extends DominanceFunction {
-
-        @Override
-        public boolean betterOrEqual(State a, State b) {
-
-            // The key problem in pareto-dominance in OTP is that the elements of the state vector are not orthogonal.
-            // When walk distance increases, weight increases. When time increases weight increases.
-            // It's easy to get big groups of very similar states that don't represent significantly different outcomes.
-            // Our solution to this is to give existing states some slack to dominate new states more easily.
-
-            final double EPSILON = 1e-4;
-            return (a.getElapsedTimeSeconds() <= (b.getElapsedTimeSeconds() + EPSILON)
-                    && a.getWeight() <= (b.getWeight() + EPSILON));
-
-        }
-    }
 }

@@ -12,7 +12,7 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.StreetLocation;
-import org.opentripplanner.routing.spt.DominanceFunction;
+import org.opentripplanner.routing.spt.DominanceFunction.MinimumWeight;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.TemporaryVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
@@ -452,7 +452,7 @@ public class InterleavedBidirectionalHeuristic implements RemainingWeightHeurist
         }
         // Create a map that returns Infinity when it does not contain a vertex.
         Map<Vertex, VertexModeWeight> vertices = new HashMap<>();
-        ShortestPathTree spt = new DominanceFunction.MinimumWeight().getNewShortestPathTree(rr);
+        ShortestPathTree spt = new MinimumWeight().getNewShortestPathTree(rr);
         // TODO use normal OTP search for this.
         BinHeap<State> pq = new BinHeap<State>();
         Vertex initVertex = fromTarget ? rr.rctx.target : rr.rctx.origin;
