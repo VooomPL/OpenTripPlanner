@@ -213,7 +213,7 @@ public class GraphBuilderParameters {
         staticBikeParkAndRide = config.path("staticBikeParkAndRide").asBoolean(false);
         maxHtmlAnnotationsPerFile = config.path("maxHtmlAnnotationsPerFile").asInt(1000);
         maxInterlineDistance = config.path("maxInterlineDistance").asInt(200);
-        pruningThresholdIslandWithoutStops = config.path("islandWithoutStopsMaxSize").asInt(40);
+        pruningThresholdIslandWithoutStops = config.path("islandWithoutStopsMaxSize").asInt(300);
         pruningThresholdIslandWithStops = config.path("islandWithStopsMaxSize").asInt(5);
         banDiscouragedWalking = config.path("banDiscouragedWalking").asBoolean(false);
         banDiscouragedBiking = config.path("banDiscouragedBiking").asBoolean(false);
