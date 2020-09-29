@@ -88,6 +88,8 @@ public class RentAndDropBikeEdgeTest {
     public void takeAvaiableBike() {
         //when
         station11.bikesAvailable = 1;
+        when(request.vehicleValidator.isValid(bike1)).thenReturn(true);
+
 
         //given
         State rented = rentEdge11.traverse(state);

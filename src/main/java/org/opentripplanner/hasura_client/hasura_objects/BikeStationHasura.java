@@ -8,7 +8,6 @@ public class BikeStationHasura extends HasuraObject {
     private Provider provider;
     private double longitude;
     private double latitude;
-    private long id;
     private String providerStationId;
     private String name;
 
@@ -50,14 +49,6 @@ public class BikeStationHasura extends HasuraObject {
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getProviderStationId() {
