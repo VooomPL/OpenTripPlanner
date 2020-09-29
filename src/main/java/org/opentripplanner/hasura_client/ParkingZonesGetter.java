@@ -14,15 +14,33 @@ public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, Parkin
 
     @Override
     protected String query() {
-        return "{\"query\": \"query GetParkingZones {" +
-                "  items:parking_zones {\\n" +
+        return "{\"query\": \"query GetParkingZones($latMin: float8, $lonMin: float8, $latMax: float8, $lonMax: float8) {" +
+                "  items:parking_zones(\\n" +
+                "  where: {\\n" +
+                "      _and: [\\n" +
+                "        {\\n" +
+                "          _or: [\\n" +
+                "            { longSW: { _gte: $lonMin, _lte: $lonMax } }\\n" +
+                "            { longNE: { _gte: $lonMin, _lte: $lonMax } }\\n" +
+                "            { longSW: { _lte: $lonMin }, longNE: { _gte: $lonMin } }\\n" +
+                "          ]\\n" +
+                "        }\\n" +
+                "        {\\n" +
+                "          _or: [\\n" +
+                "            { latSW: { _gte: $latMin, _lte: $latMax } }\\n" +
+                "            { latNE: { _gte: $latMin, _lte: $latMax } }\\n" +
+                "            { latSW: { _lte: $latMin }, latNE: { _gte: $latMin } }\\n" +
+                "          ]\\n" +
+                "        }\\n" +
+                "      ]\\n" +
+                "    }\\n" +
+                "  ) {\\n" +
                 "    providerId\\n" +
                 "    vehicleType\\n" +
                 "    isAllowed\\n" +
                 "    area\\n" +
-                "  }" +
-                "}\"" +
-                "}";
+                "  }\\n" +
+                "}\",";
     }
 
     @Override
@@ -32,7 +50,7 @@ public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, Parkin
 
     @Override
     protected boolean addGeolocationArguments() {
-        return false;
+        return true;
     }
 
     @Override
