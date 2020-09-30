@@ -8,6 +8,7 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
@@ -407,7 +408,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public boolean batch = false;
 
-    private String costFunction;
+    private OptimizationProfile optimizationProfile;
 
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
@@ -1574,7 +1575,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Create a new ShortestPathTree instance using the DominanceFunction specified in this RoutingRequest.
      */
     public ShortestPathTree getNewShortestPathTree() {
-        return this.dominanceFunction.getNewShortestPathTree(this);
+        return this.optimizationProfile.getDominanceFunction(this).getNewShortestPathTree(this);
     }
 
     /**
@@ -1612,11 +1613,11 @@ public class RoutingRequest implements Cloneable, Serializable {
         return new PathComparator(compareStartTimes);
     }
 
-    public String getCostFunction() {
-        return costFunction;
+    public OptimizationProfile getOptimizationProfile() {
+        return optimizationProfile;
     }
 
-    public void setCostFunction(String costFunction) {
-        this.costFunction = costFunction;
+    public void setOptimizationProfile(OptimizationProfile optimizationProfile) {
+        this.optimizationProfile = optimizationProfile;
     }
 }

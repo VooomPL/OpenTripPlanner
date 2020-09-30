@@ -106,8 +106,7 @@ public class AStar {
         runState.heuristic = options.batch ?
                 new TrivialRemainingWeightHeuristic() :
                 runState.rctx.remainingWeightHeuristic;
-        CostFunction costFunction = options.getCostFunction()!=null?CostFunction.getInstance(options.getCostFunction()):null;
-        runState.costFunction = costFunction!=null?costFunction:new WeightBasedCostFunction();
+        runState.costFunction = options.getOptimizationProfile().getCostFunction(options);
 
         // Since initial states can be multiple, heuristic cannot depend on the initial state.
         // Initializing the bidirectional heuristic is a pretty complicated operation that involves searching through
