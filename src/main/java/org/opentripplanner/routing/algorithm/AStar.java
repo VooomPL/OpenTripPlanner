@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.opentripplanner.common.pqueue.BinHeap;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
+import org.opentripplanner.routing.algorithm.costs.WeightBasedCostFunction;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
@@ -51,6 +53,7 @@ public class AStar {
         public State u;
         public ShortestPathTree spt;
         BinHeap<State> pq;
+        CostFunction costFunction;
         RemainingWeightHeuristic heuristic;
         public RoutingContext rctx;
         public int nVisited;
@@ -103,6 +106,8 @@ public class AStar {
         runState.heuristic = options.batch ?
                 new TrivialRemainingWeightHeuristic() :
                 runState.rctx.remainingWeightHeuristic;
+        CostFunction costFunction = options.getCostFunction()!=null?CostFunction.getInstance(options.getCostFunction()):null;
+        runState.costFunction = costFunction!=null?costFunction:new WeightBasedCostFunction();
 
         // Since initial states can be multiple, heuristic cannot depend on the initial state.
         // Initializing the bidirectional heuristic is a pretty complicated operation that involves searching through
@@ -176,6 +181,7 @@ public class AStar {
                     traverseVisitor.visitEdge(edge, v);
                 }
 
+                double weightSoFar = runState.costFunction.getCost(v);
                 double remaining_w = runState.heuristic.estimateRemainingWeight(v);
 
 //                LOG.info("{} {}", v, remaining_w);
@@ -183,7 +189,7 @@ public class AStar {
                 if (remaining_w < 0 || Double.isInfinite(remaining_w) ) {
                     continue;
                 }
-                double estimate = v.getWeight() + remaining_w;
+                double estimate = weightSoFar + remaining_w;
 
                 if (verbose) {
                     System.out.println("      edge " + edge);

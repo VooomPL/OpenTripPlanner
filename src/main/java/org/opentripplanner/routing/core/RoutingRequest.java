@@ -407,6 +407,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public boolean batch = false;
 
+    private String costFunction;
+
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
      */
@@ -1610,4 +1612,11 @@ public class RoutingRequest implements Cloneable, Serializable {
         return new PathComparator(compareStartTimes);
     }
 
+    public String getCostFunction() {
+        return costFunction;
+    }
+
+    public void setCostFunction(String costFunction) {
+        this.costFunction = costFunction;
+    }
 }
