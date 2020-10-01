@@ -37,6 +37,8 @@ public class State implements Cloneable {
     // accumulated weight up to this state
     public double weight;
 
+    public double estimatedRemainingWeight;
+
     // associate this state with a vertex in the graph
     protected Vertex vertex;
 

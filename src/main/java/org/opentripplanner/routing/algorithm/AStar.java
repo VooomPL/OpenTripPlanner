@@ -180,19 +180,21 @@ public class AStar {
                     traverseVisitor.visitEdge(edge, v);
                 }
 
-                double remaining_w = runState.heuristic.estimateRemainingWeight(v);
+                double remaining_w = runState.heuristic.estimateRemainingWeight(v) * options.remainingWeightWeight;
 
 //                LOG.info("{} {}", v, remaining_w);
 
                 if (remaining_w < 0 || Double.isInfinite(remaining_w)) {
                     continue;
                 }
-                double estimate = v.getWeight() + remaining_w * options.remainingWeightWeight;
+//                TODO remove zero
+                double estimate = v.getWeight() + remaining_w * 0;
+                v.estimatedRemainingWeight = remaining_w;
 
                 if (verbose) {
                     System.out.println("      edge " + edge);
                     System.out.println("      " + runState.u.getWeight() + " -> " + v.getWeight()
-                            + "(w) + " + remaining_w + "(heur) = " + estimate + " vert = "
+                            + "(w) + " + remaining_w + "(heur) = " + v.estimatedRemainingWeight + " vert = "
                             + v.getVertex());
                 }
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
@@ -17,7 +16,6 @@ import org.opentripplanner.index.IndexAPI;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.core.Application;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +24,7 @@ import java.util.Set;
  * A JAX-RS Application subclass which provides hard-wired configuration of an OTP server.
  * Avoids auto-scanning of any kind, and keeps injection to a bare minimum using HK2, the injection
  * library Jersey itself uses.
- *
+ * <p>
  * Jersey has its own ResourceConfig class which is a subclass of Application.
  * We can get away with not using any Jersey-specific "conveniences" and stick with stock JAX-RS.
  */
@@ -49,10 +47,11 @@ public class OTPApplication extends Application {
      * The OTPServer provides entry points to OTP routing functionality for a collection of OTPRouters.
      * It provides a Java API, not an HTTP API.
      * The OTPApplication wraps an OTPServer in a Jersey (JAX-RS) Application, configuring an HTTP API.
+     *
      * @param server The OTP server to wrap
      * @param secure Should this server require authentication over HTTPS to access secure resources, e.g. /routers?
      */
-    public OTPApplication (OTPServer server, boolean secure) {
+    public OTPApplication(OTPServer server, boolean secure) {
         this.server = server;
         this.secure = secure;
     }
@@ -68,44 +67,46 @@ public class OTPApplication extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = Sets.newHashSet();
         classes.addAll(Arrays.asList(
-            /* Jersey resource classes: define web services, i.e. an HTTP API. */
-            PlannerResource.class,
-            IndexAPI.class,
-            ExternalGeocoderResource.class,
-            GeocoderResource.class,
-            SimpleIsochrone.class,
-            TileService.class,
-            BikeRental.class,
-            LIsochrone.class,
-            ExternalGeocoderResource.class,
-            TimeGridWs.class,
-            AlertPatcher.class,
-            PlannerResource.class,
-            SIsochrone.class,
-            Routers.class,
-            LegendResource.class,
-            ProfileResource.class,
-            SimpleIsochrone.class,
-            ServerInfo.class,
-            SurfaceResource.class,
-            PointSetResource.class,
-            GraphInspectorTileResource.class,
-            ScriptResource.class,
-            UpdaterStatusResource.class,
-            ScenarioResource.class,
-            RepeatedRaptorTestResource.class,
-            /* Features and Filters: extend Jersey, manipulate requests and responses. */
-            CorsFilter.class,
-            MultiPartFeature.class
+                /* Jersey resource classes: define web services, i.e. an HTTP API. */
+                BenchmarkDominanceResource.class,
+                BenchmarkDominanceResource.class,
+                PlannerResource.class,
+                IndexAPI.class,
+                ExternalGeocoderResource.class,
+                GeocoderResource.class,
+                SimpleIsochrone.class,
+                TileService.class,
+                BikeRental.class,
+                LIsochrone.class,
+                ExternalGeocoderResource.class,
+                TimeGridWs.class,
+                AlertPatcher.class,
+                PlannerResource.class,
+                SIsochrone.class,
+                Routers.class,
+                LegendResource.class,
+                ProfileResource.class,
+                SimpleIsochrone.class,
+                ServerInfo.class,
+                SurfaceResource.class,
+                PointSetResource.class,
+                GraphInspectorTileResource.class,
+                ScriptResource.class,
+                UpdaterStatusResource.class,
+                ScenarioResource.class,
+                RepeatedRaptorTestResource.class,
+                /* Features and Filters: extend Jersey, manipulate requests and responses. */
+                CorsFilter.class,
+                MultiPartFeature.class
         ));
-        
+
         if (this.secure) {
             // A filter that converts HTTP Basic authentication headers into a Jersey SecurityContext
             classes.add(AuthFilter.class);
             // Enforce roles annotations defined by JSR-250 (allow access to API methods based on the SecurityContext)
             classes.add(RolesAllowedDynamicFeature.class);
         }
-        
+
         return classes;
     }
 
@@ -117,17 +118,17 @@ public class OTPApplication extends Application {
      */
     @Override
     public Set<Object> getSingletons() {
-        return Sets.newHashSet (
-            // Show exception messages in responses
-            new OTPExceptionMapper(),
-            // Enable Jackson JSON response serialization
-            new JacksonJsonProvider(),
-            // Enable Jackson XML response serialization
-            new JacksonXMLProvider(),
-            // Serialize POJOs (unannotated) JSON using Jackson
-            new JSONObjectMapperProvider(),
-            // Allow injecting the OTP server object into Jersey resource classes
-            server.makeBinder()
+        return Sets.newHashSet(
+                // Show exception messages in responses
+                new OTPExceptionMapper(),
+                // Enable Jackson JSON response serialization
+                new JacksonJsonProvider(),
+                // Enable Jackson XML response serialization
+                new JacksonXMLProvider(),
+                // Serialize POJOs (unannotated) JSON using Jackson
+                new JSONObjectMapperProvider(),
+                // Allow injecting the OTP server object into Jersey resource classes
+                server.makeBinder()
         );
     }
 
