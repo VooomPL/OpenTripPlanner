@@ -838,6 +838,8 @@ public class StreetEdge extends Edge implements Cloneable {
 
             copyCommonFields(e1);
             copyCommonFields(e2);
+            e1.setBack(isBack());
+            e2.setBack(isBack());
         } else {
             if (((TemporarySplitterVertex) v).isEndVertex() || v instanceof TemporaryRentVehicleSplitterVertex) {
                 e1 = new TemporaryPartialStreetEdge(this, (StreetVertex) fromv, v, geoms.first, name);
@@ -860,7 +862,6 @@ public class StreetEdge extends Edge implements Cloneable {
         edge.setHasBogusName(hasBogusName());
         edge.setStairs(isStairs());
         edge.setWheelchairAccessible(isWheelchairAccessible());
-        edge.setBack(isBack());
     }
 
     /**
