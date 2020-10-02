@@ -187,7 +187,7 @@ public class AStar {
                 if (remaining_w < 0 || Double.isInfinite(remaining_w)) {
                     continue;
                 }
-                double estimate = v.getWeight() + remaining_w * 2.5;
+                double estimate = v.getWeight() + remaining_w * runState.options.remainingWeightWeight;
 
                 if (verbose) {
                     System.out.println("      edge " + edge);
