@@ -10,6 +10,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
@@ -66,6 +67,7 @@ public class ParkingZonesMapper extends HasuraToOTPMapper<ParkingZone, GeometryP
                 .stream()
                 .map(this::mapToGeometryParkingZones)
                 .flatMap(Collection::stream)
+                .filter(Objects::nonNull)
                 .collect(toList());
     }
 }
