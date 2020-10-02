@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Find the shortest path between graph vertices using A*.
  * A basic Dijkstra search is a special case of AStar where the heuristic is always zero.
- * <p>
+ *
  * NOTE this is now per-request scoped, which has caused some threading problems in the past.
  * Always make one new instance of this class per request, it contains a lot of state fields.
  */
@@ -128,7 +128,7 @@ public class AStar {
         runState.pq = new BinHeap<>(initialSize);
         runState.nVisited = 0;
         runState.targetAcceptedStates = Lists.newArrayList();
-
+        
         if (addToQueue) {
             State initialState = new State(options);
             runState.spt.add(initialState);
@@ -148,7 +148,7 @@ public class AStar {
 
         // get the lowest-weight state in the queue
         runState.u = runState.pq.extract_min();
-
+        
         // check that this state has not been dominated
         // and mark vertex as visited
         if (!runState.spt.visit(runState.u)) {
@@ -156,18 +156,18 @@ public class AStar {
             // not in any optimal path. drop it on the floor and try the next one.
             return false;
         }
-
+        
         if (traverseVisitor != null) {
             traverseVisitor.visitVertex(runState.u);
         }
-
+        
         runState.u_vertex = runState.u.getVertex();
 
         if (verbose)
             System.out.println("   vertex " + runState.u_vertex);
 
         runState.nVisited += 1;
-
+        
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
 
@@ -187,7 +187,7 @@ public class AStar {
                 if (remaining_w < 0 || Double.isInfinite(remaining_w)) {
                     continue;
                 }
-                double estimate = v.getWeight() + remaining_w * 2.5;
+                double estimate = v.getWeight() + remaining_w;
 
                 if (verbose) {
                     System.out.println("      edge " + edge);
@@ -330,7 +330,7 @@ public class AStar {
             runSearch(abortTime);
             spt = runState.spt;
         }
-
+        
         return spt;
     }
 
