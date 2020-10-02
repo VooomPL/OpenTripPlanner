@@ -51,7 +51,6 @@ public class AStar {
         public State u;
         public ShortestPathTree spt;
         BinHeap<State> pq;
-        CostFunction costFunction;
         RemainingWeightHeuristic heuristic;
         public RoutingContext rctx;
         public int nVisited;
@@ -102,7 +101,6 @@ public class AStar {
         // We want to reuse the heuristic instance in a series of requests for the same target to avoid repeated work.
         // "Batch" means one-to-many mode, where there is no goal to reach so we use a trivial heuristic.
         runState.heuristic = options.getOptimizationProfile().getHeuristic();
-        runState.costFunction = options.getOptimizationProfile().getCostFunction();
 
         // Since initial states can be multiple, heuristic cannot depend on the initial state.
         // Initializing the bidirectional heuristic is a pretty complicated operation that involves searching through
