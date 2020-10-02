@@ -9,6 +9,7 @@ import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
@@ -728,6 +729,8 @@ public class RoutingRequest implements Cloneable, Serializable {
         // So that they are never null.
         from = new GenericLocation();
         to = new GenericLocation();
+        OptimizationProfileFactory profileFactory = new OptimizationProfileFactory();
+        optimizationProfile = profileFactory.getOptimizationProfile("original", this);
     }
 
     public RoutingRequest(TraverseModeSet modes) {
