@@ -7,10 +7,8 @@ import java.util.List;
 
 import org.opentripplanner.common.pqueue.BinHeap;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
-import org.opentripplanner.routing.algorithm.costs.WeightBasedCostFunction;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
-import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -103,10 +101,8 @@ public class AStar {
 
         // We want to reuse the heuristic instance in a series of requests for the same target to avoid repeated work.
         // "Batch" means one-to-many mode, where there is no goal to reach so we use a trivial heuristic.
-        runState.heuristic = options.batch ?
-                new TrivialRemainingWeightHeuristic() :
-                runState.rctx.remainingWeightHeuristic;
-        runState.costFunction = options.getOptimizationProfile().getCostFunction(options);
+        runState.heuristic = options.getOptimizationProfile().getHeuristic();
+        runState.costFunction = options.getOptimizationProfile().getCostFunction();
 
         // Since initial states can be multiple, heuristic cannot depend on the initial state.
         // Initializing the bidirectional heuristic is a pretty complicated operation that involves searching through
@@ -180,7 +176,6 @@ public class AStar {
                     traverseVisitor.visitEdge(edge, v);
                 }
 
-                double weightSoFar = runState.costFunction.getCost(v);
                 double remaining_w = runState.heuristic.estimateRemainingWeight(v);
 
 //                LOG.info("{} {}", v, remaining_w);
@@ -188,7 +183,7 @@ public class AStar {
                 if (remaining_w < 0 || Double.isInfinite(remaining_w) ) {
                     continue;
                 }
-                double estimate = weightSoFar + remaining_w;
+                double estimate = v.getWeight() + remaining_w;
 
                 if (verbose) {
                     System.out.println("      edge " + edge);

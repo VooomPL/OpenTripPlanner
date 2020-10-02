@@ -659,8 +659,6 @@ public abstract class RoutingResource {
         if (bikeSwitchCost != null)
             request.bikeSwitchCost = bikeSwitchCost;
 
-        request.setOptimizationProfile((new OptimizationProfileFactory()).getOptimizationProfile(optimizationProfileName));
-
         if (optimize != null) {
             // Optimize types are basically combined presets of routing parameters, except for triangle
             request.setOptimize(optimize);
@@ -839,6 +837,9 @@ public abstract class RoutingResource {
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
+
+        request.setOptimizationProfile((new OptimizationProfileFactory()).getOptimizationProfile(optimizationProfileName, request));
+
         return request;
     }
 

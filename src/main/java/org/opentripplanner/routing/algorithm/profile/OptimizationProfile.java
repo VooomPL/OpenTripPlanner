@@ -2,17 +2,16 @@ package org.opentripplanner.routing.algorithm.profile;
 
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.spt.DominanceFunction;
 
 public interface OptimizationProfile {
 
-    CostFunction getCostFunction(RoutingRequest options);
+    CostFunction getCostFunction();
 
-    DominanceFunction getDominanceFunction(RoutingRequest options);
+    DominanceFunction getDominanceFunction();
 
-    RemainingWeightHeuristic getHeuristic(RoutingRequest options);
+    RemainingWeightHeuristic getHeuristic();
 
-    RemainingWeightHeuristic getReversedSearchHeuristic(RoutingRequest options);
+    RemainingWeightHeuristic getReversedSearchHeuristic();
 
 }

@@ -5,10 +5,9 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.AStar;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
-import org.opentripplanner.routing.algorithm.strategies.InterleavedBidirectionalHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.edgetype.LegSwitchingEdge;
@@ -92,25 +91,14 @@ public class GraphPathFinder {
         if (!options.modes.isTransit()) {
             options.numItineraries = 1;
         }
-        options.dominanceFunction = new DominanceFunction.EarliestArrival();
+        OptimizationProfile optimizationProfile = options.getOptimizationProfile();
+        options.dominanceFunction = optimizationProfile.getDominanceFunction();
         LOG.debug("rreq={}", options);
 
         // Choose an appropriate heuristic for goal direction.
-        RemainingWeightHeuristic heuristic;
-        RemainingWeightHeuristic reversedSearchHeuristic;
-        if (options.disableRemainingWeightHeuristic) {
-            heuristic = new TrivialRemainingWeightHeuristic();
-            reversedSearchHeuristic = new TrivialRemainingWeightHeuristic();
-        } else if (options.modes.isTransit() && !options.modes.getCar() && !options.modes.getBicycle()) {
-            // Only use the BiDi heuristic for transit. It is not very useful for on-street modes.
-            // heuristic = new InterleavedBidirectionalHeuristic(options.rctx.graph);
-            // Use a simplistic heuristic until BiDi heuristic is improved, see #2153
-            heuristic = new InterleavedBidirectionalHeuristic();
-            reversedSearchHeuristic = new InterleavedBidirectionalHeuristic();
-        } else {
-            heuristic = new EuclideanRemainingWeightHeuristic();
-            reversedSearchHeuristic = new EuclideanRemainingWeightHeuristic();
-        }
+        RemainingWeightHeuristic heuristic = optimizationProfile.getHeuristic();
+        RemainingWeightHeuristic reversedSearchHeuristic = optimizationProfile.getReversedSearchHeuristic();
+
         options.rctx.remainingWeightHeuristic = heuristic;
 
 
@@ -348,7 +336,7 @@ public class GraphPathFinder {
         reversedOptions.dateTime = dateTime;
         reversedOptions.setArriveBy(!originalReq.arriveBy);
         reversedOptions.setRoutingContext(router.graph, fromVertex, toVertex);
-        reversedOptions.dominanceFunction = new DominanceFunction.EarliestArrival();
+        reversedOptions.dominanceFunction = reversedOptions.getOptimizationProfile().getDominanceFunction();
         reversedOptions.rctx.remainingWeightHeuristic = remainingWeightHeuristic;
         reversedOptions.maxTransfers = 4;
         reversedOptions.longDistance = true;

@@ -1575,7 +1575,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Create a new ShortestPathTree instance using the DominanceFunction specified in this RoutingRequest.
      */
     public ShortestPathTree getNewShortestPathTree() {
-        return this.optimizationProfile.getDominanceFunction(this).getNewShortestPathTree(this);
+        return this.optimizationProfile.getDominanceFunction().getNewShortestPathTree(this);
     }
 
     /**
