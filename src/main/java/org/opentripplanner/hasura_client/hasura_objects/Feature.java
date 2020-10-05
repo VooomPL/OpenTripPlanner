@@ -2,7 +2,7 @@ package org.opentripplanner.hasura_client.hasura_objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class Feature {
+public class Feature extends HasuraObject {
 
     private String type;
     private Object properties;

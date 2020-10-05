@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.edgetype.rentedgetype;
 
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ParkingZoneInfo implements Serializable {
      * 1. Their provider and vehicle type have disabled parking zones feature
      * 2. We are inside parking zone for that provider and vehicleType
      */
-    public boolean canDropoffVehicleHere(VehicleDescription vehicle) {
+    public boolean doesProviderAllowParkingHere(VehicleDescription vehicle) {
         return hasProviderAndVehicleTypeDisabledParkingZonesFeature(vehicle)
                 || areWeInsideParkingZoneForProviderAndVehicleType(vehicle);
     }

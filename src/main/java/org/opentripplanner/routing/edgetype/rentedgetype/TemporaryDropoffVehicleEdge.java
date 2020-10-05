@@ -14,7 +14,7 @@ public class TemporaryDropoffVehicleEdge extends DropoffVehicleEdge implements T
         super(v);
     }
 
-    public TemporaryDropoffVehicleEdge(Vertex v, ParkingZoneInfo parkingZones) {
-        super(v, parkingZones);
+    public TemporaryDropoffVehicleEdge(Vertex v, ParkingZoneInfo parkingZones, CityGovParkingZoneInfo cityGovParkingZones) {
+        super(v, parkingZones, cityGovParkingZones);
     }
 }

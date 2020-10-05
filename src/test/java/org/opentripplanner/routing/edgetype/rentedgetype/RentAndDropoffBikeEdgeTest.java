@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RentAndDropBikeEdgeTest {
+public class RentAndDropoffBikeEdgeTest {
     private static final CarDescription CAR_1 = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(1, "PANEK"));
 
     private static final BikeRentalStation station11 = new BikeRentalStation("11", 0, 0, 1, 1, new Provider(1, "provider1"));
@@ -29,8 +29,8 @@ public class RentAndDropBikeEdgeTest {
     private BikeDescription bike1;
 
     private RentBikeEdge rentEdge11;
-    private DropBikeEdge dropEdge11;
-    private DropBikeEdge dropEdge21;
+    private DropoffBikeEdge dropEdge11;
+    private DropoffBikeEdge dropEdge21;
     private Graph graph = new Graph();
 
     @Before
@@ -51,8 +51,8 @@ public class RentAndDropBikeEdgeTest {
         ParkingZoneInfo parkingZones = mock(ParkingZoneInfo.class);
         rentEdge11 = new RentBikeEdge(v1, station11, parkingZones);
 
-        dropEdge11 = new DropBikeEdge(v1, station11);
-        dropEdge21 = new DropBikeEdge(v1, station21);
+        dropEdge11 = new DropoffBikeEdge(v1, station11);
+        dropEdge21 = new DropoffBikeEdge(v1, station21);
 
 
         StateEditor se = state.edit(rentEdge11);
