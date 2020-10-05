@@ -11,7 +11,7 @@ public class OptimizationProfileFactory {
     public static final String PROFILE_NAME_ORIGINAL = "original";
 
     public OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
-        OptimizationProfile profile = new OriginalOptimizationProfile(request);
+        OptimizationProfile profile = null;
 
         switch (profileName) {
             case PROFILE_NAME_ORIGINAL:
@@ -19,6 +19,7 @@ public class OptimizationProfileFactory {
                 break;
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
+                profile = new OriginalOptimizationProfile(request);
                 break;
         }
         return profile;
