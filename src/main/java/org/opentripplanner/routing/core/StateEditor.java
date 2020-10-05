@@ -4,6 +4,7 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.edgetype.TripPattern;
@@ -232,8 +233,12 @@ public class StateEditor {
             defectiveTraversal = true;
             return;
         }
-        CostFunction costFunction = child.getOptions().getOptimizationProfile().getCostFunction();
-        child.weight += costFunction.getCostWeight(category, weight)*weight;
+        double costWeight = 1;
+        OptimizationProfile optimizationProfile = child.getOptions().getOptimizationProfile();
+        if(Objects.nonNull(optimizationProfile)){
+            costWeight = optimizationProfile.getCostFunction().getCostWeight(category, weight);
+        }
+        child.weight += costWeight*weight;
     }
 
     /**

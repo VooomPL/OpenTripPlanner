@@ -9,7 +9,6 @@ import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
-import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
@@ -729,8 +728,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         // So that they are never null.
         from = new GenericLocation();
         to = new GenericLocation();
-        OptimizationProfileFactory profileFactory = new OptimizationProfileFactory();
-        optimizationProfile = profileFactory.getOptimizationProfile("original", this);
     }
 
     public RoutingRequest(TraverseModeSet modes) {
@@ -1578,7 +1575,14 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Create a new ShortestPathTree instance using the DominanceFunction specified in this RoutingRequest.
      */
     public ShortestPathTree getNewShortestPathTree() {
-        return this.optimizationProfile.getDominanceFunction().getNewShortestPathTree(this);
+        if(java.util.Objects.nonNull(this.optimizationProfile)) {
+            return this.optimizationProfile.getDominanceFunction().getNewShortestPathTree(this);
+        }
+        else {
+            // For backwards compatibility with old components we use this.dominationFunction if optimizationProfile is
+            // not set
+            return this.dominanceFunction.getNewShortestPathTree(this);
+        }
     }
 
     /**
