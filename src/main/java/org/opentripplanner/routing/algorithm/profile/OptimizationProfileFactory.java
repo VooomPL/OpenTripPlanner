@@ -8,7 +8,7 @@ public class OptimizationProfileFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(OptimizationProfileFactory.class);
 
-    private static final String PROFILE_NAME_ORIGINAL = "original";
+    public static final String PROFILE_NAME_ORIGINAL = "original";
 
     public OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request){
         OptimizationProfile profile = new OriginalOptimizationProfile(request);

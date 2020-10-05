@@ -1,11 +1,13 @@
 package org.opentripplanner.routing.impl;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.math3.optimization.OptimizationData;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -92,6 +94,10 @@ public class GraphPathFinder {
             options.numItineraries = 1;
         }
         OptimizationProfile optimizationProfile = options.getOptimizationProfile();
+        if(Objects.isNull(optimizationProfile)){
+            OptimizationProfileFactory profileFactory = new OptimizationProfileFactory();
+            optimizationProfile = profileFactory.getOptimizationProfile(OptimizationProfileFactory.PROFILE_NAME_ORIGINAL, options);
+        }
         options.dominanceFunction = optimizationProfile.getDominanceFunction();
         LOG.debug("rreq={}", options);
 
