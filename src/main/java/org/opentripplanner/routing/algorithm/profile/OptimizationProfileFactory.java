@@ -15,7 +15,7 @@ public class OptimizationProfileFactory {
 
         switch (profileName) {
             case PROFILE_NAME_ORIGINAL:
-                new OriginalOptimizationProfile(request);
+                profile = new OriginalOptimizationProfile(request);
                 break;
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
