@@ -4,6 +4,9 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+import java.util.Optional;
+
 public class OptimizationProfileFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(OptimizationProfileFactory.class);
@@ -11,7 +14,8 @@ public class OptimizationProfileFactory {
     public static final String PROFILE_NAME_ORIGINAL = "original";
 
     public OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
-        OptimizationProfile profile = null;
+        OptimizationProfile profile;
+        profileName = Optional.ofNullable(profileName).orElse(PROFILE_NAME_ORIGINAL);
 
         switch (profileName) {
             case PROFILE_NAME_ORIGINAL:
