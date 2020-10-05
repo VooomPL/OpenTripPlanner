@@ -1579,7 +1579,7 @@ public class RoutingRequest implements Cloneable, Serializable {
             return this.optimizationProfile.getDominanceFunction().getNewShortestPathTree(this);
         }
         else {
-            // For backwards compatibility with old components we use this.dominationFunction if optimizationProfile is
+            // For backward compatibility with old components we use this.dominationFunction if optimizationProfile is
             // not set
             return this.dominanceFunction.getNewShortestPathTree(this);
         }

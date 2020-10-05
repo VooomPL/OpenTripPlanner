@@ -94,7 +94,7 @@ public class GraphPathFinder {
             options.numItineraries = 1;
         }
         OptimizationProfile optimizationProfile = options.getOptimizationProfile();
-        if(Objects.isNull(optimizationProfile)){
+        if (Objects.isNull(optimizationProfile)) {
             OptimizationProfileFactory profileFactory = new OptimizationProfileFactory();
             optimizationProfile = profileFactory.getOptimizationProfile(OptimizationProfileFactory.PROFILE_NAME_ORIGINAL, options);
         }

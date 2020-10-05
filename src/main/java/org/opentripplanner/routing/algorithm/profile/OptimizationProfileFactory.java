@@ -10,15 +10,15 @@ public class OptimizationProfileFactory {
 
     public static final String PROFILE_NAME_ORIGINAL = "original";
 
-    public OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request){
+    public OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
         OptimizationProfile profile = new OriginalOptimizationProfile(request);
 
-        switch(profileName){
+        switch (profileName) {
             case PROFILE_NAME_ORIGINAL:
                 new OriginalOptimizationProfile(request);
                 break;
             default:
-                LOG.error("Optimization profile '"+profileName+"' undefined - returning default profile");
+                LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
                 break;
         }
         return profile;
