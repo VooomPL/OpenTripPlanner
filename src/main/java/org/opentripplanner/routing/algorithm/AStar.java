@@ -97,11 +97,12 @@ public class AStar {
         runState.rctx = options.getRoutingContext();
         runState.spt = options.getNewShortestPathTree();
 
-        // We want to reuse the heuristic instance in a series of requests for the same target to avoid repeated work.
-        // "Batch" means one-to-many mode, where there is no goal to reach so we use a trivial heuristic.
-        runState.heuristic = options.batch ? new TrivialRemainingWeightHeuristic() : runState.rctx.remainingWeightHeuristic;
         if (Objects.nonNull(options.getOptimizationProfile())) {
             runState.heuristic = options.getOptimizationProfile().getHeuristic();
+        } else {
+            // We want to reuse the heuristic instance in a series of requests for the same target to avoid repeated work.
+            // "Batch" means one-to-many mode, where there is no goal to reach so we use a trivial heuristic.
+            runState.heuristic = options.batch ? new TrivialRemainingWeightHeuristic() : runState.rctx.remainingWeightHeuristic;
         }
 
         // Since initial states can be multiple, heuristic cannot depend on the initial state.
