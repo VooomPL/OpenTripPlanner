@@ -4,6 +4,6 @@ public interface CostFunction {
 
     enum CostCategory {ORIGINAL}
 
-    double getCostWeight(CostCategory category, double cost);
+    double getCostWeight(CostCategory category);
 
 }
