@@ -18,8 +18,8 @@ public class GeometriesDisallowedForVehicleType implements Serializable {
         this.geometriesDisallowed = geometriesDisallowed;
     }
 
-    public boolean isPointInParkingZone(Point point) {
-        return geometriesDisallowed.stream().noneMatch(g -> g.contains(point));
+    public boolean isPointInDisallowedParkingZone(Point point) {
+        return geometriesDisallowed.stream().anyMatch(g -> g.contains(point));
     }
 
     public VehicleType getVehicleType() {

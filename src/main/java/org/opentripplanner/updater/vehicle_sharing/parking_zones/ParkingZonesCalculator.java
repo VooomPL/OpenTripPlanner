@@ -1,11 +1,9 @@
 package org.opentripplanner.updater.vehicle_sharing.parking_zones;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateXY;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
+import org.opentripplanner.routing.edgetype.rentedgetype.CityGovParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.SingleParkingZone;
 import org.opentripplanner.routing.graph.Vertex;
@@ -20,11 +18,19 @@ public class ParkingZonesCalculator implements Serializable {
 
     private final List<GeometryParkingZone> geometryParkingZones;
 
+    private final List<GeometriesDisallowedForVehicleType> geometriesDisallowedForVehicleTypes;
+
     @VisibleForTesting
     final List<SingleParkingZone> parkingZonesEnabled;
 
     public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones) {
+        this(geometryParkingZones, null);
+    }
+
+    public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones,
+                                  List<GeometriesDisallowedForVehicleType> geometriesDisallowedForVehicleTypes) {
         this.geometryParkingZones = geometryParkingZones;
+        this.geometriesDisallowedForVehicleTypes = geometriesDisallowedForVehicleTypes;
         this.parkingZonesEnabled = createParkingZonesEnabled();
     }
 
@@ -35,8 +41,18 @@ public class ParkingZonesCalculator implements Serializable {
                 .collect(toList());
     }
 
+    // TODO AdamWiktor VMP-62 use when creating dropoff edges
+    public CityGovParkingZoneInfo getCityGovParkingZonesForLocation(Vertex vertex) {
+        Point point = vertex.toPoint();
+        List<VehicleType> vehicleTypes = geometriesDisallowedForVehicleTypes.stream()
+                .filter(geom -> geom.isPointInDisallowedParkingZone(point))
+                .map(GeometriesDisallowedForVehicleType::getVehicleType)
+                .collect(toList());
+        return new CityGovParkingZoneInfo(vehicleTypes);
+    }
+
     public ParkingZoneInfo getParkingZonesForLocation(Vertex vertex) {
-        Point point = createPoint(vertex);
+        Point point = vertex.toPoint();
         List<SingleParkingZone> parkingZones = geometryParkingZones.stream()
                 .map(gpz -> findMatchingParkingZone(point, gpz))
                 .filter(Objects::nonNull)
@@ -44,22 +60,12 @@ public class ParkingZonesCalculator implements Serializable {
         return new ParkingZoneInfo(parkingZones, parkingZonesEnabled);
     }
 
-    private Point createPoint(Vertex vertex) {
-        CoordinateXY coord = new CoordinateXY(vertex.getLon(), vertex.getLat());
-        return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
-    }
-
     private SingleParkingZone findMatchingParkingZone(Point point, GeometryParkingZone geometryParkingZone) {
-        if (isPointInParkingZone(point, geometryParkingZone)) {
+        if (geometryParkingZone.isPointInParkingZone(point)) {
             return getMatchingParkingZoneFromList(geometryParkingZone);
         } else {
             return null;
         }
-    }
-
-    private boolean isPointInParkingZone(Point point, GeometryParkingZone gpz) {
-        return gpz.getGeometriesAllowed().stream().anyMatch(g -> g.contains(point))
-                && gpz.getGeometriesDisallowed().stream().noneMatch(g -> g.contains(point));
     }
 
     private SingleParkingZone getMatchingParkingZoneFromList(GeometryParkingZone geometryParkingZone) {

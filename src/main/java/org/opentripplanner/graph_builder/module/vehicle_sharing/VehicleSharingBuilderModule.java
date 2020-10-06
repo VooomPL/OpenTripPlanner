@@ -1,11 +1,15 @@
 package org.opentripplanner.graph_builder.module.vehicle_sharing;
 
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
+import org.opentripplanner.hasura_client.CityGovForbiddenZonesGetter;
 import org.opentripplanner.hasura_client.ParkingZonesGetter;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.CityGovParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometriesDisallowedForVehicleType;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZone;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 import org.slf4j.Logger;
@@ -20,6 +24,8 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(VehicleSharingBuilderModule.class);
 
     private final ParkingZonesGetter parkingZonesGetter = new ParkingZonesGetter();
+
+    private final CityGovForbiddenZonesGetter cityGovForbiddenZonesGetter = new CityGovForbiddenZonesGetter();
 
     @Nullable
     private final String url;
@@ -55,7 +61,10 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
 
     private void createParkingZonesCalculator(Graph graph) {
         List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.getFromHasura(graph, url);
-        graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones);
+        List<GeometriesDisallowedForVehicleType> cityGovForbiddenGeometryParkingZones =
+                cityGovForbiddenZonesGetter.getFromHasura(graph, url);
+        graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones,
+                cityGovForbiddenGeometryParkingZones);
     }
 
     private void createDropoffVehicleEdges(Graph graph) {
@@ -65,7 +74,10 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     }
 
     private void createDropoffVehicleEdge(Graph graph, Vertex vertex) {
-        new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        ParkingZoneInfo parkingZones = graph.parkingZonesCalculator.getParkingZonesForLocation(vertex);
+        CityGovParkingZoneInfo cityGovParkingZones = graph.parkingZonesCalculator
+                .getCityGovParkingZonesForLocation(vertex);
+        new DropoffVehicleEdge(vertex, parkingZones, cityGovParkingZones);
     }
 
     @Override

@@ -16,8 +16,13 @@ public class DropoffVehicleEdge extends EdgeWithParkingZones {
         super(v);
     }
 
+    // TODO VMP-62 AdamWiktor use this constructor for dropoff stations
     public DropoffVehicleEdge(Vertex v, ParkingZoneInfo parkingZones) {
         super(v, parkingZones);
+    }
+
+    public DropoffVehicleEdge(Vertex v, ParkingZoneInfo parkingZones, CityGovParkingZoneInfo cityGovParkingZones) {
+        super(v, parkingZones, cityGovParkingZones);
     }
 
     @Override

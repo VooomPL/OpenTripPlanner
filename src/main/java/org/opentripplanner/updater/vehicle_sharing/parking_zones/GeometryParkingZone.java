@@ -1,6 +1,7 @@
 package org.opentripplanner.updater.vehicle_sharing.parking_zones;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
 import java.io.Serializable;
@@ -23,6 +24,11 @@ public class GeometryParkingZone implements Serializable {
         this.vehicleType = vehicleType;
         this.geometriesAllowed = geometriesAllowed;
         this.geometriesDisallowed = geometriesDisallowed;
+    }
+
+    public boolean isPointInParkingZone(Point point) {
+        return geometriesAllowed.stream().anyMatch(g -> g.contains(point))
+                && geometriesDisallowed.stream().noneMatch(g -> g.contains(point));
     }
 
     public int getProviderId() {

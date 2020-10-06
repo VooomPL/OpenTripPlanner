@@ -53,7 +53,7 @@ public class DropoffVehicleEdgeTest {
     @Test
     public void shouldNotReturnVehicleIfCannotDropoffHere() {
         // given
-        when(parkingZoneInfo.canDropoffVehicleHere(CAR_1)).thenReturn(false);
+        when(parkingZoneInfo.doesProviderAllowParkingHere(CAR_1)).thenReturn(false);
         // when
         State traversed = edge.traverse(rentingState);
 
@@ -64,7 +64,7 @@ public class DropoffVehicleEdgeTest {
     @Test
     public void shouldReturnVehicleIfCanDropoffHere() {
         // given
-        when(parkingZoneInfo.canDropoffVehicleHere(CAR_1)).thenReturn(true);
+        when(parkingZoneInfo.doesProviderAllowParkingHere(CAR_1)).thenReturn(true);
 
         // when
         State traversed = edge.traverse(rentingState);

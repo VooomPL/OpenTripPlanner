@@ -2,10 +2,9 @@ package org.opentripplanner.hasura_client.hasura_objects;
 
 import java.util.List;
 
-public class Area {
+public class Area extends HasuraObject {
 
     private List<Feature> features;
-
     private String type;
 
     public String getType() {

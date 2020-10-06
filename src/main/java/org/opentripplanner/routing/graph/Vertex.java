@@ -9,6 +9,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.geometry.DirectionUtils;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -16,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.locationtech.jts.geom.Coordinate;
+
 import java.util.Locale;
+
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
 
@@ -293,5 +299,10 @@ public abstract class Vertex implements Serializable, Cloneable {
             result.add((StreetEdge) out);
         }
         return result;
+    }
+
+    public Point toPoint() {
+        CoordinateXY coord = new CoordinateXY(getLon(), getLat());
+        return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
     }
 }
