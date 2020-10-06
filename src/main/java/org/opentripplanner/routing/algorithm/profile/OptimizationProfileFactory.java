@@ -14,17 +14,13 @@ public class OptimizationProfileFactory {
     private static final String PROFILE_NAME_ORIGINAL = "original";
 
     public static OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
-        OptimizationProfile profile;
-
         switch (Optional.ofNullable(profileName).orElse(PROFILE_NAME_ORIGINAL)) {
             case PROFILE_NAME_ORIGINAL:
-                profile = new OriginalOptimizationProfile(request);
-                break;
+                return new OriginalOptimizationProfile(request);
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
-                profile = getDefaultOptimizationProfile(request);
+                return getDefaultOptimizationProfile(request);
         }
-        return profile;
     }
 
     public static OptimizationProfile getDefaultOptimizationProfile(RoutingRequest request) {
