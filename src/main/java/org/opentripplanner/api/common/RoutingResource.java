@@ -838,7 +838,7 @@ public abstract class RoutingResource {
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
 
-        request.setOptimizationProfile((new OptimizationProfileFactory()).getOptimizationProfile(optimizationProfileName, request));
+        request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
 
         return request;
     }

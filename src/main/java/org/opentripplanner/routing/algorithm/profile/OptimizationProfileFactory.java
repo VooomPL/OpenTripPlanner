@@ -11,22 +11,23 @@ public class OptimizationProfileFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(OptimizationProfileFactory.class);
 
-    public static final String PROFILE_NAME_ORIGINAL = "original";
+    private static final String PROFILE_NAME_ORIGINAL = "original";
 
-    public OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
+    public static OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
         OptimizationProfile profile;
-        profileName = Optional.ofNullable(profileName).orElse(PROFILE_NAME_ORIGINAL);
 
-        switch (profileName) {
+        switch (Optional.ofNullable(profileName).orElse(PROFILE_NAME_ORIGINAL)) {
             case PROFILE_NAME_ORIGINAL:
                 profile = new OriginalOptimizationProfile(request);
                 break;
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
-                profile = new OriginalOptimizationProfile(request);
-                break;
+                profile = getDefaultOptimizationProfile(request);
         }
         return profile;
     }
 
+    public static OptimizationProfile getDefaultOptimizationProfile(RoutingRequest request) {
+        return new OriginalOptimizationProfile(request);
+    }
 }
