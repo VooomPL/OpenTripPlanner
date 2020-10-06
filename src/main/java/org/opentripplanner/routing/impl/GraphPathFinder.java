@@ -93,18 +93,13 @@ public class GraphPathFinder {
         if (!options.modes.isTransit()) {
             options.numItineraries = 1;
         }
-        OptimizationProfile optimizationProfile = options.getOptimizationProfile();
-        if (Objects.isNull(optimizationProfile)) {
-            optimizationProfile = OptimizationProfileFactory.getDefaultOptimizationProfile(options);
-        }
+        OptimizationProfile optimizationProfile = Optional.ofNullable(options.getOptimizationProfile()).orElseGet(() ->
+                OptimizationProfileFactory.getDefaultOptimizationProfile(options));
         options.dominanceFunction = optimizationProfile.getDominanceFunction();
         LOG.debug("rreq={}", options);
 
         // Choose an appropriate heuristic for goal direction.
-        RemainingWeightHeuristic heuristic = optimizationProfile.getHeuristic();
-        RemainingWeightHeuristic reversedSearchHeuristic = optimizationProfile.getReversedSearchHeuristic();
-
-        options.rctx.remainingWeightHeuristic = heuristic;
+        options.rctx.remainingWeightHeuristic = optimizationProfile.getHeuristic();;
 
 
         /* In RoutingRequest, maxTransfers defaults to 2. But as discussed in #2522, you can't limit the number of
@@ -171,7 +166,7 @@ public class GraphPathFinder {
 
             // Do a full reversed search to compact the legs
             if(options.compactLegsByReversedSearch){
-                newPaths = compactLegsByReversedSearch(aStar, originalReq, options, newPaths, timeout, reversedSearchHeuristic);
+                newPaths = compactLegsByReversedSearch(aStar, originalReq, options, newPaths, timeout, optimizationProfile.getReversedSearchHeuristic());
             }
 
             // Find all trips used in this path and ban them for the remaining searches
