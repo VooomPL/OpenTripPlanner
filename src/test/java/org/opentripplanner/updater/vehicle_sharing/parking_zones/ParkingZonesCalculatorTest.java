@@ -77,7 +77,7 @@ public class ParkingZonesCalculatorTest {
         ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
 
         // then
-        assertFalse(parkingZones.doesProviderAllowParkingHere(CAR_1));
+        assertFalse(parkingZones.canDropoffVehicleHere(CAR_1));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ParkingZonesCalculatorTest {
         ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
 
         // then
-        assertTrue(parkingZones.doesProviderAllowParkingHere(CAR_1));
+        assertTrue(parkingZones.canDropoffVehicleHere(CAR_1));
     }
 
     @Test
@@ -102,6 +102,6 @@ public class ParkingZonesCalculatorTest {
         ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
 
         // then
-        assertFalse(parkingZones.doesProviderAllowParkingHere(CAR_1));
+        assertFalse(parkingZones.canDropoffVehicleHere(CAR_1));
     }
 }

@@ -84,14 +84,14 @@ public class RentVehicleEdgeTest {
         // given
         request.rentingAllowed = true;
         when(request.vehicleValidator.isValid(CAR_1)).thenReturn(true);
-        when(parkingZones.doesProviderAllowParkingHere(CAR_2)).thenReturn(false);
+        when(parkingZones.canDropoffVehicleHere(CAR_2)).thenReturn(false);
 
         // when
         State traversed = edge.traverse(rentingState);
 
         // then
         assertNull(traversed);
-        verify(parkingZones, times(1)).doesProviderAllowParkingHere(CAR_2);
+        verify(parkingZones, times(1)).canDropoffVehicleHere(CAR_2);
         verifyNoMoreInteractions(parkingZones);
     }
 
@@ -100,14 +100,14 @@ public class RentVehicleEdgeTest {
         // given
         request.rentingAllowed = true;
         when(request.vehicleValidator.isValid(CAR_1)).thenReturn(true);
-        when(parkingZones.doesProviderAllowParkingHere(CAR_2)).thenReturn(true);
+        when(parkingZones.canDropoffVehicleHere(CAR_2)).thenReturn(true);
 
         // when
         State traversed = edge.traverse(rentingState);
 
         // then
         assertNotNull(traversed);
-        verify(parkingZones, times(1)).doesProviderAllowParkingHere(CAR_2);
+        verify(parkingZones, times(1)).canDropoffVehicleHere(CAR_2);
         verifyNoMoreInteractions(parkingZones);
     }
 

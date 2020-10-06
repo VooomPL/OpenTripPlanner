@@ -1,14 +1,16 @@
 package org.opentripplanner.graph_builder.module.vehicle_sharing;
 
+import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
+import org.opentripplanner.hasura_client.CityGovDropoffStationsGetter;
 import org.opentripplanner.hasura_client.CityGovForbiddenZonesGetter;
 import org.opentripplanner.hasura_client.ParkingZonesGetter;
 import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.opentripplanner.routing.edgetype.rentedgetype.CityGovParkingZoneInfo;
+import org.opentripplanner.routing.edgetype.rentedgetype.CityGovDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
-import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.routing.vertextype.CityGovVehicleDropoffStationVertex;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometriesDisallowedForVehicleType;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZone;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
@@ -26,6 +28,8 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     private final ParkingZonesGetter parkingZonesGetter = new ParkingZonesGetter();
 
     private final CityGovForbiddenZonesGetter cityGovForbiddenZonesGetter = new CityGovForbiddenZonesGetter();
+
+    private final CityGovDropoffStationsGetter cityGovDropoffStationsGetter = new CityGovDropoffStationsGetter();
 
     @Nullable
     private final String url;
@@ -49,7 +53,9 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
             createParkingZonesCalculator(graph);
             LOG.info("Creating vehicle dropoff edges");
             createDropoffVehicleEdges(graph);
-            LOG.info("Finished creating vehicle dropoff edges");
+            LOG.info("Creating city government vehicle dropoff stations");
+            createCityGovVehicleDropoffStations(graph);
+            LOG.info("Finished creating vehicle dropoff edges and stations");
         }
     }
 
@@ -74,10 +80,28 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     }
 
     private void createDropoffVehicleEdge(Graph graph, Vertex vertex) {
-        ParkingZoneInfo parkingZones = graph.parkingZonesCalculator.getParkingZonesForLocation(vertex);
-        CityGovParkingZoneInfo cityGovParkingZones = graph.parkingZonesCalculator
-                .getCityGovParkingZonesForLocation(vertex);
-        new DropoffVehicleEdge(vertex, parkingZones, cityGovParkingZones);
+        new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+    }
+
+    private void createCityGovVehicleDropoffStations(Graph graph) {
+        List<CityGovDropoffStation> stations = cityGovDropoffStationsGetter.getFromHasura(graph, url);
+        if (stations.isEmpty()) {
+            return;
+        }
+        PermanentStreetSplitter splitter = PermanentStreetSplitter.createNewDefaultInstance(graph, null, false);
+        stations.forEach(station -> createCityGovDropoffStation(graph, splitter, station));
+    }
+
+    private void createCityGovDropoffStation(Graph graph, PermanentStreetSplitter splitter,
+                                             CityGovDropoffStation station) {
+        CityGovVehicleDropoffStationVertex vertex = new CityGovVehicleDropoffStationVertex(graph, station);
+        if (splitter.link(vertex)) {
+            new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex,
+                    station.getVehicleType()));
+        } else {
+            LOG.warn("Failed to create city government vehicle dropoff station at {},{}", station.getLongitude(),
+                    station.getLatitude());
+        }
     }
 
     @Override
