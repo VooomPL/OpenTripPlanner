@@ -11,10 +11,10 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 
 public class OriginalOptimizationProfile implements OptimizationProfile {
 
-    private CostFunction costFunction;
-    private DominanceFunction dominanceFunction;
-    private RemainingWeightHeuristic heuristic;
-    private RemainingWeightHeuristic reversedSearchHeuristic;
+    private final CostFunction costFunction;
+    private final DominanceFunction dominanceFunction;
+    private final RemainingWeightHeuristic heuristic;
+    private final RemainingWeightHeuristic reversedSearchHeuristic;
 
     public OriginalOptimizationProfile(RoutingRequest request) {
         this.costFunction = new OriginalCostFunction();
