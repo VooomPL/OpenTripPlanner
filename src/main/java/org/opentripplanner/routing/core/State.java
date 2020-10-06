@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 public class State implements Cloneable {
 
@@ -40,6 +42,8 @@ public class State implements Cloneable {
 
     // accumulated weight up to this state
     public double weight;
+
+    public double estimatedRemainingWeight;
 
     // associate this state with a vertex in the graph
     protected Vertex vertex;
