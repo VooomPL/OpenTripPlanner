@@ -99,8 +99,7 @@ public class GraphPathFinder {
         LOG.debug("rreq={}", options);
 
         // Choose an appropriate heuristic for goal direction.
-        options.rctx.remainingWeightHeuristic = optimizationProfile.getHeuristic();;
-
+        options.rctx.remainingWeightHeuristic = optimizationProfile.getHeuristic();
 
         /* In RoutingRequest, maxTransfers defaults to 2. But as discussed in #2522, you can't limit the number of
          * transfers in our routing algorithm. This is a resource limiting problem, like imposing a walk limit or
