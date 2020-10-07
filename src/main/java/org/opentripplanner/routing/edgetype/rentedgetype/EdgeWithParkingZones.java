@@ -6,31 +6,28 @@ import org.opentripplanner.routing.graph.Vertex;
 
 import static java.util.Collections.emptyList;
 
+/**
+ * This edge performs checking if city government and vehicle provider allows parking given vehicle at this location
+ */
 public abstract class EdgeWithParkingZones extends Edge {
 
-    private static final ParkingZoneInfo EMPTY_PARKING_ZONES = new ParkingZoneInfo(emptyList(), emptyList());
-    private static final CityGovParkingZoneInfo EMPTY_CITY_PARKING_INFO = new CityGovParkingZoneInfo(emptyList());
+    private static final ParkingZoneInfo EMPTY_PARKING_ZONES = new ParkingZoneInfo(emptyList(), emptyList(), emptyList());
 
     private final ParkingZoneInfo parkingZones;
-
-    private final CityGovParkingZoneInfo cityGovParkingZoneInfo;
 
     protected EdgeWithParkingZones(Vertex v) {
         this(v, EMPTY_PARKING_ZONES);
     }
 
-    protected EdgeWithParkingZones(Vertex v, ParkingZoneInfo parkingZones) {
-        this(v, parkingZones, EMPTY_CITY_PARKING_INFO);
-    }
-
-    public EdgeWithParkingZones(Vertex v, ParkingZoneInfo parkingZones, CityGovParkingZoneInfo cityGovParkingZones) {
+    public EdgeWithParkingZones(Vertex v, ParkingZoneInfo parkingZones) {
         super(v, v);
         this.parkingZones = parkingZones;
-        this.cityGovParkingZoneInfo = cityGovParkingZones;
     }
 
+    /**
+     * Checks if city government and vehicle provider allows parking given vehicle at this location
+     */
     protected boolean canDropoffVehicleHere(VehicleDescription vehicle) {
-        return cityGovParkingZoneInfo.doesCityGovernmentAllowParkingHere(vehicle)
-                && parkingZones.doesProviderAllowParkingHere(vehicle);
+        return parkingZones.canDropoffVehicleHere(vehicle);
     }
 }

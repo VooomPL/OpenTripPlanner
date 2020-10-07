@@ -12,6 +12,7 @@ import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCal
 
 import java.util.Collections;
 
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,7 +60,7 @@ public class RentAndDropoffBikeEdgeTest {
         se.beginVehicleRenting(bike1);
         rentingState = se.makeState();
 
-        graph.parkingZonesCalculator = new ParkingZonesCalculator(Collections.emptyList());
+        graph.parkingZonesCalculator = new ParkingZonesCalculator(emptyList(), emptyList());
     }
 
     @Test

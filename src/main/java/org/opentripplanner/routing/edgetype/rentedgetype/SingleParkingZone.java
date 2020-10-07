@@ -7,6 +7,9 @@ import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParking
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Represents a provider parking zone - if a provider allows/disallows parking here their vehicles of a given type
+ */
 public class SingleParkingZone implements Serializable {
 
     private final int providerId;

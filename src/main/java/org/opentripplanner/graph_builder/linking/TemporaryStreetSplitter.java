@@ -171,10 +171,8 @@ public class TemporaryStreetSplitter {
         if (graph.parkingZonesCalculator == null) {
             new TemporaryDropoffVehicleEdge(destination);
         } else {
-            ParkingZoneInfo parkingZones = graph.parkingZonesCalculator.getParkingZonesForLocation(destination);
-            CityGovParkingZoneInfo cityGovParkingZones = graph.parkingZonesCalculator
-                    .getCityGovParkingZonesForLocation(destination);
-            new TemporaryDropoffVehicleEdge(destination, parkingZones, cityGovParkingZones);
+            new TemporaryDropoffVehicleEdge(destination,
+                    graph.parkingZonesCalculator.getParkingZonesForLocation(destination));
         }
     }
 
