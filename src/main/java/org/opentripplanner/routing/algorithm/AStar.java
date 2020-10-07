@@ -1,11 +1,10 @@
 package org.opentripplanner.routing.algorithm;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.opentripplanner.common.pqueue.BinHeap;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
@@ -98,11 +97,13 @@ public class AStar {
         runState.rctx = options.getRoutingContext();
         runState.spt = options.getNewShortestPathTree();
 
-        // We want to reuse the heuristic instance in a series of requests for the same target to avoid repeated work.
-        // "Batch" means one-to-many mode, where there is no goal to reach so we use a trivial heuristic.
-        runState.heuristic = options.batch ?
-                new TrivialRemainingWeightHeuristic() :
-                runState.rctx.remainingWeightHeuristic;
+        if (Objects.nonNull(options.getOptimizationProfile())) {
+            runState.heuristic = options.getOptimizationProfile().getHeuristic();
+        } else {
+            // We want to reuse the heuristic instance in a series of requests for the same target to avoid repeated work.
+            // "Batch" means one-to-many mode, where there is no goal to reach so we use a trivial heuristic.
+            runState.heuristic = options.batch ? new TrivialRemainingWeightHeuristic() : runState.rctx.remainingWeightHeuristic;
+        }
 
         // Since initial states can be multiple, heuristic cannot depend on the initial state.
         // Initializing the bidirectional heuristic is a pretty complicated operation that involves searching through
