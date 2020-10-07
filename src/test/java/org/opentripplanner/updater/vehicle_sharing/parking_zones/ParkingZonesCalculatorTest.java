@@ -13,6 +13,7 @@ import org.opentripplanner.routing.location.StreetLocation;
 import java.util.List;
 
 import static com.google.common.collect.ImmutableList.of;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -38,13 +39,13 @@ public class ParkingZonesCalculatorTest {
         geometryAllowed = mock(Geometry.class);
         geometryDisallowed = mock(Geometry.class);
         GeometryParkingZone geometryParkingZone = new GeometryParkingZone(1, VehicleType.CAR, singletonList(geometryAllowed), singletonList(geometryDisallowed));
-        calculator = new ParkingZonesCalculator(singletonList(geometryParkingZone));
+        calculator = new ParkingZonesCalculator(singletonList(geometryParkingZone), emptyList());
     }
 
     @Test
     public void shouldFindAllProvidersAndVehicleTypesWhichHaveParkingZonesEnabled() {
         // when
-        ParkingZonesCalculator calculator = new ParkingZonesCalculator(of(geometryParkingZone1, geometryParkingZone2, geometryParkingZone3));
+        ParkingZonesCalculator calculator = new ParkingZonesCalculator(of(geometryParkingZone1, geometryParkingZone2, geometryParkingZone3), emptyList());
 
         // then
         List<SingleParkingZone> parkingZonesEnabled = calculator.parkingZonesEnabled;
@@ -58,7 +59,7 @@ public class ParkingZonesCalculatorTest {
     @Test
     public void shouldRemoveDuplicatesInParkingZonesEnabled() {
         // when
-        ParkingZonesCalculator calculator = new ParkingZonesCalculator(of(geometryParkingZone3, geometryParkingZone3));
+        ParkingZonesCalculator calculator = new ParkingZonesCalculator(of(geometryParkingZone3, geometryParkingZone3), emptyList());
 
         // then
         List<SingleParkingZone> parkingZonesEnabled = calculator.parkingZonesEnabled;
@@ -103,5 +104,47 @@ public class ParkingZonesCalculatorTest {
 
         // then
         assertFalse(parkingZones.canDropoffVehicleHere(CAR_1));
+    }
+
+    @Test
+    public void shouldAllowToParkOutsideOfCityGovForbiddenParkingZone() {
+        // given
+        GeometriesDisallowedForVehicleType geom = new GeometriesDisallowedForVehicleType(VehicleType.CAR, singletonList(geometryDisallowed));
+        ParkingZonesCalculator calculator = new ParkingZonesCalculator(emptyList(), singletonList(geom));
+        when(geometryDisallowed.contains(any())).thenReturn(false);
+
+        // when
+        ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
+
+        // then
+        assertTrue(parkingZones.canDropoffVehicleHere(CAR_1));
+    }
+
+    @Test
+    public void shouldNotAllowToParkInsideCityGovForbiddenParkingZone() {
+        // given
+        GeometriesDisallowedForVehicleType geom = new GeometriesDisallowedForVehicleType(VehicleType.CAR, singletonList(geometryDisallowed));
+        ParkingZonesCalculator calculator = new ParkingZonesCalculator(emptyList(), singletonList(geom));
+        when(geometryDisallowed.contains(any())).thenReturn(true);
+
+        // when
+        ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex);
+
+        // then
+        assertFalse(parkingZones.canDropoffVehicleHere(CAR_1));
+    }
+
+    @Test
+    public void shouldCreateProperParkingZoneForCityGovStationInsideForbiddenZone() {
+        // given
+        GeometriesDisallowedForVehicleType geom = new GeometriesDisallowedForVehicleType(VehicleType.CAR, singletonList(geometryDisallowed));
+        ParkingZonesCalculator calculator = new ParkingZonesCalculator(emptyList(), singletonList(geom));
+        when(geometryDisallowed.contains(any())).thenReturn(true);
+
+        // when
+        ParkingZoneInfo parkingZones = calculator.getParkingZonesForLocation(vertex, VehicleType.CAR);
+
+        // then
+        assertTrue(parkingZones.canDropoffVehicleHere(CAR_1));
     }
 }

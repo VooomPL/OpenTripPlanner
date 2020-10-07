@@ -1,6 +1,5 @@
 package org.opentripplanner.routing.edgetype.rentedgetype;
 
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
 public class CityGovDropoffStation {

@@ -23,10 +23,6 @@ public class ParkingZonesCalculator implements Serializable {
     @VisibleForTesting
     final List<SingleParkingZone> parkingZonesEnabled;
 
-    public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones) {
-        this(geometryParkingZones, null);
-    }
-
     public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones,
                                   List<GeometriesDisallowedForVehicleType> geometriesDisallowedForVehicleTypes) {
         this.geometryParkingZones = geometryParkingZones;
