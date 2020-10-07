@@ -495,6 +495,8 @@ public abstract class RoutingResource {
     @QueryParam("disableRemainingWeightHeuristic")
     protected Boolean disableRemainingWeightHeuristic;
 
+    @QueryParam("remainingWeightWeight")
+    protected Double remainingWeightWeight;
     /*
      * Control the size of flag-stop buffer returned in API response. This parameter only applies
      * to GTFS-Flex routing, which must be explicitly turned on via the useFlexService parameter in
@@ -808,6 +810,8 @@ public abstract class RoutingResource {
         if (disableRemainingWeightHeuristic != null)
             request.disableRemainingWeightHeuristic = disableRemainingWeightHeuristic;
 
+        if (remainingWeightWeight != null)
+            request.remainingWeightWeight = remainingWeightWeight;
         if (flexFlagStopBufferSize != null)
             request.flexFlagStopBufferSize = flexFlagStopBufferSize;
 

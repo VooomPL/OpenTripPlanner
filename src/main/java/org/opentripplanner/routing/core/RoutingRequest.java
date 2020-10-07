@@ -688,6 +688,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      * service.
      */
     public int flexMinPartialHopLength = 400;
+    public Double remainingWeightWeight = 1.0;
 
     /**
      * Saves split edge which can be split on origin/destination search
