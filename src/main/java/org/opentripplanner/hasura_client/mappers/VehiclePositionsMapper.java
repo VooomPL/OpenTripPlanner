@@ -33,7 +33,7 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
             //TODO: Remove this part, when correct pricing package data is available in the database
             pricingPackage.setPackagePrice(BigDecimal.valueOf(9.99));
             pricingPackage.setPackageTimeLimitInSeconds(480);
-            pricingPackage.setFreeSeconds(180);
+            pricingPackage.setMaxRentingPrice(BigDecimal.valueOf(199));
         }
         Optional.ofNullable(vehicle.getMaxDailyPrice()).ifPresent(pricingPackage::setMaxRentingPrice);
         Optional.ofNullable(vehicle.getDrivingPrice()).ifPresent(pricingPackage::setDrivingPricePerTimeTickInPackageExceeded);
