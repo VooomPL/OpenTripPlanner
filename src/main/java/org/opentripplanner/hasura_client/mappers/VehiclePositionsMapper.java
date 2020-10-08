@@ -6,6 +6,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDescription> {
@@ -26,7 +27,14 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
         Double rangeInMeters = vehicle.getRangeInMeters();
         VehicleType vehicleType = VehicleType.fromDatabaseVehicleType(vehicle.getType());
         VehiclePricingPackage pricingPackage = new VehiclePricingPackage();
-        Optional.ofNullable(vehicle.getStartPrice()).ifPresent(pricingPackage::setStartPrice);
+        if (!provider.getProviderName().equals("Innogy")) {
+            Optional.ofNullable(vehicle.getStartPrice()).ifPresent(pricingPackage::setStartPrice);
+        } else {
+            //TODO: Remove this part, when correct pricing package data is available in the database
+            pricingPackage.setPackagePrice(BigDecimal.valueOf(9.99));
+            pricingPackage.setPackageTimeLimitInSeconds(480);
+            pricingPackage.setFreeSeconds(180);
+        }
         Optional.ofNullable(vehicle.getMaxDailyPrice()).ifPresent(pricingPackage::setMaxRentingPrice);
         Optional.ofNullable(vehicle.getDrivingPrice()).ifPresent(pricingPackage::setDrivingPricePerTimeTickInPackageExceeded);
         Optional.ofNullable(vehicle.getKmPrice()).ifPresent(pricingPackage::setKilometerPrice);
