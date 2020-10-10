@@ -9,21 +9,20 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.opentripplanner.util.Properties.LOG;
 
-
-public class TrafifcPredictionBuilderModule implements GraphBuilderModule {
+public class TrafficPredictionBuilderModule implements GraphBuilderModule {
     private final ClusterList clusterlist;
 
-    public TrafifcPredictionBuilderModule(File traficprediction) {
+    public TrafficPredictionBuilderModule(File traficprediction) {
         this.clusterlist = new ClusterList(traficprediction);
         this.clusterlist.getclusters().sort(Comparator.naturalOrder());
     }
-    boolean matchEdge(StreetEdge e, Cluster c){
-        for (EdgeData s: c.getedges() ) {
+
+    boolean matchEdge(StreetEdge e, Cluster c) {
+        for (EdgeData s : c.getedges()) {
             //LOG.error("mecch Edge  {} cluster {}",e.getId(),s.getclusterid());
-            if(e.getStartOsmNodeId()== s.getstartnodeid() && e.getEndOsmNodeId()==s.getstartnodeid())
-                return  true;
+            if (e.getStartOsmNodeId() == s.getstartnodeid() && e.getEndOsmNodeId() == s.getstartnodeid())
+                return true;
         }
 
         return  false;
@@ -35,12 +34,10 @@ public class TrafifcPredictionBuilderModule implements GraphBuilderModule {
             for (EdgeData e : c.getedges())
                 if (c.gettimetable() != null) {
                     map.put(new EdgeLine(e.getstartnodeid(), e.getendnodeid()), c);
-                    LOG.info("log1 aurdata Edge {} , Cluste {} start {} endnod{}", e.getid(), e.getclusterid(), e.getstartnodeid(), e.getendnodeid());
                 }
         }
 
         for (StreetEdge e : graph.getStreetEdges()) {
-            LOG.info("culent graph eid {} osmstart {}  osmend {} , ", e.getId(), e.getStartOsmNodeId(), e.getEndOsmNodeId());
             Cluster cluster = map.get(new EdgeLine(e.getStartOsmNodeId(), e.getEndOsmNodeId()));
             if (cluster != null) {
                 matchEdge(e, cluster);
