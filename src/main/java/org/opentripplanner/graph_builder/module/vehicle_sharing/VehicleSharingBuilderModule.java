@@ -84,16 +84,13 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     }
 
     private void createCityGovVehicleDropoffStations(Graph graph) {
-        List<CityGovDropoffStation> stations = cityGovDropoffStationsGetter.getFromHasura(graph, url);
-        if (stations.isEmpty()) {
-            return;
-        }
         PermanentStreetSplitter splitter = PermanentStreetSplitter.createNewDefaultInstance(graph, null, false);
-        stations.forEach(station -> createCityGovDropoffStation(graph, splitter, station));
+        cityGovDropoffStationsGetter.getFromHasura(graph, url)
+                .forEach(station -> createCityGovVehicleDropoffStation(graph, splitter, station));
     }
 
-    private void createCityGovDropoffStation(Graph graph, PermanentStreetSplitter splitter,
-                                             CityGovDropoffStation station) {
+    private void createCityGovVehicleDropoffStation(Graph graph, PermanentStreetSplitter splitter,
+                                                    CityGovDropoffStation station) {
         CityGovVehicleDropoffStationVertex vertex = new CityGovVehicleDropoffStationVertex(graph, station);
         if (splitter.link(vertex)) {
             new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex,
