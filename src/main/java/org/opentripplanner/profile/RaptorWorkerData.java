@@ -320,7 +320,7 @@ public class RaptorWorkerData implements Serializable {
             rr.softWalkLimiting = false;
             rr.dominanceFunction = new DominanceFunction.LeastWalk();
             rr.longDistance = true;
-            rr.numItineraries = 1;
+            rr.setNumItineraries(1);
 
             ShortestPathTree spt = astar.getShortestPathTree(rr, 5);
 
