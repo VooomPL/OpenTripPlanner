@@ -3,6 +3,8 @@ package org.opentripplanner.routing.core;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.edgetype.TripPattern;
@@ -215,6 +217,10 @@ public class StateEditor {
     }
 
     public void incrementWeight(double weight) {
+        incrementWeight(CostFunction.CostCategory.ORIGINAL, weight);
+    }
+
+    public void incrementWeight(CostFunction.CostCategory category, double weight) {
         if (Double.isNaN(weight)) {
             LOG.warn("A state's weight is being incremented by NaN while traversing edge "
                     + child.backEdge);
@@ -226,6 +232,11 @@ public class StateEditor {
                     + child.backEdge);
             defectiveTraversal = true;
             return;
+        }
+
+        OptimizationProfile optimizationProfile = child.getOptions().getOptimizationProfile();
+        if (Objects.nonNull(optimizationProfile)) {
+            weight *= optimizationProfile.getCostFunction().getCostWeight(category);
         }
         child.weight += weight;
     }
