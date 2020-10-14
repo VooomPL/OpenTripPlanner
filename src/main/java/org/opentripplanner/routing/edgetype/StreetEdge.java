@@ -578,6 +578,8 @@ public class StreetEdge extends Edge implements Cloneable {
         if (this.getTimes()!= null && traverseMode== TraverseMode.CAR) {
             return min(min(maxVehicleSpeed, getMaxStreetTraverseSpeed()), this.getVooomSpeed(timeMillis));
         }
+        if (TemporarySpeedLimit>0)
+            return  TemporarySpeedLimit;
         return min(maxVehicleSpeed,getMaxStreetTraverseSpeed());
     }
 

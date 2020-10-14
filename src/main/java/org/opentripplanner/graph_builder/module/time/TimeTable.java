@@ -61,7 +61,7 @@ public class TimeTable implements Comparable<QueryData> {
     public void setDaynumber(int daynuiber) {
         this.daynumber = daynuiber;
     }
-vv
+
     public int compareTo(TimeTable o) {
         if (this.getDaynumber() != o.getDaynumber())
             return this.getDaynumber() - o.getDaynumber();
