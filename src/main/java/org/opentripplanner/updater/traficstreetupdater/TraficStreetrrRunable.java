@@ -17,6 +17,8 @@ public class TraficStreetrrRunable implements GraphWriterRunnable {
     @Override
     public void run(Graph graph) {
         for (StreetEdge e : graph.getStreetEdges()){
+            e.setClosed(false);
+            e.setTemporarySpeedLimit(-1);
             if( map.get( new EdgeLine(e.getStartOsmNodeId(),e.getEndOsmNodeId()))!=null){
             e.setTemporarySpeedLimit((int)map.get( new EdgeLine(e.getStartOsmNodeId(),e.getEndOsmNodeId())));
             if (e.getTemporarySpeedLimit()==0)
