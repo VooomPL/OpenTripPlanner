@@ -1,7 +1,7 @@
 package org.opentripplanner.graph_builder.module.time;
 
 
-public class TimeTable implements Comparable<QueryData> {
+public class TimeTable<T> implements Comparable<QueryData> {
 
     private int id;
     private long clusterid;
@@ -62,7 +62,7 @@ public class TimeTable implements Comparable<QueryData> {
         this.daynumber = daynuiber;
     }
 
-    public int compareTo(TimeTable o) {
+    public int compareTo(TimeTable<T> o) {
         if (this.getDaynumber() != o.getDaynumber())
             return this.getDaynumber() - o.getDaynumber();
         if (this.starttime != o.starttime)

@@ -143,6 +143,8 @@ public class StreetEdge extends Edge implements Cloneable {
                 LOG.error("exception while determining street edge angles. setting to zero. there is probably something wrong with this street segment's geometry.");
                 inAngle = 0;
                 outAngle = 0;
+                TemporarySpeedLimit= -1;
+                IsClosed =false;
             }
         }
     }
@@ -536,7 +538,25 @@ public class StreetEdge extends Edge implements Cloneable {
     }
 
     ArrayList<TimeTable> times;
+    private int TemporarySpeedLimit;
 
+    public int getTemporarySpeedLimit() {
+        return TemporarySpeedLimit;
+    }
+
+    public void setTemporarySpeedLimit(int temporarySpeedLimit) {
+        TemporarySpeedLimit = temporarySpeedLimit;
+    }
+
+    public boolean isClosed() {
+        return IsClosed;
+    }
+
+    public void setClosed(boolean closed) {
+        IsClosed = closed;
+    }
+
+    private boolean IsClosed;
     public double getVooomSpeed(long timeMillis) {
 
         if (this.getTimes()!=null) {
