@@ -23,7 +23,6 @@ public class traficupdater  extends PollingGraphUpdater {
       @Override
     protected void runPolling() {
         //LOG.info("Polling trafic from API");
-        ArrayList<EdgeDtaWithSpeed> Data ;
         //LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
         graphUpdaterManager.execute(new TraficStreetrrRunable(mao));
     }

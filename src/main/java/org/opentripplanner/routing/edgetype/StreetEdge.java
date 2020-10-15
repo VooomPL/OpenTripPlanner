@@ -299,6 +299,10 @@ public class StreetEdge extends Edge implements Cloneable {
         boolean backWalkingBike = s0.isBackWalkingBike();
         TraverseMode backMode = s0.getBackMode();
         Edge backEdge = s0.getBackEdge();
+        if( this.isClosed()){
+            return  null;
+            // Road is closed or speed = 0
+        }
         if (backEdge != null) {
             // No illegal U-turns.
             // NOTE(flamholz): we check both directions because both edges get a chance to decide
