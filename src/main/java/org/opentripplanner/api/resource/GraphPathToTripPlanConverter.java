@@ -189,7 +189,7 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.distanceTraversedInMode = lastState.createDistanceTraversedInModeMap();
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
         itinerary.price = lastState.getTraversalPrice();
-
+        itinerary.activePackageIndex = lastState.getActivePackageIndex();
 
         itinerary.transfers = lastState.getNumBoardings();
         if (itinerary.transfers > 0 && !(states.get(0).getVertex() instanceof OnboardDepartVertex)) {
