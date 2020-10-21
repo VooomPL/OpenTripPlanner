@@ -1,22 +1,16 @@
 package org.opentripplanner.updater.traficstreetupdater;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.graph_builder.module.time.EdgeLine;
-import org.opentripplanner.graph_builder.module.time.TimeTable;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.PollingGraphUpdater;
 
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.Executor;
 
 
-public class traficupdater  extends PollingGraphUpdater {
+public class TrafifcUpdater extends PollingGraphUpdater {
     private  Graph graph;
     GraphUpdaterManager graphUpdaterManager;
     private HashMap <EdgeLine,Integer> mao;
@@ -24,7 +18,7 @@ public class traficupdater  extends PollingGraphUpdater {
     protected void runPolling() {
         //LOG.info("Polling trafic from API");
         //LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
-        graphUpdaterManager.execute(new TraficStreetrrRunable(mao));
+        graphUpdaterManager.execute(new TrafficStreetrrRunable(mao));
     }
 
     @Override

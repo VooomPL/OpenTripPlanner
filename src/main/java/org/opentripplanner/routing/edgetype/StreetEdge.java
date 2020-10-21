@@ -160,7 +160,6 @@ public class StreetEdge extends Edge implements Cloneable {
                 inAngle = 0;
                 outAngle = 0;
                 TemporarySpeedLimit= -1;
-                IsClosed =false;
             }
         }
     }
@@ -299,7 +298,7 @@ public class StreetEdge extends Edge implements Cloneable {
         boolean backWalkingBike = s0.isBackWalkingBike();
         TraverseMode backMode = s0.getBackMode();
         Edge backEdge = s0.getBackEdge();
-        if( this.isClosed()){
+        if( this.getTemporarySpeedLimit()==0){
             return  null;
             // Road is closed or speed = 0
         }
@@ -546,9 +545,9 @@ public class StreetEdge extends Edge implements Cloneable {
     }
 
 
-    private int TemporarySpeedLimit;
+    private double TemporarySpeedLimit;
 
-    public int getTemporarySpeedLimit() {
+    public double getTemporarySpeedLimit() {
         return TemporarySpeedLimit;
     }
 
@@ -556,15 +555,7 @@ public class StreetEdge extends Edge implements Cloneable {
         TemporarySpeedLimit = temporarySpeedLimit;
     }
 
-    public boolean isClosed() {
-        return IsClosed;
-    }
 
-    public void setClosed(boolean closed) {
-        IsClosed = closed;
-    }
-
-    private boolean IsClosed;
     public double getVooomSpeed(long timeMillis) {
 
         if (this.getTimes() != null) {
