@@ -35,7 +35,7 @@ public class ConfigurableWeightsCostFunctionTest {
 
         //then
         assertEquals(0.7, costFunction.getCostWeight(CostFunction.CostCategory.ORIGINAL), 0);
-        assertEquals(costFunction.getIgnoredCostWeight(), costFunction.getCostWeight(CostFunction.CostCategory.PRICE_ASSOCIATED),0);
+        assertEquals(0.0, costFunction.getCostWeight(CostFunction.CostCategory.PRICE_ASSOCIATED),0);
     }
 
     @Test
@@ -44,8 +44,8 @@ public class ConfigurableWeightsCostFunctionTest {
         ConfigurableWeightsCostFunction costFunction = new ConfigurableWeightsCostFunction(null);
 
         //then
-        assertEquals(costFunction.getIgnoredCostWeight(), costFunction.getCostWeight(CostFunction.CostCategory.ORIGINAL), 0);
-        assertEquals(costFunction.getIgnoredCostWeight(), costFunction.getCostWeight(CostFunction.CostCategory.PRICE_ASSOCIATED),0);
+        assertEquals(0.0, costFunction.getCostWeight(CostFunction.CostCategory.ORIGINAL), 0);
+        assertEquals(0.0, costFunction.getCostWeight(CostFunction.CostCategory.PRICE_ASSOCIATED),0);
     }
 
 }

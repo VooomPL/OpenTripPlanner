@@ -14,7 +14,7 @@ public class ConfigurableWeightsCostFunction implements CostFunction {
 
     @Override
     public double getCostWeight(CostCategory category) {
-        return Optional.ofNullable(costWeights.get(category)).orElse(getIgnoredCostWeight());
+        return Optional.ofNullable(costWeights.get(category)).orElse(0.0);
     }
 
 }

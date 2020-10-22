@@ -6,8 +6,4 @@ public interface CostFunction {
 
     double getCostWeight(CostCategory category);
 
-    default double getIgnoredCostWeight(){
-        return 0;
-    }
-
-}
+ }
