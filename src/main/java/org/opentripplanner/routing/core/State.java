@@ -963,4 +963,12 @@ public class State implements Cloneable {
                 .add(this.getDistancePriceForCurrentVehicle(packageIndex))
                 .add(this.getStartPriceForCurrentVehicle(packageIndex));
     }
+
+    public double getDistanceTraversedInCurrentVehicle() {
+        return distanceTraversedInCurrentVehicle;
+    }
+
+    public void setDistanceTraversedInCurrentVehicle(double distanceTraversedInCurrentVehicle) {
+        this.distanceTraversedInCurrentVehicle = distanceTraversedInCurrentVehicle;
+    }
 }

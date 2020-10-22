@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
@@ -255,6 +257,8 @@ public class StateEditor {
         incrementTimeTraversedInMode(seconds);
         if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
             incrementTimeAssociatedVehiclePrice(seconds);
+        } else if (Objects.isNull(child.getCurrentVehicle())) {
+            incrementTimeAssociatedWalkingCost(seconds);
         }
     }
 
@@ -292,6 +296,13 @@ public class StateEditor {
         }
 
         assignBestPackage(previousTotalPrice, newLowestTotalPrice, proposedActivePackageIndex);
+    }
+
+    private void incrementTimeAssociatedWalkingCost(int seconds) {
+        double walkingCost = child.getOptions().routingReluctances.getModeVehicleReluctance(null, TraverseMode.WALK);
+        incrementWeight(CostFunction.CostCategory.PRICE_ASSOCIATED, BigDecimal.valueOf(seconds)
+                .divide(BigDecimal.valueOf(TimeUnit.MINUTES.toSeconds(1)), RoundingMode.UP)
+                .multiply(BigDecimal.valueOf(walkingCost)).doubleValue());
     }
 
     private void incrementTimeInMilliseconds(long milliseconds) {
@@ -509,6 +520,7 @@ public class StateEditor {
         child.stateData.currentVehicle = null;
         child.clearCurrentVehiclePrices();
         child.setTimeTraversedInCurrentVehicleInSeconds(0);
+        child.setDistanceTraversedInCurrentVehicle(0);
     }
 
     public void reversedDoneVehicleRenting(VehicleDescription vehicleDescription) {
