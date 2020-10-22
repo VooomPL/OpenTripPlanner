@@ -4,7 +4,6 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public class OptimizationProfileFactory {
@@ -19,7 +18,7 @@ public class OptimizationProfileFactory {
             case PROFILE_NAME_ORIGINAL:
                 return new OriginalOptimizationProfile(request);
             case PROFILE_NAME_PRICE_BASED:
-                return new CostBasedOptimizationProfile();
+                return new PriceBasedOptimizationProfile();
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
                 return getDefaultOptimizationProfile(request);

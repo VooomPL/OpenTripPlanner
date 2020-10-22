@@ -9,14 +9,14 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CostBasedOptimizationProfile implements OptimizationProfile {
+public class PriceBasedOptimizationProfile implements OptimizationProfile {
 
     private final CostFunction costFunction;
     private final DominanceFunction dominanceFunction;
     private final RemainingWeightHeuristic heuristic;
     private final RemainingWeightHeuristic reversedSearchHeuristic;
 
-    public CostBasedOptimizationProfile() {
+    public PriceBasedOptimizationProfile() {
         Map<CostFunction.CostCategory, Double> costWeights = new HashMap<>();
         costWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, 1.0);
         this.costFunction = new ConfigurableWeightsCostFunction(costWeights);
