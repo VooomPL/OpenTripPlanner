@@ -4,7 +4,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
@@ -17,7 +16,6 @@ import org.opentripplanner.index.IndexAPI;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.core.Application;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -68,35 +66,35 @@ public class OTPApplication extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = Sets.newHashSet();
         classes.addAll(Arrays.asList(
-            /* Jersey resource classes: define web services, i.e. an HTTP API. */
-            PlannerResource.class,
-            IndexAPI.class,
-            ExternalGeocoderResource.class,
-            GeocoderResource.class,
-            SimpleIsochrone.class,
-            TileService.class,
-            BikeRental.class,
-            LIsochrone.class,
-            ExternalGeocoderResource.class,
-            TimeGridWs.class,
-            AlertPatcher.class,
-            PlannerResource.class,
-            SIsochrone.class,
-            Routers.class,
-            LegendResource.class,
-            ProfileResource.class,
-            SimpleIsochrone.class,
-            ServerInfo.class,
-            SurfaceResource.class,
-            PointSetResource.class,
-            GraphInspectorTileResource.class,
-            ScriptResource.class,
-            UpdaterStatusResource.class,
-            ScenarioResource.class,
-            RepeatedRaptorTestResource.class,
-            /* Features and Filters: extend Jersey, manipulate requests and responses. */
-            CorsFilter.class,
-            MultiPartFeature.class
+                /* Jersey resource classes: define web services, i.e. an HTTP API. */
+                BenchmarkDominanceResource.class,
+                PlannerResource.class,
+                IndexAPI.class,
+                ExternalGeocoderResource.class,
+                GeocoderResource.class,
+                SimpleIsochrone.class,
+                TileService.class,
+                BikeRental.class,
+                LIsochrone.class,
+                ExternalGeocoderResource.class,
+                TimeGridWs.class,
+                AlertPatcher.class,
+                SIsochrone.class,
+                Routers.class,
+                LegendResource.class,
+                ProfileResource.class,
+                SimpleIsochrone.class,
+                ServerInfo.class,
+                SurfaceResource.class,
+                PointSetResource.class,
+                GraphInspectorTileResource.class,
+                ScriptResource.class,
+                UpdaterStatusResource.class,
+                ScenarioResource.class,
+                RepeatedRaptorTestResource.class,
+                /* Features and Filters: extend Jersey, manipulate requests and responses. */
+                CorsFilter.class,
+                MultiPartFeature.class
         ));
         
         if (this.secure) {
