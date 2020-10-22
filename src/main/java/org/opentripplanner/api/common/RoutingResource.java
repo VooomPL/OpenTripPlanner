@@ -501,7 +501,7 @@ public abstract class RoutingResource {
     protected Double remainingWeightWeight;
 
     @QueryParam("kickscooterRangeGroups")
-    protected List<Double> kickscooterRangeGroups;
+    protected ArrayList<Double> kickscooterRangeGroups;
     /*
      * Control the size of flag-stop buffer returned in API response. This parameter only applies
      * to GTFS-Flex routing, which must be explicitly turned on via the useFlexService parameter in

@@ -93,9 +93,9 @@ public abstract class DominanceFunction implements Serializable {
                 int rangeGroupB = b.getOptions().routingStateDiffOptions.getRangeGroup(b);
 
 //            A has worse range but better weight and time. Therefore, those states are incomparable.
-                if (rangeGroupA > rangeGroupB && a.getWeight() < b.getWeight() && a.getTimeSeconds() < b.getTimeSeconds())
+                if (rangeGroupA < rangeGroupB && a.getWeight() <= b.getWeight() && a.getTimeSeconds() <= b.getTimeSeconds())
                     return false;
-                if (rangeGroupB > rangeGroupA && b.getWeight() < a.getWeight() && b.getTimeSeconds() < a.getTimeSeconds())
+                if (rangeGroupB < rangeGroupA && b.getWeight() <= a.getWeight() && b.getTimeSeconds() <= a.getTimeSeconds())
                     return false;
             }
 
