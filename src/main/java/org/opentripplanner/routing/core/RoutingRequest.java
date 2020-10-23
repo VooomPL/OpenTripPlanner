@@ -1557,17 +1557,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         return 40; // TODO find accurate max speeds
     }
 
-    public static double getDefaultTransitSpeed(TraverseMode mode) {
-        switch (mode) {
-            case RAIL:
-                return 84;
-            case CAR:
-                return 40;
-            default:
-                return 40;
-        }
-    }
-
     /**
      * Sets the bicycle triangle routing parameters -- the relative importance of safety, flatness, and speed.
      * These three fields of the RoutingRequest should have values between 0 and 1, and should add up to 1.
