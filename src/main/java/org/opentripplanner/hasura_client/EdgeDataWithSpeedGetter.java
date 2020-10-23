@@ -9,10 +9,10 @@ public class EdgeDataWithSpeedGetter extends  HasuraGetter {
     protected String query() {
         return "{\"query\": \"querytraffic {" +
                 "  items:Traficdatawithspeed {\\n" +
-                "    speed\\n" +
-                "    vstartnodeid\\n" +
-                "    endnodeid\\n" +
                 "    area\\n" +
+                "    speed\\n" +
+                "    startnodeid\\n" +
+                "    endnodeid\\n" +
                 "  }" +
                 "}\"" +
                 "}";
