@@ -257,8 +257,6 @@ public class StateEditor {
         incrementTimeTraversedInMode(seconds);
         if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
             incrementTimeAssociatedVehiclePrice(seconds);
-        } else if (Objects.isNull(child.getCurrentVehicle())) {
-            incrementTimeAssociatedWalkingCost(seconds);
         }
     }
 
@@ -296,13 +294,6 @@ public class StateEditor {
         }
 
         assignBestPackage(previousTotalPrice, newLowestTotalPrice, proposedActivePackageIndex);
-    }
-
-    private void incrementTimeAssociatedWalkingCost(int seconds) {
-        double walkingCost = child.getOptions().routingReluctances.getModeVehicleReluctance(null, TraverseMode.WALK);
-        incrementWeight(CostFunction.CostCategory.PRICE_ASSOCIATED, BigDecimal.valueOf(seconds)
-                .divide(BigDecimal.valueOf(TimeUnit.MINUTES.toSeconds(1)), RoundingMode.UP)
-                .multiply(BigDecimal.valueOf(walkingCost)).doubleValue());
     }
 
     private void incrementTimeInMilliseconds(long milliseconds) {
