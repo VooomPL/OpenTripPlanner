@@ -2,6 +2,7 @@ package org.opentripplanner.api.common;
 
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.OptimizeType;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -552,6 +553,12 @@ public abstract class RoutingResource {
     @QueryParam("optimizationProfile")
     private String optimizationProfileName;
 
+    @QueryParam("originalCostWeight")
+    private Double originalCostWeight;
+
+    @QueryParam("priceCostWeight")
+    private Double priceCostWeight;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -842,7 +849,10 @@ public abstract class RoutingResource {
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
 
-        request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
+        Map<CostFunction.CostCategory, Double> costCategoryWeights = new HashMap<>();
+        Optional.ofNullable(originalCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.ORIGINAL, value));
+        Optional.ofNullable(priceCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, value));
+        request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request, costCategoryWeights));
 
         return request;
     }

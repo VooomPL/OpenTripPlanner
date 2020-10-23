@@ -1,33 +1,43 @@
 package org.opentripplanner.routing.algorithm.strategies;
 
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuristic {
 
+    private static final double DEFAULT_PRICE_COST_WEIGHT = 10.0;
+    private static final double DEFAULT_ORIGINAL_COST_WEIGHT = 0.001;
+
     private double lat;
     private double lon;
-    private double walkReluctance;
-    private double walkSpeed;
+    private double priceCostWeight;
+    private double originalCostWeight;
+    private EuclideanRemainingWeightHeuristic originalHeuristic;
+
+    public PriceBasedRemainingWeightHeuristic(Map<CostFunction.CostCategory, Double> costCategoryWeights){
+        priceCostWeight = Optional.ofNullable(costCategoryWeights.get(CostFunction.CostCategory.PRICE_ASSOCIATED)).orElse(DEFAULT_PRICE_COST_WEIGHT);
+        originalCostWeight = Optional.ofNullable(costCategoryWeights.get(CostFunction.CostCategory.ORIGINAL)).orElse(DEFAULT_ORIGINAL_COST_WEIGHT);
+    }
 
     @Override
     public void initialize(RoutingRequest request, long abortTime) {
         Vertex target = request.rctx.target;
         lat = target.getLat();
         lon = target.getLon();
-        walkReluctance = request.routingReluctances.getModeVehicleReluctance(null, TraverseMode.WALK);
-        walkSpeed = request.walkSpeed;
+        originalHeuristic = new EuclideanRemainingWeightHeuristic();
+        originalHeuristic.initialize(request, abortTime);
     }
 
     @Override
@@ -37,22 +47,17 @@ public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuris
 
         double speed;
         int remainingTime;
-        double estimatedFuturePrice;
-        if (Objects.isNull(s.getCurrentVehicle())) {
-            TraverseMode traverseMode = Optional.ofNullable(s.getBackMode()).orElse(TraverseMode.WALK);
-            remainingTime = (int) (remainingDistance / (traverseMode == TraverseMode.WALK ? walkSpeed : RoutingRequest.getDefaultTransitSpeed(traverseMode)));
-            estimatedFuturePrice = BigDecimal.valueOf(remainingTime)
-                    .divide(BigDecimal.valueOf(TimeUnit.MINUTES.toSeconds(1)), RoundingMode.UP)
-                    .multiply(BigDecimal.valueOf(walkReluctance)).doubleValue();
-        } else {
-            speed = s.getCurrentVehicle().getMaxSpeedInMetersPerSecond(null);
+        double estimatedFuturePrice = 0;
+        Edge backEdge = s.getBackEdge();
+        if (Objects.nonNull(s.getCurrentVehicle()) && Objects.nonNull(backEdge) && backEdge instanceof StreetEdge ) {
+            speed = s.getCurrentVehicle().getMaxSpeedInMetersPerSecond((StreetEdge) backEdge);
             remainingTime = (int) (remainingDistance / speed);
             estimatedFuturePrice = chooseBestFuturePrice(s.getCurrentVehicle(),
                     s.getTimeTraversedInCurrentVehicleInSeconds(), s.getDistanceTraversedInCurrentVehicle(),
                     remainingTime, remainingDistance);
         }
 
-        return estimatedFuturePrice;
+        return priceCostWeight * estimatedFuturePrice + originalCostWeight * originalHeuristic.estimateRemainingWeight(s);
     }
 
     private double chooseBestFuturePrice(VehicleDescription vehicle,

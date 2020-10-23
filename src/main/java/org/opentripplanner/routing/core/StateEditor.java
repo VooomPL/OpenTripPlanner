@@ -239,9 +239,6 @@ public class StateEditor {
         OptimizationProfile optimizationProfile = child.getOptions().getOptimizationProfile();
         if (Objects.nonNull(optimizationProfile)) {
             weight *= optimizationProfile.getCostFunction().getCostWeight(category);
-        } else if (category != CostFunction.CostCategory.ORIGINAL) {
-            //Added for backward compatibility with existing tests
-            weight *= 0;
         }
         child.weight += weight;
     }

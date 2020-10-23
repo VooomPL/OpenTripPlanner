@@ -18,7 +18,9 @@ import org.opentripplanner.routing.vertextype.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -121,7 +123,10 @@ public class PriceBasedRemainingWeightHeuristicTest {
         CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 60000.0, availablePricingPackages.get(0));
         car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
 
-        RemainingWeightHeuristic heuristic = new PriceBasedRemainingWeightHeuristic();
+        Map<CostFunction.CostCategory, Double> costWeights = new HashMap<>();
+        costWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, 1.0);
+        costWeights.put(CostFunction.CostCategory.ORIGINAL, 0.0);
+        RemainingWeightHeuristic heuristic = new PriceBasedRemainingWeightHeuristic(costWeights);
         heuristic.initialize(request, 0);
 
         // when
@@ -143,7 +148,10 @@ public class PriceBasedRemainingWeightHeuristicTest {
         CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 60000.0, availablePricingPackages.get(0));
         car.getVehiclePricingPackages().add(availablePricingPackages.get(2));
 
-        RemainingWeightHeuristic heuristic = new PriceBasedRemainingWeightHeuristic();
+        Map<CostFunction.CostCategory, Double> costWeights = new HashMap<>();
+        costWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, 1.0);
+        costWeights.put(CostFunction.CostCategory.ORIGINAL, 0.0);
+        RemainingWeightHeuristic heuristic = new PriceBasedRemainingWeightHeuristic(costWeights);
         heuristic.initialize(request, 0);
 
         // when
@@ -161,7 +169,10 @@ public class PriceBasedRemainingWeightHeuristicTest {
 
     @Test
     public void shouldOnlyReturnWalkingAssociatedWeight() {
-        RemainingWeightHeuristic heuristic = new PriceBasedRemainingWeightHeuristic();
+        Map<CostFunction.CostCategory, Double> costWeights = new HashMap<>();
+        costWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, 1.0);
+        costWeights.put(CostFunction.CostCategory.ORIGINAL, 0.0);
+        RemainingWeightHeuristic heuristic = new PriceBasedRemainingWeightHeuristic(costWeights);
         heuristic.initialize(request, 0);
 
         // when
@@ -170,7 +181,7 @@ public class PriceBasedRemainingWeightHeuristicTest {
         State s2 = streetEdge.traverse(s0);
 
         // then
-        assertEquals(5.6, heuristic.estimateRemainingWeight(s2), 0);
+        assertEquals(0, heuristic.estimateRemainingWeight(s2), 0);
     }
 
 }

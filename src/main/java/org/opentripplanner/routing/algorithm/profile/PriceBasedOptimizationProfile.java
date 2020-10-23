@@ -6,8 +6,9 @@ import org.opentripplanner.routing.algorithm.strategies.PriceBasedRemainingWeigh
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.spt.DominanceFunction;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 public class PriceBasedOptimizationProfile implements OptimizationProfile {
 
@@ -16,13 +17,11 @@ public class PriceBasedOptimizationProfile implements OptimizationProfile {
     private final RemainingWeightHeuristic heuristic;
     private final RemainingWeightHeuristic reversedSearchHeuristic;
 
-    public PriceBasedOptimizationProfile() {
-        Map<CostFunction.CostCategory, Double> costWeights = new HashMap<>();
-        costWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, 1.0);
-        this.costFunction = new ConfigurableWeightsCostFunction(costWeights);
+    public PriceBasedOptimizationProfile(Map<CostFunction.CostCategory, Double> costWeights) {
+        this.costFunction = new ConfigurableWeightsCostFunction(Optional.ofNullable(costWeights).orElse(Collections.emptyMap()));
         this.dominanceFunction = new DominanceFunction.LowestPrice();
-        this.heuristic = new PriceBasedRemainingWeightHeuristic();
-        this.reversedSearchHeuristic = new PriceBasedRemainingWeightHeuristic();
+        this.heuristic = new PriceBasedRemainingWeightHeuristic(Optional.ofNullable(costWeights).orElse(Collections.emptyMap()));
+        this.reversedSearchHeuristic = new PriceBasedRemainingWeightHeuristic(Optional.ofNullable(costWeights).orElse(Collections.emptyMap()));
     }
 
     @Override
