@@ -201,6 +201,8 @@ public abstract class RoutingResource {
     @QueryParam("triangleTimeFactor")
     protected Double triangleTimeFactor;
 
+    @QueryParam("differRangeGroups")
+    protected Boolean differRangeGroups;
     /**
      * The set of characteristics that the user wants to optimize for. @See OptimizeType
      */
@@ -497,6 +499,9 @@ public abstract class RoutingResource {
 
     @QueryParam("remainingWeightWeight")
     protected Double remainingWeightWeight;
+
+    @QueryParam("kickscooterRangeGroups")
+    protected ArrayList<Double> kickscooterRangeGroups;
     /*
      * Control the size of flag-stop buffer returned in API response. This parameter only applies
      * to GTFS-Flex routing, which must be explicitly turned on via the useFlexService parameter in
@@ -812,6 +817,13 @@ public abstract class RoutingResource {
 
         if (remainingWeightWeight != null)
             request.remainingWeightWeight = remainingWeightWeight;
+
+        if (differRangeGroups != null)
+            request.routingStateDiffOptions.differRangeGroups = differRangeGroups;
+
+        if (kickscooterRangeGroups != null)
+            request.routingStateDiffOptions.setKickscooterRangeGroupsInMeters(kickscooterRangeGroups);
+
         if (flexFlagStopBufferSize != null)
             request.flexFlagStopBufferSize = flexFlagStopBufferSize;
 
