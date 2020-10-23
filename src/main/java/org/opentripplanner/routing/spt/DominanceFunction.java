@@ -2,7 +2,6 @@ package org.opentripplanner.routing.spt;
 
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.SimpleTransfer;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TimedTransferEdge;
@@ -88,6 +87,18 @@ public abstract class DominanceFunction implements Serializable {
         if (a.getCurrentVehicle() != null && b.getCurrentVehicle() != null) {
             if (a.getCurrentVehicle().getVehicleType() != b.getCurrentVehicle().getVehicleType())
                 return false;
+
+            if (a.getOptions().routingStateDiffOptions.differRangeGroups) {
+                int rangeGroupA = a.getOptions().routingStateDiffOptions.getRangeGroup(a);
+                int rangeGroupB = b.getOptions().routingStateDiffOptions.getRangeGroup(b);
+
+//            A has worse range but better weight and time. Therefore, those states are incomparable.
+                if (rangeGroupA < rangeGroupB && a.getWeight() <= b.getWeight() && a.getTimeSeconds() <= b.getTimeSeconds())
+                    return false;
+                if (rangeGroupB < rangeGroupA && b.getWeight() <= a.getWeight() && b.getTimeSeconds() <= a.getTimeSeconds())
+                    return false;
+            }
+
         }
 
         // Are the two states arriving at a vertex from two different directions where turn restrictions apply?
