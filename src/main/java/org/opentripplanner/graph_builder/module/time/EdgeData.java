@@ -2,7 +2,7 @@ package org.opentripplanner.graph_builder.module.time;
 
 import org.opentripplanner.hasura_client.hasura_objects.HasuraObject;
 
-public class EdgeData extends HasuraObject {
+public class EdgeData  {
 
     private long id;
     private int clusterid;
