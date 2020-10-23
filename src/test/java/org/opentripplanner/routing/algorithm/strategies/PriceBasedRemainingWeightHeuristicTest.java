@@ -177,11 +177,10 @@ public class PriceBasedRemainingWeightHeuristicTest {
 
         // when
         State s0 = new State(request);
-        new State(rentVehicleVertex, null, 0,0, request);
-        State s2 = streetEdge.traverse(s0);
+        State s1 = streetEdge.traverse(s0);
 
         // then
-        assertEquals(0, heuristic.estimateRemainingWeight(s2), 0);
+        assertEquals(0, heuristic.estimateRemainingWeight(s1), 0);
     }
 
 }
