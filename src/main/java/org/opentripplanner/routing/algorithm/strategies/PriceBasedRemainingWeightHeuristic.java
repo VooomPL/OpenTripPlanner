@@ -17,8 +17,8 @@ import java.util.Optional;
 
 public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuristic {
 
-    private static final double DEFAULT_PRICE_COST_WEIGHT = 10.0;
-    private static final double DEFAULT_ORIGINAL_COST_WEIGHT = 0.001;
+    private static final double DEFAULT_PRICE_COST_WEIGHT = 1;
+    private static final double DEFAULT_ORIGINAL_COST_WEIGHT = 0.01;
 
     private double lat;
     private double lon;
@@ -29,6 +29,7 @@ public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuris
     public PriceBasedRemainingWeightHeuristic(Map<CostFunction.CostCategory, Double> costCategoryWeights){
         priceCostWeight = Optional.ofNullable(costCategoryWeights.get(CostFunction.CostCategory.PRICE_ASSOCIATED)).orElse(DEFAULT_PRICE_COST_WEIGHT);
         originalCostWeight = Optional.ofNullable(costCategoryWeights.get(CostFunction.CostCategory.ORIGINAL)).orElse(DEFAULT_ORIGINAL_COST_WEIGHT);
+        originalHeuristic = new EuclideanRemainingWeightHeuristic();
     }
 
     @Override
@@ -36,7 +37,6 @@ public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuris
         Vertex target = request.rctx.target;
         lat = target.getLat();
         lon = target.getLon();
-        originalHeuristic = new EuclideanRemainingWeightHeuristic();
         originalHeuristic.initialize(request, abortTime);
     }
 
