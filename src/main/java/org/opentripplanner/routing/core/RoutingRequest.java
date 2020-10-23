@@ -11,6 +11,7 @@ import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -269,6 +270,8 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingDelays routingDelays;
 
     public RoutingReluctances routingReluctances;
+
+    public RoutingStateDiffOptions routingStateDiffOptions = new RoutingStateDiffOptions();
 
     /**
      * This prevents unnecessary transfers by adding a cost for boarding a vehicle.
@@ -1576,10 +1579,9 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Create a new ShortestPathTree instance using the DominanceFunction specified in this RoutingRequest.
      */
     public ShortestPathTree getNewShortestPathTree() {
-        if(java.util.Objects.nonNull(this.optimizationProfile)) {
+        if (java.util.Objects.nonNull(this.optimizationProfile)) {
             return this.optimizationProfile.getDominanceFunction().getNewShortestPathTree(this);
-        }
-        else {
+        } else {
             // For backward compatibility with old components we use this.dominationFunction if optimizationProfile is
             // not set
             return this.dominanceFunction.getNewShortestPathTree(this);
