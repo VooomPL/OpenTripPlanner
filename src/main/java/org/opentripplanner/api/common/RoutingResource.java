@@ -2,6 +2,7 @@ package org.opentripplanner.api.common;
 
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.OptimizeType;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -200,6 +201,8 @@ public abstract class RoutingResource {
     @QueryParam("triangleTimeFactor")
     protected Double triangleTimeFactor;
 
+    @QueryParam("differRangeGroups")
+    protected Boolean differRangeGroups;
     /**
      * The set of characteristics that the user wants to optimize for. @See OptimizeType
      */
@@ -494,6 +497,11 @@ public abstract class RoutingResource {
     @QueryParam("disableRemainingWeightHeuristic")
     protected Boolean disableRemainingWeightHeuristic;
 
+    @QueryParam("remainingWeightWeight")
+    protected Double remainingWeightWeight;
+
+    @QueryParam("kickscooterRangeGroups")
+    protected ArrayList<Double> kickscooterRangeGroups;
     /*
      * Control the size of flag-stop buffer returned in API response. This parameter only applies
      * to GTFS-Flex routing, which must be explicitly turned on via the useFlexService parameter in
@@ -545,6 +553,9 @@ public abstract class RoutingResource {
      */
     @QueryParam("pathComparator")
     private String pathComparator;
+
+    @QueryParam("optimizationProfile")
+    private String optimizationProfileName;
 
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
@@ -804,6 +815,15 @@ public abstract class RoutingResource {
         if (disableRemainingWeightHeuristic != null)
             request.disableRemainingWeightHeuristic = disableRemainingWeightHeuristic;
 
+        if (remainingWeightWeight != null)
+            request.remainingWeightWeight = remainingWeightWeight;
+
+        if (differRangeGroups != null)
+            request.routingStateDiffOptions.differRangeGroups = differRangeGroups;
+
+        if (kickscooterRangeGroups != null)
+            request.routingStateDiffOptions.setKickscooterRangeGroupsInMeters(kickscooterRangeGroups);
+
         if (flexFlagStopBufferSize != null)
             request.flexFlagStopBufferSize = flexFlagStopBufferSize;
 
@@ -833,6 +853,9 @@ public abstract class RoutingResource {
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
+
+        request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
+
         return request;
     }
 
