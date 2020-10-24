@@ -132,6 +132,7 @@ public class StreetEdge extends Edge implements Cloneable {
         this.length_mm = (int) (length * 1000); // CONVERT FROM FLOAT METERS TO FIXED MILLIMETERS
         this.bicycleSafetyFactor = 1.0f;
         this.name = name;
+        this.setTemporarySpeedLimit(-1);
         this.setPermission(permission);
         this.setMaxStreetTraverseSpeed(DEFAULT_CAR_SPEED);
         this.setWheelchairAccessible(true); // accessible by default
@@ -159,7 +160,7 @@ public class StreetEdge extends Edge implements Cloneable {
                 LOG.error("exception while determining street edge angles. setting to zero. there is probably something wrong with this street segment's geometry.");
                 inAngle = 0;
                 outAngle = 0;
-                TemporarySpeedLimit= -1;
+
             }
         }
     }
