@@ -2,7 +2,10 @@ package org.opentripplanner.hasura_client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
+import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 public class EdgeDataWithSpeedGetter extends  HasuraGetter {
     @Override
@@ -19,6 +22,8 @@ public class EdgeDataWithSpeedGetter extends  HasuraGetter {
 
 
     }
+
+
 
     @Override
     protected Logger getLogger() {

@@ -14,6 +14,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.opentripplanner.hasura_client.ApiResponse;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -78,6 +79,24 @@ public class HttpUtils {
                     + status.getReasonPhrase());
         }
     }
+
+    public static <T>  T postDataWithPassword(String url, String data, TypeReference<T> type, String password) {
+                try {
+                       HttpPost request = new HttpPost(url);
+                       request.setEntity(new StringEntity(data, ContentType.APPLICATION_JSON));
+                        HttpClient client = getClient();
+                        request.addHeader("content-type", "application/json");
+                        request.addHeader("x-hasura-admin-secret", password);
+                        request.addHeader("accept", "application/json");
+                        HttpResponse response = client.execute(request);
+                        String json = EntityUtils.toString(response.getEntity(), "UTF-8");
+                        return objectMapper.readValue(json, type);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+              return null;
+           }
+
 
     private static HttpClient getClient() {
         HttpClient httpClient = HttpClientBuilder.create()
