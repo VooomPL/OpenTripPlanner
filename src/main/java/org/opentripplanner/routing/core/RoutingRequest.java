@@ -644,7 +644,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * Accept only paths that use transit (no street-only paths).
      */
-    public boolean onlyTransitTrips = false;
+    public boolean forceTransitTrips = false;
 
     /**
      * Option to disable the default filtering of GTFS-RT alerts by time.
