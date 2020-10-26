@@ -161,14 +161,12 @@ public class State implements Cloneable {
         State ret;
         try {
             ret = (State) super.clone();
-            // Needed a deep copy of the maps below to properly pass information about prices
-            // between states
-            ret.startPricePerPackage = this.startPricePerPackage.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-            ret.distancePricePerPackage = this.distancePricePerPackage.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-            ret.timePricePerPackage = this.timePricePerPackage.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+            ret.startPricePerPackage = new HashMap<>();
+            this.startPricePerPackage.entrySet().stream().forEach(entry -> ret.startPricePerPackage.put(entry.getKey(), entry.getValue()));
+            ret.distancePricePerPackage = new HashMap<>();
+            this.distancePricePerPackage.entrySet().stream().forEach(entry -> ret.distancePricePerPackage.put(entry.getKey(), entry.getValue()));
+            ret.timePricePerPackage = new HashMap<>();
+            this.timePricePerPackage.entrySet().stream().forEach(entry -> ret.timePricePerPackage.put(entry.getKey(), entry.getValue()));
         } catch (CloneNotSupportedException e1) {
             throw new IllegalStateException("This is not happening");
         }
