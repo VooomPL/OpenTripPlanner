@@ -7,7 +7,7 @@ import org.opentripplanner.updater.traficstreetupdater.EdgeDataWithSpeed;
 public class EdgeDataWithSpeedMapper extends HasuraToOTPMapper<EdgeDataWithSpeed,EdgeDataWithSpeed> {
 
     @Override
-    protected EdgeDataWithSpeed mapSingleHasuraObject(EdgeDataWithSpeed hasuraObject) {
+    public EdgeDataWithSpeed mapSingleHasuraObject(EdgeDataWithSpeed hasuraObject) {
             return hasuraObject;
     }
 }

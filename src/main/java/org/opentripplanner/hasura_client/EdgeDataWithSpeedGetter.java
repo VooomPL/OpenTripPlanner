@@ -39,8 +39,7 @@ public class EdgeDataWithSpeedGetter extends HasuraGetter {
 
     @Override
     protected TypeReference<ApiResponse<EdgeDataWithSpeed>> hasuraType() {
-        return new TypeReference<ApiResponse<EdgeDataWithSpeed>>() {
-        };
+        return new TypeReference<ApiResponse<EdgeDataWithSpeed>>() {};
 
     }
 }
