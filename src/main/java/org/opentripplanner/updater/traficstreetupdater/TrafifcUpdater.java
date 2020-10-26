@@ -2,29 +2,38 @@ package org.opentripplanner.updater.traficstreetupdater;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.module.time.EdgeLine;
+import org.opentripplanner.hasura_client.EdgeDataWithSpeedGetter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.PollingGraphUpdater;
+import org.opentripplanner.updater.bike_park.BikeParkUpdater;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.HashMap;
+import java.util.List;
 
 
 public class TrafifcUpdater extends PollingGraphUpdater {
     private  Graph graph;
     GraphUpdaterManager graphUpdaterManager;
-    private HashMap <EdgeLine,Integer> mao;
+    private HashMap <EdgeLine,Integer> map;
+    private static final Logger LOG = LoggerFactory.getLogger(BikeParkUpdater.class);
+    private String url;
       @Override
     protected void runPolling() {
-        //LOG.info("Polling trafic from API");
-        //LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
-        graphUpdaterManager.execute(new TrafficStreetrrRunable(mao));
+        LOG.info("Polling trafic from API");
+          List<EdgeDataWithSpeed> vehicles = EdgeDataWithSpeedGetter
+        LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
+        graphUpdaterManager.execute(new TrafficStreetrrRunable(map));
     }
 
     @Override
     protected void configurePolling(Graph graph, JsonNode config) throws IllegalStateException {
         this.pollingPeriodSeconds = 60;
-       /*this.url = System.getProperty("sharedVehiclesApi");
+       this.url = System.getProperty("sharedVehiclesApi");
         if (this.url == null) {
             throw new IllegalStateException("Please provide program parameter `--sharedVehiclesApi <URL>`");*/
         }
