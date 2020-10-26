@@ -223,6 +223,10 @@ public class StateEditor {
     }
 
     public void incrementWeight(CostFunction.CostCategory category, double weight) {
+        OptimizationProfile optimizationProfile = child.getOptions().getOptimizationProfile();
+        if (Objects.nonNull(optimizationProfile)) {
+            weight *= optimizationProfile.getCostFunction().getCostWeight(category);
+        }
         if (Double.isNaN(weight)) {
             LOG.warn("A state's weight is being incremented by NaN while traversing edge "
                     + child.backEdge);
@@ -234,11 +238,6 @@ public class StateEditor {
                     + child.backEdge);
             defectiveTraversal = true;
             return;
-        }
-
-        OptimizationProfile optimizationProfile = child.getOptions().getOptimizationProfile();
-        if (Objects.nonNull(optimizationProfile)) {
-            weight *= optimizationProfile.getCostFunction().getCostWeight(category);
         }
         child.weight += weight;
     }
