@@ -4,10 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class EdgeDataWithSpeedGetter extends  HasuraGetter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
+
     @Override
     protected String query() {
         return "{\"query\": \"querytraffic {" +
@@ -27,7 +31,7 @@ public class EdgeDataWithSpeedGetter extends  HasuraGetter {
 
     @Override
     protected Logger getLogger() {
-        return null;
+        return LOG;
     }
 
     @Override
