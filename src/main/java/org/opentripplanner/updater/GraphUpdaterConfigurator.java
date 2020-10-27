@@ -10,6 +10,7 @@ import org.opentripplanner.updater.example.ExamplePollingGraphUpdater;
 import org.opentripplanner.updater.stoptime.PollingStoptimeUpdater;
 import org.opentripplanner.updater.stoptime.WebsocketGtfsRealtimeUpdater;
 import org.opentripplanner.updater.street_notes.WinkkiPollingGraphUpdater;
+import org.opentripplanner.updater.traficstreetupdater.TrafifcUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.BikesUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesUpdater;
 import org.slf4j.Logger;
@@ -85,6 +86,9 @@ public abstract class GraphUpdaterConfigurator {
                     updater = new ExamplePollingGraphUpdater();
                 } else if (type.equals("winkki-polling-updater")) {
                     updater = new WinkkiPollingGraphUpdater();
+                }
+                else if (type.equals("traffic-updater")) {
+                    updater = new TrafifcUpdater();
                 }
             }
             if (updater != null) {

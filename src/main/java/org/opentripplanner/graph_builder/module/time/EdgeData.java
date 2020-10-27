@@ -17,17 +17,7 @@ public class EdgeData  {
 
     private long wayid;
 
-    public EdgeData(long id, int clusterid, long startnodeid, double startlatitude, double startlongitude, long endnodeid, double endlatitude, double endlongitude, long wayid) {
-        this.id = id;
-        this.clusterid = clusterid;
-        this.startnodeid = startnodeid;
-        this.startlatitude = startlatitude;
-        this.startlongitude = startlongitude;
-        this.endnodeid = endnodeid;
-        this.endlatitude = endlatitude;
-        this.endlongitude = endlongitude;
-        this.wayid = wayid;
-    }
+
 
     public void setid(long id) {
         this.id = id;

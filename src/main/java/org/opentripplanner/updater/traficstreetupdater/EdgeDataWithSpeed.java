@@ -1,8 +1,12 @@
 package org.opentripplanner.updater.traficstreetupdater;
 
+import org.opentripplanner.hasura_client.HasuraGetter;
 import org.opentripplanner.hasura_client.hasura_objects.HasuraObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EdgeDataWithSpeed extends HasuraObject {
+    private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
     private long id;
 
     private long startnodeid;
