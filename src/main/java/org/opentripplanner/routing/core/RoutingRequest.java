@@ -8,6 +8,7 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
@@ -712,6 +713,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      * is usable is 2:00pm.
      */
     public long clockTimeSec;
+
+    private Map<CostFunction.CostCategory, Double> costCategoryWeights;
 
     /* CONSTRUCTORS */
 
@@ -1629,5 +1632,13 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public void setOptimizationProfile(OptimizationProfile optimizationProfile) {
         this.optimizationProfile = optimizationProfile;
+    }
+
+    public Map<CostFunction.CostCategory, Double> getCostCategoryWeights() {
+        return costCategoryWeights;
+    }
+
+    public void setCostCategoryWeights(Map<CostFunction.CostCategory, Double> costCategoryWeights) {
+        this.costCategoryWeights = costCategoryWeights;
     }
 }

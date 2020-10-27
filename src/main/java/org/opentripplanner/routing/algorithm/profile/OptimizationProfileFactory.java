@@ -15,12 +15,12 @@ public class OptimizationProfileFactory {
     private static final String PROFILE_NAME_ORIGINAL = "original";
     private static final String PROFILE_NAME_PRICE_BASED = "cheapest";
 
-    public static OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request, Map<CostFunction.CostCategory, Double> costWeights) {
+    public static OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
         switch (Optional.ofNullable(profileName).orElse(PROFILE_NAME_ORIGINAL)) {
             case PROFILE_NAME_ORIGINAL:
                 return new OriginalOptimizationProfile(request);
             case PROFILE_NAME_PRICE_BASED:
-                return new PriceBasedOptimizationProfile(costWeights);
+                return new PriceBasedOptimizationProfile(request.getCostCategoryWeights());
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
                 return getDefaultOptimizationProfile(request);

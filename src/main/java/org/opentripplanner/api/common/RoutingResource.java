@@ -864,7 +864,7 @@ public abstract class RoutingResource {
         Map<CostFunction.CostCategory, Double> costCategoryWeights = new HashMap<>();
         Optional.ofNullable(originalCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.ORIGINAL, value));
         Optional.ofNullable(priceCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, value));
-        request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request, costCategoryWeights));
+        request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
 
         return request;
     }
