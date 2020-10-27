@@ -43,7 +43,7 @@ public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuris
     @Override
     public double estimateRemainingWeight(State s) {
         Vertex currentLocation = s.getVertex();
-        double remainingDistance = SphericalDistanceLibrary.distance(currentLocation.getLat(), currentLocation.getLon(), lat, lon);
+        double remainingDistance = SphericalDistanceLibrary.fastDistance(currentLocation.getLat(), currentLocation.getLon(), lat, lon);
 
         double speed;
         int remainingTime;
@@ -65,14 +65,12 @@ public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuris
                                              double previousDistanceInMeters,
                                              int remainingTravelTimeInSeconds,
                                              double remainingDistanceInMeters) {
-        VehiclePricingPackage evaluatedPackage = vehicle.getVehiclePricingPackage(0);
-        BigDecimal chosenEstimatedTotalPrice = evaluatedPackage.computeTotalPrice(
-                previousTravelTimeInSeconds + remainingTravelTimeInSeconds,
-                (int) (previousDistanceInMeters + remainingDistanceInMeters));
-        BigDecimal chosenEstimatedPreviousPrice = evaluatedPackage.computeTotalPrice(previousTravelTimeInSeconds, (int) previousDistanceInMeters);
+        VehiclePricingPackage evaluatedPackage;
+        BigDecimal chosenEstimatedTotalPrice = BigDecimal.valueOf(Integer.MAX_VALUE);
+        BigDecimal chosenEstimatedPreviousPrice = BigDecimal.valueOf(Integer.MAX_VALUE);
 
         BigDecimal evaluatedTotalPrice;
-        for (int i = 1; i < vehicle.getVehiclePricingPackages().size(); i++) {
+        for (int i = 0; i < vehicle.getVehiclePricingPackages().size(); i++) {
             evaluatedPackage = vehicle.getVehiclePricingPackage(i);
             evaluatedTotalPrice = evaluatedPackage.computeTotalPrice(
                     previousTravelTimeInSeconds + remainingTravelTimeInSeconds,
