@@ -128,6 +128,9 @@ public abstract class VehicleDescription {
     public abstract double getMaxSpeedInMetersPerSecond(StreetEdge streetEdge);
 
     @JsonIgnore
+    public abstract double getMaxSpeedInMetersPerSecond();
+
+    @JsonIgnore
     public abstract TraverseMode getTraverseMode();
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

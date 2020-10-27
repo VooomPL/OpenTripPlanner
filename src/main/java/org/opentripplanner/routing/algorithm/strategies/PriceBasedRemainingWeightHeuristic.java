@@ -48,9 +48,8 @@ public class PriceBasedRemainingWeightHeuristic implements RemainingWeightHeuris
         double speed;
         int remainingTime;
         double estimatedFuturePrice = 0;
-        Edge backEdge = s.getBackEdge();
-        if (Objects.nonNull(s.getCurrentVehicle()) && Objects.nonNull(backEdge) && backEdge instanceof StreetEdge ) {
-            speed = s.getCurrentVehicle().getMaxSpeedInMetersPerSecond((StreetEdge) backEdge);
+        if (Objects.nonNull(s.getCurrentVehicle())) {
+            speed = s.getCurrentVehicle().getMaxSpeedInMetersPerSecond();
             remainingTime = (int) (remainingDistance / speed);
             estimatedFuturePrice = chooseBestFuturePrice(s.getCurrentVehicle(),
                     s.getTimeTraversedInCurrentVehicleInSeconds(), s.getDistanceTraversedInCurrentVehicle(),

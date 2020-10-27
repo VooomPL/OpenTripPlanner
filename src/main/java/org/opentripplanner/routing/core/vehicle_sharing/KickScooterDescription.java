@@ -50,6 +50,11 @@ public class KickScooterDescription extends BikePathVehicleDescription {
     }
 
     @Override
+    public double getMaxSpeedInMetersPerSecond() {
+        return MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH;
+    }
+
+    @Override
     public TraverseMode getTraverseMode() {
         return TRAVERSE_MODE;
     }
