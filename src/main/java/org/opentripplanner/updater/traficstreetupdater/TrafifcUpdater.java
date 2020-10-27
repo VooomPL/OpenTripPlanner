@@ -64,6 +64,10 @@ public class TrafifcUpdater extends PollingGraphUpdater {
         this.graph = graph;
 
     }
+    @Override
+    public void configure(Graph graph, JsonNode config) throws Exception {
+        configurePolling(graph, config);
+    }
 
     @Override
     public void teardown() {

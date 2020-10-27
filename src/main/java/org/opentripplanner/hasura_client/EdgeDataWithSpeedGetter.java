@@ -14,7 +14,7 @@ public class EdgeDataWithSpeedGetter extends HasuraGetter {
     @Override
     protected String query() {
         return "{\"query\": \"querytraffic {" +
-                "  items:Traficdatawithspeed {\\n" +
+                "  items:edgeswithspeed {\\n" +
                 "   id\\n" +
                 "    speed\\n" +
                 "    startnodeid\\n" +
@@ -22,8 +22,6 @@ public class EdgeDataWithSpeedGetter extends HasuraGetter {
                 "  }" +
                 "}\"" +
                 "}";
-
-
     }
 
 
@@ -41,5 +39,9 @@ public class EdgeDataWithSpeedGetter extends HasuraGetter {
     protected TypeReference<ApiResponse<EdgeDataWithSpeed>> hasuraType() {
         return new TypeReference<ApiResponse<EdgeDataWithSpeed>>() {};
 
+    }
+    @Override
+    protected boolean addGeolocationArguments() {
+        return false;
     }
 }

@@ -86,7 +86,7 @@ public class HttpUtils {
                        request.setEntity(new StringEntity(data, ContentType.APPLICATION_JSON));
                         HttpClient client = getClient();
                         request.addHeader("content-type", "application/json");
-                        request.addHeader("x-hasura-admin-secret", password);
+                        request.addHeader("Authorization", "Bearer " + password);
                         request.addHeader("accept", "application/json");
                         HttpResponse response = client.execute(request);
                         String json = EntityUtils.toString(response.getEntity(), "UTF-8");

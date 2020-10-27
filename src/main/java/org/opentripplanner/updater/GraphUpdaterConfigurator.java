@@ -87,9 +87,6 @@ public abstract class GraphUpdaterConfigurator {
                 } else if (type.equals("winkki-polling-updater")) {
                     updater = new WinkkiPollingGraphUpdater();
                 }
-                else if (type.equals("traffic-updater")) {
-                    updater = new TrafifcUpdater();
-                }
             }
             if (updater != null) {
                 addUpdater(graph, updaterManager, updater, configItem);
@@ -100,6 +97,7 @@ public abstract class GraphUpdaterConfigurator {
 
         addUpdater(graph, updaterManager, new SharedVehiclesUpdater(), null);
         addUpdater(graph, updaterManager, new BikesUpdater(), null);
+        addUpdater(graph, updaterManager, new TrafifcUpdater(), null);
 
         // Now that all the updaters are configured, kick them all off in their own threads.
         updaterManager.startUpdaters();
