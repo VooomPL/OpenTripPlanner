@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import java.util.List;
 public class TrafifcUpdater extends PollingGraphUpdater {
     private  Graph graph;
     GraphUpdaterManager graphUpdaterManager;
-    private HashMap <EdgeLine,Integer> map;
+    private HashMap <EdgeLine,Integer> map = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(TrafifcUpdater.class);
     private String url=" ";
     private  String pass= " " ;
@@ -31,11 +32,11 @@ public class TrafifcUpdater extends PollingGraphUpdater {
       @Override
     protected void runPolling() {
         LOG.info("Polling trafic from API");
-          List<EdgeDataWithSpeed> updates = edgeDataWithSpeedGetter.getFromHasuraWithPassword(graph,url,pass);
+        List updates = edgeDataWithSpeedGetter.getFromHasuraWithPassword(graph,url,pass);
         LOG.info("Got {} trafic possible to place on a map", updates.size());
-        for (EdgeDataWithSpeed e :updates)
+        for (Object e: updates)
         {
-             map.put( new EdgeLine(e.getStartnodeid(),e.getEndnodeid()),e.getSpeed());
+             map.put( new EdgeLine(((EdgeDataWithSpeed)e).getStartnodeid(),((EdgeDataWithSpeed)e).getEndnodeid()),((EdgeDataWithSpeed)e).getSpeed());
         }
           graphUpdaterManager.execute(new  TrafficStreetrrRunable(map));
     }
@@ -45,8 +46,7 @@ public class TrafifcUpdater extends PollingGraphUpdater {
         this.pollingPeriodSeconds = 120;
 
 
-
-        if (this.url == null) {
+                if (this.url == null) {
             throw new IllegalStateException("zzzzz ");
         }
     }
@@ -63,10 +63,6 @@ public class TrafifcUpdater extends PollingGraphUpdater {
     public void setup(Graph graph) throws Exception {
         this.graph = graph;
 
-    }
-    @Override
-    public void configure(Graph graph, JsonNode config) throws Exception {
-        configurePolling(graph, config);
     }
 
     @Override
