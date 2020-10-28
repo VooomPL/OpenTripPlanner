@@ -25,8 +25,8 @@ public class TrafifcUpdater extends PollingGraphUpdater {
     GraphUpdaterManager graphUpdaterManager;
     private HashMap <EdgeLine,Integer> map = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(TrafifcUpdater.class);
-    private String url=" ";
-    private  String pass= " " ;
+    private final String url= System.getenv("trafficurl");
+    private final String pass= System.getenv("trfiicpass") ;
     private final EdgeDataWithSpeedGetter edgeDataWithSpeedGetter= new EdgeDataWithSpeedGetter();
     private TemporaryStreetSplitter temporaryStreetSplitter;
       @Override
