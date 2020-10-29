@@ -77,24 +77,23 @@ public class StateEditorTest {
     }
 
     private void configurePricingPackages() {
+        VehiclePricingPackage defaultPackage = new VehiclePricingPackage();
         availablePricingPackages = new ArrayList<>();
 
-        VehiclePricingPackage pricingPackage = new VehiclePricingPackage();
-        pricingPackage.setPackagePrice(BigDecimal.valueOf(9.99));
-        pricingPackage.setPackageTimeLimitInSeconds(480);
-        pricingPackage.setMaxRentingPrice(BigDecimal.valueOf(199));
-        pricingPackage.setDrivingPricePerTimeTickInPackageExceeded(BigDecimal.valueOf(1.29));
-        pricingPackage.setKilometerPrice(BigDecimal.valueOf(0.3));
-        pricingPackage.setMinRentingPrice(BigDecimal.valueOf(13));
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.valueOf(9.99), 480,
+                defaultPackage.getFreeSeconds(), BigDecimal.valueOf(13), defaultPackage.getStartPrice(),
+                defaultPackage.getDrivingPricePerTimeTickInPackage(), defaultPackage.getParkingPricePerTimeTickInPackage(),
+                BigDecimal.valueOf(1.29), defaultPackage.getParkingPricePerTimeTickInPackageExceeded(), BigDecimal.valueOf(0.3),
+                defaultPackage.getSecondsPerTimeTickInPackage(), defaultPackage.getSecondsPerTimeTickInPackageExceeded(),
+                BigDecimal.valueOf(199), defaultPackage.isKilometerPriceEnabledAboveMaxRentingPrice());
         availablePricingPackages.add(pricingPackage);
 
-        pricingPackage = new VehiclePricingPackage();
-        pricingPackage.setPackagePrice(BigDecimal.valueOf(9.89));
-        pricingPackage.setPackageTimeLimitInSeconds(480);
-        pricingPackage.setMaxRentingPrice(BigDecimal.valueOf(199));
-        pricingPackage.setDrivingPricePerTimeTickInPackageExceeded(BigDecimal.valueOf(2.0));
-        pricingPackage.setKilometerPrice(BigDecimal.valueOf(0.8));
-        pricingPackage.setMinRentingPrice(BigDecimal.valueOf(15));
+        pricingPackage = new VehiclePricingPackage(BigDecimal.valueOf(9.89), 480,
+                defaultPackage.getFreeSeconds(), BigDecimal.valueOf(15), defaultPackage.getStartPrice(),
+                defaultPackage.getDrivingPricePerTimeTickInPackage(), defaultPackage.getParkingPricePerTimeTickInPackage(),
+                BigDecimal.valueOf(2.0), defaultPackage.getParkingPricePerTimeTickInPackageExceeded(), BigDecimal.valueOf(0.8),
+                defaultPackage.getSecondsPerTimeTickInPackage(), defaultPackage.getSecondsPerTimeTickInPackageExceeded(),
+                BigDecimal.valueOf(199), defaultPackage.isKilometerPriceEnabledAboveMaxRentingPrice());
         availablePricingPackages.add(pricingPackage);
     }
 
@@ -239,7 +238,16 @@ public class StateEditorTest {
         stateEditor.beginVehicleRenting(car);
         stateEditor.incrementTimeInSeconds(485);
         // artificially generating negative weight increment error...
-        car.getVehiclePricingPackages().get(1).setDrivingPricePerTimeTickInPackageExceeded(BigDecimal.valueOf(0.1));
+        VehiclePricingPackage oldPricingPackage = car.getVehiclePricingPackage(1);
+        car.getVehiclePricingPackages().set(1, new VehiclePricingPackage(oldPricingPackage.getPackagePrice(),
+                oldPricingPackage.getPackageTimeLimitInSeconds(), oldPricingPackage.getFreeSeconds(),
+                oldPricingPackage.getMinRentingPrice(), oldPricingPackage.getStartPrice(),
+                oldPricingPackage.getDrivingPricePerTimeTickInPackage(), oldPricingPackage.getParkingPricePerTimeTickInPackage(),
+                BigDecimal.valueOf(0.1), oldPricingPackage.getParkingPricePerTimeTickInPackageExceeded(),
+                oldPricingPackage.getKilometerPrice(), oldPricingPackage.getSecondsPerTimeTickInPackage(),
+                oldPricingPackage.getSecondsPerTimeTickInPackageExceeded(), oldPricingPackage.getMaxRentingPrice(),
+                oldPricingPackage.isKilometerPriceEnabledAboveMaxRentingPrice()));
+
         stateEditor.incrementTimeInSeconds(60);
 
         // then

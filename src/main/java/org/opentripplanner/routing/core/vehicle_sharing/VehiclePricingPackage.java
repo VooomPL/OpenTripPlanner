@@ -5,33 +5,33 @@ import java.math.RoundingMode;
 
 public class VehiclePricingPackage {
 
-    private BigDecimal packagePrice;
+    private final BigDecimal packagePrice;
 
-    private int packageTimeLimitInSeconds;
+    private final int packageTimeLimitInSeconds;
 
-    private int freeSeconds;
+    private final int freeSeconds;
 
-    private BigDecimal minRentingPrice;
+    private final BigDecimal minRentingPrice;
 
-    private BigDecimal startPrice;
+    private final BigDecimal startPrice;
 
-    private BigDecimal drivingPricePerTimeTickInPackage;
+    private final BigDecimal drivingPricePerTimeTickInPackage;
 
-    private BigDecimal parkingPricePerTimeTickInPackage;
+    private final BigDecimal parkingPricePerTimeTickInPackage;
 
-    private BigDecimal drivingPricePerTimeTickInPackageExceeded;
+    private final BigDecimal drivingPricePerTimeTickInPackageExceeded;
 
-    private BigDecimal parkingPricePerTimeTickInPackageExceeded;
+    private final BigDecimal parkingPricePerTimeTickInPackageExceeded;
 
-    private BigDecimal kilometerPrice;
+    private final BigDecimal kilometerPrice;
 
-    private int secondsPerTimeTickInPackage;
+    private final int secondsPerTimeTickInPackage;
 
-    private int secondsPerTimeTickInPackageExceeded;
+    private final int secondsPerTimeTickInPackageExceeded;
 
-    private BigDecimal maxRentingPrice;
+    private final BigDecimal maxRentingPrice;
 
-    private boolean kilometerPriceEnabledAboveMaxRentingPrice;
+    private final boolean kilometerPriceEnabledAboveMaxRentingPrice;
 
     public VehiclePricingPackage() {
         /* By default creating a "no predefined package" configuration
@@ -192,59 +192,4 @@ public class VehiclePricingPackage {
         return kilometerPrice;
     }
 
-    public void setPackagePrice(BigDecimal packagePrice) {
-        this.packagePrice = packagePrice;
-    }
-
-    public void setPackageTimeLimitInSeconds(int packageTimeLimitInSeconds) {
-        this.packageTimeLimitInSeconds = packageTimeLimitInSeconds;
-    }
-
-    public void setFreeSeconds(int freeSeconds) {
-        this.freeSeconds = freeSeconds;
-    }
-
-    public void setMinRentingPrice(BigDecimal minRentingPrice) {
-        this.minRentingPrice = minRentingPrice;
-    }
-
-    public void setStartPrice(BigDecimal startPrice) {
-        this.startPrice = startPrice;
-    }
-
-    public void setDrivingPricePerTimeTickInPackage(BigDecimal drivingPricePerTimeTickInPackage) {
-        this.drivingPricePerTimeTickInPackage = drivingPricePerTimeTickInPackage;
-    }
-
-    public void setParkingPricePerTimeTickInPackage(BigDecimal parkingPricePerTimeTickInPackage) {
-        this.parkingPricePerTimeTickInPackage = parkingPricePerTimeTickInPackage;
-    }
-
-    public void setDrivingPricePerTimeTickInPackageExceeded(BigDecimal drivingPricePerTimeTickInPackageExceeded) {
-        this.drivingPricePerTimeTickInPackageExceeded = drivingPricePerTimeTickInPackageExceeded;
-    }
-
-    public void setParkingPricePerTimeTickInPackageExceeded(BigDecimal parkingPricePerTimeTickInPackageExceeded) {
-        this.parkingPricePerTimeTickInPackageExceeded = parkingPricePerTimeTickInPackageExceeded;
-    }
-
-    public void setKilometerPrice(BigDecimal kilometerPrice) {
-        this.kilometerPrice = kilometerPrice;
-    }
-
-    public void setSecondsPerTimeTickInPackage(int secondsPerTimeTickInPackage) {
-        this.secondsPerTimeTickInPackage = secondsPerTimeTickInPackage;
-    }
-
-    public void setSecondsPerTimeTickInPackageExceeded(int secondsPerTimeTickInPackageExceeded) {
-        this.secondsPerTimeTickInPackageExceeded = secondsPerTimeTickInPackageExceeded;
-    }
-
-    public void setMaxRentingPrice(BigDecimal maxRentingPrice) {
-        this.maxRentingPrice = maxRentingPrice;
-    }
-
-    public void setKilometerPriceEnabledAboveMaxRentingPrice(boolean kilometerPriceEnabledAboveMaxRentingPrice) {
-        this.kilometerPriceEnabledAboveMaxRentingPrice = kilometerPriceEnabledAboveMaxRentingPrice;
-    }
 }
