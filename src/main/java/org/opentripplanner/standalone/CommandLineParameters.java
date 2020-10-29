@@ -148,9 +148,9 @@ public class CommandLineParameters implements Cloneable {
 
     @Parameter(names = { "--sharedVehiclesApi" }, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
-    @Parameter(names ={"--Trafficapi"},description = "API for trafic udate")
+    @Parameter(names ={"--trafficAppi"},description = "API for trafic udate")
     public  String traffic = null;
-    @Parameter(names ={"--Trafficapipass"},description = "API for trafic password")
+    @Parameter(names ={"--trafficApiPass"},description = "API for trafic password")
     public  String trafficAPIPass =null;
 
 

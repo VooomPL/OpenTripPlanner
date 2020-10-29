@@ -31,9 +31,9 @@ public class TrafifcUpdater extends PollingGraphUpdater {
     private TemporaryStreetSplitter temporaryStreetSplitter;
       @Override
     protected void runPolling() {
-        LOG.info("Polling trafic from API");
+        LOG.info("Polling trafic udates  from API");
         List updates = edgeDataWithSpeedGetter.getFromHasuraWithPassword(graph,url,pass);
-        LOG.info("Got {} trafic possible to place on a map", updates.size());
+        LOG.info("Got {} edeges with traffiv street", updates.size());
         for (Object e: updates)
         {
              map.put( new EdgeLine(((EdgeDataWithSpeed)e).getStartnodeid(),((EdgeDataWithSpeed)e).getEndnodeid()),((EdgeDataWithSpeed)e).getSpeed());
@@ -43,10 +43,9 @@ public class TrafifcUpdater extends PollingGraphUpdater {
 
     @Override
     protected void configurePolling(Graph graph, JsonNode config) throws IllegalStateException {
-        this.pollingPeriodSeconds = 120;
+        this.pollingPeriodSeconds = 10;
 
-       // this.url= System.getenv("trafficurl");
-        //this.pass = System.getenv("trafiicpass") ;
+
         this.url = System.getProperty("trfficApi");
         this.pass =System.getProperty("trfficApiPass");
         if (this.url == null) {
