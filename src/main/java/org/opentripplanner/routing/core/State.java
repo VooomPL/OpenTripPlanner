@@ -316,7 +316,8 @@ public class State implements Cloneable {
             bikeParkAndRideOk = !bikeParkAndRide || isBikeParked();
             carParkAndRideOk = !parkAndRide || isCarParked();
         }
-        return bikeRentingOk && bikeParkAndRideOk && carParkAndRideOk && !isCurrentlyRentingVehicle();
+        boolean forceTransitTripsOk = !stateData.opt.forceTransitTrips || isEverBoarded();
+        return bikeRentingOk && bikeParkAndRideOk && carParkAndRideOk && forceTransitTripsOk && !isCurrentlyRentingVehicle();
     }
 
     public Stop getPreviousStop() {

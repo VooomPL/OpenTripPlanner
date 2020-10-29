@@ -1,7 +1,6 @@
 package org.opentripplanner.routing.impl;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.math3.optimization.OptimizationData;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
@@ -20,7 +19,6 @@ import org.opentripplanner.routing.flex.DeviatedRouteGraphModifier;
 import org.opentripplanner.routing.flex.FlagStopGraphModifier;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
@@ -180,7 +178,7 @@ public class GraphPathFinder {
                 }
                 if (tripIds.isEmpty()) {
                     // This path does not use transit (is entirely on-street). Do not repeatedly find the same one.
-                    options.onlyTransitTrips = true;
+                    options.forceTransitTrips = true;
                 }
                 // Call-and-Ride trips should not use regular trip-banning, since call-and-ride trips can beused in
                 // multiple ways (e.g. from origin to destination, or from origin to a transfer stop.) Instead,

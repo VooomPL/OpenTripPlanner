@@ -43,8 +43,12 @@ public abstract class DominanceFunction implements Serializable {
 
         // States before boarding transit and after riding transit are incomparable.
         // This allows returning transit options even when walking to the destination is the optimal strategy.
-        if (a.isEverBoarded() != b.isEverBoarded()) {
-            return false;
+        if (a.getOptions().forceTransitTrips && a.isEverBoarded() != b.isEverBoarded()) {
+            if (a.isEverBoarded() && betterOrEqual(b, a)) {
+                return false;
+            } else if (b.isEverBoarded() && betterOrEqual(a, b)) {
+                return false;
+            }
         }
 
         if (a.getNonTransitMode() != b.getNonTransitMode())
@@ -93,9 +97,9 @@ public abstract class DominanceFunction implements Serializable {
                 int rangeGroupB = b.getOptions().routingStateDiffOptions.getRangeGroup(b);
 
 //            A has worse range but better weight and time. Therefore, those states are incomparable.
-                if (rangeGroupA < rangeGroupB && a.getWeight() <= b.getWeight() && a.getTimeSeconds() <= b.getTimeSeconds())
+                if (rangeGroupA < rangeGroupB && betterOrEqual(a, b))
                     return false;
-                if (rangeGroupB < rangeGroupA && b.getWeight() <= a.getWeight() && b.getTimeSeconds() <= a.getTimeSeconds())
+                if (rangeGroupB < rangeGroupA && betterOrEqual(b, a))
                     return false;
             }
 
