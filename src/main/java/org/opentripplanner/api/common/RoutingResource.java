@@ -560,7 +560,7 @@ public abstract class RoutingResource {
     /**
      * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
      */
-    @QueryParam("onlyTransitTrips")
+    @QueryParam("forceTransitTrips")
     private Boolean forceTransitTrips;
 
     /*
