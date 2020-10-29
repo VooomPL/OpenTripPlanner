@@ -275,6 +275,9 @@ public class Leg {
      @JsonSerialize
      public String flexFlagStopDropOffMessage;
 
+     @JsonSerialize
+     public int activePackageIndex;
+
     /**
      * Whether this leg is a transit leg or not.
      * @return Boolean true if the leg is a transit leg

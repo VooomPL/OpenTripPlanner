@@ -57,8 +57,6 @@ public class Itinerary {
 
     public BigDecimal price;
 
-    public int activePackageIndex;
-
     /**
      * Indicates that the walk limit distance has been exceeded for this itinerary when true.
      */
