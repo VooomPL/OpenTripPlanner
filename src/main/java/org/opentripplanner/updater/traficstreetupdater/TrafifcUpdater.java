@@ -25,8 +25,8 @@ public class TrafifcUpdater extends PollingGraphUpdater {
     GraphUpdaterManager graphUpdaterManager;
     private HashMap <EdgeLine,Integer> map = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(TrafifcUpdater.class);
-    private final String url= System.getenv("trafficurl");
-    private final String pass= System.getenv("trfiicpass") ;
+    private  String url;
+    private  String pass;
     private final EdgeDataWithSpeedGetter edgeDataWithSpeedGetter= new EdgeDataWithSpeedGetter();
     private TemporaryStreetSplitter temporaryStreetSplitter;
       @Override
@@ -45,8 +45,11 @@ public class TrafifcUpdater extends PollingGraphUpdater {
     protected void configurePolling(Graph graph, JsonNode config) throws IllegalStateException {
         this.pollingPeriodSeconds = 120;
 
-
-                if (this.url == null) {
+       // this.url= System.getenv("trafficurl");
+        //this.pass = System.getenv("trafiicpass") ;
+        this.url = System.getProperty("trfficApi");
+        this.pass =System.getProperty("trfficApiPass");
+        if (this.url == null) {
             throw new IllegalStateException("zzzzz ");
         }
     }
