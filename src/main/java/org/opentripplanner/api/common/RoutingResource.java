@@ -48,7 +48,7 @@ public abstract class RoutingResource {
      * a path because we don't want it to be instantiated as an endpoint. Instead, the {routerId}
      * path parameter should be included in the path annotations of all its subclasses.
      */
-    @PathParam("routerId")
+
     public String routerId;
 
     /**
