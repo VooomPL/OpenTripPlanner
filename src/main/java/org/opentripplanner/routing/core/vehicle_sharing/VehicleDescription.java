@@ -143,8 +143,16 @@ public abstract class VehicleDescription {
     }
 
     @JsonIgnore
-    public VehiclePricingPackage getVehiclePricingPackage(int index) {
+    public VehiclePricingPackage getVehicleSharingPackage(int index) {
         return vehiclePricingPackages.get(index);
+    }
+
+    public int getActivePackageIndex() {
+        return activePackageIndex;
+    }
+
+    public void setActivePackageIndex(int activePackageIndex) {
+        this.activePackageIndex = activePackageIndex;
     }
 
     public List<VehiclePricingPackage> getVehiclePricingPackages() {
@@ -153,7 +161,7 @@ public abstract class VehicleDescription {
 
     @JsonIgnore
     public VehiclePricingPackage getActivePackage() {
-        return this.vehiclePricingPackages.get(this.activePackageIndex);
+        return this.vehiclePricingPackages.get(this.getActivePackageIndex());
     }
 
     public boolean requiresHubToDrop() {

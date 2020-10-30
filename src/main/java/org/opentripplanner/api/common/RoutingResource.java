@@ -2,7 +2,6 @@ package org.opentripplanner.api.common;
 
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.OptimizeType;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -558,17 +557,16 @@ public abstract class RoutingResource {
     @QueryParam("optimizationProfile")
     private String optimizationProfileName;
 
-    @QueryParam("originalCostWeight")
-    private Double originalCostWeight;
-
-    @QueryParam("priceCostWeight")
-    private Double priceCostWeight;
-
     /**
      * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
      */
     @QueryParam("onlyTransitTrips")
     private Boolean forceTransitTrips;
+
+    /**
+     * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
+     */
+
 
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.

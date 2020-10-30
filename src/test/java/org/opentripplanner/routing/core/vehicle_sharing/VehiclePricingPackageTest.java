@@ -160,10 +160,4 @@ public class VehiclePricingPackageTest {
         //returning previous price due to max price already reached:
         assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 200).compareTo(BigDecimal.valueOf(4.5)) == 0);
     }
-
-    @Test
-    public void shouldReturnProperTotalPrice() {
-        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.valueOf(9.99), 480, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.ZERO, 60, 60, BigDecimal.valueOf(199), false);
-        assertTrue(pricingPackage.computeTotalPrice(1200, 40).compareTo(BigDecimal.valueOf(25.47)) == 0);
-    }
 }

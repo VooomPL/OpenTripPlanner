@@ -1,7 +1,6 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class VehiclePricingPackage {
 
@@ -71,13 +70,13 @@ public class VehiclePricingPackage {
             if (totalDrivingTimeInSeconds > 0) { //not all seconds of travel were free of charge
                 //Computing price associated with time ticks in package
                 int secondsInPackage = Math.min(totalDrivingTimeInSeconds, packageTimeLimitInSeconds);
-                BigDecimal timeTicksInPackage = BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, RoundingMode.UP);
+                BigDecimal timeTicksInPackage = BigDecimal.valueOf(secondsInPackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackage), 0, BigDecimal.ROUND_UP);
                 newTimeAssociatedPrice = timeTicksInPackage.multiply(drivingPricePerTimeTickInPackage);
 
                 //Computing price associated with time ticks above package
                 int secondsAbovePackage = totalDrivingTimeInSeconds - timeTicksInPackage.intValue() * secondsPerTimeTickInPackage;
                 if (secondsAbovePackage > 0) {
-                    BigDecimal timeTicksAbovePackage = BigDecimal.valueOf(secondsAbovePackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, RoundingMode.UP);
+                    BigDecimal timeTicksAbovePackage = BigDecimal.valueOf(secondsAbovePackage).divide(BigDecimal.valueOf(secondsPerTimeTickInPackageExceeded), 0, BigDecimal.ROUND_UP);
                     newTimeAssociatedPrice = newTimeAssociatedPrice.add(timeTicksAbovePackage.multiply(drivingPricePerTimeTickInPackageExceeded));
                 }
             }
@@ -126,14 +125,6 @@ public class VehiclePricingPackage {
 
     public BigDecimal computeFinalPrice(BigDecimal totalPriceForCurrentVehicle) {
         return totalPriceForCurrentVehicle.compareTo(minRentingPrice) >= 0 ? totalPriceForCurrentVehicle : minRentingPrice;
-    }
-
-    public BigDecimal computeTotalPrice(int totalTimeInSeconds, int totalDistanceInMeters) {
-        BigDecimal startPrice = computeStartPrice();
-        BigDecimal timePrice = computeTimeAssociatedPrice(startPrice, BigDecimal.ZERO, BigDecimal.ZERO, totalTimeInSeconds);
-        BigDecimal distancePrice = computeDistanceAssociatedPrice(startPrice, timePrice, BigDecimal.ZERO, totalDistanceInMeters);
-
-        return computeFinalPrice(startPrice.add(timePrice).add(distancePrice));
     }
 
     public BigDecimal getPackagePrice() {

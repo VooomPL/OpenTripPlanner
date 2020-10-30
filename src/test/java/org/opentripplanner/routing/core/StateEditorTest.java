@@ -3,20 +3,15 @@ package org.opentripplanner.routing.core;
 import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
-import org.opentripplanner.routing.algorithm.costs.CostFunction;
-import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
-import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
-import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -27,75 +22,23 @@ public class StateEditorTest {
 
     private State state, rentingState;
     private RoutingRequest request;
-    private RoutingRequest priceOptimizeRequest;
-    private List<VehiclePricingPackage> availablePricingPackages;
-    private TemporaryRentVehicleVertex rentVehicleVertex;
     private RentVehicleEdge rentVehicleEdge;
     private DropoffVehicleEdge dropoffVehicleEdge;
 
     @Before
     public void setUp() {
         Graph graph = new Graph();
-        configurePricingPackages();
-        rentVehicleVertex = new TemporaryRentVehicleVertex("id", new Coordinate(1, 2), "name");
-        rentVehicleEdge = new RentVehicleEdge(rentVehicleVertex, CAR_1);
-        dropoffVehicleEdge = new DropoffVehicleEdge(rentVehicleVertex);
+        TemporaryRentVehicleVertex v = new TemporaryRentVehicleVertex("id", new Coordinate(1, 2), "name");
+        rentVehicleEdge = new RentVehicleEdge(v, CAR_1);
+        dropoffVehicleEdge = new DropoffVehicleEdge(v);
         request = new RoutingRequest();
         request.setDummyRoutingContext(graph);
         request.setModes(new TraverseModeSet(TraverseMode.WALK, TraverseMode.CAR));
         request.setStartingMode(TraverseMode.WALK);
-        priceOptimizeRequest = new RoutingRequest();
-        configurePriceBasedOptimizationProfile();
-        state = new State(rentVehicleVertex, request);
+        state = new State(v, request);
         StateEditor se = state.edit(rentVehicleEdge);
         se.beginVehicleRenting(CAR_1);
         rentingState = se.makeState();
-    }
-
-    private void configurePriceBasedOptimizationProfile() {
-        priceOptimizeRequest.setOptimizationProfile(new OptimizationProfile() {
-            @Override
-            public CostFunction getCostFunction() {
-                return category -> category.equals(CostFunction.CostCategory.PRICE_ASSOCIATED) ? 1 : 0;
-            }
-
-            @Override
-            public DominanceFunction getDominanceFunction() {
-                return null;
-            }
-
-            @Override
-            public RemainingWeightHeuristic getHeuristic() {
-                return null;
-            }
-
-            @Override
-            public RemainingWeightHeuristic getReversedSearchHeuristic() {
-                return null;
-            }
-        });
-    }
-
-    private void configurePricingPackages() {
-        availablePricingPackages = new ArrayList<>();
-
-        VehiclePricingPackage pricingPackage = new VehiclePricingPackage();
-        pricingPackage.setPackagePrice(BigDecimal.valueOf(9.99));
-        pricingPackage.setPackageTimeLimitInSeconds(480);
-        pricingPackage.setMaxRentingPrice(BigDecimal.valueOf(199));
-        pricingPackage.setDrivingPricePerTimeTickInPackageExceeded(BigDecimal.valueOf(1.29));
-        pricingPackage.setKilometerPrice(BigDecimal.valueOf(0.3));
-        pricingPackage.setMinRentingPrice(BigDecimal.valueOf(13));
-        availablePricingPackages.add(pricingPackage);
-
-        pricingPackage = new VehiclePricingPackage();
-        pricingPackage.setPackagePrice(BigDecimal.valueOf(9.89));
-        pricingPackage.setPackageTimeLimitInSeconds(480);
-        pricingPackage.setMaxRentingPrice(BigDecimal.valueOf(199));
-        pricingPackage.setDrivingPricePerTimeTickInPackageExceeded(BigDecimal.valueOf(2.0));
-        pricingPackage.setKilometerPrice(BigDecimal.valueOf(0.8));
-        pricingPackage.setMinRentingPrice(BigDecimal.valueOf(15));
-        availablePricingPackages.add(pricingPackage);
     }
 
     @Test
@@ -134,116 +77,6 @@ public class StateEditorTest {
         assertTrue(updatedState.isCarParked());
         assertTrue(updatedState.isBikeParked());
         assertFalse(updatedState.isBikeRenting());
-    }
-
-    @Test
-    public void shouldAddLowestPackagePriceToWeight() {
-        // given
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 1000.0, availablePricingPackages.get(0));
-        car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
-
-        StateEditor stateEditor = new StateEditor(priceOptimizeRequest, rentVehicleVertex);
-
-        // when
-        stateEditor.beginVehicleRenting(car);
-
-        // then
-        assertEquals(availablePricingPackages.get(1).getPackagePrice().doubleValue(), stateEditor.child.weight, 0);
-        assertEquals(1, stateEditor.child.getActivePackageIndex());
-    }
-
-    @Test
-    public void shouldIncreaseWeightToMatchLowestMinimumRentingPrice() {
-        // given
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 1000.0, availablePricingPackages.get(0));
-        car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
-
-        StateEditor stateEditor = new StateEditor(priceOptimizeRequest, rentVehicleVertex);
-
-        // when
-        stateEditor.beginVehicleRenting(car);
-        stateEditor.incrementTimeInSeconds(60);
-        stateEditor.doneVehicleRenting();
-
-        // then
-        int expectedNewPricingPackageIndex = 0;
-        VehiclePricingPackage expectedNewPricingPackage = availablePricingPackages.get(expectedNewPricingPackageIndex);
-        assertEquals(expectedNewPricingPackage.getMinRentingPrice().doubleValue(), stateEditor.child.weight, 0);
-        assertEquals(expectedNewPricingPackageIndex, stateEditor.child.getActivePackageIndex());
-    }
-
-    @Test
-    public void shouldAddLowestTotalPriceToWeightWhenDistanceIncreased() {
-        // given
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 1000.0, availablePricingPackages.get(0));
-        car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
-        StateEditor stateEditor = new StateEditor(priceOptimizeRequest, null);
-
-        // when
-        stateEditor.beginVehicleRenting(car);
-        stateEditor.incrementWalkDistanceInMeters(1065.174);
-
-        // then
-        int expectedNewPricingPackageIndex = 0;
-        VehiclePricingPackage expectedNewPricingPackage = availablePricingPackages.get(expectedNewPricingPackageIndex);
-        BigDecimal expectedNewPrice = expectedNewPricingPackage.getPackagePrice().add(expectedNewPricingPackage.getKilometerPrice());
-        assertEquals(expectedNewPrice.doubleValue(), stateEditor.child.weight, 0.001);
-        assertEquals(expectedNewPricingPackageIndex, stateEditor.child.getActivePackageIndex());
-    }
-
-    @Test
-    public void shouldAddLowestTotalPriceToWeightWhenTimeIncreased() {
-        // given
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 1000.0, availablePricingPackages.get(0));
-        car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
-        StateEditor stateEditor = new StateEditor(priceOptimizeRequest, null);
-
-        // when
-        stateEditor.beginVehicleRenting(car);
-        stateEditor.incrementTimeInSeconds(485);
-
-        // then
-        int expectedNewPricingPackageIndex = 0;
-        VehiclePricingPackage expectedNewPricingPackage = availablePricingPackages.get(expectedNewPricingPackageIndex);
-        BigDecimal expectedNewPrice = expectedNewPricingPackage.getPackagePrice().add(expectedNewPricingPackage.getDrivingPricePerTimeTickInPackageExceeded());
-        assertEquals(expectedNewPrice.doubleValue(), stateEditor.child.weight, 0.001);
-        assertEquals(expectedNewPricingPackageIndex, stateEditor.child.getActivePackageIndex());
-    }
-
-    @Test
-    public void shouldNotModifyWeightWhenTimeIncreasedWithinPackage() {
-        // given
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 1000.0, availablePricingPackages.get(0));
-        car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
-        StateEditor stateEditor = new StateEditor(priceOptimizeRequest, null);
-
-        // when
-        stateEditor.beginVehicleRenting(car);
-        stateEditor.incrementTimeInSeconds(60);
-
-        // then
-        int expectedNewPricingPackageIndex = 1;
-        VehiclePricingPackage expectedNewPricingPackage = availablePricingPackages.get(expectedNewPricingPackageIndex);
-        assertEquals(expectedNewPricingPackage.getPackagePrice().doubleValue(), stateEditor.child.weight, 0.001);
-        assertEquals(expectedNewPricingPackageIndex, stateEditor.child.getActivePackageIndex());
-    }
-
-    @Test
-    public void shouldNotCreateStateWithNewPackageConfigDueToNegativeWeightIncrement() {
-        // given
-        CarDescription car = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(13, "Innogy"), 1000.0, availablePricingPackages.get(0));
-        car.getVehiclePricingPackages().add(availablePricingPackages.get(1));
-        StateEditor stateEditor = new StateEditor(priceOptimizeRequest, null);
-
-        // when
-        stateEditor.beginVehicleRenting(car);
-        stateEditor.incrementTimeInSeconds(485);
-        // artificially generating negative weight increment error...
-        car.getVehiclePricingPackages().get(1).setDrivingPricePerTimeTickInPackageExceeded(BigDecimal.valueOf(0.1));
-        stateEditor.incrementTimeInSeconds(60);
-
-        // then
-        assertNull(stateEditor.makeState());
     }
 
     @Test

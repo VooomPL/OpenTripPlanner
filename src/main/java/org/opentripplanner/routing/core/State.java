@@ -17,8 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 public class State implements Cloneable {
 
@@ -30,13 +31,11 @@ public class State implements Cloneable {
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
-    private Map<Integer, BigDecimal> distancePricePerPackage;
+    private BigDecimal distancePriceForCurrentVehicle;
 
-    private Map<Integer, BigDecimal> timePricePerPackage;
+    private BigDecimal timePriceForCurrentVehicle;
 
-    private Map<Integer, BigDecimal> startPricePerPackage;
-
-    private int activePackageIndex;
+    private BigDecimal startPriceForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -136,10 +135,9 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
-        distancePricePerPackage = new HashMap<>();
-        timePricePerPackage = new HashMap<>();
-        startPricePerPackage = new HashMap<>();
-        activePackageIndex = 0;
+        distancePriceForCurrentVehicle = BigDecimal.ZERO;
+        timePriceForCurrentVehicle = BigDecimal.ZERO;
+        startPriceForCurrentVehicle = BigDecimal.ZERO;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -161,14 +159,6 @@ public class State implements Cloneable {
         State ret;
         try {
             ret = (State) super.clone();
-            // Needed a deep copy of the maps below to properly pass information about prices
-            // between states
-            ret.startPricePerPackage = this.startPricePerPackage.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-            ret.distancePricePerPackage = this.distancePricePerPackage.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-            ret.timePricePerPackage = this.timePricePerPackage.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
         } catch (CloneNotSupportedException e1) {
             throw new IllegalStateException("This is not happening");
         }
@@ -921,55 +911,27 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
-    public BigDecimal getDistancePriceForCurrentVehicle(int packageIndex) {
-        return distancePricePerPackage.containsKey(packageIndex)?distancePricePerPackage.get(packageIndex):BigDecimal.ZERO;
+    public BigDecimal getDistancePriceForCurrentVehicle() {
+        return distancePriceForCurrentVehicle;
     }
 
-    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle, int packageIndex) {
-        this.distancePricePerPackage.put(packageIndex, distancePriceForCurrentVehicle);
+    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle) {
+        this.distancePriceForCurrentVehicle = distancePriceForCurrentVehicle;
     }
 
-    public BigDecimal getTimePriceForCurrentVehicle(int packageIndex) {
-        return timePricePerPackage.containsKey(packageIndex)?timePricePerPackage.get(packageIndex):BigDecimal.ZERO;
+    public BigDecimal getTimePriceForCurrentVehicle() {
+        return timePriceForCurrentVehicle;
     }
 
-    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle, int packageIndex) {
-        this.timePricePerPackage.put(packageIndex, timePriceForCurrentVehicle);
+    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle) {
+        this.timePriceForCurrentVehicle = timePriceForCurrentVehicle;
     }
 
-    public BigDecimal getStartPriceForCurrentVehicle(int packageIndex) {
-        return startPricePerPackage.containsKey(packageIndex)?startPricePerPackage.get(packageIndex):BigDecimal.ZERO;
+    public BigDecimal getStartPriceForCurrentVehicle() {
+        return startPriceForCurrentVehicle;
     }
 
-    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle, int packageIndex) {
-        this.startPricePerPackage.put(packageIndex, startPriceForCurrentVehicle);
-    }
-
-    public int getActivePackageIndex() {
-        return activePackageIndex;
-    }
-
-    public void setActivePackageIndex(int activePackageIndex) {
-        this.activePackageIndex = activePackageIndex;
-    }
-
-    public void clearCurrentVehiclePrices() {
-        this.startPricePerPackage.clear();
-        this.timePricePerPackage.clear();
-        this.distancePricePerPackage.clear();
-    }
-
-    public BigDecimal getTotalPriceForCurrentVehicle(int packageIndex) {
-        return this.getTimePriceForCurrentVehicle(packageIndex)
-                .add(this.getDistancePriceForCurrentVehicle(packageIndex))
-                .add(this.getStartPriceForCurrentVehicle(packageIndex));
-    }
-
-    public double getDistanceTraversedInCurrentVehicle() {
-        return distanceTraversedInCurrentVehicle;
-    }
-
-    public void setDistanceTraversedInCurrentVehicle(double distanceTraversedInCurrentVehicle) {
-        this.distanceTraversedInCurrentVehicle = distanceTraversedInCurrentVehicle;
+    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle) {
+        this.startPriceForCurrentVehicle = startPriceForCurrentVehicle;
     }
 }

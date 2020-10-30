@@ -148,16 +148,6 @@ public abstract class DominanceFunction implements Serializable {
         }
     }
 
-    public static class LowestPrice extends DominanceFunction {
-        /**
-         * Return true if the first state has lower price than the second state.
-         */
-        @Override
-        public boolean betterOrEqual(State a, State b) {
-            return a.getTraversalPrice().compareTo(b.getTraversalPrice()) <= 0;
-        }
-    }
-
     /**
      * A dominance function that prefers the least walking. This should only be used with walk-only searches because
      * it does not include any functions of time, and once transit is boarded walk distance is constant.
