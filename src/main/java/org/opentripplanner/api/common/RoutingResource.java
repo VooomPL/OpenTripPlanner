@@ -563,6 +563,11 @@ public abstract class RoutingResource {
     @QueryParam("onlyTransitTrips")
     private Boolean forceTransitTrips;
 
+    /**
+     * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
+     */
+
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
