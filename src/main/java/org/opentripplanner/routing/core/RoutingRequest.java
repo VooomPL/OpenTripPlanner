@@ -414,6 +414,8 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     private OptimizationProfile optimizationProfile;
 
+    private Map<CostFunction.CostCategory, Double> costCategoryWeights;
+
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
      */
@@ -713,8 +715,6 @@ public class RoutingRequest implements Cloneable, Serializable {
      * is usable is 2:00pm.
      */
     public long clockTimeSec;
-
-    private Map<CostFunction.CostCategory, Double> costCategoryWeights;
 
     /* CONSTRUCTORS */
 
