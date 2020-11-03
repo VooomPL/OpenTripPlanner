@@ -8,7 +8,6 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
 import java.util.List;
@@ -76,7 +75,7 @@ public class ParkingZonesMapper extends HasuraToOTPMapper<ParkingZone, GeometryP
     @Override
     protected GeometryParkingZone mapSingleHasuraObject(ParkingZone hasuraObject) {
         // This feature requires custom list mapping, we cannot map one parking zone into one geometry parking zone
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override

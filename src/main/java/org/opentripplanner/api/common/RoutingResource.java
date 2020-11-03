@@ -201,6 +201,8 @@ public abstract class RoutingResource {
     @QueryParam("triangleTimeFactor")
     protected Double triangleTimeFactor;
 
+    @QueryParam("differRangeGroups")
+    protected Boolean differRangeGroups;
     /**
      * The set of characteristics that the user wants to optimize for. @See OptimizeType
      */
@@ -497,6 +499,9 @@ public abstract class RoutingResource {
 
     @QueryParam("remainingWeightWeight")
     protected Double remainingWeightWeight;
+
+    @QueryParam("kickscooterRangeGroups")
+    protected ArrayList<Double> kickscooterRangeGroups;
     /*
      * Control the size of flag-stop buffer returned in API response. This parameter only applies
      * to GTFS-Flex routing, which must be explicitly turned on via the useFlexService parameter in
@@ -551,6 +556,12 @@ public abstract class RoutingResource {
 
     @QueryParam("optimizationProfile")
     private String optimizationProfileName;
+
+    /**
+     * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
+     */
+    @QueryParam("forceTransitTrips")
+    private Boolean forceTransitTrips;
 
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
@@ -812,6 +823,13 @@ public abstract class RoutingResource {
 
         if (remainingWeightWeight != null)
             request.remainingWeightWeight = remainingWeightWeight;
+
+        if (differRangeGroups != null)
+            request.routingStateDiffOptions.differRangeGroups = differRangeGroups;
+
+        if (kickscooterRangeGroups != null)
+            request.routingStateDiffOptions.setKickscooterRangeGroupsInMeters(kickscooterRangeGroups);
+
         if (flexFlagStopBufferSize != null)
             request.flexFlagStopBufferSize = flexFlagStopBufferSize;
 
@@ -838,6 +856,9 @@ public abstract class RoutingResource {
 
         if (pathComparator != null)
             request.pathComparator = pathComparator;
+
+        if (forceTransitTrips != null)
+            request.forceTransitTrips = forceTransitTrips;
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);

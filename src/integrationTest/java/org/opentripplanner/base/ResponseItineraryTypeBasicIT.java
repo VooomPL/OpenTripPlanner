@@ -23,6 +23,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "false")
+                .queryParam("date", "2020-10-23")
                 .request().get();
 
         Response body = response.readEntity(Response.class);
