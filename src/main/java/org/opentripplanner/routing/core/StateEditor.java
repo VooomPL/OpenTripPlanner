@@ -18,7 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
@@ -53,6 +56,7 @@ public class StateEditor {
 
     public StateEditor(State parent, Edge e) {
         child = parent.clone();
+        child.setConsumed(false);
         child.backState = parent;
         child.backEdge = e;
         child.traversalStatistics = parent.traversalStatistics.copy();
@@ -467,7 +471,7 @@ public class StateEditor {
         int rentingTime = child.getOptions().routingDelays.getRentingTime(child.stateData.currentVehicle);
         incrementTimeInSeconds(rentingTime);
         child.stateData.currentTraverseMode = TraverseMode.WALK;
-        child.stateData.currentVehicle = null;
+        child.stateData.currentVehicle = null; // !!!!!!
     }
 
     /**

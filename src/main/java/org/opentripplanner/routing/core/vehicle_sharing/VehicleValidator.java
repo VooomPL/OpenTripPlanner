@@ -12,6 +12,10 @@ public class VehicleValidator {
         filters.add(filter);
     }
 
+    public void removeFilter(VehicleFilter filter) {
+        filters.remove(filter);
+    }
+
     public boolean isValid(VehicleDescription vehicle) {
         return filters.stream().allMatch(f -> f.isValid(vehicle));
     }

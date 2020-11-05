@@ -71,6 +71,8 @@ public class State implements Cloneable {
 
     private static final Logger LOG = LoggerFactory.getLogger(State.class);
 
+    private boolean isConsumed = false;
+
     public boolean usedNotRecommendedRoute = false;
     /* CONSTRUCTORS */
 
@@ -696,16 +698,20 @@ public class State implements Cloneable {
 
         while (orig.getBackState() != null) {
             Edge edge = orig.getBackEdge();
-
+            int a = 0;
             // first board/last alight: figure in wait time in on the fly optimization
             if (forward && firstBoardOrLastAlight(orig, edge)) {
+                a = 1;
                 ret = ((TransitBoardAlight) edge).traverse(ret, orig.getBackState().getTimeSeconds());
                 newInitialWaitTime = ret.stateData.initialWaitTime;
             } else if (edge instanceof DropoffVehicleEdge && ret.stateData.opt.reverseOptimizing) {
+                a = 2;
                 ret = ((DropoffVehicleEdge) edge).reversedTraverseDoneRenting(ret, orig.getBackState().getCurrentVehicle());
             } else if (edge instanceof RentVehicleEdge && ret.stateData.opt.reverseOptimizing) {
+                a = 3;
                 ret = reverseOptimizeRentVehicleEdge((RentVehicleEdge) edge, ret, orig);
             } else {
+                a = 4;
                 ret = edge.traverse(ret);
             }
 
@@ -932,5 +938,13 @@ public class State implements Cloneable {
 
     public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle) {
         this.startPriceForCurrentVehicle = startPriceForCurrentVehicle;
+    }
+
+    public boolean isConsumed() {
+        return isConsumed;
+    }
+
+    public void setConsumed(boolean consumed) {
+        isConsumed = consumed;
     }
 }

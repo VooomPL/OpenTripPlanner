@@ -1,10 +1,9 @@
 package org.opentripplanner.routing.impl;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.math3.optimization.OptimizationData;
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
@@ -20,7 +19,6 @@ import org.opentripplanner.routing.flex.DeviatedRouteGraphModifier;
 import org.opentripplanner.routing.flex.FlagStopGraphModifier;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
@@ -208,6 +206,7 @@ public class GraphPathFinder {
                     .collect(Collectors.toList()));
 
             LOG.debug("we have {} paths", paths.size());
+            break;
         }
         LOG.debug("END SEARCH ({} msec)", System.currentTimeMillis() - searchBeginTime);
         Collections.sort(paths, options.getPathComparator(options.arriveBy));

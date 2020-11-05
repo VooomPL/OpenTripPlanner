@@ -1026,12 +1026,14 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     public int getNumItineraries() {
-        if (modes.isTransit()) {
-            return numItineraries;
-        } else {
-            // If transit is not to be used, only search for one itinerary.
-            return 1;
-        }
+
+        return numItineraries;
+//        if (modes.isTransit()) {
+//            return numItineraries;
+//        } else {
+//            // If transit is not to be used, only search for one itinerary.
+//            return 1;
+//        }
     }
 
     public void setNumItineraries(int numItineraries) {

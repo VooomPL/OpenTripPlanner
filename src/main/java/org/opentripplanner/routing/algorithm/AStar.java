@@ -1,36 +1,29 @@
 package org.opentripplanner.routing.algorithm;
 
 import com.beust.jcommander.internal.Lists;
-
 import org.opentripplanner.common.pqueue.BinHeap;
-import org.opentripplanner.routing.algorithm.costs.CostFunction;
-import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
-import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
-import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleFilter;
 import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.routing.spt.StateFeature;
 import org.opentripplanner.util.DateUtils;
 import org.opentripplanner.util.monitoring.MonitoringStore;
 import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Find the shortest path between graph vertices using A*.
  * A basic Dijkstra search is a special case of AStar where the heuristic is always zero.
- *
+ * <p>
  * NOTE this is now per-request scoped, which has caused some threading problems in the past.
  * Always make one new instance of this class per request, it contains a lot of state fields.
  */
@@ -50,27 +43,27 @@ public class AStar {
     }
 
     /* TODO instead of having a separate class for search state, we should just make one GenericAStar per request. */
-    class RunState {
-
-        public State u;
-        public ShortestPathTree spt;
-        BinHeap<State> pq;
-        RemainingWeightHeuristic heuristic;
-        public RoutingContext rctx;
-        public int nVisited;
-        public List<State> targetAcceptedStates;
-        public RunStatus status;
-        private RoutingRequest options;
-        private SearchTerminationStrategy terminationStrategy;
-        public Vertex u_vertex;
-        Double foundPathWeight = null;
-
-        public RunState(RoutingRequest options, SearchTerminationStrategy terminationStrategy) {
-            this.options = options;
-            this.terminationStrategy = terminationStrategy;
-        }
-
-    }
+//    class RunState {
+//
+//        public State u;
+//        public ShortestPathTree spt;
+//        BinHeap<State> pq;
+//        RemainingWeightHeuristic heuristic;
+//        public RoutingContext rctx;
+//        public int nVisited;
+//        public List<State> targetAcceptedStates;
+//        public RunStatus status;
+//        private RoutingRequest options;
+//        private SearchTerminationStrategy terminationStrategy;
+//        public Vertex u_vertex;
+//        Double foundPathWeight = null;
+//
+//        public RunState(RoutingRequest options, SearchTerminationStrategy terminationStrategy) {
+//            this.options = options;
+//            this.terminationStrategy = terminationStrategy;
+//        }
+//
+//    }
 
     private RunState runState;
 
@@ -134,11 +127,11 @@ public class AStar {
         runState.pq = new BinHeap<>(initialSize);
         runState.nVisited = 0;
         runState.targetAcceptedStates = Lists.newArrayList();
-        
         if (addToQueue) {
             State initialState = new State(options);
             runState.spt.add(initialState);
             runState.pq.insert(initialState, 0);
+            runState.allGeneratedStates.add(initialState);
         }
     }
 
@@ -154,7 +147,6 @@ public class AStar {
 
         // get the lowest-weight state in the queue
         runState.u = runState.pq.extract_min();
-        
         // check that this state has not been dominated
         // and mark vertex as visited
         if (!runState.spt.visit(runState.u)) {
@@ -162,18 +154,19 @@ public class AStar {
             // not in any optimal path. drop it on the floor and try the next one.
             return false;
         }
-        
+
         if (traverseVisitor != null) {
             traverseVisitor.visitVertex(runState.u);
         }
-        
+
         runState.u_vertex = runState.u.getVertex();
 
         if (verbose)
             System.out.println("   vertex " + runState.u_vertex);
 
         runState.nVisited += 1;
-        
+        runState.u.setConsumed(true);
+        runState.consumedStates.add(runState.u);
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
 
@@ -181,7 +174,7 @@ public class AStar {
             // returning NULL), the iteration is over. TODO Use this to board multiple trips.
             for (State v = edge.traverse(runState.u); v != null; v = v.getNextResult()) {
                 // Could be: for (State v : traverseEdge...)
-
+                runState.allGeneratedStates.add(v);
                 if (traverseVisitor != null) {
                     traverseVisitor.visitEdge(edge, v);
                 }
@@ -241,7 +234,7 @@ public class AStar {
                 // Rather than returning null to indicate that the search was aborted/timed out,
                 // we instead set a flag in the routing context and return the SPT anyway. This
                 // allows returning a partial list results even when a timeout occurs.
-                runState.options.rctx.aborted = true; // signal search cancellation up to higher stack frames
+//                runState.options.rctx.aborted = true; // signal search cancellation up to higher stack frames
                 runState.options.rctx.debugOutput.timedOut = true; // signal timeout in debug output object
 
                 break;
@@ -268,30 +261,58 @@ public class AStar {
                     runState.u.getWeight() > runState.foundPathWeight * OVERSEARCH_MULTIPLIER) {
                 break;
             }
-            if (runState.terminationStrategy != null) {
-                if (runState.terminationStrategy.shouldSearchTerminate(
-                        runState.rctx.origin, runState.rctx.target, runState.u, runState.spt, runState.options)) {
-                    break;
-                }
-            } else if (!runState.options.batch && runState.u_vertex == runState.rctx.target && runState.u.isFinal()) {
-                if (runState.options.onlyTransitTrips && !runState.u.isEverBoarded()) {
-                    continue;
-                }
+//            if (runState.terminationStrategy != null) {
+//                if (runState.terminationStrategy.shouldSearchTerminate(
+//                        runState.rctx.origin, runState.rctx.target, runState.u, runState.spt, runState.options)) {
+//                    break;
+//                }
+//            } else
+            if (!runState.options.batch && runState.u_vertex == runState.rctx.target && runState.u.isFinal()) {
+//                if (runState.options.onlyTransitTrips && !runState.u.isEverBoarded()) {
+//                    continue;
+//                }
+
                 runState.targetAcceptedStates.add(runState.u);
                 runState.foundPathWeight = runState.u.getWeight();
                 runState.options.rctx.debugOutput.foundPath();
-                // new GraphPath(runState.u, false).dump();
-                /* Only find one path at a time in long distance mode. */
-                if (runState.options.longDistance) {
-                    break;
-                }
-                /* Break out of the search if we've found the requested number of paths. */
+
                 if (runState.targetAcceptedStates.size() >= runState.options.getNumItineraries()) {
                     LOG.debug("total vertices visited {}", runState.nVisited);
                     break;
                 }
+
+                Provider forbiddenProvider = null;
+                for (State s = runState.u; s.weight > 0; s = s.getBackState()) {
+                    if (s.getCurrentVehicle() != null) {
+                        forbiddenProvider = s.getCurrentVehicle().getProvider();
+                        break;
+                    }
+                }
+                if (forbiddenProvider == null) {
+                    break;
+                } else {
+                    Provider finalForbiddenProvider = forbiddenProvider;
+                    LOG.info("Forbiding {} for next search", forbiddenProvider.getProviderName());
+                    StateFeature forbiddenFeature = state -> (state.getCurrentVehicle() != null && state.getCurrentVehicle().getProvider().getProviderName().equals(finalForbiddenProvider.getProviderName()));
+                    runState.resetState(forbiddenFeature);
+
+                    final VehicleFilter vehicleFilter = vehicle -> !vehicle.getProvider().getProviderName().equals(finalForbiddenProvider.getProviderName());
+                    runState.options.vehicleValidator.addFilter(vehicleFilter);
+                    runState.addedFilters.add(vehicleFilter);
+                }
+
+                // new GraphPath(runState.u, false).dump();
+                /* Only find one path at a time in long distance mode. */
+//                if (runState.options.longDistance) {
+//                    break;
+//                }
+                /* Break out of the search if we've found the requested number of paths. */
+
             }
 
+        }
+        for (VehicleFilter vehicleFilter : runState.addedFilters) {
+            runState.options.vehicleValidator.removeFilter(vehicleFilter);
         }
     }
 
@@ -336,7 +357,7 @@ public class AStar {
             runSearch(abortTime);
             spt = runState.spt;
         }
-        
+
         return spt;
     }
 
@@ -367,7 +388,9 @@ public class AStar {
 
         List<GraphPath> ret = new LinkedList<>();
         for (State s : runState.targetAcceptedStates) {
+            LOG.info("Trying to take path from targetAcceptedStates");
             if (s.isFinal()) {
+                LOG.info("Taking path from targetAcceptedStates");
                 ret.add(new GraphPath(s, true));
             }
         }
