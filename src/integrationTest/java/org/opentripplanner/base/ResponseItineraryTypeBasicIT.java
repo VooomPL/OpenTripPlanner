@@ -78,7 +78,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
     }
 
     @Test
-    public void testBusAndBicycle() {
+    public void testBusAndKickscooter() {
         javax.ws.rs.core.Response response = target("/routers/bydgoszcz/plan")
                 .queryParam("fromPlace", "53.134802,17.991995")
                 .queryParam("toPlace", "53.122338,18.0098715")
@@ -87,7 +87,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "true")
-                .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
+                .queryParam("vehicleTypesAllowed", "KICKSCOOTER")
                 .queryParam("date", "07-16-2020")
                 .queryParam("time", "15:00:00")
                 .request().get();

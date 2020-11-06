@@ -91,28 +91,35 @@ public class ResponseStructureIT extends IntegrationTest {
     }
 
     private void assertItinerary1(Itinerary itinerary) {
-        assertThat(itinerary.itineraryType, equalTo("WALK+MOTORBIKE"));
+        assertThat(itinerary.itineraryType, equalTo("WALK+MOTORBIKE+TRANSIT"));
         assertThat(itinerary.usedNotRecommendedRoute, equalTo(false)); // the best route?
 
         assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 4065.968)); // MOTORBIKE is a CAR
-        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 525.1229999999999));
-        assertThat(itinerary.traverseDistance, equalTo(4065.968 + 525.1229999999999));
+        assertThat(itinerary.distanceTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 230.062));
+        assertThat(itinerary.traverseDistance, equalTo(4296.029999999999));
 
         assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.CAR, 998));
-        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 417));
-        assertThat(itinerary.duration, equalTo((long) 998 + 417));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.WALK, 199));
+        assertThat(itinerary.timeTraversedInMode, Matchers.hasEntry(TraverseMode.TRANSIT, 60));
+        assertThat(itinerary.duration, equalTo((long) 998 + 199 + 60));
 
-        assertThat(itinerary.legs.size(), equalTo(2));
+        assertThat(itinerary.legs.size(), equalTo(4));
 
         assertThat(itinerary.legs.get(0).mode, equalTo(TraverseMode.WALK));
         assertThat(itinerary.legs.get(0).agencyName, equalTo(null));
 
-        assertThat(itinerary.legs.get(1).mode, equalTo(TraverseMode.CAR));
-        assertThat(itinerary.legs.get(1).vehicleDescription, notNullValue());
-        assertThat(itinerary.legs.get(1).vehicleDescription.getVehicleType(), equalTo(VehicleType.MOTORBIKE));
-        assertThat(itinerary.legs.get(1).vehicleDescription.getProvider().getProviderName(), equalTo("Blinkee"));
-        assertThat(itinerary.legs.get(1).vehicleDescription.getLatitude(), closeTo(itinerary.legs.get(1).from.lat, 0.001)); // vehicle position is not exactly on route
-        assertThat(itinerary.legs.get(1).vehicleDescription.getLongitude(), closeTo(itinerary.legs.get(1).from.lon, 0.001));
+        assertThat(itinerary.legs.get(1).mode, equalTo(TraverseMode.BUS));
+        assertThat(itinerary.legs.get(1).route, equalTo("51"));
+
+        assertThat(itinerary.legs.get(2).mode, equalTo(TraverseMode.WALK));
+        assertThat(itinerary.legs.get(2).agencyName, equalTo(null));
+
+        assertThat(itinerary.legs.get(3).mode, equalTo(TraverseMode.CAR));
+        assertThat(itinerary.legs.get(3).vehicleDescription, notNullValue());
+        assertThat(itinerary.legs.get(3).vehicleDescription.getVehicleType(), equalTo(VehicleType.MOTORBIKE));
+        assertThat(itinerary.legs.get(3).vehicleDescription.getProvider().getProviderName(), equalTo("Blinkee"));
+        assertThat(itinerary.legs.get(3).vehicleDescription.getLatitude(), closeTo(itinerary.legs.get(3).from.lat, 0.001)); // vehicle position is not exactly on route
+        assertThat(itinerary.legs.get(3).vehicleDescription.getLongitude(), closeTo(itinerary.legs.get(3).from.lon, 0.001));
 
         for (int i = 0; i < itinerary.legs.size() - 1; ++i) {
             assertThat(itinerary.legs.get(i).to, equalTo(itinerary.legs.get(i + 1).from));
