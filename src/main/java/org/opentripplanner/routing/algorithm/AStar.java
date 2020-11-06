@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Find the shortest path between graph vertices using A*.
  * A basic Dijkstra search is a special case of AStar where the heuristic is always zero.
- *
+ * <p>
  * NOTE this is now per-request scoped, which has caused some threading problems in the past.
  * Always make one new instance of this class per request, it contains a lot of state fields.
  */
@@ -133,7 +133,7 @@ public class AStar {
         runState.pq = new BinHeap<>(initialSize);
         runState.nVisited = 0;
         runState.targetAcceptedStates = Lists.newArrayList();
-        
+
         if (addToQueue) {
             State initialState = new State(options);
             runState.spt.add(initialState);
@@ -153,7 +153,7 @@ public class AStar {
 
         // get the lowest-weight state in the queue
         runState.u = runState.pq.extract_min();
-        
+
         // check that this state has not been dominated
         // and mark vertex as visited
         if (!runState.spt.visit(runState.u)) {
@@ -161,26 +161,28 @@ public class AStar {
             // not in any optimal path. drop it on the floor and try the next one.
             return false;
         }
-        
+
         if (traverseVisitor != null) {
             traverseVisitor.visitVertex(runState.u);
         }
-        
+
         runState.u_vertex = runState.u.getVertex();
 
         if (verbose)
             System.out.println("   vertex " + runState.u_vertex);
 
         runState.nVisited += 1;
-        
+
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
 
 
-            if(this.runState.rctx.graph.carPresencePredictor != null && edge instanceof RentVehicleEdge) {
-                double vehiclePresenceProbability = this.runState.rctx.graph.carPresencePredictor.
-                        predict(((RentVehicleEdge) edge).getVehicle(), runState.u.getTimeSeconds());
-                if(vehiclePresenceProbability < this.runState.options.vehiclePredictionThreshold) {
+            if (this.runState.rctx.graph.carPresencePredictor != null &&
+                    edge instanceof RentVehicleEdge &&
+                    this.runState.options.vehiclePredictionThreshold > 0) {
+                double vehiclePresenceProbability = this.runState.rctx.graph.carPresencePredictor
+                        .predict(((RentVehicleEdge) edge).getVehicle(), runState.u.getTimeSeconds());
+                if (vehiclePresenceProbability < this.runState.options.vehiclePredictionThreshold) {
                     continue;
                 }
             }
@@ -210,7 +212,7 @@ public class AStar {
                             + v.getVertex());
                 }
 
-                // avoid enqueuing useless branches 
+                // avoid enqueuing useless branches
                 if (estimate > runState.options.maxWeight) {
                     // too expensive to get here
                     if (verbose)
@@ -341,7 +343,7 @@ public class AStar {
             runSearch(abortTime);
             spt = runState.spt;
         }
-        
+
         return spt;
     }
 

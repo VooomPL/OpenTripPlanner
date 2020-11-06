@@ -1,8 +1,9 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicle_presence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.hasura_client.VehiclePresenceGetter;
-import org.opentripplanner.hasura_client.hasura_objects.VehiclePresence;
+import com.google.common.collect.ImmutableMap;
+import org.opentripplanner.prediction_client.VehiclePresence;
+import org.opentripplanner.prediction_client.VehiclePresenceGetter;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.PollingGraphUpdater;
@@ -10,11 +11,13 @@ import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehi
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class VehiclePresencePredictionUpdater extends PollingGraphUpdater {
 
     private static final Logger LOG = LoggerFactory.getLogger(SharedVehiclesUpdater.class);
+    private static final Map<String, String> params = ImmutableMap.of("vehicle", "CAR");
 
     private final VehiclePresenceGetter vehiclePresenceGetter = new VehiclePresenceGetter();
     private GraphUpdaterManager graphUpdaterManager;
@@ -24,15 +27,14 @@ public class VehiclePresencePredictionUpdater extends PollingGraphUpdater {
     @Override
     protected void runPolling() {
         LOG.info("Polling Vehicle Presence Prediction from API");
-        List<VehiclePresence> vehiclePresenceHeatmaps = vehiclePresenceGetter.getFromHasura(graph, url);
+        Optional<VehiclePresence> vehiclePresenceHeatmap = vehiclePresenceGetter.getPrediction(url, params);
         LOG.info("Got vehicle presence map");
-        graphUpdaterManager.execute(new VehiclePresenceGraphWriterRunnable(vehiclePresenceHeatmaps));
-
+        vehiclePresenceHeatmap.ifPresent(it -> graphUpdaterManager.execute(new VehiclePresenceGraphWriterRunnable(it)));
     }
 
     @Override
-    protected void configurePolling(Graph graph, JsonNode config) throws Exception {
-        this.pollingPeriodSeconds = 60;
+    protected void configurePolling(Graph graph, JsonNode config) {
+        this.pollingPeriodSeconds = 600;
         this.url = System.getProperty("predictionApiUrl");
         if (this.url == null) {
             throw new IllegalStateException("Please provide program parameter `--predictionApiUrl <URL>`");
@@ -40,7 +42,7 @@ public class VehiclePresencePredictionUpdater extends PollingGraphUpdater {
     }
 
     @Override
-    public void configure(Graph graph, JsonNode config) throws Exception {
+    public void configure(Graph graph, JsonNode config) {
         configurePolling(graph, config);
         type = "Vehicle presence prediction";
     }

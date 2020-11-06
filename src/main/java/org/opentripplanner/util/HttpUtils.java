@@ -2,9 +2,8 @@ package org.opentripplanner.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
+import com.ning.http.client.RequestBuilder;
+import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -19,6 +18,8 @@ import org.opentripplanner.hasura_client.ApiResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class HttpUtils {
@@ -52,6 +53,21 @@ public class HttpUtils {
         try {
             HttpPost request = new HttpPost(url);
             request.setEntity(new StringEntity(data, ContentType.APPLICATION_JSON));
+            HttpClient client = getClient();
+            request.addHeader("content-type", "application/json");
+            request.addHeader("accept", "application/json");
+            HttpResponse response = client.execute(request);
+            String json = EntityUtils.toString(response.getEntity(), "UTF-8");
+            return objectMapper.readValue(json, type);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static <T> T getData(URI uri, TypeReference<T> type) {
+        try {
+            HttpGet request = new HttpGet(uri);
             HttpClient client = getClient();
             request.addHeader("content-type", "application/json");
             request.addHeader("accept", "application/json");

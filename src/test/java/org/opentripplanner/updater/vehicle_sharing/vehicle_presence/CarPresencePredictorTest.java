@@ -2,7 +2,7 @@ package org.opentripplanner.updater.vehicle_sharing.vehicle_presence;
 
 import junit.framework.TestCase;
 import org.locationtech.jts.geom.Envelope;
-import org.opentripplanner.hasura_client.hasura_objects.VehiclePresence;
+import org.opentripplanner.prediction_client.VehiclePresence;
 import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
 import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
@@ -18,7 +18,7 @@ public class CarPresencePredictorTest extends TestCase {
     private VehiclePresence prepareHeatMap() {
         VehiclePresence vehiclePresence = new VehiclePresence();
         vehiclePresence.setVehicle("car");
-        vehiclePresence.setTime(0);
+        vehiclePresence.setTimestamp(0);
         vehiclePresence.setCellLength(0.001);
         vehiclePresence.setCellWidth(0.001);
 

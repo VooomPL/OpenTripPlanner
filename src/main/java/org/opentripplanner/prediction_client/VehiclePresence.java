@@ -1,12 +1,11 @@
-package org.opentripplanner.hasura_client.hasura_objects;
+package org.opentripplanner.prediction_client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 
 import java.util.List;
 
-public class VehiclePresence extends HasuraObject {
+public class VehiclePresence {
 
     private String vehicle;
     private double cellLength;
@@ -16,14 +15,14 @@ public class VehiclePresence extends HasuraObject {
     private List<Prediction> predictions_15;
     private List<Prediction> predictions_30;
     private List<Prediction> predictions_45;
-    private long time;
+    private long timestamp;
 
-    public long getTime() {
-        return time;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getVehicle() {

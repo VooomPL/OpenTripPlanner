@@ -129,7 +129,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public VehicleValidator vehicleValidator = new VehicleValidator();
 
     /**
-     * Threshold for deciding when vehicle is assumed to be missing when using vehiclePresencePredcitor funcionality
+     * Threshold for deciding when vehicle is assumed to be missing when using vehiclePresencePredictor functionality
      * Default 0 means it is always present.
      */
     public float vehiclePredictionThreshold = 0;

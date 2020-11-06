@@ -2,7 +2,7 @@ package org.opentripplanner.updater.vehicle_sharing.vehicle_presence;
 
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.strtree.STRtree;
-import org.opentripplanner.hasura_client.hasura_objects.VehiclePresence;
+import org.opentripplanner.prediction_client.VehiclePresence;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
@@ -62,7 +62,10 @@ public class CarPresencePredictor {
             for (VehiclePresence.Prediction prediction : vehiclePresenceHeatmaps.getPredictions_45()) {
                 index45.insert(prediction.getEnvelope(), prediction);
             }
-            this.time = vehiclePresenceHeatmaps.getTime();
+            index15.build();
+            index30.build();
+            index45.build();
+            this.time = vehiclePresenceHeatmaps.getTimestamp();
             this.length = vehiclePresenceHeatmaps.getCellLength();
             this.width = vehiclePresenceHeatmaps.getCellWidth();
         }
