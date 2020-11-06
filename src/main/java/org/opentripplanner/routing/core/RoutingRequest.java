@@ -154,7 +154,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * The maximum number of itineraries to return.
      */
-    public int numItineraries = 3;
+    private int numItineraries = 3;
 
     /**
      * The maximum slope of streets for wheelchair trips.
@@ -1029,10 +1029,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     public int getNumItineraries() {
-        if (modes.isTransit()) {
+        if (modes.isTransit() || rentingAllowed) {
             return numItineraries;
         } else {
-            // If transit is not to be used, only search for one itinerary.
+            // If transit and renting is not to be used, only search for one itinerary.
             return 1;
         }
     }

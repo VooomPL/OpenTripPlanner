@@ -264,7 +264,7 @@ public class RepeatedRaptorProfileRouter {
             }
         }
 
-        rr.numItineraries = 1;
+        rr.setNumItineraries(1);
         rr.longDistance = true;
 
         AStar aStar = new AStar();

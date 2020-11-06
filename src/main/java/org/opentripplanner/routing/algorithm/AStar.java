@@ -285,6 +285,10 @@ public class AStar {
                     LOG.debug("total vertices visited {}", runState.nVisited);
                     break;
                 }
+                // For next itineraries we want to disallow vehicle providers used in this itinerary
+                if (runState.options.rentingAllowed) {
+                    break;
+                }
             }
 
         }

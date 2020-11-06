@@ -7,7 +7,6 @@ public class VehicleValidator {
 
     private final List<VehicleFilter> filters = new ArrayList<>();
 
-
     public void addFilter(VehicleFilter filter) {
         filters.add(filter);
     }
