@@ -552,6 +552,9 @@ public abstract class RoutingResource {
     @QueryParam("optimizationProfile")
     private String optimizationProfileName;
 
+    @QueryParam("vehiclePresenceThreshold")
+    private Float vehiclePresenceThreshold;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -838,6 +841,9 @@ public abstract class RoutingResource {
 
         if (pathComparator != null)
             request.pathComparator = pathComparator;
+
+        if (vehiclePresenceThreshold != null)
+            request.vehiclePredictionThreshold = vehiclePresenceThreshold;
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);

@@ -62,6 +62,7 @@ import org.opentripplanner.updater.GraphUpdaterConfigurator;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
+import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.CarPresencePredictor;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,6 +285,9 @@ public class Graph implements Serializable {
      * All bike stations currently linked to graph
      */
     public Map<BikeRentalStation, RentBikeEdge> bikeRentalStationsInGraph;
+
+    @Nullable
+    public CarPresencePredictor carPresencePredictor;
 
     public Graph(Graph basedOn) {
         this();

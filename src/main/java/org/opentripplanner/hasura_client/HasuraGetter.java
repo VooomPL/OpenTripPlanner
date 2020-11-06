@@ -37,7 +37,6 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
                 "}}";
     }
 
-
     public List<GRAPH_OBJECT> getFromHasura(Graph graph, String url) {
         String arguments = getGeolocationArguments(graph);
         String body = addGeolocationArguments() ? query() + arguments : query();

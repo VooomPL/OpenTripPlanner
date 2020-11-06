@@ -128,6 +128,12 @@ public class RoutingRequest implements Cloneable, Serializable {
     public VehicleValidator vehicleValidator = new VehicleValidator();
 
     /**
+     * Threshold for deciding when vehicle is assumed to be missing when using vehiclePresencePredcitor funcionality
+     * Default 0 means it is always present.
+     */
+    public float vehiclePredictionThreshold = 0;
+
+    /**
      * The set of characteristics that the user wants to optimize for -- defaults to QUICK, or optimize for transit time.
      */
     public OptimizeType optimize = OptimizeType.QUICK;
@@ -1627,5 +1633,9 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public void setOptimizationProfile(OptimizationProfile optimizationProfile) {
         this.optimizationProfile = optimizationProfile;
+    }
+
+    public void setVehiclePredictionThreshold(float threshold) {
+        this.vehiclePredictionThreshold = threshold;
     }
 }

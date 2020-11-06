@@ -10,6 +10,7 @@ import org.opentripplanner.updater.example.ExamplePollingGraphUpdater;
 import org.opentripplanner.updater.stoptime.PollingStoptimeUpdater;
 import org.opentripplanner.updater.stoptime.WebsocketGtfsRealtimeUpdater;
 import org.opentripplanner.updater.street_notes.WinkkiPollingGraphUpdater;
+import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.VehiclePresencePredictionUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.BikesUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesUpdater;
 import org.slf4j.Logger;
@@ -96,6 +97,7 @@ public abstract class GraphUpdaterConfigurator {
 
         addUpdater(graph, updaterManager, new SharedVehiclesUpdater(), null);
         addUpdater(graph, updaterManager, new BikesUpdater(), null);
+        addUpdater(graph, updaterManager, new VehiclePresencePredictionUpdater(), null);
 
         // Now that all the updaters are configured, kick them all off in their own threads.
         updaterManager.startUpdaters();

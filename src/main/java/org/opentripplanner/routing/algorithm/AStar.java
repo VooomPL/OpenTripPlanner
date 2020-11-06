@@ -3,14 +3,13 @@ package org.opentripplanner.routing.algorithm;
 import com.beust.jcommander.internal.Lists;
 
 import org.opentripplanner.common.pqueue.BinHeap;
-import org.opentripplanner.routing.algorithm.costs.CostFunction;
-import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
@@ -176,6 +175,15 @@ public class AStar {
         
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
+
+
+            if(this.runState.rctx.graph.carPresencePredictor != null && edge instanceof RentVehicleEdge) {
+                double vehiclePresenceProbability = this.runState.rctx.graph.carPresencePredictor.
+                        predict(((RentVehicleEdge) edge).getVehicle(), runState.u.getTimeSeconds());
+                if(vehiclePresenceProbability < this.runState.options.vehiclePredictionThreshold) {
+                    continue;
+                }
+            }
 
             // Iterate over traversal results. When an edge leads nowhere (as indicated by
             // returning NULL), the iteration is over. TODO Use this to board multiple trips.
