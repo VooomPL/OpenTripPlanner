@@ -137,7 +137,7 @@ public class StreetTransitLink extends Edge {
     // and therefore don't even consider boarding
     @Override
     public double weightLowerBound(RoutingRequest options) {
-        return options.transitAllowed() ? 0 : Double.POSITIVE_INFINITY;
+        return options.modes.isTransit() ? 0 : Double.POSITIVE_INFINITY;
     }
 
     public Vertex getFromVertex() {
