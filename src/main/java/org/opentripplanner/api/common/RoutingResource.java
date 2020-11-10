@@ -132,6 +132,9 @@ public abstract class RoutingResource {
     @QueryParam("motorbikeReluctance")
     protected Double motorbikeReluctance;
 
+    @QueryParam("bicycleReluctance")
+    protected Double bicycleReluctance;
+
     @QueryParam("rentingReluctance")
     protected Double rentingReluctance;
 
@@ -653,6 +656,9 @@ public abstract class RoutingResource {
 
         if (motorbikeReluctance != null)
             request.routingReluctances.setMotorbikeReluctance(motorbikeReluctance);
+
+        if (bicycleReluctance != null)
+            request.routingReluctances.setBicycleReluctance(bicycleReluctance);
 
         if (rentingReluctance != null)
             request.routingReluctances.setRentingReluctance(rentingReluctance);
