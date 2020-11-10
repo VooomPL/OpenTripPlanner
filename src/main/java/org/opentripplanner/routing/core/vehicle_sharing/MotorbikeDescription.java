@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -57,6 +58,11 @@ public class MotorbikeDescription extends VehicleDescription {
     @Override
     protected double getDefaultRangeInMeters() {
         return DEFAULT_RANGE_IN_METERS;
+    }
+
+    @JsonIgnore
+    public static double getMaxPossibleSpeed() {
+        return MAX_SPEED_IN_METERS_PER_SECOND;
     }
 
     @Override
