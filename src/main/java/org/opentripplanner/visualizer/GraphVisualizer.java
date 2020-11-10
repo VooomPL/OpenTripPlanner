@@ -1425,13 +1425,13 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         options.softWalkLimiting = (softWalkLimiting.isSelected());
         options.softWalkPenalty = (Float.parseFloat(softWalkPenalty.getText()));
         options.softWalkOverageRate = (Float.parseFloat(this.softWalkOverageRate.getText()));
-        options.numItineraries = 1;
+        options.setNumItineraries(1);
         System.out.println("--------");
         System.out.println("Path from " + from + " to " + to + " at " + when);
         System.out.println("\tModes: " + modeSet);
         System.out.println("\tOptions: " + options);
 
-        options.numItineraries = (Integer.parseInt(this.nPaths.getText()));
+        options.setNumItineraries(Integer.parseInt(this.nPaths.getText()));
 
         // apply callback if the options call for it
         // if( dontUseGraphicalCallbackCheckBox.isSelected() ){

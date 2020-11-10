@@ -54,7 +54,7 @@ public class BenchmarkDominanceResource extends RoutingResource {
                 randomRequest.to.lat = toLat;
                 randomRequest.to.lng = toLon;
 
-                randomRequest.numItineraries = 1;
+                randomRequest.setNumItineraries(1);
 
                 GraphPathFinder gpFinder = new GraphPathFinder(router);
                 try {

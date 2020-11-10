@@ -564,6 +564,12 @@ public abstract class RoutingResource {
     @QueryParam("priceCostWeight")
     private Double priceCostWeight;
 
+    /**
+     * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
+     */
+    @QueryParam("forceTransitTrips")
+    private Boolean forceTransitTrips;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -857,6 +863,9 @@ public abstract class RoutingResource {
 
         if (pathComparator != null)
             request.pathComparator = pathComparator;
+
+        if (forceTransitTrips != null)
+            request.forceTransitTrips = forceTransitTrips;
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);

@@ -29,6 +29,7 @@ import static java.lang.Double.min;
  * This represents a street segment.
  *
  * @author novalis
+ *
  */
 public class StreetEdge extends Edge implements Cloneable {
 
@@ -52,9 +53,7 @@ public class StreetEdge extends Edge implements Cloneable {
     public static final float DEFAULT_CAR_SPEED = 11.2f;
     public static final float MOTORBIKE_MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND = 22.2f;
 
-    /**
-     * If you have more than 8 flags, increase flags to short or int
-     */
+    /** If you have more than 8 flags, increase flags to short or int */
     private static final int BACK_FLAG_INDEX = 0;
     private static final int ROUNDABOUT_FLAG_INDEX = 1;
     private static final int HASBOGUSNAME_FLAG_INDEX = 2;
@@ -133,6 +132,7 @@ public class StreetEdge extends Edge implements Cloneable {
         this.length_mm = (int) (length * 1000); // CONVERT FROM FLOAT METERS TO FIXED MILLIMETERS
         this.bicycleSafetyFactor = 1.0f;
         this.name = name;
+        this.setTemporarySpeedLimit(-1);
         this.setPermission(permission);
         this.setMaxStreetTraverseSpeed(DEFAULT_CAR_SPEED);
         this.setWheelchairAccessible(true); // accessible by default
@@ -160,6 +160,7 @@ public class StreetEdge extends Edge implements Cloneable {
                 LOG.error("exception while determining street edge angles. setting to zero. there is probably something wrong with this street segment's geometry.");
                 inAngle = 0;
                 outAngle = 0;
+
             }
         }
     }
@@ -175,14 +176,13 @@ public class StreetEdge extends Edge implements Cloneable {
 
     /**
      * Checks permissions of the street edge if specified modes are allowed to travel.
-     * <p>
+     *
      * Barriers aren't taken into account. So it can happen that canTraverse returns True.
      * But doTraverse returns false. Since there are barriers on a street.
-     * <p>
+     *
      * This is because this function is used also on street when searching for start/stop.
      * Those streets are then split. On splitted streets can be possible to drive with a CAR because
      * it is only blocked from one way.
-     *
      * @param modes
      * @return
      */
@@ -248,7 +248,6 @@ public class StreetEdge extends Edge implements Cloneable {
      * If start/end isn't bollard it just checks the street permissions.
      * <p>
      * It is used in {@link #canTraverse(RoutingRequest, TraverseMode)}
-     *
      * @param mode
      * @return
      */
@@ -300,6 +299,10 @@ public class StreetEdge extends Edge implements Cloneable {
         boolean backWalkingBike = s0.isBackWalkingBike();
         TraverseMode backMode = s0.getBackMode();
         Edge backEdge = s0.getBackEdge();
+        if( this.getTemporarySpeedLimit()==0){
+            return  null;
+            // Road is closed or speed = 0
+        }
         if (backEdge != null) {
             // No illegal U-turns.
             // NOTE(flamholz): we check both directions because both edges get a chance to decide
@@ -542,7 +545,19 @@ public class StreetEdge extends Edge implements Cloneable {
         return (overageRate * overageValue) + (applyPenalty ? softPenalty : 0.0);
     }
 
-    public double getPredictedSpeed(long timeMillis) {
+
+    private double TemporarySpeedLimit;
+
+    public double getTemporarySpeedLimit() {
+        return TemporarySpeedLimit;
+    }
+
+    public void setTemporarySpeedLimit(int temporarySpeedLimit) {
+        TemporarySpeedLimit = temporarySpeedLimit;
+    }
+
+
+    public double getVooomSpeed(long timeMillis) {
 
         if (this.getTimes() != null) {
             int i = Collections.binarySearch(this.getTimes(), new QueryData(timeMillis));
@@ -555,19 +570,16 @@ public class StreetEdge extends Edge implements Cloneable {
         return this.getMaxStreetTraverseSpeed();
     }
 
-    /**
-     * Calculate the speed appropriately given the RoutingRequest and traverseMode and the current wall clock time.
-     * Note: this is not strictly symmetrical, because in a forward search we get the speed based on the
-     * time we enter this edge, whereas in a reverse search we get the speed based on the time we exit
-     * the edge.
-     */
     public double calculateSpeed(RoutingRequest options, TraverseMode traverseMode, VehicleDescription currentVehicle, long timeMillis) {
         double maxVehicleSpeed = options.getSpeed(traverseMode);
-        if (currentVehicle != null) {
+        if(currentVehicle != null) {
             maxVehicleSpeed = currentVehicle.getMaxSpeedInMetersPerSecond(this);
         }
         if (this.getTimes() != null && traverseMode == TraverseMode.CAR) {
-            return min(min(maxVehicleSpeed, getMaxStreetTraverseSpeed()), this.getPredictedSpeed(timeMillis));
+            maxVehicleSpeed = min(maxVehicleSpeed, this.getVooomSpeed(timeMillis));
+        }
+        if (TemporarySpeedLimit > 0 && traverseMode == TraverseMode.CAR) {
+            maxVehicleSpeed = min(maxVehicleSpeed, TemporarySpeedLimit);
         }
         return min(maxVehicleSpeed, getMaxStreetTraverseSpeed());
     }
@@ -648,14 +660,13 @@ public class StreetEdge extends Edge implements Cloneable {
         return this.name.toString();
     }
 
-    /**
-     * Gets non-localized I18NString (Used when splitting edges)
-     *
-     * @return non-localized Name
-     */
-    public I18NString getRawName() {
-        return this.name;
-    }
+	/**
+	* Gets non-localized I18NString (Used when splitting edges)
+	* @return non-localized Name
+	*/
+	public I18NString getRawName() {
+		return this.name;
+	}
 
     public String getName(Locale locale) {
         return this.name.toString(locale);
@@ -681,9 +692,9 @@ public class StreetEdge extends Edge implements Cloneable {
         }
     }
 
-    public boolean isWheelchairAccessible() {
-        return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
-    }
+	public boolean isWheelchairAccessible() {
+		return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
+	}
 
     public void setWheelchairAccessible(boolean wheelchairAccessible) {
         flags = BitSetUtils.set(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX, wheelchairAccessible);

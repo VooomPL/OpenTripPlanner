@@ -1300,6 +1300,45 @@
           "providerId": 8,
           "providerName": "Blinkee"
         }
+      },
+      {
+        "providerVehicleId": "9999",
+        "latitude": 53.137216,
+        "longitude": 17.914743,
+        "fuelType": "electric",
+        "gearbox": null,
+        "type": "scooter",
+        "range": 63.3,
+        "provider": {
+          "providerId": 8,
+          "providerName": "Blinkee"
+        }
+      },
+      {
+        "providerVehicleId": "abcd",
+        "latitude": 53.136141,
+        "longitude": 17.914840,
+        "fuelType": "electric",
+        "gearbox": null,
+        "type": "scooter",
+        "range": 63.3,
+        "provider": {
+          "providerId": 123,
+          "providerName": "VrumVrum"
+        }
+      },
+      {
+        "providerVehicleId": "hmm",
+        "latitude": 53.136468,
+        "longitude": 17.917039,
+        "fuelType": "electric",
+        "gearbox": null,
+        "type": "scooter",
+        "range": 63.3,
+        "provider": {
+          "providerId": 456,
+          "providerName": "PrOViDeRNamE"
+        }
       }
     ]
   }

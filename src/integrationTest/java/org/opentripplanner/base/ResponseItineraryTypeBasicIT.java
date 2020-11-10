@@ -1,6 +1,5 @@
 package org.opentripplanner.base;
 
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.opentripplanner.IntegrationTest;
@@ -58,12 +57,13 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
     }
 
     @Test
-    public void testBicycle() {
+    public void testKickscooter() {
         javax.ws.rs.core.Response response = target("/routers/bydgoszcz/plan")
                 .queryParam("fromPlace", "53.134802,17.991995")
                 .queryParam("toPlace", "53.122338,18.0098715")
                 .queryParam("locale", "pl")
-                .queryParam("mode", "WALK, BICYCLE")
+                .queryParam("mode", "WALK,BICYCLE")
+                .queryParam("vehicleTypesAllowed", "KICKSCOOTER")
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "true")
@@ -78,16 +78,16 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
     }
 
     @Test
-    public void testBusAndBicycle() {
+    public void testBusAndKickscooter() {
         javax.ws.rs.core.Response response = target("/routers/bydgoszcz/plan")
                 .queryParam("fromPlace", "53.134802,17.991995")
                 .queryParam("toPlace", "53.122338,18.0098715")
                 .queryParam("locale", "pl")
-                .queryParam("mode", "WALK, BICYCLE, BUS")
+                .queryParam("mode", "WALK,BICYCLE,BUS")
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "true")
-                .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
+                .queryParam("vehicleTypesAllowed", "KICKSCOOTER")
                 .queryParam("date", "07-16-2020")
                 .queryParam("time", "15:00:00")
                 .request().get();
@@ -96,6 +96,6 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
         assertThat(response.getStatus(), equalTo(200));
         assertThat(body.getPlan().itinerary.size(), equalTo(3));
         assertThat(body.getPlan().itinerary.stream().map(it -> it.itineraryType).collect(Collectors.toList()),
-                Matchers.contains("WALK+KICKSCOOTER", "WALK+KICKSCOOTER+TRANSIT", "WALK+KICKSCOOTER+TRANSIT"));
+                Matchers.contains("WALK+KICKSCOOTER", "WALK+TRANSIT", "WALK+TRANSIT"));
     }
 }

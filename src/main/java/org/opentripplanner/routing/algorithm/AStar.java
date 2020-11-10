@@ -3,8 +3,6 @@ package org.opentripplanner.routing.algorithm;
 import com.beust.jcommander.internal.Lists;
 
 import org.opentripplanner.common.pqueue.BinHeap;
-import org.opentripplanner.routing.algorithm.costs.CostFunction;
-import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
@@ -274,9 +272,6 @@ public class AStar {
                     break;
                 }
             } else if (!runState.options.batch && runState.u_vertex == runState.rctx.target && runState.u.isFinal()) {
-                if (runState.options.onlyTransitTrips && !runState.u.isEverBoarded()) {
-                    continue;
-                }
                 runState.targetAcceptedStates.add(runState.u);
                 runState.foundPathWeight = runState.u.getWeight();
                 runState.options.rctx.debugOutput.foundPath();
@@ -288,6 +283,10 @@ public class AStar {
                 /* Break out of the search if we've found the requested number of paths. */
                 if (runState.targetAcceptedStates.size() >= runState.options.getNumItineraries()) {
                     LOG.debug("total vertices visited {}", runState.nVisited);
+                    break;
+                }
+                // For next itineraries we want to disallow vehicle providers used in this itinerary
+                if (runState.options.rentingAllowed) {
                     break;
                 }
             }
