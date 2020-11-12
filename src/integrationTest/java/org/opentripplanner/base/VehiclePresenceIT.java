@@ -23,6 +23,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("vehicleTypesAllowed", "CAR")
                 .queryParam("time", "03:00pm")
                 .queryParam("date", "07-22-2020")
+                .queryParam("numItineraries", "1")
                 .request().get();
 
         javax.ws.rs.core.Response withPrediction = target("/routers/bydgoszcz/plan")
@@ -36,6 +37,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("time", "03:00pm")
                 .queryParam("date", "07-22-2020")
                 .queryParam("vehiclePresenceThreshold", "0.6")
+                .queryParam("numItineraries", "1")
                 .request().get();
 
         Response basicBody = basicResponse.readEntity(Response.class);
@@ -74,6 +76,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("time", "03:00pm")
                 .queryParam("date", "07-22-2020")
                 .queryParam("vehiclePresenceThreshold", "0.9")
+                .queryParam("numItineraries", "1")
                 .request().get();
 
         javax.ws.rs.core.Response lowThreshold = target("/routers/bydgoszcz/plan")
@@ -87,6 +90,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("time", "03:00pm")
                 .queryParam("date", "07-22-2020")
                 .queryParam("vehiclePresenceThreshold", "0.6")
+                .queryParam("numItineraries", "1")
                 .request().get();
 
         Response highBody = highThreshold.readEntity(Response.class);
