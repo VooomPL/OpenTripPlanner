@@ -102,8 +102,8 @@ public class GtfsLibrary {
                 return TraverseMode.SUBWAY;
             case 2:
                 return TraverseMode.RAIL;
-            case 3:
-            case 11:
+            case 3: // Bus
+            case 11: // Trolleybus treated as bus
                 return TraverseMode.BUS;
             case 4:
                 return TraverseMode.FERRY;
