@@ -226,6 +226,9 @@ public class StateEditor {
         OptimizationProfile optimizationProfile = child.getOptions().getOptimizationProfile();
         if (Objects.nonNull(optimizationProfile)) {
             weight *= optimizationProfile.getCostFunction().getCostWeight(category);
+        } else {
+            //The code below is for backward compatibility with existing tests
+            weight *= category == CostFunction.CostCategory.ORIGINAL ? 1 : 0;
         }
         if (Double.isNaN(weight)) {
             LOG.warn("A state's weight is being incremented by NaN while traversing edge "
@@ -256,6 +259,11 @@ public class StateEditor {
         incrementTimeTraversedInMode(seconds);
         if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
             incrementTimeAssociatedVehiclePrice(seconds);
+        }
+        else if(Objects.isNull(child.getCurrentVehicle())) {
+            BigDecimal walkPrice = child.getOptions().getWalkPrice().multiply(BigDecimal.valueOf(seconds)
+                    .divide(BigDecimal.valueOf(TimeUnit.MINUTES.toSeconds(1)), RoundingMode.UP));
+            incrementWeight(CostFunction.CostCategory.PRICE_ASSOCIATED, walkPrice.doubleValue());
         }
     }
 

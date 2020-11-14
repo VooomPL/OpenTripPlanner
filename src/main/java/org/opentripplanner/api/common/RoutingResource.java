@@ -24,6 +24,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -564,6 +565,9 @@ public abstract class RoutingResource {
     @QueryParam("priceCostWeight")
     private Double priceCostWeight;
 
+    @QueryParam("walkPrice")
+    private Double walkPrice;
+
     /**
      * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
      */
@@ -875,6 +879,9 @@ public abstract class RoutingResource {
         Optional.ofNullable(priceCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, value));
         request.setCostCategoryWeights(costCategoryWeights);
         request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
+
+        if(Objects.nonNull(walkPrice))
+            request.setWalkPrice(BigDecimal.valueOf(walkPrice));
 
         return request;
     }

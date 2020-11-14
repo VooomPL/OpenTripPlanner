@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -415,6 +416,8 @@ public class RoutingRequest implements Cloneable, Serializable {
     private OptimizationProfile optimizationProfile;
 
     private Map<CostFunction.CostCategory, Double> costCategoryWeights;
+
+    private BigDecimal walkPrice = BigDecimal.valueOf(0.3);
 
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
@@ -1640,5 +1643,13 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public void setCostCategoryWeights(Map<CostFunction.CostCategory, Double> costCategoryWeights) {
         this.costCategoryWeights = costCategoryWeights;
+    }
+
+    public void setWalkPrice(BigDecimal walkPrice) {
+        this.walkPrice = walkPrice;
+    }
+
+    public BigDecimal getWalkPrice() {
+        return walkPrice;
     }
 }
