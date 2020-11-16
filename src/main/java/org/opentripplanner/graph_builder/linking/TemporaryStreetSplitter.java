@@ -7,12 +7,11 @@ import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
 import org.opentripplanner.graph_builder.services.StreetEdgeFactory;
+import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.edgetype.rentedgetype.EdgeWithParkingZones;
-import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo.SingleParkingZone;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -21,13 +20,13 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
+import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,10 +47,14 @@ public class TemporaryStreetSplitter {
 
     private final ToTransitStopLinker toTransitStopLinker;
 
-    public TemporaryStreetSplitter(Graph graph, ToStreetEdgeLinker toStreetEdgeLinker, ToTransitStopLinker toTransitStopLinker) {
+    private final EdgesToLinkFinder edgesToLinkFinder;
+
+    public TemporaryStreetSplitter(Graph graph, ToStreetEdgeLinker toStreetEdgeLinker,
+                                   ToTransitStopLinker toTransitStopLinker, EdgesToLinkFinder edgesToLinkFinder) {
         this.graph = graph;
         this.toStreetEdgeLinker = toStreetEdgeLinker;
         this.toTransitStopLinker = toTransitStopLinker;
+        this.edgesToLinkFinder = edgesToLinkFinder;
     }
 
     /**
@@ -75,7 +78,7 @@ public class TemporaryStreetSplitter {
         ToEdgeLinker toEdgeLinker = new ToEdgeLinker(streetEdgeFactory, splitter, edgesMaker, linkingGeoTools, false);
         ToStreetEdgeLinker toStreetEdgeLinker = new ToStreetEdgeLinker(toEdgeLinker, edgesToLinkFinder, linkingGeoTools, edgesMaker);
         ToTransitStopLinker toTransitStopLinker = new ToTransitStopLinker(transitStopIndex, linkingGeoTools, edgesMaker, bestCandidatesGetter);
-        return new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker);
+        return new TemporaryStreetSplitter(graph, toStreetEdgeLinker, toTransitStopLinker, edgesToLinkFinder);
     }
 
     /**
@@ -118,6 +121,24 @@ public class TemporaryStreetSplitter {
         }
     }
 
+    /**
+     * Wraps bike rental station in `TemporaryRentVehicleVertex` and links that vertex to graph with temporary edges.
+     * Split edges don't replace existing ones, so only temporary edges and vertices are created.
+     */
+    public Optional<TemporaryRentVehicleVertex> linkBikeRentalStationToGraph(BikeRentalStation station) {
+        TemporaryRentVehicleVertex temporaryVertex = createTemporaryRentBikeVertex(station);
+        if (!toStreetEdgeLinker.linkTemporarilyBothWays(temporaryVertex, station.getBikeFromStation())) {
+            LOG.debug("Couldn't link station {} to graph", station);
+            return Optional.empty();
+        } else {
+            return Optional.of(temporaryVertex);
+        }
+    }
+
+    public Optional<I18NString> findNameForVertex(Vertex vertex) {
+        return edgesToLinkFinder.findNameForVertex(vertex);
+    }
+
     private TemporaryStreetLocation createTemporaryStreetLocation(GenericLocation location, RoutingRequest options, boolean endVertex) {
         Coordinate coord = location.getCoordinate();
         String name;
@@ -134,44 +155,55 @@ public class TemporaryStreetSplitter {
         return new TemporaryStreetLocation(UUID.randomUUID().toString(), coord, new NonLocalizedString(name), endVertex);
     }
 
-    // TODO AdamWiktor VMP-59
     private TraverseMode createTraverseMode(RoutingRequest options, boolean endVertex) {
-        //It can be null in tests
-        if (options != null) {
-            TraverseModeSet modes = options.modes;
-            if (modes.getCar())
-                // for park and ride we will start in car mode and walk to the end vertex
-                if (endVertex && options.parkAndRide) {
-                    return TraverseMode.WALK;
-                } else {
-                    return TraverseMode.CAR;
-                }
-            else if (modes.getWalk())
-                return TraverseMode.WALK;
-            else if (modes.getBicycle())
-                return TraverseMode.BICYCLE;
+        if (options.startingMode != null) {
+            return options.startingMode;
+        } else if (endVertex && options.parkAndRide) {
+            return TraverseMode.WALK;
+        } else if (options.modes.getCar()) {
+            return TraverseMode.CAR;
+        } else if (options.modes.getBicycle()) {
+            return TraverseMode.BICYCLE;
+        } else {
+            return TraverseMode.WALK;
         }
-        return TraverseMode.WALK;
     }
 
     private void addTemporaryDropoffVehicleEdge(Vertex destination) {
-        TemporaryDropoffVehicleEdge edge = new TemporaryDropoffVehicleEdge(destination);
-        addParkingZonesToEdge(edge);
-    }
-
-    private void addParkingZonesToEdge(EdgeWithParkingZones edge) {
-        if (graph.parkingZonesCalculator != null) {
-            List<SingleParkingZone> parkingZonesEnabled = graph.parkingZonesCalculator.getNewParkingZonesEnabled();
-            List<SingleParkingZone> parkingZones = graph.parkingZonesCalculator.getParkingZonesForEdge(edge, parkingZonesEnabled);
-            edge.updateParkingZones(parkingZonesEnabled, parkingZones);
+        if (graph.parkingZonesCalculator == null) {
+            new TemporaryDropoffVehicleEdge(destination);
+        } else {
+            new TemporaryDropoffVehicleEdge(destination, graph.parkingZonesCalculator.getParkingZonesForLocation(destination));
         }
     }
 
     private TemporaryRentVehicleVertex createTemporaryRentVehicleVertex(VehicleDescription vehicle) {
         TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
                 new CoordinateXY(vehicle.getLongitude(), vehicle.getLatitude()), "Renting vehicle " + vehicle);
-        RentVehicleEdge edge = new RentVehicleEdge(vertex, vehicle);
-        addParkingZonesToEdge(edge);
+        addRentVehicleEdge(vertex, vehicle);
         return vertex;
+    }
+
+    private void addRentVehicleEdge(TemporaryRentVehicleVertex vertex, VehicleDescription vehicle) {
+        if (graph.parkingZonesCalculator == null) {
+            new RentVehicleEdge(vertex, vehicle);
+        } else {
+            new RentVehicleEdge(vertex, vehicle, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        }
+    }
+
+    private TemporaryRentVehicleVertex createTemporaryRentBikeVertex(BikeRentalStation station) {
+        TemporaryRentVehicleVertex vertex = new TemporaryRentVehicleVertex(UUID.randomUUID().toString(),
+                new CoordinateXY(station.longitude, station.latitude), "Renting station " + station);
+        addRentBikeEdge(vertex, station);
+        return vertex;
+    }
+
+    private void addRentBikeEdge(TemporaryRentVehicleVertex vertex, BikeRentalStation station) {
+        if (graph.parkingZonesCalculator == null) {
+            new RentBikeEdge(vertex, station);
+        } else {
+            new RentBikeEdge(vertex, station, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        }
     }
 }

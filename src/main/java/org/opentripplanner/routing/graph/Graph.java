@@ -37,14 +37,19 @@ import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.profile.StopClusterMode;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
+import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
 import org.opentripplanner.routing.core.TransferTable;
 import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.EdgeWithCleanup;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.flex.FlexIndex;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.services.StreetVertexIndexFactory;
@@ -62,8 +67,9 @@ import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -71,6 +77,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -136,7 +143,7 @@ public class Graph implements Serializable {
 
     /**
      * Map from GTFS ServiceIds to integers close to 0. Allows using BitSets instead of Set<Object>.
-     * An empty Map is created before the Graph is built to allow registering IDs from multiple feeds.   
+     * An empty Map is created before the Graph is built to allow registering IDs from multiple feeds.
      */
     public final Map<FeedScopedId, Integer> serviceCodes = Maps.newHashMap();
 
@@ -157,16 +164,25 @@ public class Graph implements Serializable {
     //Envelope of all OSM and transit vertices. Calculated during build time
     private WorldEnvelope envelope = null;
 
+    //Envelope of all OSM vertices. Calculated during build time
+    private WorldEnvelope osmEnvelope = null;
+
     //ConvexHull of all the graph vertices. Generated at Graph build time.
     private Geometry convexHull = null;
 
-    /** The density center of the graph for determining the initial geographic extent in the client. */
+    /**
+     * The density center of the graph for determining the initial geographic extent in the client.
+     */
     private Coordinate center = null;
 
-    /** The config JSON used to build this graph. Allows checking whether the configuration has changed. */
+    /**
+     * The config JSON used to build this graph. Allows checking whether the configuration has changed.
+     */
     public String builderConfig = null;
 
-    /** Embed a router configuration inside the graph, for starting up with a single file. */
+    /**
+     * Embed a router configuration inside the graph, for starting up with a single file.
+     */
     public String routerConfig = null;
 
     /* The preferences that were used for graph building. */
@@ -175,7 +191,9 @@ public class Graph implements Serializable {
     /* The time at which the graph was built, for detecting changed inputs and triggering a rebuild. */
     public DateTime buildTimeJoda = null; // FIXME record this info, null is just a placeholder
 
-    /** List of transit modes that are availible in GTFS data used in this graph**/
+    /**
+     * List of transit modes that are availible in GTFS data used in this graph
+     **/
     private HashSet<TraverseMode> transitModes = new HashSet<TraverseMode>();
 
     public boolean hasBikeSharing = false;
@@ -194,34 +212,54 @@ public class Graph implements Serializable {
 
     public final Date buildTime = new Date();
 
-    /** True if OSM data was loaded into this Graph. */
+    /**
+     * True if OSM data was loaded into this Graph.
+     */
     public boolean hasStreets = false;
 
-    /** True if GTFS data was loaded into this Graph. */
+    /**
+     * True if GTFS data was loaded into this Graph.
+     */
     public boolean hasTransit = false;
 
-    /** True if direct single-edge transfers were generated between transit stops in this Graph. */
+    /**
+     * True if direct single-edge transfers were generated between transit stops in this Graph.
+     */
     public boolean hasDirectTransfers = false;
 
-    /** True if frequency-based services exist in this Graph (GTFS frequencies with exact_times = 0). */
+    /**
+     * True if frequency-based services exist in this Graph (GTFS frequencies with exact_times = 0).
+     */
     public boolean hasFrequencyService = false;
 
-    /** True if schedule-based services exist in this Graph (including GTFS frequencies with exact_times = 1). */
+    /**
+     * True if schedule-based services exist in this Graph (including GTFS frequencies with exact_times = 1).
+     */
     public boolean hasScheduledService = false;
 
-    /** Has information how much time boarding a vehicle takes. Can be significant eg in airplanes or ferries. */
+    /**
+     * Has information how much time boarding a vehicle takes. Can be significant eg in airplanes or ferries.
+     */
     public Map<TraverseMode, Integer> boardTimes = Collections.EMPTY_MAP;
 
-    /** Has information how much time alighting a vehicle takes. Can be significant eg in airplanes or ferries. */
+    /**
+     * Has information how much time alighting a vehicle takes. Can be significant eg in airplanes or ferries.
+     */
     public Map<TraverseMode, Integer> alightTimes = Collections.EMPTY_MAP;
-    
-    /** How should we cluster stops? By 'proximity' or 'ParentStation' */
+
+    /**
+     * How should we cluster stops? By 'proximity' or 'ParentStation'
+     */
     public StopClusterMode stopClusterMode = StopClusterMode.proximity;
 
-    /** The difference in meters between the WGS84 ellipsoid height and geoid height at the graph's center */
+    /**
+     * The difference in meters between the WGS84 ellipsoid height and geoid height at the graph's center
+     */
     public Double ellipsoidToGeoidDifference = 0.0;
 
-    /** Parent stops **/
+    /**
+     * Parent stops
+     **/
     public Map<FeedScopedId, Stop> parentStopById = new HashMap<>();
 
     /**
@@ -237,12 +275,18 @@ public class Graph implements Serializable {
     /**
      * Used for calculating parking zones for temporary vehicle dropoff edges added to graph
      */
+    @Nullable
     public ParkingZonesCalculator parkingZonesCalculator;
 
     /**
      * Vehicles which we tried to link to graph. If vertex is present, then we succeeded in linking that vehicle
      */
     public final Map<VehicleDescription, Optional<TemporaryRentVehicleVertex>> vehiclesTriedToLink = new HashMap<>();
+
+    /**
+     * All bike stations currently linked to graph
+     */
+    public Map<BikeRentalStation, RentBikeEdge> bikeRentalStationsInGraph;
 
     /**
      * Timestamp for the last update of vehicles positions from each provider
@@ -258,6 +302,7 @@ public class Graph implements Serializable {
         this.vertices = new ConcurrentHashMap<String, Vertex>();
         this.edgeById = new ConcurrentHashMap<Integer, Edge>();
         this.vertexById = new ConcurrentHashMap<Integer, Vertex>();
+        this.bikeRentalStationsInGraph = new HashMap<>();
     }
 
     /**
@@ -275,7 +320,7 @@ public class Graph implements Serializable {
 
     /**
      * Removes a vertex from the graph.
-     *
+     * <p>
      * Called from streetutils, must be public for now
      *
      * @param v
@@ -290,6 +335,7 @@ public class Graph implements Serializable {
 
     /**
      * Removes an edge from the graph. This method is not thread-safe.
+     *
      * @param e The edge to be removed
      */
     public void removeEdge(Edge e) {
@@ -328,7 +374,7 @@ public class Graph implements Serializable {
 
     /**
      * Returns the vertex with the given ID or null if none is present.
-     *
+     * <p>
      * NOTE: you may need to run rebuildVertexAndEdgeIndices() for the indices
      * to be accurate.
      *
@@ -341,6 +387,7 @@ public class Graph implements Serializable {
 
     /**
      * Get all the vertices in the graph.
+     *
      * @return
      */
     public Collection<Vertex> getVertices() {
@@ -349,7 +396,7 @@ public class Graph implements Serializable {
 
     /**
      * Returns the edge with the given ID or null if none is present.
-     *
+     * <p>
      * NOTE: you may need to run rebuildVertexAndEdgeIndices() for the indices
      * to be accurate.
      *
@@ -362,6 +409,7 @@ public class Graph implements Serializable {
 
     /**
      * Return all the edges in the graph.
+     *
      * @return
      */
     public Collection<Edge> getEdges() {
@@ -374,6 +422,7 @@ public class Graph implements Serializable {
 
     /**
      * Add an {@link AlertPatch} to the {@link AlertPatch} {@link Set} belonging to an {@link Edge}.
+     *
      * @param edge
      * @param alertPatch
      */
@@ -397,6 +446,7 @@ public class Graph implements Serializable {
     /**
      * Remove an {@link AlertPatch} from the {@link AlertPatch} {@link Set} belonging to an
      * {@link Edge}.
+     *
      * @param edge
      * @param alertPatch
      */
@@ -416,6 +466,7 @@ public class Graph implements Serializable {
 
     /**
      * Get the {@link AlertPatch} {@link Set} that belongs to an {@link Edge} and build a new array.
+     *
      * @param edge
      * @return The {@link AlertPatch} array that belongs to the {@link Edge}
      */
@@ -433,13 +484,14 @@ public class Graph implements Serializable {
 
     /**
      * Return only the StreetEdges in the graph.
+     *
      * @return
      */
     public Collection<StreetEdge> getStreetEdges() {
         Collection<Edge> allEdges = this.getEdges();
         return Lists.newArrayList(Iterables.filter(allEdges, StreetEdge.class));
-    }    
-    
+    }
+
     public boolean containsVertex(Vertex v) {
         return (v != null) && vertices.get(v.getLabel()) == v;
     }
@@ -463,7 +515,7 @@ public class Graph implements Serializable {
         T t = (T) _services.get(serviceType);
         if (t == null && autoCreate) {
             try {
-                t = (T)serviceType.newInstance();
+                t = (T) serviceType.newInstance();
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
@@ -474,24 +526,24 @@ public class Graph implements Serializable {
         return t;
     }
 
-    public Map<Provider, LocalTime> getLastProviderVehiclesUpdateTimestamps() {
-        return lastProviderVehiclesUpdateTimestamps;
-    }
-
-    public boolean isUnresponsiveGracePeriodExceeded(Provider provider, LocalTime currentUpdateTimestamp){
-        if (lastProviderVehiclesUpdateTimestamps.containsKey(provider)) {
-            return lastProviderVehiclesUpdateTimestamps.get(provider).until(currentUpdateTimestamp, ChronoUnit.SECONDS) > REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS;
-        }
-        return false;
-    }
-
-    public void addTransitRoutes(Collection<Route> routes){
+    public void addTransitRoutes(Collection<Route> routes) {
         this.transitRoutes = Stream.of(this.transitRoutes, routes)
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    public Collection<Route> getTransitRoutes(){
+    public Collection<Route> getTransitRoutes() {
         return transitRoutes;
+    }
+
+    public Map<Provider, LocalTime> getLastProviderVehiclesUpdateTimestamps() {
+        return lastProviderVehiclesUpdateTimestamps;
+    }
+
+    public boolean isUnresponsiveGracePeriodExceeded(Provider provider, LocalTime currentUpdateTimestamp) {
+        if (lastProviderVehiclesUpdateTimestamps.containsKey(provider)) {
+            return lastProviderVehiclesUpdateTimestamps.get(provider).until(currentUpdateTimestamp, ChronoUnit.SECONDS) > REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS;
+        }
+        return false;
     }
 
     public void remove(Vertex vertex) {
@@ -811,9 +863,9 @@ public class Graph implements Serializable {
     public void saveTransitLines(File file) throws IOException {
         LOG.info("Writing transit lines to csv {} ...", file.getAbsolutePath());
 
-        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
-        try{
-            for (Route route:getTransitRoutes()) {
+        CsvWriter writer = new CsvWriter(file.getPath(), ',', StandardCharsets.UTF_8);
+        try {
+            for (Route route : getTransitRoutes()) {
                 String routeTypeName = "UNSUPPORTED";
                 try{
                     routeTypeName = GtfsLibrary.getTraverseMode(route).name();
@@ -833,10 +885,10 @@ public class Graph implements Serializable {
     public void saveTransitLineStops(File file) throws IOException {
         LOG.info("Writing transit line stops to csv {} ...", file.getAbsolutePath());
 
-        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
-        try{
-            for (Stop stop:this.transitStops.values()) {
-                writer.writeRecord(new String[]{stop.getId().getId(), ""+stop.getLat(), ""+stop.getLon(), stop.getName(), String.join("#", stop.getLineNames())});
+        CsvWriter writer = new CsvWriter(file.getPath(), ',', StandardCharsets.UTF_8);
+        try {
+            for (Stop stop : this.transitStops.values()) {
+                writer.writeRecord(new String[]{stop.getId().getId(), "" + stop.getLat(), "" + stop.getLon(), stop.getName(), String.join("#", stop.getLineNames())});
             }
         } catch (IOException e) {
             file.delete();
@@ -847,12 +899,16 @@ public class Graph implements Serializable {
         }
     }
 
-    public void saveTransitLineStopTimes(File file) throws IOException {
+    public void saveTransitLineStopTimes(File file, long timeLimit) throws IOException {
+        LocalTime startTime = LocalTime.now();
+        LOG.info("Preparing to write transit line stop times to csv");
+        CsvWriter writer = new CsvWriter(file.getPath(), ',', StandardCharsets.UTF_8);
         LOG.info("Writing transit line stop times to csv {} ...", file.getAbsolutePath());
-
-        CsvWriter writer = new CsvWriter(file.getPath(),',', Charset.forName("UTF-8"));
+        int numberOfConsideredRecords = 0;
+        int numberOfWrittenRecords = 0;
+        long writingTime = 0;
         try {
-            for (StopTime stopTime:this.transitStopTimes) {
+            for (StopTime stopTime : this.transitStopTimes) {
                 Set<ServiceDate> serviceDates = calendarService.getServiceDatesForServiceId(stopTime.getTrip().getServiceId());
                 for (ServiceDate serviceDate : serviceDates) {
                     LocalDate serviceDateToWrite = LocalDate.of(serviceDate.getYear(), serviceDate.getMonth(), serviceDate.getDay());
@@ -866,12 +922,52 @@ public class Graph implements Serializable {
                         String arrivalDate = LocalDateTime.of(serviceDateToWrite, LocalTime.ofSecondOfDay(serviceTimeToWrite)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         String routeShortName = Optional.ofNullable(stopTime.getTrip().getRoute().getShortName()).orElseGet(stopTime.getTrip().getRoute()::getLongName);
                         writer.writeRecord(new String[]{stopTime.getStop().getId().getId(), stopTime.getTrip().getTripHeadsign(), routeShortName, arrivalDate});
+                        numberOfWrittenRecords++;
+                    }
+                    numberOfConsideredRecords++;
+                    writingTime = startTime.until(LocalTime.now(), ChronoUnit.SECONDS);
+                    if (writingTime > timeLimit) {
+                        throw new TimeoutException();
                     }
                 }
             }
         } catch (IOException e) {
             file.delete();
             throw e;
+        } catch (TimeoutException e) {
+            LOG.error("Writing transit line stop times to csv takes too long - aborting");
+            file.delete();
+        } finally {
+            writer.close();
+            LOG.info("Writing transit line stop times to csv took {} seconds (considered entries: {}, written entries: {}",
+                    writingTime, numberOfConsideredRecords, numberOfWrittenRecords);
+        }
+    }
+
+    public void saveEdgesForTimePrediction(File file) {
+        LOG.info("Writing edges for collecting time prediction data to {}", file.getAbsolutePath());
+        CsvWriter writer = new CsvWriter(file.getPath(), ' ', StandardCharsets.UTF_8);
+        try {
+            TraverseModeSet car = new TraverseModeSet(TraverseMode.CAR);
+            for (StreetEdge e : this.getStreetEdges()) {
+                if (e.canTraverse(car)) {
+                    writer.writeRecord(new String[]{
+                            (String.valueOf(e.getId())),
+                            (String.valueOf(e.getStartOsmNodeId())),
+                            (String.valueOf(e.getFromVertex().getLat())),
+                            (String.valueOf(e.getFromVertex().getLon())),
+                            (String.valueOf(e.getEndOsmNodeId())),
+                            (String.valueOf(e.getToVertex().getLat())),
+                            (String.valueOf(e.getToVertex().getLon())),
+                            (String.valueOf(e.wayId)),
+                            (String.valueOf(e.getDirection())),
+                            (String.valueOf(e.getAzimuth()))
+                    });
+                }
+            }
+        } catch (IOException ioException) {
+            file.delete();
+            ioException.printStackTrace();
         } finally {
             writer.close();
         }

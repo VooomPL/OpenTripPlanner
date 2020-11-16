@@ -1,11 +1,11 @@
 package org.opentripplanner.api.resource;
 
 import org.junit.Test;
+import org.opentripplanner.api.model.RouterInfo;
+import org.opentripplanner.api.model.RouterList;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.api.model.RouterInfo;
-import org.opentripplanner.api.model.RouterList;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.MemoryGraphSource;
 import org.opentripplanner.routing.services.GraphService;
@@ -13,12 +13,10 @@ import org.opentripplanner.routing.vertextype.ExitVertex;
 import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPServer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class RoutersTest {
     @Test
@@ -34,8 +32,8 @@ public class RoutersTest {
         otpServer.getGraphService().getRouter("").graph.calculateConvexHull();
         //this needs to be added since it is otherwise calculated during OSM/Transit loading
         // which doesn't happen in this test
-        otpServer.getGraphService().getRouter("A").graph.calculateEnvelope();
-        otpServer.getGraphService().getRouter("").graph.calculateEnvelope();
+        otpServer.getGraphService().getRouter("A").graph.calculateEnvelopeOsmVertices();
+        otpServer.getGraphService().getRouter("").graph.calculateEnvelopeOsmVertices();
 
         Routers routerApi = new Routers();
         routerApi.otpServer = otpServer;

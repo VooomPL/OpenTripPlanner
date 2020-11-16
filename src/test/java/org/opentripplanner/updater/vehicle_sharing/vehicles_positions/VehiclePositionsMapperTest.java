@@ -2,6 +2,8 @@ package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
+import org.opentripplanner.hasura_client.mappers.VehiclePositionsMapper;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesApiResponse.Vehicle;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesApiResponse.VehicleProvider;
@@ -15,7 +17,7 @@ public class VehiclePositionsMapperTest {
 
     private VehiclePositionsMapper mapper;
 
-    private VehicleProvider provider;
+    private Provider provider;
 
     private Vehicle emptyVehicle, defaultVehicle;
 
@@ -26,10 +28,8 @@ public class VehiclePositionsMapperTest {
         emptyVehicle = new Vehicle();
 
 
-        provider = new VehicleProvider();
-        provider.setId(1);
-        provider.setName("NextBike");
-        provider.setAvailable(true);
+        provider = new Provider(1, "NextBike");
+
 
         defaultVehicle = new Vehicle();
         defaultVehicle.setProvider(provider);
@@ -49,7 +49,6 @@ public class VehiclePositionsMapperTest {
 
         // then
         assertTrue(vehicleDescriptions.isEmpty());
-        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().isEmpty());
     }
 
     @Test
@@ -62,7 +61,6 @@ public class VehiclePositionsMapperTest {
 
         // then
         assertTrue(vehicleDescriptions.isEmpty());
-        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().isEmpty());
     }
 
     @Test
@@ -76,9 +74,6 @@ public class VehiclePositionsMapperTest {
         // then
         assertEquals(1, vehicleDescriptions.size());
         assertTrue(vehicleDescriptions.get(0) instanceof CarDescription);
-        assertEquals(1, mapper.getNumberOfMappedVehiclesPerProvider().size());
-        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().containsKey(new Provider(1, "NextBike")));
-        assertEquals(new Long(1), mapper.getNumberOfMappedVehiclesPerProvider().get(new Provider(1, "NextBike")));
         CarDescription car = (CarDescription) vehicleDescriptions.get(0);
 
         assertBasicVehicleFieldsAreEqual(car);
@@ -95,9 +90,6 @@ public class VehiclePositionsMapperTest {
         // then
         assertEquals(1, vehicleDescriptions.size());
         assertTrue(vehicleDescriptions.get(0) instanceof MotorbikeDescription);
-        assertEquals(1, mapper.getNumberOfMappedVehiclesPerProvider().size());
-        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().containsKey(new Provider(1, "NextBike")));
-        assertEquals(new Long(1), mapper.getNumberOfMappedVehiclesPerProvider().get(new Provider(1, "NextBike")));
         MotorbikeDescription motorbike = (MotorbikeDescription) vehicleDescriptions.get(0);
 
         assertBasicVehicleFieldsAreEqual(motorbike);
@@ -114,11 +106,7 @@ public class VehiclePositionsMapperTest {
         // then
         assertEquals(1, vehicleDescriptions.size());
         assertTrue(vehicleDescriptions.get(0) instanceof KickScooterDescription);
-        assertEquals(1, mapper.getNumberOfMappedVehiclesPerProvider().size());
-        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().containsKey(new Provider(1, "NextBike")));
-        assertEquals(new Long(1), mapper.getNumberOfMappedVehiclesPerProvider().get(new Provider(1, "NextBike")));
         KickScooterDescription kickscooter = (KickScooterDescription) vehicleDescriptions.get(0);
-
         assertBasicVehicleFieldsAreEqual(kickscooter);
     }
 
@@ -156,8 +144,8 @@ public class VehiclePositionsMapperTest {
     }
 
     private void assertBasicVehicleFieldsAreEqual(VehicleDescription vehicleDescription) {
-        assertEquals(defaultVehicle.getProvider().getId(), vehicleDescription.getProvider().getProviderId());
-        assertEquals(defaultVehicle.getProvider().getName(), vehicleDescription.getProvider().getProviderName());
+        assertEquals(defaultVehicle.getProvider().getProviderId(), vehicleDescription.getProvider().getProviderId());
+        assertEquals(defaultVehicle.getProvider().getProviderName(), vehicleDescription.getProvider().getProviderName());
         assertEquals(defaultVehicle.getProviderVehicleId(), vehicleDescription.getProviderVehicleId());
         assertEquals(defaultVehicle.getLongitude(), vehicleDescription.getLongitude(), 0.1);
         assertEquals(defaultVehicle.getLatitude(), vehicleDescription.getLatitude(), 0.1);

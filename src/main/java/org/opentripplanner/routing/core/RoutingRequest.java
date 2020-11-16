@@ -8,8 +8,10 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -152,7 +154,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * The maximum number of itineraries to return.
      */
-    public int numItineraries = 3;
+    private int numItineraries = 3;
 
     /**
      * The maximum slope of streets for wheelchair trips.
@@ -268,6 +270,8 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingDelays routingDelays;
 
     public RoutingReluctances routingReluctances;
+
+    public RoutingStateDiffOptions routingStateDiffOptions = new RoutingStateDiffOptions();
 
     /**
      * This prevents unnecessary transfers by adding a cost for boarding a vehicle.
@@ -406,6 +410,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      * when true, do not use goal direction or stop at the target, build a full SPT
      */
     public boolean batch = false;
+
+    private OptimizationProfile optimizationProfile;
 
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
@@ -638,7 +644,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * Accept only paths that use transit (no street-only paths).
      */
-    public boolean onlyTransitTrips = false;
+    public boolean forceTransitTrips = false;
 
     /**
      * Option to disable the default filtering of GTFS-RT alerts by time.
@@ -685,6 +691,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      * service.
      */
     public int flexMinPartialHopLength = 400;
+    public Double remainingWeightWeight = 1.0;
 
     /**
      * Saves split edge which can be split on origin/destination search
@@ -1022,10 +1029,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     public int getNumItineraries() {
-        if (modes.isTransit()) {
+        if (modes.isTransit() || rentingAllowed) {
             return numItineraries;
         } else {
-            // If transit is not to be used, only search for one itinerary.
+            // If transit and renting is not to be used, only search for one itinerary.
             return 1;
         }
     }
@@ -1572,7 +1579,13 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Create a new ShortestPathTree instance using the DominanceFunction specified in this RoutingRequest.
      */
     public ShortestPathTree getNewShortestPathTree() {
-        return this.dominanceFunction.getNewShortestPathTree(this);
+        if (java.util.Objects.nonNull(this.optimizationProfile)) {
+            return this.optimizationProfile.getDominanceFunction().getNewShortestPathTree(this);
+        } else {
+            // For backward compatibility with old components we use this.dominationFunction if optimizationProfile is
+            // not set
+            return this.dominanceFunction.getNewShortestPathTree(this);
+        }
     }
 
     /**
@@ -1610,4 +1623,11 @@ public class RoutingRequest implements Cloneable, Serializable {
         return new PathComparator(compareStartTimes);
     }
 
+    public OptimizationProfile getOptimizationProfile() {
+        return optimizationProfile;
+    }
+
+    public void setOptimizationProfile(OptimizationProfile optimizationProfile) {
+        this.optimizationProfile = optimizationProfile;
+    }
 }

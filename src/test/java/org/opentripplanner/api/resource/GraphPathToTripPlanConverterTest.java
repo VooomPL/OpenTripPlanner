@@ -1,67 +1,34 @@
 package org.opentripplanner.api.resource;
 
-import com.google.common.collect.ImmutableList;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.junit.Test;
 import org.opentripplanner.api.model.*;
 import org.opentripplanner.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.common.geometry.GeometryUtils;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.StopPattern;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.gtfs.BikeAccess;
+import org.opentripplanner.model.*;
+import org.opentripplanner.model.calendar.CalendarServiceData;
+import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.alertpatch.TimePeriod;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
-import org.opentripplanner.routing.core.Fare;
+import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.core.Fare.FareType;
-import org.opentripplanner.routing.core.RoutingContext;
-import org.opentripplanner.routing.core.RoutingRequest;
-import org.opentripplanner.routing.core.ServiceDay;
-import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.WrappedCurrency;
-import org.opentripplanner.routing.edgetype.AreaEdge;
-import org.opentripplanner.routing.edgetype.AreaEdgeList;
-import org.opentripplanner.routing.edgetype.FreeEdge;
-import org.opentripplanner.routing.edgetype.LegSwitchingEdge;
-import org.opentripplanner.routing.edgetype.OnBoardDepartPatternHop;
-import org.opentripplanner.routing.edgetype.PatternDwell;
-import org.opentripplanner.routing.edgetype.PatternHop;
-import org.opentripplanner.routing.edgetype.PatternInterlineDwell;
-import org.opentripplanner.routing.edgetype.PreAlightEdge;
-import org.opentripplanner.routing.edgetype.PreBoardEdge;
-import org.opentripplanner.routing.edgetype.RentABikeOffEdge;
-import org.opentripplanner.routing.edgetype.RentABikeOnEdge;
-import org.opentripplanner.routing.edgetype.SimpleTransfer;
-import org.opentripplanner.routing.edgetype.StreetBikeRentalLink;
-import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.opentripplanner.routing.edgetype.StreetTransitLink;
-import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
-import org.opentripplanner.routing.edgetype.StreetWithElevationEdge;
-import org.opentripplanner.routing.edgetype.TemporaryPartialStreetEdge;
-import org.opentripplanner.routing.edgetype.TimetableSnapshot;
-import org.opentripplanner.routing.edgetype.TransitBoardAlight;
-import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.services.FareService;
 import org.opentripplanner.routing.services.notes.StreetNotesService;
@@ -98,6 +65,8 @@ public class GraphPathToTripPlanConverterTest {
 
     private static final Locale locale = new Locale("en");
 
+    private static final StreetVertexIndexServiceImpl EMPTY_STREET_INDEX = new StreetVertexIndexServiceImpl(new Graph());
+
     /**
      * Test the generateItinerary() method. This test is intended to be comprehensive but fast.
      * Any future changes to the generateItinerary() method should be accompanied by changes in this
@@ -107,9 +76,9 @@ public class GraphPathToTripPlanConverterTest {
     public void testGenerateItinerary() {
         GraphPath[] graphPaths = buildPaths();
 
-        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], true, false, locale), Type.FORWARD);
-        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[1], true, false, locale), Type.BACKWARD);
-        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[2], true, false, locale), Type.ONBOARD);
+        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], true, false, locale, EMPTY_STREET_INDEX), Type.FORWARD);
+        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[1], true, false, locale, EMPTY_STREET_INDEX), Type.BACKWARD);
+        compare(GraphPathToTripPlanConverter.generateItinerary(graphPaths[2], true, false, locale, EMPTY_STREET_INDEX), Type.ONBOARD);
     }
 
     /**
@@ -121,7 +90,7 @@ public class GraphPathToTripPlanConverterTest {
         // Reuse testGenerateItinerary()'s graph path, but shorten it
         GraphPath graphPath = new GraphPath(buildPaths()[0].states.get(3), false);
 
-        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale, EMPTY_STREET_INDEX);
 
         assertEquals(1, itinerary.legs.size());
         assertEquals(TraverseMode.WALK, itinerary.legs.get(0).mode);
@@ -140,7 +109,7 @@ public class GraphPathToTripPlanConverterTest {
 
         GraphPath graphPath = new GraphPath(new State(options), false);
 
-        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale, EMPTY_STREET_INDEX);
     }
 
     /**
@@ -164,7 +133,7 @@ public class GraphPathToTripPlanConverterTest {
 
         GraphPath graphPath = new GraphPath(arrive.traverse(intermediate), false);
 
-        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale);
+        GraphPathToTripPlanConverter.generateItinerary(graphPath, false, false, locale, EMPTY_STREET_INDEX);
     }
 
     /**
@@ -194,7 +163,7 @@ public class GraphPathToTripPlanConverterTest {
         GraphPath[] graphPaths = buildPaths();
 
         // when
-        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], false, false, locale);
+        Itinerary itinerary = GraphPathToTripPlanConverter.generateItinerary(graphPaths[0], false, false, locale, EMPTY_STREET_INDEX);
 
         // then
         Coordinate prev = null, next;
@@ -477,20 +446,20 @@ public class GraphPathToTripPlanConverterTest {
 
         enterPickupStation.id = "Enter pickup";
         enterPickupStation.name = new NonLocalizedString("Enter pickup station");
-        enterPickupStation.x = 180;
-        enterPickupStation.y = 90;
+        enterPickupStation.longitude = 180;
+        enterPickupStation.latitude = 90;
         exitPickupStation.id = "Exit pickup";
         exitPickupStation.name = new NonLocalizedString("Exit pickup station");
-        exitPickupStation.x = 180;
-        exitPickupStation.y = 90;
+        exitPickupStation.longitude = 180;
+        exitPickupStation.latitude = 90;
         enterDropoffStation.id = "Enter dropoff";
         enterDropoffStation.name = new NonLocalizedString("Enter dropoff station");
-        enterDropoffStation.x = 0;
-        enterDropoffStation.y = 90;
+        enterDropoffStation.longitude = 0;
+        enterDropoffStation.latitude = 90;
         exitDropoffStation.id = "Exit dropoff";
         exitDropoffStation.name = new NonLocalizedString("Exit dropoff station");
-        exitDropoffStation.x = 0;
-        exitDropoffStation.y = 90;
+        exitDropoffStation.longitude = 0;
+        exitDropoffStation.latitude = 90;
 
         // Vertices for legs 5 and 6
         BikeRentalStationVertex v44 = new BikeRentalStationVertex(

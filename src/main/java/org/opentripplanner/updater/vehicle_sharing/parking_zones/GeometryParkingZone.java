@@ -3,9 +3,10 @@ package org.opentripplanner.updater.vehicle_sharing.parking_zones;
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class GeometryParkingZone {
+public class GeometryParkingZone implements Serializable {
 
     private final int providerId;
 

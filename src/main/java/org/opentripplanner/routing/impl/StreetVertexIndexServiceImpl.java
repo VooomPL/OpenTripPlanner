@@ -355,8 +355,7 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
 
             if (s.v1 != null)
                 new SampleEdge(s.v1, v, s.d1);
-        }
-        else {
+        } else {
             if (s.v0 != null)
                 new SampleEdge(v, s.v0, s.d0);
 
@@ -365,5 +364,10 @@ public class StreetVertexIndexServiceImpl implements StreetVertexIndexService {
         }
 
         return v;
+    }
+
+    @Override
+    public Optional<I18NString> findNameForVertex(Vertex vertex) {
+        return temporaryStreetSplitter.findNameForVertex(vertex);
     }
 }

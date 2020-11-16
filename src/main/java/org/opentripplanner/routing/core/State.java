@@ -7,7 +7,8 @@ import org.opentripplanner.routing.algorithm.NegativeWeightException;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.edgetype.*;
-import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleAnywhereEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.trippattern.TripTimes;
@@ -15,16 +16,26 @@ import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
 public class State implements Cloneable {
+
     /* Data which is likely to change at most traversals */
 
     protected TraversalStatistics traversalStatistics;
 
     protected double distanceTraversedInCurrentVehicle;
+
+    private int timeTraversedInCurrentVehicleInSeconds;
+
+    private BigDecimal distancePriceForCurrentVehicle;
+
+    private BigDecimal timePriceForCurrentVehicle;
+
+    private BigDecimal startPriceForCurrentVehicle;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -124,6 +135,9 @@ public class State implements Cloneable {
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
+        distancePriceForCurrentVehicle = BigDecimal.ZERO;
+        timePriceForCurrentVehicle = BigDecimal.ZERO;
+        startPriceForCurrentVehicle = BigDecimal.ZERO;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -292,7 +306,8 @@ public class State implements Cloneable {
             bikeParkAndRideOk = !bikeParkAndRide || isBikeParked();
             carParkAndRideOk = !parkAndRide || isCarParked();
         }
-        return bikeRentingOk && bikeParkAndRideOk && carParkAndRideOk && !isCurrentlyRentingVehicle();
+        boolean forceTransitTripsOk = !stateData.opt.forceTransitTrips || isEverBoarded();
+        return bikeRentingOk && bikeParkAndRideOk && carParkAndRideOk && forceTransitTripsOk && !isCurrentlyRentingVehicle();
     }
 
     public Stop getPreviousStop() {
@@ -305,6 +320,10 @@ public class State implements Cloneable {
 
     public double getTraverseDistanceInMeters() {
         return traverseDistanceInMeters;
+    }
+
+    public BigDecimal getTraversalPrice() {
+        return traversalStatistics.getPrice();
     }
 
     public int getPreTransitTime() {
@@ -683,8 +702,10 @@ public class State implements Cloneable {
             if (forward && firstBoardOrLastAlight(orig, edge)) {
                 ret = ((TransitBoardAlight) edge).traverse(ret, orig.getBackState().getTimeSeconds());
                 newInitialWaitTime = ret.stateData.initialWaitTime;
-            } else if (edge instanceof RentVehicleAnywhereEdge) {
-                ret = reverseOptimizeRentingVehicles((RentVehicleAnywhereEdge) edge, ret, orig);
+            } else if (edge instanceof DropoffVehicleEdge && ret.stateData.opt.reverseOptimizing) {
+                ret = ((DropoffVehicleEdge) edge).reversedTraverseDoneRenting(ret, orig.getBackState().getCurrentVehicle());
+            } else if (edge instanceof RentVehicleEdge && ret.stateData.opt.reverseOptimizing) {
+                ret = reverseOptimizeRentVehicleEdge((RentVehicleEdge) edge, ret, orig);
             } else {
                 ret = edge.traverse(ret);
             }
@@ -707,24 +728,11 @@ public class State implements Cloneable {
         return forward ? forward(ret, newInitialWaitTime) : ret;
     }
 
-    private State reverseOptimizeRentingVehicles(RentVehicleAnywhereEdge edge, State ret, State orig) {
-        try {
-            if (ret.stateData.opt.reverseOptimizing) {
-                if (ret.isCurrentlyRentingVehicle()) {
-                    return edge.reversedTraverseBeginRenting(ret);
-                } else {
-                    return edge.reversedTraverseDoneRenting(ret, orig.getBackState().getCurrentVehicle());
-                }
-            } else {
-                if (ret.isCurrentlyRentingVehicle()) {
-                    return edge.doneVehicleRenting(ret);
-                } else {
-                    return edge.beginVehicleRenting(ret, orig.getBackState().getCurrentVehicle());
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to reverse traverse renting vehicles edge", e);
-            return null;
+    private State reverseOptimizeRentVehicleEdge(RentVehicleEdge edge, State ret, State orig) {
+        if (orig.getBackState().isCurrentlyRentingVehicle()) {
+            return edge.reversedTraverseSwitchVehicles(ret, orig.getBackState().getCurrentVehicle());
+        } else {
+            return edge.reversedTraverseBeginRenting(ret);
         }
     }
 
@@ -893,5 +901,37 @@ public class State implements Cloneable {
         if (getCurrentVehicle() != null)
             return distanceTraversedInCurrentVehicle + distanceInMeters <= getCurrentVehicle().getRangeInMeters();
         return true;
+    }
+
+    public int getTimeTraversedInCurrentVehicleInSeconds() {
+        return timeTraversedInCurrentVehicleInSeconds;
+    }
+
+    public void setTimeTraversedInCurrentVehicleInSeconds(int timeTraversedInCurrentVehicleInSeconds) {
+        this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
+    }
+
+    public BigDecimal getDistancePriceForCurrentVehicle() {
+        return distancePriceForCurrentVehicle;
+    }
+
+    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle) {
+        this.distancePriceForCurrentVehicle = distancePriceForCurrentVehicle;
+    }
+
+    public BigDecimal getTimePriceForCurrentVehicle() {
+        return timePriceForCurrentVehicle;
+    }
+
+    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle) {
+        this.timePriceForCurrentVehicle = timePriceForCurrentVehicle;
+    }
+
+    public BigDecimal getStartPriceForCurrentVehicle() {
+        return startPriceForCurrentVehicle;
+    }
+
+    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle) {
+        this.startPriceForCurrentVehicle = startPriceForCurrentVehicle;
     }
 }

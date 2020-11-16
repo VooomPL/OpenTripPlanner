@@ -7,9 +7,9 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
 
 import java.util.Objects;
 
-public class KickScooterDescription extends VehicleDescription {
-    private static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 15. * (10. / 36.);
-    private static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_PEDESTRIAN_PATH = 10. * (10. / 36.);
+public class KickScooterDescription extends BikePathVehicleDescription {
+    protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 15. * (10. / 36.);
+    protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_PEDESTRIAN_PATH = 10. * (10. / 36.);
 
     private static final TraverseMode TRAVERSE_MODE = TraverseMode.BICYCLE;
 
@@ -20,6 +20,11 @@ public class KickScooterDescription extends VehicleDescription {
     public KickScooterDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                                   Gearbox gearbox, Provider provider, Double rangeInMeters) {
         super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters);
+    }
+
+    public KickScooterDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                                  Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)

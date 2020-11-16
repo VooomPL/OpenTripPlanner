@@ -1,51 +1,57 @@
 package org.opentripplanner.updater.vehicle_sharing.parking_zones;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.opentripplanner.routing.edgetype.rentedgetype.EdgeWithParkingZones;
-import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo.SingleParkingZone;
+import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
+import org.opentripplanner.routing.edgetype.rentedgetype.SingleParkingZone;
+import org.opentripplanner.routing.graph.Vertex;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
-public class ParkingZonesCalculator {
+public class ParkingZonesCalculator implements Serializable {
 
     private final List<GeometryParkingZone> geometryParkingZones;
 
+    @VisibleForTesting
+    final List<SingleParkingZone> parkingZonesEnabled;
+
     public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones) {
         this.geometryParkingZones = geometryParkingZones;
+        this.parkingZonesEnabled = createParkingZonesEnabled();
     }
 
-    public List<SingleParkingZone> getNewParkingZonesEnabled() {
+    private List<SingleParkingZone> createParkingZonesEnabled() {
         return geometryParkingZones.stream()
                 .map(gpz -> new SingleParkingZone(gpz.getProviderId(), gpz.getVehicleType()))
                 .distinct()
                 .collect(toList());
     }
 
-    public List<SingleParkingZone> getParkingZonesForEdge(EdgeWithParkingZones edge,
-                                                          List<SingleParkingZone> parkingZonesEnabled) {
-        Point point = createPoint(edge);
-        return geometryParkingZones.stream()
-                .map(gpz -> findMatchingParkingZone(point, gpz, parkingZonesEnabled))
+    public ParkingZoneInfo getParkingZonesForLocation(Vertex vertex) {
+        Point point = createPoint(vertex);
+        List<SingleParkingZone> parkingZones = geometryParkingZones.stream()
+                .map(gpz -> findMatchingParkingZone(point, gpz))
                 .filter(Objects::nonNull)
                 .collect(toList());
+        return new ParkingZoneInfo(parkingZones, parkingZonesEnabled);
     }
 
-    private Point createPoint(EdgeWithParkingZones edge) {
-        CoordinateXY coord = new CoordinateXY(edge.getFromVertex().getLon(), edge.getFromVertex().getLat());
+    private Point createPoint(Vertex vertex) {
+        CoordinateXY coord = new CoordinateXY(vertex.getLon(), vertex.getLat());
         return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
     }
 
-    private SingleParkingZone findMatchingParkingZone(Point point, GeometryParkingZone geometryParkingZone,
-                                                      List<SingleParkingZone> parkingZonesEnabled) {
+    private SingleParkingZone findMatchingParkingZone(Point point, GeometryParkingZone geometryParkingZone) {
         if (isPointInParkingZone(point, geometryParkingZone)) {
-            return getMatchingParkingZoneFromList(geometryParkingZone, parkingZonesEnabled);
+            return getMatchingParkingZoneFromList(geometryParkingZone);
         } else {
             return null;
         }
@@ -56,8 +62,7 @@ public class ParkingZonesCalculator {
                 && gpz.getGeometriesDisallowed().stream().noneMatch(g -> g.contains(point));
     }
 
-    private SingleParkingZone getMatchingParkingZoneFromList(
-            GeometryParkingZone geometryParkingZone, List<SingleParkingZone> parkingZonesEnabled) {
+    private SingleParkingZone getMatchingParkingZoneFromList(GeometryParkingZone geometryParkingZone) {
         return parkingZonesEnabled.stream()
                 .filter(pz -> pz.sameProviderIdAndVehicleType(geometryParkingZone))
                 .findFirst()
