@@ -173,6 +173,12 @@ public abstract class RoutingResource {
     protected Double bikeSpeed;
 
     /**
+     * The user's car speed in meters/second. Defaults to approximately 90 MPH.
+     */
+    @QueryParam("carSpeed")
+    protected Double carSpeed;
+
+    /**
      * The time it takes the user to fetch their bike and park it again in seconds.
      * Defaults to 0.
      */
@@ -666,11 +672,14 @@ public abstract class RoutingResource {
         if (waitAtBeginningFactor != null)
             request.routingReluctances.setWaitAtBeginningFactor(waitAtBeginningFactor);
 
-        if (walkSpeed != null)
+        if (walkSpeed != null && walkSpeed > 0)
             request.walkSpeed = walkSpeed;
 
-        if (bikeSpeed != null)
+        if (bikeSpeed != null && bikeSpeed > 0)
             request.bikeSpeed = bikeSpeed;
+
+        if (carSpeed != null && carSpeed > 0)
+            request.carSpeed = carSpeed;
 
         if (bikeSwitchTime != null)
             request.bikeSwitchTime = bikeSwitchTime;

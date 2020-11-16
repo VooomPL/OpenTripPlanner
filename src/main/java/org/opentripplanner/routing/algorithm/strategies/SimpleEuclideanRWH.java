@@ -14,6 +14,10 @@ import java.util.Set;
 import static java.lang.Double.min;
 import static org.opentripplanner.common.geometry.SphericalDistanceLibrary.fastDistance;
 
+/**
+ * Estimate remaining weight by multiplying euclidean distance to destination by lowest multiplier
+ * for all possible traverse modes. Multiplier is just reluctance divided by speed.
+ */
 public class SimpleEuclideanRWH implements RemainingWeightHeuristic {
 
     private double lat;
@@ -77,11 +81,6 @@ public class SimpleEuclideanRWH implements RemainingWeightHeuristic {
         }
     }
 
-    /**
-     * Estimate remaining weight by multiplying euclidean distance to destination
-     * by lowest multiplier for all possible traverse modes.
-     * Multiplier is just reluctance divided by speed.
-     */
     @Override
     public double estimateRemainingWeight(State s) {
         Vertex sv = s.getVertex();
