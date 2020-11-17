@@ -17,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class State implements Cloneable {
 
@@ -36,7 +38,7 @@ public class State implements Cloneable {
 
     private Map<Integer, BigDecimal> startPricePerPackage;
 
-    private int activePackageIndex;
+    private Integer activePackageIndex;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -139,7 +141,7 @@ public class State implements Cloneable {
         distancePricePerPackage = new HashMap<>();
         timePricePerPackage = new HashMap<>();
         startPricePerPackage = new HashMap<>();
-        activePackageIndex = 0;
+        activePackageIndex = null;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];

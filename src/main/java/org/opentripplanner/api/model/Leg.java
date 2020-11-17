@@ -10,11 +10,7 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
  /**
  * One leg of a trip -- that is, a temporally continuous piece of the journey that takes place on a
@@ -276,7 +272,7 @@ public class Leg {
      public String flexFlagStopDropOffMessage;
 
      @JsonSerialize
-     public int activePackageIndex;
+     public Integer activePackageIndex;
 
     /**
      * Whether this leg is a transit leg or not.
