@@ -1406,7 +1406,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         RoutingRequest options = new RoutingRequest(modeSet);
         options.rentingAllowed = rentingAllowedBox.isSelected();
         options.setArriveBy(arriveByCheckBox.isSelected());
-        options.setWalkBoardCost(Integer.parseInt(boardingPenaltyField.getText()) * 60); // override low 2-4 minute values
+        options.routingPenalties.setWalkBoardCost(Integer.parseInt(boardingPenaltyField.getText()) * 60); // override low 2-4 minute values
         // TODO LG Add ui element for bike board cost (for now bike = 2 * walk)
         options.setBikeBoardCost(Integer.parseInt(boardingPenaltyField.getText()) * 60 * 2);
         // there should be a ui element for walk distance and optimize type

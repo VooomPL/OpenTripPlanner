@@ -5,11 +5,11 @@ import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.common.model.NamedPlace;
-import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingPenalties;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
@@ -271,12 +271,9 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public RoutingReluctances routingReluctances;
 
-    public RoutingStateDiffOptions routingStateDiffOptions = new RoutingStateDiffOptions();
+    public RoutingPenalties routingPenalties;
 
-    /**
-     * This prevents unnecessary transfers by adding a cost for boarding a vehicle.
-     */
-    public int walkBoardCost = 60 * 10;
+    public RoutingStateDiffOptions routingStateDiffOptions = new RoutingStateDiffOptions();
 
     /**
      * Separate cost for boarding a vehicle with a bicycle, which is more difficult than on foot.
@@ -885,14 +882,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         this.softWalkLimiting = softWalkLimitEnabled;
     }
 
-    public void setWalkBoardCost(int walkBoardCost) {
-        if (walkBoardCost < 0) {
-            this.walkBoardCost = 0;
-        } else {
-            this.walkBoardCost = walkBoardCost;
-        }
-    }
-
     public void setBikeBoardCost(int bikeBoardCost) {
         if (bikeBoardCost < 0) {
             this.bikeBoardCost = 0;
@@ -1254,7 +1243,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && maxSlope == other.maxSlope
                 && routingReluctances.equals(other.routingReluctances)
                 && routingDelays.equals(other.routingDelays)
-                && walkBoardCost == other.walkBoardCost
+                && routingPenalties.equals(other.routingPenalties)
                 && bikeBoardCost == other.bikeBoardCost
                 && bannedRoutes.equals(other.bannedRoutes)
                 && bannedTrips.equals(other.bannedTrips)
@@ -1320,7 +1309,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + new Double(transferPenalty).hashCode() + new Double(maxSlope).hashCode()
                 + routingReluctances.hashCode()
                 + routingDelays.hashCode() * 15485863
-                + walkBoardCost + bikeBoardCost + bannedRoutes.hashCode()
+                + routingPenalties.hashCode()
+                + bikeBoardCost + bannedRoutes.hashCode()
                 + bannedTrips.hashCode() * 1373 + transferSlack * 20996011
                 + (int) nonpreferredTransferPenalty + (int) transferPenalty * 163013803
                 + new Double(triangleSafetyFactor).hashCode() * 195233277
@@ -1419,7 +1409,7 @@ public class RoutingRequest implements Cloneable, Serializable {
         if (mode == TraverseMode.BICYCLE)
             return bikeBoardCost;
         // I assume you can't bring your car in the bus
-        return walkBoardCost;
+        return routingPenalties.getWalkBoardCost();
     }
 
     /**
@@ -1428,7 +1418,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public int getBoardCostLowerBound() {
         // Assume walkBoardCost < bikeBoardCost
         if (modes.getWalk())
-            return walkBoardCost;
+            return routingPenalties.getWalkBoardCost();
         return bikeBoardCost;
     }
 
@@ -1593,7 +1583,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      * <p>
      * But throws TrivialPathException if same edge is split in origin/destination search.
      * <p>
-     * used in {@link PermanentStreetSplitter} in {@link PermanentStreetSplitter#link(Vertex, StreetEdge, double, RoutingRequest)}
+     * used in {@link org.opentripplanner.graph_builder.linking.ToStreetEdgeLinker}}
      *
      * @param edge
      */

@@ -140,7 +140,7 @@ public abstract class GtfsTest extends TestCase {
         // since this makes interlining _worse_ than alighting and re-boarding the same line.
         // TODO rethink whether it makes sense to weight waiting to board _less_ than 1.
         routingRequest.routingReluctances.setWaitReluctance(1);
-        routingRequest.setWalkBoardCost(30);
+        routingRequest.routingPenalties.setWalkBoardCost(30);
 
         List<GraphPath> paths = new GraphPathFinder(router).getPaths(routingRequest);
         if (paths.isEmpty())

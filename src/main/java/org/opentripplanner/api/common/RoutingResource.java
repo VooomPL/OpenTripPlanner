@@ -717,7 +717,7 @@ public abstract class RoutingResource {
             request.setUnpreferredAgencies(unpreferredAgencies);
 
         if (walkBoardCost != null)
-            request.setWalkBoardCost(walkBoardCost);
+            request.routingPenalties.setWalkBoardCost(walkBoardCost);
 
         if (bikeBoardCost != null)
             request.setBikeBoardCost(bikeBoardCost);
