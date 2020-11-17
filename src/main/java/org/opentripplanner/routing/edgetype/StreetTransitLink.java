@@ -106,6 +106,10 @@ public class StreetTransitLink extends Edge {
             return null;
         }
 
+        if (s0.isCurrentlyRentingVehicle()) {
+            return null;
+        }
+
         // Do not check here whether any transit modes are selected. A check for the presence of
         // transit modes will instead be done in the following PreBoard edge.
         // This allows searching for nearby transit stops using walk-only options.
