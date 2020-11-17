@@ -276,11 +276,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingStateDiffOptions routingStateDiffOptions = new RoutingStateDiffOptions();
 
     /**
-     * Separate cost for boarding a vehicle with a bicycle, which is more difficult than on foot.
-     */
-    public int bikeBoardCost = 60 * 10;
-
-    /**
      * Do not use certain named routes.
      * The paramter format is: feedId_routeId,feedId_routeId,feedId_routeId
      * This parameter format is completely nonstandard and should be revised for the 2.0 API, see issue #1671.
@@ -882,14 +877,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         this.softWalkLimiting = softWalkLimitEnabled;
     }
 
-    public void setBikeBoardCost(int bikeBoardCost) {
-        if (bikeBoardCost < 0) {
-            this.bikeBoardCost = 0;
-        } else {
-            this.bikeBoardCost = bikeBoardCost;
-        }
-    }
-
     public void setPreferredAgencies(String s) {
         if (!s.isEmpty()) {
             preferredAgencies = new HashSet<>();
@@ -1244,7 +1231,6 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && routingReluctances.equals(other.routingReluctances)
                 && routingDelays.equals(other.routingDelays)
                 && routingPenalties.equals(other.routingPenalties)
-                && bikeBoardCost == other.bikeBoardCost
                 && bannedRoutes.equals(other.bannedRoutes)
                 && bannedTrips.equals(other.bannedTrips)
                 && preferredRoutes.equals(other.preferredRoutes)
@@ -1310,7 +1296,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + routingReluctances.hashCode()
                 + routingDelays.hashCode() * 15485863
                 + routingPenalties.hashCode()
-                + bikeBoardCost + bannedRoutes.hashCode()
+                + bannedRoutes.hashCode()
                 + bannedTrips.hashCode() * 1373 + transferSlack * 20996011
                 + (int) nonpreferredTransferPenalty + (int) transferPenalty * 163013803
                 + new Double(triangleSafetyFactor).hashCode() * 195233277
@@ -1399,27 +1385,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         if (modes.getBicycle())
             return bikeSpeed;
         return walkSpeed;
-    }
-
-    /**
-     * @param mode
-     * @return The board cost for a specific traverse mode.
-     */
-    public int getBoardCost(TraverseMode mode) {
-        if (mode == TraverseMode.BICYCLE)
-            return bikeBoardCost;
-        // I assume you can't bring your car in the bus
-        return routingPenalties.getWalkBoardCost();
-    }
-
-    /**
-     * @return The lower boarding cost for all possible road-modes.
-     */
-    public int getBoardCostLowerBound() {
-        // Assume walkBoardCost < bikeBoardCost
-        if (modes.getWalk())
-            return routingPenalties.getWalkBoardCost();
-        return bikeBoardCost;
     }
 
     /**

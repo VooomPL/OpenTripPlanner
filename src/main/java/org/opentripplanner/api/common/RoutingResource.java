@@ -720,7 +720,7 @@ public abstract class RoutingResource {
             request.routingPenalties.setWalkBoardCost(walkBoardCost);
 
         if (bikeBoardCost != null)
-            request.setBikeBoardCost(bikeBoardCost);
+            request.routingPenalties.setBikeBoardCost(bikeBoardCost);
 
         if (bannedRoutes != null)
             request.setBannedRoutes(bannedRoutes);
