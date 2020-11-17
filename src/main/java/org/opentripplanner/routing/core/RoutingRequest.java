@@ -178,22 +178,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public Locale locale = new Locale("en", "US");
 
     /**
-     * An extra penalty added on transfers (i.e. all boardings except the first one).
-     * Not to be confused with bikeBoardCost and walkBoardCost, which are the cost of boarding a
-     * vehicle with and without a bicycle. The boardCosts are used to model the 'usual' perceived
-     * cost of using a transit vehicle, and the transferPenalty is used when a user requests even
-     * less transfers. In the latter case, we don't actually optimize for fewest transfers, as this
-     * can lead to absurd results. Consider a trip in New York from Grand Army
-     * Plaza (the one in Brooklyn) to Kalustyan's at noon. The true lowest transfers route is to
-     * wait until midnight, when the 4 train runs local the whole way. The actual fastest route is
-     * the 2/3 to the 4/5 at Nevins to the 6 at Union Square, which takes half an hour.
-     * Even someone optimizing for fewest transfers doesn't want to wait until midnight. Maybe they
-     * would be willing to walk to 7th Ave and take the Q to Union Square, then transfer to the 6.
-     * If this takes less than optimize_transfer_penalty seconds, then that's what we'll return.
-     */
-    public int transferPenalty = 0;
-
-    /**
      * Used instead of walk reluctance for stairs
      */
     public double stairsReluctance = 2.0;
@@ -713,6 +697,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest() {
         routingDelays = new RoutingDelays();
         routingReluctances = new RoutingReluctances();
+        routingPenalties = new RoutingPenalties();
         // http://en.wikipedia.org/wiki/Walking
         walkSpeed = 1.33; // 1.33 m/s ~ 3mph, avg. human speed
         bikeSpeed = 5; // 5 m/s, ~11 mph, a random bicycling speed
@@ -1226,7 +1211,6 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && maxWalkDistance == other.maxWalkDistance
                 && maxTransferWalkDistance == other.maxTransferWalkDistance
                 && maxPreTransitTime == other.maxPreTransitTime
-                && transferPenalty == other.transferPenalty
                 && maxSlope == other.maxSlope
                 && routingReluctances.equals(other.routingReluctances)
                 && routingDelays.equals(other.routingDelays)
@@ -1292,13 +1276,13 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + (arriveBy ? 8966786 : 0) + (wheelchairAccessible ? 731980 : 0)
                 + optimize.hashCode() + new Double(maxWalkDistance).hashCode()
                 + new Double(maxTransferWalkDistance).hashCode()
-                + new Double(transferPenalty).hashCode() + new Double(maxSlope).hashCode()
+                + new Double(maxSlope).hashCode()
                 + routingReluctances.hashCode()
                 + routingDelays.hashCode() * 15485863
                 + routingPenalties.hashCode()
                 + bannedRoutes.hashCode()
                 + bannedTrips.hashCode() * 1373 + transferSlack * 20996011
-                + (int) nonpreferredTransferPenalty + (int) transferPenalty * 163013803
+                + (int) nonpreferredTransferPenalty
                 + new Double(triangleSafetyFactor).hashCode() * 195233277
                 + new Double(triangleSlopeFactor).hashCode() * 136372361
                 + new Double(triangleTimeFactor).hashCode() * 790052899

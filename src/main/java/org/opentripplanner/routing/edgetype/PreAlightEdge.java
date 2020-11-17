@@ -1,9 +1,9 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 
@@ -77,7 +77,7 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
             if (s0.isEverBoarded()) {
                 // this is not the first boarding, therefore we must have "transferred" -- whether
                 // via a formal transfer or by walking.
-                transfer_penalty += options.transferPenalty;
+                transfer_penalty += options.routingPenalties.getTransferPenalty();
             }
 
             StateEditor s1 = s0.edit(this);

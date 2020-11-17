@@ -231,7 +231,7 @@ public class VermontFlexRoutingTest {
         options.flexCallAndRideReluctance = callAndRideReluctance;
         options.routingReluctances.setWalkReluctance(walkReluctance);
         options.routingReluctances.setWaitAtBeginningFactor(waitAtBeginningFactor);
-        options.transferPenalty = transferPenalty;
+        options.routingPenalties.setTransferPenalty(transferPenalty);
 
         // for testing
         options.flexIgnoreDrtAdvanceBookMin = ignoreDrtAdvanceMinBooking;
