@@ -674,13 +674,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public String pathComparator = null;
 
     /**
-     * This parameter is used in GTFS-Flex routing. Preliminary searches before the main search
-     * need to be able to discover TransitStops in order to create call-and-ride legs which allow
-     * transfers to fixed-route services.
-     */
-    public boolean enterStationsWithCar = false;
-
-    /**
      * Minimum length in meters of partial hop edges. This parameter only applies to GTFS-Flex
      * routing, which must be explicitly turned on via the useFlexService parameter in router-
      * config.json.
