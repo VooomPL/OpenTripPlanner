@@ -8,6 +8,7 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -412,6 +414,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     public boolean batch = false;
 
     private OptimizationProfile optimizationProfile;
+
+    private Map<CostFunction.CostCategory, Double> costCategoryWeights;
+
+    private BigDecimal walkPrice = BigDecimal.valueOf(0.3);
 
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
@@ -1629,5 +1635,21 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public void setOptimizationProfile(OptimizationProfile optimizationProfile) {
         this.optimizationProfile = optimizationProfile;
+    }
+
+    public Map<CostFunction.CostCategory, Double> getCostCategoryWeights() {
+        return costCategoryWeights;
+    }
+
+    public void setCostCategoryWeights(Map<CostFunction.CostCategory, Double> costCategoryWeights) {
+        this.costCategoryWeights = costCategoryWeights;
+    }
+
+    public void setWalkPrice(BigDecimal walkPrice) {
+        this.walkPrice = walkPrice;
+    }
+
+    public BigDecimal getWalkPrice() {
+        return walkPrice;
     }
 }
