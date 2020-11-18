@@ -5,8 +5,6 @@ import org.junit.Test;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.hasura_client.mappers.VehiclePositionsMapper;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
-import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesApiResponse.Vehicle;
-import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesApiResponse.VehicleProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -128,19 +126,6 @@ public class VehiclePositionsMapperTest {
         assertNull(car.getFuelType());
         assertNull(car.getGearbox());
         assertEquals(200000.0, car.getRangeInMeters(), 0.1); // default range if fetched null from database
-    }
-
-    @Test
-    public void shouldNotMapVehicleIfProviderIsUnavailable() {
-        // given
-        provider.setAvailable(false);
-
-        // when
-        List<VehicleDescription> vehicleDescriptions = mapper.map(Collections.singletonList(defaultVehicle));
-
-        // then
-        assertTrue(vehicleDescriptions.isEmpty());
-        assertTrue(mapper.getNumberOfMappedVehiclesPerProvider().isEmpty());
     }
 
     private void assertBasicVehicleFieldsAreEqual(VehicleDescription vehicleDescription) {

@@ -47,9 +47,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.EdgeWithCleanup;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
-import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
-import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.flex.FlexIndex;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.services.StreetVertexIndexFactory;
@@ -1135,15 +1133,17 @@ public class Graph implements Serializable {
 
     /**
      * Calculates envelope out of all OSM coordinates
-     *
+     * <p>
      * Transit stops are added to the envelope as they are added to the graph
      */
-    public void calculateEnvelope() {
+    public void calculateEnvelopeOsmVertices() {
         this.envelope = new WorldEnvelope();
+        this.osmEnvelope = new WorldEnvelope();
 
         for (Vertex v : this.getVertices()) {
             Coordinate c = v.getCoordinate();
             this.envelope.expandToInclude(c);
+            this.osmEnvelope.expandToInclude(c);
         }
     }
 
@@ -1174,7 +1174,7 @@ public class Graph implements Serializable {
     public void expandToInclude(double x, double y) {
         //Envelope can be empty if graph building is run without OSM data
         if (this.envelope == null) {
-            calculateEnvelope();
+            calculateEnvelopeOsmVertices();
         }
         this.envelope.expandToInclude(x, y);
     }
@@ -1183,13 +1183,17 @@ public class Graph implements Serializable {
         return this.envelope;
     }
 
+    public WorldEnvelope getOsmEnvelope() {
+        return this.osmEnvelope;
+    }
+
     // lazy-init geom index on an as needed basis
     public GeometryIndex getGeomIndex() {
-    	
-    	if(this.geomIndex == null)
-    		this.geomIndex = new GeometryIndex(this);
-    	
-    	return this.geomIndex;
+
+        if (this.geomIndex == null)
+            this.geomIndex = new GeometryIndex(this);
+
+        return this.geomIndex;
     }
 
     // lazy-init sample factor on an as needed basis

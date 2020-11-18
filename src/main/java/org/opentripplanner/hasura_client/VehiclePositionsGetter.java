@@ -4,9 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.hasura_client.mappers.VehiclePositionsMapper;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Vehicle> {
     private static final Logger LOG = LoggerFactory.getLogger(VehiclePositionsGetter.class);
@@ -57,5 +62,11 @@ public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Veh
     protected TypeReference<ApiResponse<Vehicle>> hasuraType() {
         return new TypeReference<ApiResponse<Vehicle>>() {
         };
+    }
+
+    public List<Provider> getResponsiveProviders() {
+        return ((VehiclePositionsMapper) mapper()).getNumberOfMappedVehiclesPerProvider().entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(Map.Entry::getKey).collect(Collectors.toList());
     }
 }

@@ -7,10 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDescription> {
     private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
+
+    private Map<Provider, Long> numberOfMappedVehiclesPerProvider = new HashMap<>();
 
     @Override
     protected VehicleDescription mapSingleHasuraObject(Vehicle vehicle) {
@@ -44,6 +48,7 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
             LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicle.getType());
             return null;
         }
+        numberOfMappedVehiclesPerProvider.merge(provider, 1L, Long::sum);
         switch (vehicleType) {
             case CAR:
                 return new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
@@ -56,5 +61,9 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
                 LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicleType);
                 return null;
         }
+    }
+
+    public Map<Provider, Long> getNumberOfMappedVehiclesPerProvider() {
+        return numberOfMappedVehiclesPerProvider;
     }
 }

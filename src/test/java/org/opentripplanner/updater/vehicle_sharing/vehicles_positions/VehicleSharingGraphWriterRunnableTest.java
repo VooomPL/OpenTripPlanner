@@ -105,8 +105,10 @@ public class VehicleSharingGraphWriterRunnableTest {
     public void shouldRemoveDisappearedRentableVehiclesAsProviderIsResponsive() {
         graph.vehiclesTriedToLink.put(CAR_1, Optional.of(vertex));
         when(temporaryStreetSplitter.linkRentableVehicleToGraph(CAR_2)).thenReturn(Optional.of(vertex2));
+        //Grace period for provider is not exceeded
         graph.getLastProviderVehiclesUpdateTimestamps().put(CAR_1.getProvider(),
                 LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS, ChronoUnit.SECONDS));
+        //Provider did send some new vehicle, but did not send information about the previously mapped one
         VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
                 Collections.singletonList(CAR_2), Collections.singletonList(new Provider(2, "PANEK")));
 
