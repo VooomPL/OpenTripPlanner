@@ -141,7 +141,7 @@ public class State implements Cloneable {
         distancePricePerPackage = new HashMap<>();
         timePricePerPackage = new HashMap<>();
         startPricePerPackage = new HashMap<>();
-        activePackageIndex = null;
+        activePackageIndex = 0;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -919,7 +919,7 @@ public class State implements Cloneable {
     }
 
     public BigDecimal getDistancePriceForCurrentVehicle(int packageIndex) {
-        return distancePricePerPackage.containsKey(packageIndex)?distancePricePerPackage.get(packageIndex):BigDecimal.ZERO;
+        return distancePricePerPackage.getOrDefault(packageIndex, BigDecimal.ZERO);
     }
 
     public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle, int packageIndex) {
@@ -927,7 +927,7 @@ public class State implements Cloneable {
     }
 
     public BigDecimal getTimePriceForCurrentVehicle(int packageIndex) {
-        return timePricePerPackage.containsKey(packageIndex)?timePricePerPackage.get(packageIndex):BigDecimal.ZERO;
+        return timePricePerPackage.getOrDefault(packageIndex, BigDecimal.ZERO);
     }
 
     public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle, int packageIndex) {
@@ -935,7 +935,7 @@ public class State implements Cloneable {
     }
 
     public BigDecimal getStartPriceForCurrentVehicle(int packageIndex) {
-        return startPricePerPackage.containsKey(packageIndex)?startPricePerPackage.get(packageIndex):BigDecimal.ZERO;
+        return startPricePerPackage.getOrDefault(packageIndex, BigDecimal.ZERO);
     }
 
     public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle, int packageIndex) {
