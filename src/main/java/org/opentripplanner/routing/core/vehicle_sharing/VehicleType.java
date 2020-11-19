@@ -3,6 +3,8 @@ package org.opentripplanner.routing.core.vehicle_sharing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+
 public enum VehicleType {
 
     CAR,
@@ -16,6 +18,17 @@ public enum VehicleType {
     private static final String _KICKSCOOTER = "un-pedal-scooter";
 
     private static final Logger LOG = LoggerFactory.getLogger(VehicleType.class);
+
+    public static VehicleType fromString(String vehicleType) {
+        if (vehicleType == null) {
+            return null;
+        }
+        try {
+            return VehicleType.valueOf(vehicleType.toUpperCase(Locale.US));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
 
     // Cannot be named `fromString` as it would become default constructor
     // for `@QueryParam("vehicleTypesAllowed")` in `RoutingResource.java`
