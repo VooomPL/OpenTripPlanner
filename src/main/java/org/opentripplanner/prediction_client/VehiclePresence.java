@@ -94,6 +94,7 @@ public class VehiclePresence {
     public static class Prediction {
         private double lon;
         private double lat;
+        // probability that vehicle is present at this area
         private double value;
 
         @JsonIgnore
