@@ -25,13 +25,13 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private final List<VehicleDescription> vehiclesFetchedFromApi;
 
-    private final List<Provider> responsiveProvidersFetchedFromApi;
+    private final Set<Provider> responsiveProvidersFetchedFromApi;
 
     private final LocalTime updateTimestamp;
 
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
                                       List<VehicleDescription> vehiclesFetchedFromApi,
-                                      List<Provider> responsiveProvidersFetchedFromApi) {
+                                      Set<Provider> responsiveProvidersFetchedFromApi) {
         this.temporaryStreetSplitter = temporaryStreetSplitter;
         this.vehiclesFetchedFromApi = vehiclesFetchedFromApi;
         this.responsiveProvidersFetchedFromApi = responsiveProvidersFetchedFromApi;

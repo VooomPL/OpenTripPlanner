@@ -7,15 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDescription> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
 
-    private Map<Provider, Long> numberOfMappedVehiclesPerProvider = new HashMap<>();
+    private Set<Provider> responsiveProviders = new HashSet<>();
 
     private static final VehiclePricingPackage DEFAULT_PRICING_PACKAGE = new VehiclePricingPackage();
 
@@ -64,7 +64,7 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
             LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicle.getType());
             return null;
         }
-        numberOfMappedVehiclesPerProvider.merge(provider, 1L, Long::sum);
+        responsiveProviders.add(provider);
         switch (vehicleType) {
             case CAR:
                 return new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
@@ -79,7 +79,7 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
         }
     }
 
-    public Map<Provider, Long> getNumberOfMappedVehiclesPerProvider() {
-        return numberOfMappedVehiclesPerProvider;
+    public Set<Provider> getResponsiveProviders() {
+        return responsiveProviders;
     }
 }

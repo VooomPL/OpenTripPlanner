@@ -16,8 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Optional;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -49,7 +48,7 @@ public class VehicleSharingGraphWriterRunnableTest {
         // given
         when(temporaryStreetSplitter.linkRentableVehicleToGraph(CAR_1)).thenReturn(Optional.of(vertex));
         VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
-                singletonList(CAR_1), singletonList(new Provider(2, "PANEK")));
+                singletonList(CAR_1), singleton(new Provider(2, "PANEK")));
 
         // when
         runnable.run(graph);
@@ -70,7 +69,7 @@ public class VehicleSharingGraphWriterRunnableTest {
         graph.getLastProviderVehiclesUpdateTimestamps().put(CAR_1.getProvider(),
                 LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS+1, ChronoUnit.SECONDS));
         VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
-                emptyList(), emptyList());
+                emptyList(), emptySet());
 
         // when
         runnable.run(graph);
@@ -88,7 +87,7 @@ public class VehicleSharingGraphWriterRunnableTest {
         graph.getLastProviderVehiclesUpdateTimestamps().put(CAR_1.getProvider(),
                 LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS, ChronoUnit.SECONDS));
         VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
-                emptyList(), emptyList());
+                emptyList(), emptySet());
 
         // when
         runnable.run(graph);
@@ -110,7 +109,7 @@ public class VehicleSharingGraphWriterRunnableTest {
                 LocalTime.now().minus(Graph.REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS, ChronoUnit.SECONDS));
         //Provider did send some new vehicle, but did not send information about the previously mapped one
         VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
-                Collections.singletonList(CAR_2), Collections.singletonList(new Provider(2, "PANEK")));
+                Collections.singletonList(CAR_2), singleton(new Provider(2, "PANEK")));
 
         // when
         runnable.run(graph);
@@ -130,7 +129,7 @@ public class VehicleSharingGraphWriterRunnableTest {
         // given
         graph.vehiclesTriedToLink.put(CAR_1, Optional.of(vertex));
         VehicleSharingGraphWriterRunnable runnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter,
-                singletonList(CAR_1), singletonList(new Provider(2, "PANEK")));
+                singletonList(CAR_1), singleton(new Provider(2, "PANEK")));
 
         // when
         runnable.run(graph);
