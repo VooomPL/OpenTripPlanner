@@ -4,8 +4,10 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.TemporaryEdge;
+import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
+import javax.annotation.Nullable;
 import java.util.Locale;
 
 /**
@@ -39,6 +41,11 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
 
     @Override
     public State traverse(State state) {
+
+        if (!traverseVehiclePresence(state)) {
+            return null;
+        }
+
         if (!state.getOptions().rentingAllowed) {
             return null;
         }
@@ -50,6 +57,16 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
             }
         }
         return null;
+    }
+
+    private boolean traverseVehiclePresence(State state) {
+        Graph graph = state.getContext().graph;
+
+        if (graph.carPresencePredictor != null && state.getContext().opt.vehiclePredictionThreshold > 0) {
+            double vehiclePresenceProbability = graph.carPresencePredictor.predict(vehicle, state.getTimeSeconds());
+            return vehiclePresenceProbability >= state.getContext().opt.vehiclePredictionThreshold;
+        }
+        return true;
     }
 
     public State reversedTraverseSwitchVehicles(State state, VehicleDescription vehicle) {

@@ -29,7 +29,10 @@ public class VehiclePresencePredictionUpdater extends PollingGraphUpdater {
         LOG.info("Polling Vehicle Presence Prediction from API");
         Optional<VehiclePresence> vehiclePresenceHeatmap = vehiclePresenceGetter.getPrediction(url, params);
         LOG.info("Got vehicle presence map");
-        vehiclePresenceHeatmap.ifPresent(it -> graphUpdaterManager.execute(new VehiclePresenceGraphWriterRunnable(it)));
+        vehiclePresenceHeatmap.ifPresentOrElse(
+                it -> graphUpdaterManager.execute(new VehiclePresenceGraphWriterRunnable(it)),
+                () -> LOG.warn("Couldn't download presence heatmap from API")
+        );
     }
 
     @Override
@@ -54,7 +57,6 @@ public class VehiclePresencePredictionUpdater extends PollingGraphUpdater {
 
     @Override
     public void setup(Graph graph) {
-        graph.carPresencePredictor = new CarPresencePredictor();
         this.graph = graph;
     }
 

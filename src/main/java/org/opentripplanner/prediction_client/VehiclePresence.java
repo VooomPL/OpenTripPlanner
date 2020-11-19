@@ -1,13 +1,15 @@
 package org.opentripplanner.prediction_client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.locationtech.jts.geom.Envelope;
 
 import java.util.List;
 
 public class VehiclePresence {
 
-    private String vehicle;
+    @JsonProperty("vehicle")
+    private String vehicleType;
     private double cellLength;
     private double cellWidth;
     private String city;
@@ -25,12 +27,12 @@ public class VehiclePresence {
         this.timestamp = timestamp;
     }
 
-    public String getVehicle() {
-        return vehicle;
+    public String getVehicleType() {
+        return vehicleType;
     }
 
-    public void setVehicle(String vehicle) {
-        this.vehicle = vehicle;
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
     public double getCellLength() {

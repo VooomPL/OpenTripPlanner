@@ -1,6 +1,7 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicle_presence;
 
 import org.opentripplanner.prediction_client.VehiclePresence;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.updater.GraphWriterRunnable;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.BikeStationsGraphWriterRunnable;
@@ -15,11 +16,9 @@ public class VehiclePresenceGraphWriterRunnable implements GraphWriterRunnable {
 
     @Override
     public void run(Graph graph) {
-        LOG.info("Updating vehicle presence prediction heatmaps from API");
-        if (graph.carPresencePredictor != null) {
-            graph.carPresencePredictor.updateVehiclePresenceHeatmap(vehiclePresenceHeatmapsFromApi);
-        } else {
-            LOG.warn("VehiclePresencePredictor is null when pooling from prediction API is running. Something went wrong.");
+        if(vehiclePresenceHeatmapsFromApi.getVehicleType().equalsIgnoreCase(VehicleType.CAR.name())) {
+            LOG.info("Updating vehicle presence prediction heatmaps from API");
+            graph.carPresencePredictor = new CarPresencePredictor(vehiclePresenceHeatmapsFromApi);
         }
     }
 

@@ -175,18 +175,6 @@ public class AStar {
 
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
-
-
-            if (this.runState.rctx.graph.carPresencePredictor != null &&
-                    edge instanceof RentVehicleEdge &&
-                    this.runState.options.vehiclePredictionThreshold > 0) {
-                double vehiclePresenceProbability = this.runState.rctx.graph.carPresencePredictor
-                        .predict(((RentVehicleEdge) edge).getVehicle(), runState.u.getTimeSeconds());
-                if (vehiclePresenceProbability < this.runState.options.vehiclePredictionThreshold) {
-                    continue;
-                }
-            }
-
             // Iterate over traversal results. When an edge leads nowhere (as indicated by
             // returning NULL), the iteration is over. TODO Use this to board multiple trips.
             for (State v = edge.traverse(runState.u); v != null; v = v.getNextResult()) {
