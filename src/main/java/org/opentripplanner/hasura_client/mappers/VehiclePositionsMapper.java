@@ -10,7 +10,10 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDescription> {
+
     private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
+
+    private static final VehiclePricingPackage DEFAULT_PRICING_PACKAGE = new VehiclePricingPackage();
 
     @Override
     protected VehicleDescription mapSingleHasuraObject(Vehicle vehicle) {
@@ -26,19 +29,32 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
         Provider provider = new Provider(vehicle.getProvider().getProviderId(), vehicle.getProvider().getProviderName());
         Double rangeInMeters = vehicle.getRangeInMeters();
         VehicleType vehicleType = VehicleType.fromDatabaseVehicleType(vehicle.getType());
-        VehiclePricingPackage pricingPackage = new VehiclePricingPackage();
+
+        BigDecimal startPrice, packagePrice, maxRentingPrice, kilometerPrice, drivingPriceInPackageExceeded, parkingPriceInPackageExceeded;
+        int packageTimeLimitInSeconds;
+
         if (!provider.getProviderName().equals("Innogy")) {
-            Optional.ofNullable(vehicle.getStartPrice()).ifPresent(pricingPackage::setStartPrice);
+            startPrice = Optional.ofNullable(vehicle.getStartPrice()).orElse(DEFAULT_PRICING_PACKAGE.getStartPrice());
+            packagePrice = DEFAULT_PRICING_PACKAGE.getPackagePrice();
+            packageTimeLimitInSeconds = DEFAULT_PRICING_PACKAGE.getPackageTimeLimitInSeconds();
+            maxRentingPrice = Optional.ofNullable(vehicle.getMaxDailyPrice()).orElse(DEFAULT_PRICING_PACKAGE.getMaxRentingPrice());
         } else {
             //TODO: Remove this part, when correct pricing package data is available in the database
-            pricingPackage.setPackagePrice(BigDecimal.valueOf(9.99));
-            pricingPackage.setPackageTimeLimitInSeconds(480);
-            pricingPackage.setMaxRentingPrice(BigDecimal.valueOf(199));
+            startPrice = DEFAULT_PRICING_PACKAGE.getStartPrice();
+            packagePrice = BigDecimal.valueOf(9.99);
+            packageTimeLimitInSeconds = 480;
+            maxRentingPrice = BigDecimal.valueOf(199);
         }
-        Optional.ofNullable(vehicle.getMaxDailyPrice()).ifPresent(pricingPackage::setMaxRentingPrice);
-        Optional.ofNullable(vehicle.getDrivingPrice()).ifPresent(pricingPackage::setDrivingPricePerTimeTickInPackageExceeded);
-        Optional.ofNullable(vehicle.getKmPrice()).ifPresent(pricingPackage::setKilometerPrice);
-        Optional.ofNullable(vehicle.getStopPrice()).ifPresent(pricingPackage::setParkingPricePerTimeTickInPackageExceeded);
+        drivingPriceInPackageExceeded = Optional.ofNullable(vehicle.getDrivingPrice()).orElse(DEFAULT_PRICING_PACKAGE.getDrivingPricePerTimeTickInPackageExceeded());
+        kilometerPrice = Optional.ofNullable(vehicle.getKmPrice()).orElse(DEFAULT_PRICING_PACKAGE.getKilometerPrice());
+        parkingPriceInPackageExceeded = Optional.ofNullable(vehicle.getStopPrice()).orElse(DEFAULT_PRICING_PACKAGE.getParkingPricePerTimeTickInPackageExceeded());
+
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(packagePrice, packageTimeLimitInSeconds,
+                DEFAULT_PRICING_PACKAGE.getFreeSeconds(), DEFAULT_PRICING_PACKAGE.getMinRentingPrice(), startPrice,
+                DEFAULT_PRICING_PACKAGE.getDrivingPricePerTimeTickInPackage(), DEFAULT_PRICING_PACKAGE.getParkingPricePerTimeTickInPackage(),
+                drivingPriceInPackageExceeded, parkingPriceInPackageExceeded, kilometerPrice,
+                DEFAULT_PRICING_PACKAGE.getSecondsPerTimeTickInPackage(), DEFAULT_PRICING_PACKAGE.getSecondsPerTimeTickInPackageExceeded(),
+                maxRentingPrice, DEFAULT_PRICING_PACKAGE.isKilometerPriceEnabledAboveMaxRentingPrice());
 
         if (vehicleType == null) {
             LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicle.getType());

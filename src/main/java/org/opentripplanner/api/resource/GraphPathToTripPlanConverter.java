@@ -190,7 +190,6 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
         itinerary.price = lastState.getTraversalPrice();
 
-
         itinerary.transfers = lastState.getNumBoardings();
         if (itinerary.transfers > 0 && !(states.get(0).getVertex() instanceof OnboardDepartVertex)) {
             itinerary.transfers--;
@@ -406,6 +405,9 @@ public abstract class GraphPathToTripPlanConverter {
 
 
         leg.vehicleDescription = states.get(0).getCurrentVehicle();
+        if (leg.vehicleDescription != null) {
+            leg.activePackageIndex = states.get(states.size() - 1).getActivePackageIndex();
+        }
 
         return leg;
     }
