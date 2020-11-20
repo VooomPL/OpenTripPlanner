@@ -2,6 +2,7 @@ package org.opentripplanner.api.common;
 
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.OptimizeType;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -23,6 +24,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -132,6 +134,9 @@ public abstract class RoutingResource {
     @QueryParam("motorbikeReluctance")
     protected Double motorbikeReluctance;
 
+    @QueryParam("bicycleReluctance")
+    protected Double bicycleReluctance;
+
     @QueryParam("rentingReluctance")
     protected Double rentingReluctance;
 
@@ -168,6 +173,12 @@ public abstract class RoutingResource {
      */
     @QueryParam("bikeSpeed")
     protected Double bikeSpeed;
+
+    /**
+     * The user's car speed in meters/second. Defaults to approximately 90 MPH.
+     */
+    @QueryParam("carSpeed")
+    protected Double carSpeed;
 
     /**
      * The time it takes the user to fetch their bike and park it again in seconds.
@@ -557,6 +568,15 @@ public abstract class RoutingResource {
     @QueryParam("optimizationProfile")
     private String optimizationProfileName;
 
+    @QueryParam("originalCostWeight")
+    private Double originalCostWeight;
+
+    @QueryParam("priceCostWeight")
+    private Double priceCostWeight;
+
+    @QueryParam("walkPrice")
+    private Double walkPrice;
+
     /**
      * If true, we will be forced to use transit in all of the requested itineraries. Defaults to `false`
      */
@@ -657,17 +677,23 @@ public abstract class RoutingResource {
         if (motorbikeReluctance != null)
             request.routingReluctances.setMotorbikeReluctance(motorbikeReluctance);
 
+        if (bicycleReluctance != null)
+            request.routingReluctances.setBicycleReluctance(bicycleReluctance);
+
         if (rentingReluctance != null)
             request.routingReluctances.setRentingReluctance(rentingReluctance);
 
         if (waitAtBeginningFactor != null)
             request.routingReluctances.setWaitAtBeginningFactor(waitAtBeginningFactor);
 
-        if (walkSpeed != null)
+        if (walkSpeed != null && walkSpeed > 0)
             request.walkSpeed = walkSpeed;
 
-        if (bikeSpeed != null)
+        if (bikeSpeed != null && bikeSpeed > 0)
             request.bikeSpeed = bikeSpeed;
+
+        if (carSpeed != null && carSpeed > 0)
+            request.carSpeed = carSpeed;
 
         if (bikeSwitchTime != null)
             request.bikeSwitchTime = bikeSwitchTime;
@@ -869,7 +895,14 @@ public abstract class RoutingResource {
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
 
+        Map<CostFunction.CostCategory, Double> costCategoryWeights = new HashMap<>();
+        Optional.ofNullable(originalCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.ORIGINAL, value));
+        Optional.ofNullable(priceCostWeight).ifPresent(value -> costCategoryWeights.put(CostFunction.CostCategory.PRICE_ASSOCIATED, value));
+        request.setCostCategoryWeights(costCategoryWeights);
         request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
+
+        if(Objects.nonNull(walkPrice))
+            request.setWalkPrice(BigDecimal.valueOf(walkPrice));
 
         return request;
     }

@@ -15,7 +15,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ZERO;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.ZERO;
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 1200).compareTo(car.getActivePackage().getKilometerPrice()) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 1200).compareTo(activePackage.getKilometerPrice()) == 0);
     }
 
     @Test
@@ -25,7 +26,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ZERO;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.ZERO;
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 799).compareTo(BigDecimal.ZERO) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 799).compareTo(BigDecimal.ZERO) == 0);
     }
 
     @Test
@@ -35,7 +37,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ONE;
         BigDecimal distancePrice = BigDecimal.ONE;
         BigDecimal startPrice = BigDecimal.ONE;
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 4200).compareTo(BigDecimal.valueOf(2)) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 4200).compareTo(BigDecimal.valueOf(2)) == 0);
     }
 
     @Test
@@ -45,7 +48,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ONE;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.ONE;
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 2200).compareTo(BigDecimal.ZERO) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 2200).compareTo(BigDecimal.ZERO) == 0);
     }
 
     @Test
@@ -55,7 +59,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ONE;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.ONE;
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 2200).compareTo(BigDecimal.ONE) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 2200).compareTo(BigDecimal.ONE) == 0);
     }
 
     @Test
@@ -65,7 +70,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ONE;
         BigDecimal distancePrice = BigDecimal.ONE;
         BigDecimal startPrice = BigDecimal.ONE;
-        assertTrue(car.getActivePackage().computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 4200).compareTo(BigDecimal.valueOf(12)) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeDistanceAssociatedPrice(startPrice, timePrice, distancePrice, 4200).compareTo(BigDecimal.valueOf(12)) == 0);
     }
 
     @Test
@@ -75,7 +81,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ONE;
         BigDecimal distancePrice = BigDecimal.ONE;
         BigDecimal startPrice = BigDecimal.ONE;
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 15).compareTo(BigDecimal.ZERO) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 15).compareTo(BigDecimal.ZERO) == 0);
     }
 
     @Test
@@ -85,7 +92,8 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ZERO;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.valueOf(90); /*package price*/
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 30).compareTo(BigDecimal.ZERO) == 0);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 30).compareTo(BigDecimal.ZERO) == 0);
     }
 
     @Test
@@ -95,21 +103,22 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ZERO;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.ZERO;
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
         //used 5 seconds of non free seconds - started 1st time tick:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 25).compareTo(BigDecimal.valueOf(0.65)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 25).compareTo(BigDecimal.valueOf(0.65)) == 0);
         timePrice = BigDecimal.valueOf(0.65);
         //completed previously counted time tick - next one not started yet:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 80).compareTo(BigDecimal.valueOf(0.65)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 80).compareTo(BigDecimal.valueOf(0.65)) == 0);
         //started next time tick:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 82).compareTo(BigDecimal.valueOf(1.3)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 82).compareTo(BigDecimal.valueOf(1.3)) == 0);
         timePrice = BigDecimal.valueOf(1.3);
         //finished package but the last minute within package has not finished yet:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 100).compareTo(BigDecimal.valueOf(1.3)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 100).compareTo(BigDecimal.valueOf(1.3)) == 0);
         //started first time tick above package:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 141).compareTo(BigDecimal.valueOf(2.8)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 141).compareTo(BigDecimal.valueOf(2.8)) == 0);
         timePrice = BigDecimal.valueOf(2.8);
         //it is still only first time tick above package due to time tick length change:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 3500).compareTo(BigDecimal.valueOf(2.8)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 3500).compareTo(BigDecimal.valueOf(2.8)) == 0);
     }
 
     @Test
@@ -119,13 +128,14 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.ZERO;
         BigDecimal distancePrice = BigDecimal.ZERO;
         BigDecimal startPrice = BigDecimal.ZERO;
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
         //used 5 seconds of non free seconds - started 1st time tick:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 25).compareTo(BigDecimal.valueOf(1.5)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 25).compareTo(BigDecimal.valueOf(1.5)) == 0);
         timePrice = BigDecimal.valueOf(1.5);
         //completed previously counted time tick - next one not started yet:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 80).compareTo(BigDecimal.valueOf(1.5)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 80).compareTo(BigDecimal.valueOf(1.5)) == 0);
         //started next time tick:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 82).compareTo(BigDecimal.valueOf(3)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 82).compareTo(BigDecimal.valueOf(3)) == 0);
     }
 
     @Test
@@ -135,8 +145,9 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.valueOf(2);
         BigDecimal distancePrice = BigDecimal.valueOf(0.5);
         BigDecimal startPrice = BigDecimal.valueOf(0.5);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
         //returning previous price due to max price already reached
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 50).compareTo(BigDecimal.valueOf(2)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 50).compareTo(BigDecimal.valueOf(2)) == 0);
     }
 
     @Test
@@ -146,8 +157,9 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.valueOf(1);
         BigDecimal distancePrice = BigDecimal.valueOf(0.5);
         BigDecimal startPrice = BigDecimal.valueOf(0.5);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
         //returning previous price due to max price already reached:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 200).compareTo(BigDecimal.valueOf(2)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 200).compareTo(BigDecimal.valueOf(2)) == 0);
     }
 
     @Test
@@ -157,7 +169,14 @@ public class VehiclePricingPackageTest {
         BigDecimal timePrice = BigDecimal.valueOf(1);
         BigDecimal distancePrice = BigDecimal.valueOf(0.5);
         BigDecimal startPrice = BigDecimal.valueOf(0.5);
+        VehiclePricingPackage activePackage = car.getVehiclePricingPackage(0);
         //returning previous price due to max price already reached:
-        assertTrue(car.getActivePackage().computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 200).compareTo(BigDecimal.valueOf(4.5)) == 0);
+        assertTrue(activePackage.computeTimeAssociatedPrice(startPrice, timePrice, distancePrice, 200).compareTo(BigDecimal.valueOf(4.5)) == 0);
+    }
+
+    @Test
+    public void shouldReturnProperTotalPrice() {
+        VehiclePricingPackage pricingPackage = new VehiclePricingPackage(BigDecimal.valueOf(9.99), 480, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(1.29), BigDecimal.ZERO, BigDecimal.ZERO, 60, 60, BigDecimal.valueOf(199), false);
+        assertTrue(pricingPackage.computeTotalPrice(1200, 40).compareTo(BigDecimal.valueOf(25.47)) == 0);
     }
 }

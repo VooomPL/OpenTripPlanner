@@ -28,8 +28,6 @@ public abstract class VehicleDescription {
     @JsonSerialize
     private final List<VehiclePricingPackage> vehiclePricingPackages;
 
-    private int activePackageIndex;
-
     protected boolean requiresHubToDrop;
 
     @JsonSerialize
@@ -79,7 +77,6 @@ public abstract class VehicleDescription {
         this.rangeInMeters = rangeInMeters;
         this.vehiclePricingPackages = new ArrayList<>();
         this.vehiclePricingPackages.add(vehiclePricingPackage);
-        this.activePackageIndex = 0;
         this.requiresHubToDrop = requiresHubToDrop;
     }
 
@@ -143,25 +140,12 @@ public abstract class VehicleDescription {
     }
 
     @JsonIgnore
-    public VehiclePricingPackage getVehicleSharingPackage(int index) {
+    public VehiclePricingPackage getVehiclePricingPackage(int index) {
         return vehiclePricingPackages.get(index);
-    }
-
-    public int getActivePackageIndex() {
-        return activePackageIndex;
-    }
-
-    public void setActivePackageIndex(int activePackageIndex) {
-        this.activePackageIndex = activePackageIndex;
     }
 
     public List<VehiclePricingPackage> getVehiclePricingPackages() {
         return vehiclePricingPackages;
-    }
-
-    @JsonIgnore
-    public VehiclePricingPackage getActivePackage() {
-        return this.vehiclePricingPackages.get(this.getActivePackageIndex());
     }
 
     public boolean requiresHubToDrop() {

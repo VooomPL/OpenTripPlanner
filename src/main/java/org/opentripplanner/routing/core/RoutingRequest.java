@@ -8,6 +8,7 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
+import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -160,7 +162,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * The maximum number of itineraries to return.
      */
-    public int numItineraries = 3;
+    private int numItineraries = 3;
 
     /**
      * The maximum slope of streets for wheelchair trips.
@@ -418,6 +420,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     public boolean batch = false;
 
     private OptimizationProfile optimizationProfile;
+
+    private Map<CostFunction.CostCategory, Double> costCategoryWeights;
+
+    private BigDecimal walkPrice = BigDecimal.valueOf(0.3);
 
     /**
      * Whether or not bike rental availability information will be used to plan bike rental trips
@@ -680,13 +686,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public String pathComparator = null;
 
     /**
-     * This parameter is used in GTFS-Flex routing. Preliminary searches before the main search
-     * need to be able to discover TransitStops in order to create call-and-ride legs which allow
-     * transfers to fixed-route services.
-     */
-    public boolean enterStationsWithCar = false;
-
-    /**
      * Minimum length in meters of partial hop edges. This parameter only applies to GTFS-Flex
      * routing, which must be explicitly turned on via the useFlexService parameter in router-
      * config.json.
@@ -771,10 +770,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     /* ACCESSOR/SETTER METHODS */
-
-    public boolean transitAllowed() {
-        return modes.isTransit();
-    }
 
     public long getSecondsSinceEpoch() {
         return dateTime;
@@ -1035,10 +1030,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     public int getNumItineraries() {
-        if (modes.isTransit()) {
+        if (modes.isTransit() || rentingAllowed) {
             return numItineraries;
         } else {
-            // If transit is not to be used, only search for one itinerary.
+            // If transit and renting is not to be used, only search for one itinerary.
             return 1;
         }
     }
@@ -1635,5 +1630,21 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public void setOptimizationProfile(OptimizationProfile optimizationProfile) {
         this.optimizationProfile = optimizationProfile;
+    }
+
+    public Map<CostFunction.CostCategory, Double> getCostCategoryWeights() {
+        return costCategoryWeights;
+    }
+
+    public void setCostCategoryWeights(Map<CostFunction.CostCategory, Double> costCategoryWeights) {
+        this.costCategoryWeights = costCategoryWeights;
+    }
+
+    public void setWalkPrice(BigDecimal walkPrice) {
+        this.walkPrice = walkPrice;
+    }
+
+    public BigDecimal getWalkPrice() {
+        return walkPrice;
     }
 }

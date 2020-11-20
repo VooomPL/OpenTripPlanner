@@ -27,7 +27,8 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
         LOG.info("Polling vehicles from API");
         List<VehicleDescription> vehicles = vehiclePositionsGetter.postFromHasura(graph, url);
         LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
-        graphUpdaterManager.execute(new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles));
+        graphUpdaterManager.execute(new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles,
+                vehiclePositionsGetter.getResponsiveProviders()));
     }
 
     @Override

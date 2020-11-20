@@ -42,13 +42,12 @@ import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
 import org.opentripplanner.routing.core.TransferTable;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.EdgeWithCleanup;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
-import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
-import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.flex.FlexIndex;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.services.StreetVertexIndexFactory;
@@ -86,6 +85,8 @@ import java.util.stream.Stream;
  * A graph is really just one or more indexes into a set of vertexes. It used to keep edgelists for each vertex, but those are in the vertex now.
  */
 public class Graph implements Serializable {
+
+    public static final long REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS = 300;
 
     private static final Logger LOG = LoggerFactory.getLogger(Graph.class);
 
@@ -286,8 +287,16 @@ public class Graph implements Serializable {
      */
     public Map<BikeRentalStation, RentBikeEdge> bikeRentalStationsInGraph;
 
+    /**
+     * Service for calculating probability of Car presence in given loacaton and time
+     */
     @Nullable
     public CarPresencePredictor carPresencePredictor;
+  
+    /**
+     * Timestamp for the last update of vehicles positions from each provider
+     */
+    private final Map<Provider, LocalTime> lastProviderVehiclesUpdateTimestamps = new HashMap<>();
 
     public Graph(Graph basedOn) {
         this();
@@ -531,6 +540,17 @@ public class Graph implements Serializable {
         return transitRoutes;
     }
 
+    public Map<Provider, LocalTime> getLastProviderVehiclesUpdateTimestamps() {
+        return lastProviderVehiclesUpdateTimestamps;
+    }
+
+    public boolean isUnresponsiveGracePeriodExceeded(Provider provider, LocalTime currentUpdateTimestamp) {
+        if (lastProviderVehiclesUpdateTimestamps.containsKey(provider)) {
+            return lastProviderVehiclesUpdateTimestamps.get(provider).until(currentUpdateTimestamp, ChronoUnit.SECONDS) > REMOVE_UNRESPONSIVE_PROVIDER_LIMIT_SECONDS;
+        }
+        return false;
+    }
+
     public void remove(Vertex vertex) {
         vertices.remove(vertex.getLabel());
     }
@@ -615,7 +635,7 @@ public class Graph implements Serializable {
 
     /**
      * Find the total number of edges in this Graph. There are assumed to be no Edges in an incoming edge list that are not in an outgoing edge list.
-     *
+     * 
      * @return number of outgoing edges in the graph
      */
     public int countEdges() {
@@ -628,7 +648,6 @@ public class Graph implements Serializable {
 
     /**
      * Add a collection of edges from the edgesById index.
-     *
      * @param es
      */
     private void addEdgesToIndex(Collection<Edge> es) {
@@ -636,13 +655,13 @@ public class Graph implements Serializable {
             this.edgeById.put(e.getId(), e);
         }
     }
-
+    
     /**
      * Rebuilds any indices on the basis of current vertex and edge IDs.
-     * <p>
-     * If you want the index to be accurate, you must run this every time the
+     * 
+     * If you want the index to be accurate, you must run this every time the 
      * vertex or edge set changes.
-     * <p>
+     * 
      * TODO(flamholz): keep the indices up to date with changes to the graph.
      * This is not simple because the Vertex constructor may add itself to the graph
      * before the Vertex has any edges, so updating indices on addVertex is insufficient.
@@ -676,7 +695,7 @@ public class Graph implements Serializable {
      * Add a graph builder annotation to this graph's list of graph builder annotations. The return value of this method is the annotation's message,
      * which allows for a single-line idiom that creates, registers, and logs a new graph builder annotation:
      * log.warning(graph.addBuilderAnnotation(new SomeKindOfAnnotation(param1, param2)));
-     * <p>
+     * 
      * If the graphBuilderAnnotations field of this graph is null, the annotation is not actually saved, but the message is still returned. This
      * allows annotation registration to be turned off, saving memory and disk space when the user is not interested in annotations.
      */
@@ -693,7 +712,6 @@ public class Graph implements Serializable {
 
     /**
      * Adds mode of transport to transit modes in graph
-     *
      * @param mode
      */
     public void addTransitMode(TraverseMode mode) {
@@ -715,10 +733,10 @@ public class Graph implements Serializable {
      * Perform indexing on vertices, edges, and timetables, and create transient data structures.
      * This used to be done in readObject methods upon deserialization, but stand-alone mode now
      * allows passing graphs from graphbuilder to server in memory, without a round trip through
-     * serialization.
+     * serialization. 
      * TODO: do we really need a factory for different street vertex indexes?
      */
-    public void index(StreetVertexIndexFactory indexFactory) {
+    public void index (StreetVertexIndexFactory indexFactory) {
         streetIndex = indexFactory.newIndex(this);
         LOG.debug("street index built.");
         LOG.debug("Rebuilding edge and vertex indices.");
@@ -732,12 +750,12 @@ public class Graph implements Serializable {
         }
         // TODO: Move this ^ stuff into the graph index
         this.index = new GraphIndex(this);
-        if (useFlexService) {
+        if (useFlexService ) {
             this.flexIndex = new FlexIndex();
             flexIndex.init(this);
         }
     }
-
+    
     public static Graph load(InputStream in) {
         // TODO store version information, halt load if versions mismatch
         Input input = new Input(in);
@@ -773,9 +791,9 @@ public class Graph implements Serializable {
     /**
      * Compares the OTP version number stored in the graph with that of the currently running instance. Logs warnings explaining that mismatched
      * versions can cause problems.
-     *
+     * 
      * @return false if Maven versions match (even if commit ids do not match), true if Maven version of graph does not match this version of OTP or
-     * graphs are otherwise obviously incompatible.
+     *         graphs are otherwise obviously incompatible.
      */
     private boolean graphVersionMismatch() {
         MavenVersion v = MavenVersion.VERSION;
@@ -806,7 +824,7 @@ public class Graph implements Serializable {
     /**
      * This method allows reproducibly creating Kryo (de)serializer instances with exactly the same configuration.
      * This allows us to use identically configured instances for serialization and deserialization.
-     * <p>
+     *
      * When configuring serializers, there's a difference between kryo.register() and kryo.addDefaultSerializer().
      * The latter will set the default for a whole tree of classes. The former matches only the specified class.
      * By default Kryo will serialize all the non-transient fields of an instance. If the class has its own overridden
@@ -835,7 +853,7 @@ public class Graph implements Serializable {
         // FIXME we're importing all the contributed kryo-serializers just for this one serializer
         try {
             Class<?> unmodifiableCollection = Class.forName("java.util.Collections$UnmodifiableCollection");
-            kryo.addDefaultSerializer(unmodifiableCollection, UnmodifiableCollectionsSerializer.class);
+            kryo.addDefaultSerializer(unmodifiableCollection , UnmodifiableCollectionsSerializer.class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -854,9 +872,9 @@ public class Graph implements Serializable {
         try {
             for (Route route : getTransitRoutes()) {
                 String routeTypeName = "UNSUPPORTED";
-                try {
+                try{
                     routeTypeName = GtfsLibrary.getTraverseMode(route).name();
-                } catch (IllegalArgumentException e) {
+                }catch(IllegalArgumentException e) {
                     LOG.error("Unsupported HVT type detected: {} for {} {}", route.getType(), Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName());
                 }
                 writer.writeRecord(new String[]{routeTypeName, Optional.ofNullable(route.getShortName()).orElseGet(route::getLongName), route.getAgency().getName()});
@@ -880,7 +898,8 @@ public class Graph implements Serializable {
         } catch (IOException e) {
             file.delete();
             throw e;
-        } finally {
+        }
+        finally {
             writer.close();
         }
     }
@@ -1083,7 +1102,6 @@ public class Graph implements Serializable {
 
     /**
      * Return all TimeZones for all agencies in the graph
-     *
      * @return collection of referenced timezones
      */
     public Collection<TimeZone> getAllTimeZones() {
@@ -1101,9 +1119,9 @@ public class Graph implements Serializable {
 
     /**
      * The timezone is cached by the graph. If you've done something to the graph that has the
-     * potential to change the time zone, you should call this to ensure it is reset.
+     * potential to change the time zone, you should call this to ensure it is reset. 
      */
-    public void clearTimeZone() {
+    public void clearTimeZone () {
         this.timeZone = null;
     }
 
@@ -1153,12 +1171,12 @@ public class Graph implements Serializable {
 
     /**
      * Expands envelope to include given point
-     * <p>
+     *
      * If envelope is empty it creates it (This can happen with a graph without OSM data)
      * Used when adding stops to OSM envelope
      *
-     * @param x the value to lower the minimum x to or to raise the maximum x to
-     * @param y the value to lower the minimum y to or to raise the maximum y to
+     * @param  x  the value to lower the minimum x to or to raise the maximum x to
+     * @param  y  the value to lower the minimum y to or to raise the maximum y to
      */
     public void expandToInclude(double x, double y) {
         //Envelope can be empty if graph building is run without OSM data
@@ -1187,18 +1205,18 @@ public class Graph implements Serializable {
 
     // lazy-init sample factor on an as needed basis
     public SampleFactory getSampleFactory() {
-        if (this.sampleFactory == null)
+        if(this.sampleFactory == null)
             this.sampleFactory = new SampleFactory(this);
 
-        return this.sampleFactory;
+        return this.sampleFactory;	
     }
 
     /**
      * Calculates Transit center from median of coordinates of all transitStops if graph
      * has transit. If it doesn't it isn't calculated. (mean walue of min, max latitude and longitudes are used)
-     * <p>
+     *
      * Transit center is saved in center variable
-     * <p>
+     *
      * This speeds up calculation, but problem is that median needs to have all of latitudes/longitudes
      * in memory, this can become problematic in large installations. It works without a problem on New York State.
      */
@@ -1210,11 +1228,11 @@ public class Graph implements Serializable {
             Median median = new Median();
 
             getVertices().stream()
-                    .filter(v -> v instanceof TransitStop)
-                    .forEach(v -> {
-                        latitudes.add(v.getLat());
-                        longitudes.add(v.getLon());
-                    });
+                .filter(v -> v instanceof TransitStop)
+                .forEach(v -> {
+                    latitudes.add(v.getLat());
+                    longitudes.add(v.getLon());
+                });
 
             median.setData(latitudes.toArray());
             double medianLatitude = median.evaluate();
@@ -1247,23 +1265,15 @@ public class Graph implements Serializable {
         this.useFlexService = useFlexService;
     }
 
-    public void addTransitStops(Collection<Stop> newStops) {
+    public void addTransitStops(Collection<Stop> newStops){
         newStops.stream().forEach(newStop -> this.transitStops.put(newStop.getId(), newStop));
     }
 
-    public void addTransitStopTime(StopTime newStopTime) {
+    public void addTransitStopTime(StopTime newStopTime){
         this.transitStopTimes.add(newStopTime);
-        if (!this.transitStops.containsKey(newStopTime.getStop().getId())) {
+        if(!this.transitStops.containsKey(newStopTime.getStop().getId())){
             this.transitStops.put(newStopTime.getStop().getId(), newStopTime.getStop());
         }
         this.transitStops.get(newStopTime.getStop().getId()).addLine(Optional.ofNullable(newStopTime.getTrip().getRoute().getShortName()).orElseGet(newStopTime.getTrip().getRoute()::getLongName));
-    }
-
-    public Stream<DropoffVehicleEdge> getDropEdges() {
-        return getEdges().stream().filter(e -> e instanceof DropoffVehicleEdge).map(e -> (DropoffVehicleEdge) e);
-    }
-
-    public Stream<RentVehicleEdge> getRentEdges() {
-        return getEdges().stream().filter(e -> e instanceof RentVehicleEdge).map(e -> (RentVehicleEdge) e);
     }
 }

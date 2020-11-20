@@ -1,18 +1,17 @@
 package org.opentripplanner.routing.edgetype;
 
-import org.opentripplanner.model.Trip;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 
 import java.util.Locale;
 
@@ -107,11 +106,7 @@ public class StreetTransitLink extends Edge {
             return null;
         }
 
-        // TODO AdamWiktor this causes failure of test `InitialStopsTest#testInitialStopBikeSpeedIncrease`
-        /* Only enter stations in CAR mode if parking is not required (kiss and ride) */
-        /* Note that in arriveBy searches this is double-traversing link edges to fork the state into both WALK and CAR mode. This is an insane hack. */
-        if ((s0.getNonTransitMode() == TraverseMode.CAR || s0.getNonTransitMode() == TraverseMode.BICYCLE)
-                && !req.enterStationsWithCar) {
+        if (s0.isCurrentlyRentingVehicle()) {
             return null;
         }
 
@@ -137,7 +132,7 @@ public class StreetTransitLink extends Edge {
     // and therefore don't even consider boarding
     @Override
     public double weightLowerBound(RoutingRequest options) {
-        return options.transitAllowed() ? 0 : Double.POSITIVE_INFINITY;
+        return options.modes.isTransit() ? 0 : Double.POSITIVE_INFINITY;
     }
 
     public Vertex getFromVertex() {
