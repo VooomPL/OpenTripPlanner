@@ -1,15 +1,16 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.routing_parametrizations.ElevatorConstants;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 
@@ -40,14 +41,14 @@ public class ElevatorBoardEdge extends Edge implements ElevatorEdge {
     }
     
     @Override
-    public State traverse(State s0) { 
+    public State traverse(State s0) {
         RoutingRequest options = s0.getOptions();
 
         StateEditor s1 = s0.edit(this);
         // We always walk in elevators, even when we have a bike with us
         s1.setBackMode(TraverseMode.WALK);
-        s1.incrementWeight(options.elevatorBoardCost);
-        s1.incrementTimeInSeconds(options.elevatorBoardTime);
+        s1.incrementWeight(ElevatorConstants.ELEVATOR_BOARD_COST);
+        s1.incrementTimeInSeconds(ElevatorConstants.ELEVATOR_BOARD_TIME);
         return s1.makeState();
     }
 
