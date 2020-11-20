@@ -772,10 +772,6 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     /* ACCESSOR/SETTER METHODS */
 
-    public boolean transitAllowed() {
-        return modes.isTransit();
-    }
-
     public long getSecondsSinceEpoch() {
         return dateTime;
     }

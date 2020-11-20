@@ -2,8 +2,8 @@ package org.opentripplanner.routing.algorithm.profile;
 
 import org.opentripplanner.routing.algorithm.costs.ConfigurableWeightsCostFunction;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
-import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
+import org.opentripplanner.routing.algorithm.strategies.SimpleEuclideanRWH;
 import org.opentripplanner.routing.spt.DominanceFunction;
 
 import java.util.Collections;
@@ -20,8 +20,8 @@ public class PriceBasedOptimizationProfile implements OptimizationProfile {
     public PriceBasedOptimizationProfile(Map<CostFunction.CostCategory, Double> costWeights) {
         this.costFunction = new ConfigurableWeightsCostFunction(Optional.ofNullable(costWeights).orElse(Collections.emptyMap()));
         this.dominanceFunction = new DominanceFunction.EarliestArrival();
-        this.heuristic = new EuclideanRemainingWeightHeuristic();
-        this.reversedSearchHeuristic = new EuclideanRemainingWeightHeuristic();
+        this.heuristic = new SimpleEuclideanRWH();
+        this.reversedSearchHeuristic = new SimpleEuclideanRWH();
     }
 
     @Override
