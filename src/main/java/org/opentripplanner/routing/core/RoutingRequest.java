@@ -975,6 +975,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest clone() {
         try {
             RoutingRequest clone = (RoutingRequest) super.clone();
+            clone.flex = flex.clone();
             clone.bannedRoutes = bannedRoutes.clone();
             clone.bannedTrips = (HashMap<FeedScopedId, BannedStopSet>) bannedTrips.clone();
             clone.bannedStops = bannedStops.clone();

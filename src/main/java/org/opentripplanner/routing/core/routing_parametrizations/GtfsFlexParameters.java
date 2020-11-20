@@ -2,7 +2,7 @@ package org.opentripplanner.routing.core.routing_parametrizations;
 
 import java.util.Objects;
 
-public class GtfsFlexParameters {
+public class GtfsFlexParameters implements Cloneable {
 
     /**
      * Extra penalty added for flag-stop boarding/alighting. This parameter only applies to
@@ -275,5 +275,14 @@ public class GtfsFlexParameters {
                 maxCallAndRideSeconds, reduceCallAndRideSeconds, reduceCallAndRideRatio, flagStopBufferSize,
                 useReservationServices, useEligibilityServices, ignoreDrtAdvanceBookMin, minPartialHopLength,
                 clockTimeSec);
+    }
+
+    public GtfsFlexParameters clone() {
+        try {
+            return (GtfsFlexParameters) super.clone();
+        } catch (CloneNotSupportedException e) {
+            /* this will never happen since our super is the cloneable object */
+            throw new RuntimeException(e);
+        }
     }
 }
