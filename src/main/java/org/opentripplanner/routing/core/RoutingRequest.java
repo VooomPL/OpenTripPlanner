@@ -469,7 +469,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public boolean disableRemainingWeightHeuristic = false;
 
-    public GtfsFlexParameters flex; // TODO initialize, equals, hash code
+    public GtfsFlexParameters flex;
 
     /**
      * The routing context used to actually carry out this search. It is important to build States from TraverseOptions
