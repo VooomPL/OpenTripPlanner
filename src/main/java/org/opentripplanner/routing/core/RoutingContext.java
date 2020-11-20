@@ -8,8 +8,8 @@ import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.geometry.GeometryUtils;
-import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
+import org.opentripplanner.routing.algorithm.strategies.SimpleEuclideanRWH;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TemporaryPartialStreetEdge;
@@ -319,7 +319,7 @@ public class RoutingContext implements Cloneable {
         if (opt.batch)
             remainingWeightHeuristic = new TrivialRemainingWeightHeuristic();
         else
-            remainingWeightHeuristic = new EuclideanRemainingWeightHeuristic();
+            remainingWeightHeuristic = new SimpleEuclideanRWH();
 
         if (this.origin != null) {
             LOG.debug("Origin vertex inbound edges {}", this.origin.getIncoming());
