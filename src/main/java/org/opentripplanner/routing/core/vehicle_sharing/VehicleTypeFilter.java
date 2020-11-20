@@ -14,4 +14,8 @@ public class VehicleTypeFilter implements VehicleFilter {
     public boolean isValid(VehicleDescription vehicle) {
         return vehicleTypes.contains(vehicle.getVehicleType());
     }
+
+    Set<VehicleType> getVehicleTypes() {
+        return vehicleTypes;
+    }
 }
