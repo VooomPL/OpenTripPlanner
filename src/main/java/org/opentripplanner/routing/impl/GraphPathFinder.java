@@ -127,11 +127,11 @@ public class GraphPathFinder {
             FlagStopGraphModifier flagStopGraphModifier = new FlagStopGraphModifier(router.graph);
             DeviatedRouteGraphModifier deviatedRouteGraphModifier = new DeviatedRouteGraphModifier(router.graph);
             flagStopGraphModifier.createForwardHops(options);
-            if (options.flexUseReservationServices) {
+            if (options.flex.isUseReservationServices()) {
                 deviatedRouteGraphModifier.createForwardHops(options);
             }
             flagStopGraphModifier.createBackwardHops(options);
-            if (options.flexUseReservationServices) {
+            if (options.flex.isUseReservationServices()) {
                 deviatedRouteGraphModifier.createBackwardHops(options);
             }
         }
@@ -190,9 +190,9 @@ public class GraphPathFinder {
                 if (tripIds.size() < 2) {
                     int duration = path.getCallAndRideDuration();
                     if (duration > 0) { // only true if there are call-and-ride legs
-                        int constantLimit = Math.min(0, duration - options.flexReduceCallAndRideSeconds);
-                        int ratioLimit = (int) Math.round(options.flexReduceCallAndRideRatio * duration);
-                        options.flexMaxCallAndRideSeconds = Math.min(constantLimit, ratioLimit);
+                        int constantLimit = Math.min(0, duration - options.flex.getReduceCallAndRideSeconds());
+                        int ratioLimit = (int) Math.round(options.flex.getReduceCallAndRideRatio() * duration);
+                        options.flex.setMaxCallAndRideSeconds(Math.min(constantLimit, ratioLimit));
                     }
                 }
 
