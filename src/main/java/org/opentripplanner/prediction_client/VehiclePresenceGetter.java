@@ -5,13 +5,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.hasura_client.HasuraGetter;
-import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
-import org.opentripplanner.profile.Option;
 import org.opentripplanner.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -33,8 +30,10 @@ public class VehiclePresenceGetter {
             LOG.error("Cannot construct uri for fetching vehicle presence prediction heatmap");
             return Optional.empty();
         }
-        VehiclePresence response = HttpUtils.getData(uri, new TypeReference<>() {});
-        LOG.info("Got {} objects from API", response != null ? "1" : "null");
+        VehiclePresence response = HttpUtils.getData(uri, new TypeReference<>() {}, 120000);
+        LOG.info("Got {} objects from API", response != null ?
+                response.getPredictions_15().size() + response.getPredictions_30().size() + response.getPredictions_45().size()
+                : "null");
         return Optional.ofNullable(response).map(this::mapVehiclePresence);
     }
 

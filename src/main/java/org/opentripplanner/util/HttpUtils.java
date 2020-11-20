@@ -2,8 +2,9 @@ package org.opentripplanner.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ning.http.client.RequestBuilder;
-import org.apache.http.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -13,13 +14,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.opentripplanner.hasura_client.ApiResponse;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class HttpUtils {
@@ -65,10 +64,10 @@ public class HttpUtils {
         return null;
     }
 
-    public static <T> T getData(URI uri, TypeReference<T> type) {
+    public static <T> T getData(URI uri, TypeReference<T> type, int timeout) {
         try {
             HttpGet request = new HttpGet(uri);
-            HttpClient client = getClient();
+            HttpClient client = getClient(timeout, timeout);
             request.addHeader("content-type", "application/json");
             request.addHeader("accept", "application/json");
             HttpResponse response = client.execute(request);
@@ -113,13 +112,17 @@ public class HttpUtils {
               return null;
            }
 
-
     private static HttpClient getClient() {
+        return getClient(TIMEOUT_SOCKET, TIMEOUT_CONNECTION);
+    }
+
+    private static HttpClient getClient(int socket_timeout, long connection_timeout) {
         HttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT_SOCKET).build())
-                .setConnectionTimeToLive(TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS)
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(socket_timeout).build())
+                .setConnectionTimeToLive(connection_timeout, TimeUnit.MILLISECONDS)
                 .build();
 
         return httpClient;
     }
+
 }
