@@ -156,7 +156,7 @@ public class CommandLineParameters implements Cloneable {
     public  String trafficAPIPass =null;
 
     @Parameter(names = {"--predictionApiUrl"}, description = "API for fetching vehicle presence heatmaps")
-    public String predictionVehicleApi = null;
+    public String predictionApiUrl = null;
 
     /** Set some convenience parameters based on other parameters' values. */
     public void infer() {
@@ -183,8 +183,8 @@ public class CommandLineParameters implements Cloneable {
         if (trafficAPIPass != null) {
             System.setProperty("trfficApiPass", trafficAPIPass);
         }
-        if (predictionVehicleApi != null) {
-            System.setProperty("predictionVehicleApi", predictionVehicleApi);
+        if (predictionApiUrl != null) {
+            System.setProperty("predictionApiUrl", predictionApiUrl);
         }
     }
 
