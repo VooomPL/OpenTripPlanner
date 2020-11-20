@@ -1,8 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Set;
-
-import org.opentripplanner.routing.bike_rental.BikeRentalStation;
+import com.google.common.collect.Sets;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -11,9 +10,8 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 
-import com.google.common.collect.Sets;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Renting or dropping off a rented bike edge.
@@ -46,14 +44,14 @@ public abstract class RentABikeAbstractEdge extends Edge {
             return null;
 
         BikeRentalStationVertex dropoff = (BikeRentalStationVertex) tov;
-        if (options.useBikeRentalAvailabilityInformation && dropoff.getBikesAvailable() == 0) {
+        if (options.bike.isUseBikeRentalAvailabilityInformation() && dropoff.getBikesAvailable() == 0) {
             return null;
         }
 
         StateEditor s1 = s0.edit(this);
-        s1.incrementWeight(options.arriveBy ? options.bikeRentalDropoffCost : options.bikeRentalPickupCost);
-        s1.incrementTimeInSeconds(options.arriveBy ? options.bikeRentalDropoffTime : options.bikeRentalPickupTime);
-        s1.beginBikeRenting(((BikeRentalStationVertex)fromv).getVehicleMode());
+        s1.incrementWeight(options.arriveBy ? options.bike.getRentalDropoffCost() : options.bike.getRentalPickupCost());
+        s1.incrementTimeInSeconds(options.arriveBy ? options.bike.getRentalDropoffTime() : options.bike.getRentalPickupTime());
+        s1.beginBikeRenting(((BikeRentalStationVertex) fromv).getVehicleMode());
         s1.setBikeRentalNetwork(networks);
         s1.setBackMode(s0.getNonTransitMode());
         State s1b = s1.makeState();
@@ -68,13 +66,13 @@ public abstract class RentABikeAbstractEdge extends Edge {
         if (!s0.isBikeRenting() || !hasCompatibleNetworks(networks, s0.getBikeRentalNetworks()))
             return null;
         BikeRentalStationVertex pickup = (BikeRentalStationVertex) tov;
-        if (options.useBikeRentalAvailabilityInformation && pickup.getSpacesAvailable() == 0) {
+        if (options.bike.isUseBikeRentalAvailabilityInformation() && pickup.getSpacesAvailable() == 0) {
             return null;
         }
 
         StateEditor s1e = s0.edit(this);
-        s1e.incrementWeight(options.arriveBy ? options.bikeRentalPickupCost : options.bikeRentalDropoffCost);
-        s1e.incrementTimeInSeconds(options.arriveBy ? options.bikeRentalPickupTime : options.bikeRentalDropoffTime);
+        s1e.incrementWeight(options.arriveBy ? options.bike.getRentalPickupCost() : options.bike.getRentalDropoffCost());
+        s1e.incrementTimeInSeconds(options.arriveBy ? options.bike.getRentalPickupTime() : options.bike.getRentalDropoffTime());
         s1e.doneBikeRenting();
         s1e.setBackMode(TraverseMode.WALK);
         State s1 = s1e.makeState();

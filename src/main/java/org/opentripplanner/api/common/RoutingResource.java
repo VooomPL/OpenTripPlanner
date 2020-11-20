@@ -696,10 +696,10 @@ public abstract class RoutingResource {
             request.carSpeed = carSpeed;
 
         if (bikeSwitchTime != null)
-            request.bikeSwitchTime = bikeSwitchTime;
+            request.bike.setSwitchTime(bikeSwitchTime);
 
         if (bikeSwitchCost != null)
-            request.bikeSwitchCost = bikeSwitchCost;
+            request.bike.setSwitchCost(bikeSwitchCost);
 
         if (optimize != null) {
             // Optimize types are basically combined presets of routing parameters, except for triangle
@@ -803,7 +803,7 @@ public abstract class RoutingResource {
             buildVehicleValidator(request);
         }
 
-        if (request.allowBikeRental && bikeSpeed == null) {
+        if (request.bike.isAllowBikeRental() && bikeSpeed == null) {
             //slower bike speed for bike sharing, based on empirical evidence from DC.
             request.bikeSpeed = 4.3;
         }
@@ -830,7 +830,7 @@ public abstract class RoutingResource {
 
         final long NOW_THRESHOLD_MILLIS = 15 * 60 * 60 * 1000;
         boolean tripPlannedForNow = Math.abs(request.getDateTime().getTime() - new Date().getTime()) < NOW_THRESHOLD_MILLIS;
-        request.useBikeRentalAvailabilityInformation = (tripPlannedForNow); // TODO the same thing for GTFS-RT
+        request.bike.setUseBikeRentalAvailabilityInformation(tripPlannedForNow); // TODO the same thing for GTFS-RT
 
         if (startTransitStopId != null && !startTransitStopId.isEmpty())
             request.startingTransitStopId = FeedScopedId.convertFromString(startTransitStopId);

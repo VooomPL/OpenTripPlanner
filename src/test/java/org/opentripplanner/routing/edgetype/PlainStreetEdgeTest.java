@@ -294,8 +294,8 @@ public class PlainStreetEdgeTest {
         State s3 = e2.traverse(s2);
 
         RoutingRequest withPenalty = proto.clone();
-        withPenalty.bikeSwitchTime = (42);
-        withPenalty.bikeSwitchCost = (23);
+        withPenalty.bike.setSwitchTime(42);
+        withPenalty.bike.setSwitchCost(23);
         withPenalty.setMode(TraverseMode.BICYCLE);
         withPenalty.setRoutingContext(graph, v0, v0);
 

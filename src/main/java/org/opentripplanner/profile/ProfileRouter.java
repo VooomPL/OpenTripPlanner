@@ -1,13 +1,8 @@
 package org.opentripplanner.profile;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.map.TObjectIntMap;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.api.parameter.QualifiedMode;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
@@ -15,14 +10,10 @@ import org.opentripplanner.api.resource.SimpleIsochrone;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.common.model.T2;
 import org.opentripplanner.common.pqueue.BinHeap;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.TraverseVisitor;
-import org.opentripplanner.routing.core.OptimizeType;
-import org.opentripplanner.routing.core.RoutingContext;
-import org.opentripplanner.routing.core.RoutingRequest;
-import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
@@ -462,7 +453,7 @@ public class ProfileRouter {
             minAccessTime = request.minBikeTime;
             maxAccessTime = request.maxBikeTime;
             rr.optimize = OptimizeType.TRIANGLE;
-            rr.setTriangleNormalized(request.bikeSafe, request.bikeSlope, request.bikeTime);
+            rr.bike.setTriangleNormalized(request.bikeSafe, request.bikeSlope, request.bikeTime);
         } else if (qmode.mode == TraverseMode.CAR) {
             rr.carSpeed = request.carSpeed;
             minAccessTime = request.minCarTime;
@@ -512,7 +503,7 @@ public class ProfileRouter {
         if (qmode.mode == TraverseMode.BICYCLE) {
             // TRIANGLE should only affect bicycle searches, but we wrap this in a conditional just to be clear.
             rr.optimize = OptimizeType.TRIANGLE;
-            rr.setTriangleNormalized(request.bikeSafe, request.bikeSlope, request.bikeTime);
+            rr.bike.setTriangleNormalized(request.bikeSafe, request.bikeSlope, request.bikeTime);
         }
         rr.from = (new GenericLocation(request.fromLat, request.fromLon));
         rr.to = new GenericLocation(request.toLat, request.toLon);

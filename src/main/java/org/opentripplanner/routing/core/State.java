@@ -132,7 +132,7 @@ public class State implements Cloneable {
         if (options.parkAndRide) {
             this.stateData.carParked = options.arriveBy;
             this.stateData.currentTraverseMode = this.stateData.carParked ? TraverseMode.WALK : TraverseMode.CAR;
-        } else if (options.bikeParkAndRide) {
+        } else if (options.bike.isBikeParkAndRide()) {
             this.stateData.bikeParked = options.arriveBy;
             this.stateData.currentTraverseMode = this.stateData.bikeParked ? TraverseMode.WALK
                     : TraverseMode.BICYCLE;
@@ -300,7 +300,7 @@ public class State implements Cloneable {
     public boolean isFinal() {
         // When drive-to-transit is enabled, we need to check whether the car has been parked (or whether it has been picked up in reverse).
         boolean parkAndRide = stateData.opt.parkAndRide;
-        boolean bikeParkAndRide = stateData.opt.bikeParkAndRide;
+        boolean bikeParkAndRide = stateData.opt.bike.isBikeParkAndRide();
         boolean bikeRentingOk = false;
         boolean bikeParkAndRideOk = false;
         boolean carParkAndRideOk = false;
