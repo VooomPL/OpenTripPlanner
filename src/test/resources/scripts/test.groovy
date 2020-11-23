@@ -33,9 +33,9 @@ for (origin in grid) {
 	def minTime = -1
 
 	// Find the number of colleges nearer than 30mn
-	def nCollege30 = res.findAll { it.getTime() < 1800 }.size()
+	def nCollege30 = res.findAll { it.getTimestamp() < 1800 }.size()
 	// TODO pop
-	def nPop30 = res.findAll { it.getTime() < 1800 }.size();
+	def nPop30 = res.findAll { it.getTimestamp() < 1800 }.size();
 
 	// Add a new row of result in the CSV output
 	grid30Csv.addRow([ spt.getSnappedOrigin().getLat(), spt.getSnappedOrigin().getLon(),
