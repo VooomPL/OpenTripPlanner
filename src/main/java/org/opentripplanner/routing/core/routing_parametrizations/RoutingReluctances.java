@@ -84,6 +84,15 @@ public class RoutingReluctances {
                 kickScooterReluctance, bicycleReluctance, rentingReluctance);
     }
 
+    public RoutingReluctances clone() {
+        try {
+            return (RoutingReluctances) super.clone();
+        } catch (CloneNotSupportedException e) {
+            /* this will never happen since our super is the cloneable object */
+            throw new RuntimeException(e);
+        }
+    }
+
     public double getWaitReluctance() {
         return waitReluctance;
     }

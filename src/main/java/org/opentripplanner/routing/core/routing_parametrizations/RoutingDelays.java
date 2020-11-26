@@ -2,6 +2,8 @@ package org.opentripplanner.routing.core.routing_parametrizations;
 
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 
+import java.util.Objects;
+
 /**
  * Describes how long specified actions take.
  */
@@ -87,5 +89,35 @@ public class RoutingDelays {
 
     public void setBikeRentingTime(int bikeRentingTime) {
         this.bikeRentingTime = bikeRentingTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoutingDelays that = (RoutingDelays) o;
+        return kickScooterRentingTime == that.kickScooterRentingTime &&
+                kickScooterDropoffTime == that.kickScooterDropoffTime &&
+                motorbikeRentingTime == that.motorbikeRentingTime &&
+                motorbikeDropoffTime == that.motorbikeDropoffTime &&
+                carRentingTime == that.carRentingTime &&
+                bikeDropoffTime == that.bikeDropoffTime &&
+                bikeRentingTime == that.bikeRentingTime &&
+                carDropoffTime == that.carDropoffTime;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kickScooterRentingTime, kickScooterDropoffTime, motorbikeRentingTime, motorbikeDropoffTime,
+                carRentingTime, bikeDropoffTime, bikeRentingTime, carDropoffTime);
+    }
+
+    public RoutingDelays clone() {
+        try {
+            return (RoutingDelays) super.clone();
+        } catch (CloneNotSupportedException e) {
+            /* this will never happen since our super is the cloneable object */
+            throw new RuntimeException(e);
+        }
     }
 }

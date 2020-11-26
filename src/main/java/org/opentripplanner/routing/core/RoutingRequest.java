@@ -9,12 +9,7 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
-import org.opentripplanner.routing.core.routing_parametrizations.BikeParameters;
-import org.opentripplanner.routing.core.routing_parametrizations.GtfsFlexParameters;
-import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
-import org.opentripplanner.routing.core.routing_parametrizations.RoutingPenalties;
-import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
-import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
+import org.opentripplanner.routing.core.routing_parametrizations.*;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -853,7 +848,9 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest clone() {
         try {
             RoutingRequest clone = (RoutingRequest) super.clone();
-            // TODO clone
+            clone.routingDelays = routingDelays.clone();
+            clone.routingReluctances = routingReluctances.clone();
+            clone.routingPenalties = routingPenalties.clone();
             clone.bike = bike.clone();
             clone.flex = flex.clone();
             clone.bannedRoutes = bannedRoutes.clone();

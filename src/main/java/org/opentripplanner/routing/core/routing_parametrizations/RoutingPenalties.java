@@ -66,4 +66,13 @@ public class RoutingPenalties {
     public void setTransferPenalty(int transferPenalty) {
         this.transferPenalty = max(transferPenalty, 0);
     }
+
+    public RoutingPenalties clone() {
+        try {
+            return (RoutingPenalties) super.clone();
+        } catch (CloneNotSupportedException e) {
+            /* this will never happen since our super is the cloneable object */
+            throw new RuntimeException(e);
+        }
+    }
 }
