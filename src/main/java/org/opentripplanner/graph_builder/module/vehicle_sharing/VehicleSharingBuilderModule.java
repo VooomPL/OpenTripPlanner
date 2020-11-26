@@ -54,7 +54,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     }
 
     private void createParkingZonesCalculator(Graph graph) {
-        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.getFromHasura(graph, url);
+        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.postFromHasura(graph, url);
         graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones);
     }
 

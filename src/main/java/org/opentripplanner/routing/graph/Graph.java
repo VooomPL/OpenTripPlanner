@@ -61,6 +61,7 @@ import org.opentripplanner.updater.GraphUpdaterConfigurator;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
+import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.CarPresencePredictor;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -286,6 +287,12 @@ public class Graph implements Serializable {
      */
     public Map<BikeRentalStation, RentBikeEdge> bikeRentalStationsInGraph;
 
+    /**
+     * Service for calculating probability of Car presence in given loacaton and time
+     */
+    @Nullable
+    public CarPresencePredictor carPresencePredictor;
+  
     /**
      * Timestamp for the last update of vehicles positions from each provider
      */

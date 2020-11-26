@@ -7,6 +7,7 @@ import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
+import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.CarPresencePredictor;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +23,7 @@ public class RentVehicleEdgeTest {
 
     private RentVehicleEdge edge;
 
+    private  CarPresencePredictor carPresencePredictor = mock(CarPresencePredictor.class);
     @Before
     public void setUp() {
         Graph graph = new Graph();
@@ -37,6 +39,7 @@ public class RentVehicleEdgeTest {
         StateEditor se = state.edit(edge);
         se.beginVehicleRenting(CAR_2);
         rentingState = se.makeState();
+        graph.carPresencePredictor = carPresencePredictor;
     }
 
     @Test
@@ -131,5 +134,34 @@ public class RentVehicleEdgeTest {
         assertNotNull(traversed);
         assertEquals(CAR_2, traversed.getCurrentVehicle());
         verifyZeroInteractions(parkingZones);
+    }
+
+    @Test
+    public void shouldReturnNullWhenPredictorVoidsVehicle() {
+        // given
+        request.vehiclePredictionThreshold = 0.7;
+        when(carPresencePredictor.predict(edge.getVehicle(), state.getTimeSeconds())).thenReturn(0.6);
+
+        // when
+        State traversed = edge.traverse(state);
+
+        // then
+        assertNull(traversed);
+    }
+
+    @Test
+    public void shouldTraverseWhenPredictorConfirmVehicle() {
+        // given
+        request.vehiclePredictionThreshold = 0.7;
+        request.rentingAllowed = true;
+        when(carPresencePredictor.predict(edge.getVehicle(), state.getTimeSeconds())).thenReturn(0.8);
+        when(request.vehicleValidator.isValid(CAR_1)).thenReturn(true);
+        // when
+        State traversed = edge.traverse(state);
+
+        // then
+        assertNotNull(traversed);
+        assertEquals(TraverseMode.CAR, traversed.getNonTransitMode());
+        assertEquals(CAR_1, traversed.getCurrentVehicle());
     }
 }

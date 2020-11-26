@@ -583,6 +583,9 @@ public abstract class RoutingResource {
     @QueryParam("forceTransitTrips")
     private Boolean forceTransitTrips;
 
+    @QueryParam("vehiclePresenceThreshold")
+    private Float vehiclePresenceThreshold;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -885,6 +888,9 @@ public abstract class RoutingResource {
 
         if (forceTransitTrips != null)
             request.forceTransitTrips = forceTransitTrips;
+
+        if (vehiclePresenceThreshold != null)
+            request.vehiclePredictionThreshold = vehiclePresenceThreshold;
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
