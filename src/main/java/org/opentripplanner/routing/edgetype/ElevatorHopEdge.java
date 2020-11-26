@@ -1,13 +1,14 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.routing_parametrizations.ElevatorConstants;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
@@ -49,14 +50,14 @@ public class ElevatorHopEdge extends Edge implements ElevatorEdge {
         }
         // there are elevators which allow cars
         if (mode == TraverseMode.CAR
-            && !permission.allows(StreetTraversalPermission.CAR)) {
+                && !permission.allows(StreetTraversalPermission.CAR)) {
             return null;
         }
 
         StateEditor s1 = s0.edit(this);
         s1.setBackMode(TraverseMode.WALK);
-        s1.incrementWeight(options.elevatorHopCost);
-        s1.incrementTimeInSeconds(options.elevatorHopTime);
+        s1.incrementWeight(ElevatorConstants.ELEVATOR_HOP_COST);
+        s1.incrementTimeInSeconds(ElevatorConstants.ELEVATOR_HOP_TIME);
         return s1.makeState();
     }
 

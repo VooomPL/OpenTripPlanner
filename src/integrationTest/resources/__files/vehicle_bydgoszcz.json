@@ -353,6 +353,19 @@
         }
       },
       {
+        "providerVehicleId": "20585",
+        "latitude": 53.114854,
+        "longitude": 17.99211,
+        "fuelType": "fossil",
+        "gearbox": "automatic",
+        "type": "car",
+        "range": 255.24,
+        "provider": {
+          "providerId": 2,
+          "providerName": "Panek"
+        }
+      },
+      {
         "providerVehicleId": "20615",
         "latitude": 53.171251,
         "longitude": 18.162099,

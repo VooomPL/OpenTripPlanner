@@ -3,19 +3,14 @@ package org.opentripplanner.updater.traficstreetupdater;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.graph_builder.module.time.EdgeLine;
-import org.opentripplanner.hasura_client.BikeStationsGetter;
 import org.opentripplanner.hasura_client.EdgeDataWithSpeedGetter;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.PollingGraphUpdater;
-import org.opentripplanner.updater.bike_park.BikeParkUpdater;
-import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.BikeStationsGraphWriterRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,7 +27,7 @@ public class TrafifcUpdater extends PollingGraphUpdater {
       @Override
     protected void runPolling() {
         LOG.info("Polling trafic udates  from API");
-        List updates = edgeDataWithSpeedGetter.getFromHasuraWithPassword(graph,url,pass);
+        List updates = edgeDataWithSpeedGetter.postFromHasuraWithPassword(graph,url,pass);
         LOG.info("Got {} edeges with traffiv street", updates.size());
         for (Object e: updates)
         {

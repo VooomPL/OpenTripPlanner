@@ -228,13 +228,13 @@ public class VermontFlexRoutingTest {
         // defaults in vermont router-config.json
         options.setMaxWalkDistance(maxWalkDistance);
         options.setSoftWalkLimit(true);
-        options.flexCallAndRideReluctance = callAndRideReluctance;
+        options.flex.setCallAndRideReluctance(callAndRideReluctance);
         options.routingReluctances.setWalkReluctance(walkReluctance);
         options.routingReluctances.setWaitAtBeginningFactor(waitAtBeginningFactor);
         options.routingPenalties.setTransferPenalty(transferPenalty);
 
         // for testing
-        options.flexIgnoreDrtAdvanceBookMin = ignoreDrtAdvanceMinBooking;
+        options.flex.setIgnoreDrtAdvanceBookMin(ignoreDrtAdvanceMinBooking);
 
         options.setDateTime(date, time, graph.getTimeZone());
         options.setFromString(from);

@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/predictions",
+    "queryParameters": {
+      "vehicle": {
+        "equalTo": "CAR"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "../__files/predictions.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
