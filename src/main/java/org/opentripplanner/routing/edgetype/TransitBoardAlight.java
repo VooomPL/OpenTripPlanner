@@ -131,7 +131,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
         }
 
         // if eligibility-restricted services are disallowed, check this route. Only supports 0/1 values.
-        if (!options.flexUseEligibilityServices) {
+        if (!options.flex.isUseEligibilityServices()) {
             Route route = getPattern().route;
             if (route.hasEligibilityRestricted() && route.getEligibilityRestricted() == 1) {
                 return null;

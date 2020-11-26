@@ -641,7 +641,7 @@ public abstract class RoutingResource {
                 request.setDateTime(date, time, tz);
             }
 
-            request.resetClockTime();
+            request.flex.resetClockTime();
         }
 
         if (wheelchair != null)
@@ -860,16 +860,16 @@ public abstract class RoutingResource {
             request.routingStateDiffOptions.setKickscooterRangeGroupsInMeters(kickscooterRangeGroups);
 
         if (flexFlagStopBufferSize != null)
-            request.flexFlagStopBufferSize = flexFlagStopBufferSize;
+            request.flex.setFlagStopBufferSize(flexFlagStopBufferSize);
 
         if (flexUseReservationServices != null)
-            request.flexUseReservationServices = flexUseReservationServices;
+            request.flex.setUseReservationServices(flexUseReservationServices);
 
         if (flexUseEligibilityServices != null)
-            request.flexUseEligibilityServices = flexUseEligibilityServices;
+            request.flex.setUseEligibilityServices(flexUseEligibilityServices);
 
         if (flexIgnoreDrtAdvanceBookMin != null)
-            request.flexIgnoreDrtAdvanceBookMin = flexIgnoreDrtAdvanceBookMin;
+            request.flex.setIgnoreDrtAdvanceBookMin(flexIgnoreDrtAdvanceBookMin);
 
         if (maxHours != null)
             request.maxHours = maxHours;
