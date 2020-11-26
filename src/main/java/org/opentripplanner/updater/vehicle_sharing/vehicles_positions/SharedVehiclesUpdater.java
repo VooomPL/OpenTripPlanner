@@ -31,6 +31,14 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
                 vehiclePositionsGetter.getResponsiveProviders()));
     }
 
+    public void runSinglePolling() {
+        LOG.info("Polling vehicles from API");
+        List<VehicleDescription> vehicles = vehiclePositionsGetter.getFromHasura(graph, url);
+        LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
+        (new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles,
+                vehiclePositionsGetter.getResponsiveProviders())).run(graph);
+    }
+
     @Override
     protected void configurePolling(Graph graph, JsonNode config) throws IllegalStateException {
         this.pollingPeriodSeconds = 60;
