@@ -45,10 +45,10 @@ public class QualifiedMode implements Serializable {
         if (this.mode == TraverseMode.BICYCLE) {
             if (this.qualifiers.contains(Qualifier.RENT)) {
                 req.modes.setMode(TraverseMode.WALK, true); // turn on WALK for bike rental mode
-                req.allowBikeRental = true;
+                req.bike.setAllowBikeRental(true);
             }
             if (usingTransit) {
-                req.bikeParkAndRide = this.qualifiers.contains(Qualifier.PARK);
+                req.bike.setBikeParkAndRide(this.qualifiers.contains(Qualifier.PARK));
             }
         }
         if (usingTransit && this.mode == TraverseMode.CAR) {

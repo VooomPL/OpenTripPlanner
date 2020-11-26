@@ -10,6 +10,7 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
+import org.opentripplanner.routing.core.routing_parametrizations.BikeParameters;
 import org.opentripplanner.routing.core.routing_parametrizations.GtfsFlexParameters;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
@@ -212,45 +213,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public double turnReluctance = 1.0;
 
-    /**
-     * Time to get on and off your own bike
-     */
-    public int bikeSwitchTime;
-
-    /**
-     * Cost of getting on and off your own bike
-     */
-    public int bikeSwitchCost;
-
-    /**
-     * Time to rent a bike
-     */
-    public int bikeRentalPickupTime = 60;
-
-    /**
-     * Cost of renting a bike. The cost is a bit more than actual time to model the associated cost and trouble.
-     */
-    public int bikeRentalPickupCost = 120;
-
-    /**
-     * Time to drop-off a rented bike
-     */
-    public int bikeRentalDropoffTime = 30;
-
-    /**
-     * Cost of dropping-off a rented bike
-     */
-    public int bikeRentalDropoffCost = 30;
-
-    /**
-     * Time to park a bike
-     */
-    public int bikeParkTime = 60;
-
-    /**
-     * Cost of parking a bike.
-     */
-    public int bikeParkCost = 120;
+    public BikeParameters bike;
 
     public RoutingDelays routingDelays;
 
@@ -366,22 +329,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public int nonpreferredTransferPenalty = 180;
 
     /**
-     * For the bike triangle, how important time is.
-     * triangleTimeFactor+triangleSlopeFactor+triangleSafetyFactor == 1
-     */
-    public double triangleTimeFactor;
-
-    /**
-     * For the bike triangle, how important slope is
-     */
-    public double triangleSlopeFactor;
-
-    /**
-     * For the bike triangle, how important safety is
-     */
-    public double triangleSafetyFactor;
-
-    /**
      * Options specifically for the case that you are walking a bicycle.
      */
     public RoutingRequest bikeWalkingOptions;
@@ -401,11 +348,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     private Map<CostFunction.CostCategory, Double> costCategoryWeights;
 
     private BigDecimal walkPrice = BigDecimal.valueOf(0.3);
-
-    /**
-     * Whether or not bike rental availability information will be used to plan bike rental trips
-     */
-    public boolean useBikeRentalAvailabilityInformation = false;
 
     /**
      * The maximum wait time in seconds the user is willing to delay trip start. Only effective in Analyst.
@@ -478,8 +420,6 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public FeedScopedId startingTransitTripId;
 
-    public boolean walkingBike;
-
     public boolean softWalkLimiting = true;
     public boolean softPreTransitLimiting = true;
 
@@ -489,12 +429,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public double preTransitPenalty = 300.0; // a jump in cost when stepping over the pre-transit time limit
     public double preTransitOverageRate = 10.0; // a jump in cost for every second over the pre-transit time limit
 
-    /*
-      Additional flags affecting mode transitions.
-      This is a temporary solution, as it only covers parking and rental at the beginning of the trip.
-    */
-    public boolean allowBikeRental = false;
-    public boolean bikeParkAndRide = false;
     public boolean parkAndRide = false;
 
     /* Whether we are in "long-distance mode". This is currently a server-wide setting, but it could be made per-request. */
@@ -560,6 +494,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest() {
         routingDelays = new RoutingDelays();
         routingReluctances = new RoutingReluctances();
+        bike = new BikeParameters();
         flex = new GtfsFlexParameters();
         // http://en.wikipedia.org/wiki/Walking
         walkSpeed = 1.33; // 1.33 m/s ~ 3mph, avg. human speed
@@ -637,9 +572,9 @@ public class RoutingRequest implements Cloneable, Serializable {
             bikeWalkingOptions.modes = modes.clone();
             bikeWalkingOptions.modes.setBicycle(false);
             bikeWalkingOptions.modes.setWalk(true);
-            bikeWalkingOptions.walkingBike = true;
-            bikeWalkingOptions.bikeSwitchTime = bikeSwitchTime;
-            bikeWalkingOptions.bikeSwitchCost = bikeSwitchCost;
+            bikeWalkingOptions.bike.setWalkingBike(true);
+            bikeWalkingOptions.bike.setSwitchTime(bike.getSwitchTime());
+            bikeWalkingOptions.bike.setSwitchCost(bike.getSwitchCost());
             bikeWalkingOptions.stairsReluctance = stairsReluctance * 5; // carrying bikes on stairs is awful
         } else if (modes.getCar()) {
             bikeWalkingOptions = new RoutingRequest();
@@ -928,18 +863,18 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     public void setTriangleSafetyFactor(double triangleSafetyFactor) {
-        this.triangleSafetyFactor = triangleSafetyFactor;
-        bikeWalkingOptions.triangleSafetyFactor = triangleSafetyFactor;
+        bike.setTriangleSafetyFactor(triangleSafetyFactor);
+        bikeWalkingOptions.bike.setTriangleSafetyFactor(triangleSafetyFactor);
     }
 
     public void setTriangleSlopeFactor(double triangleSlopeFactor) {
-        this.triangleSlopeFactor = triangleSlopeFactor;
-        bikeWalkingOptions.triangleSlopeFactor = triangleSlopeFactor;
+        bike.setTriangleSlopeFactor(triangleSlopeFactor);
+        bikeWalkingOptions.bike.setTriangleSlopeFactor(triangleSlopeFactor);
     }
 
     public void setTriangleTimeFactor(double triangleTimeFactor) {
-        this.triangleTimeFactor = triangleTimeFactor;
-        bikeWalkingOptions.triangleTimeFactor = triangleTimeFactor;
+        bike.setTriangleTimeFactor(triangleTimeFactor);
+        bikeWalkingOptions.bike.setTriangleTimeFactor(triangleTimeFactor);
     }
 
     public NamedPlace getFromPlace() {
@@ -957,6 +892,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest clone() {
         try {
             RoutingRequest clone = (RoutingRequest) super.clone();
+            clone.bike = bike.clone();
             clone.flex = flex.clone();
             clone.bannedRoutes = bannedRoutes.clone();
             clone.bannedTrips = (HashMap<FeedScopedId, BannedStopSet>) bannedTrips.clone();
@@ -981,7 +917,7 @@ public class RoutingRequest implements Cloneable, Serializable {
         RoutingRequest ret = this.clone();
         ret.setArriveBy(!ret.arriveBy);
         ret.reverseOptimizing = !ret.reverseOptimizing; // this is not strictly correct
-        ret.useBikeRentalAvailabilityInformation = false;
+        ret.bike.setUseBikeRentalAvailabilityInformation(false);
         return ret;
     }
 
@@ -1103,17 +1039,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && nonpreferredTransferPenalty == other.nonpreferredTransferPenalty
                 && otherThanPreferredRoutesPenalty == other.otherThanPreferredRoutesPenalty
                 && useUnpreferredRoutesPenalty == other.useUnpreferredRoutesPenalty
-                && triangleSafetyFactor == other.triangleSafetyFactor
-                && triangleSlopeFactor == other.triangleSlopeFactor
-                && triangleTimeFactor == other.triangleTimeFactor
+                && bike.equals(other.bike)
                 && stairsReluctance == other.stairsReluctance
-                && bikeSwitchTime == other.bikeSwitchTime
-                && bikeSwitchCost == other.bikeSwitchCost
-                && bikeRentalPickupTime == other.bikeRentalPickupTime
-                && bikeRentalPickupCost == other.bikeRentalPickupCost
-                && bikeRentalDropoffTime == other.bikeRentalDropoffTime
-                && bikeRentalDropoffCost == other.bikeRentalDropoffCost
-                && useBikeRentalAvailabilityInformation == other.useBikeRentalAvailabilityInformation
                 && extensions.equals(other.extensions)
                 && clampInitialWait == other.clampInitialWait
                 && reverseOptimizeOnTheFly == other.reverseOptimizeOnTheFly
@@ -1146,9 +1073,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + walkBoardCost + bikeBoardCost + bannedRoutes.hashCode()
                 + bannedTrips.hashCode() * 1373 + transferSlack * 20996011
                 + (int) nonpreferredTransferPenalty + (int) transferPenalty * 163013803
-                + new Double(triangleSafetyFactor).hashCode() * 195233277
-                + new Double(triangleSlopeFactor).hashCode() * 136372361
-                + new Double(triangleTimeFactor).hashCode() * 790052899
+                + bike.hashCode()
                 + new Double(stairsReluctance).hashCode() * 315595321
                 + maxPreTransitTime * 63061489
                 + new Long(clampInitialWait).hashCode() * 209477
@@ -1370,21 +1295,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         }
         // Considering that buses can travel on highways, return the same max speed for all other transit.
         return 40; // TODO find accurate max speeds
-    }
-
-    /**
-     * Sets the bicycle triangle routing parameters -- the relative importance of safety, flatness, and speed.
-     * These three fields of the RoutingRequest should have values between 0 and 1, and should add up to 1.
-     * This setter function accepts any three numbers and will normalize them to add up to 1.
-     */
-    public void setTriangleNormalized(double safe, double slope, double time) {
-        double total = safe + slope + time;
-        safe /= total;
-        slope /= total;
-        time /= total;
-        this.triangleSafetyFactor = safe;
-        this.triangleSlopeFactor = slope;
-        this.triangleTimeFactor = time;
     }
 
     /**

@@ -717,8 +717,8 @@ public class GraphPathToTripPlanConverterTest {
 
         forwardOptions.rctx = forwardContext;
         forwardOptions.dateTime = 0L;
-        forwardOptions.bikeRentalPickupTime = 4;
-        forwardOptions.bikeRentalDropoffTime = 2;
+        forwardOptions.bike.setRentalPickupTime(4);
+        forwardOptions.bike.setRentalDropoffTime(2);
 
         // Forward traversal of all edges
         State s0Forward = new State(forwardOptions);
@@ -762,8 +762,8 @@ public class GraphPathToTripPlanConverterTest {
 
         backwardOptions.rctx = backwardContext;
         backwardOptions.dateTime = 70L;
-        backwardOptions.bikeRentalPickupTime = 4;
-        backwardOptions.bikeRentalDropoffTime = 2;
+        backwardOptions.bike.setRentalPickupTime(4);
+        backwardOptions.bike.setRentalDropoffTime(2);
         backwardOptions.setArriveBy(true);
 
         // Backward traversal of all edges
@@ -809,8 +809,8 @@ public class GraphPathToTripPlanConverterTest {
 
         onboardOptions.rctx = onboardContext;
         onboardOptions.dateTime = 6L;
-        onboardOptions.bikeRentalPickupTime = 4;
-        onboardOptions.bikeRentalDropoffTime = 2;
+        onboardOptions.bike.setRentalPickupTime(4);
+        onboardOptions.bike.setRentalDropoffTime(2);
 
         // Onboard traversal of all edges
         State s10Onboard = new State(onboardOptions);

@@ -96,7 +96,7 @@ public class StreetTransitLink extends Edge {
         if (s0.getOptions().wheelchairAccessible && !wheelchairAccessible) {
             return null;
         }
-        if (s0.getOptions().bikeParkAndRide && !s0.isBikeParked()) {
+        if (s0.getOptions().bike.isBikeParkAndRide() && !s0.isBikeParked()) {
             // Forbid taking your own bike in the station if bike P+R activated.
             return null;
         }

@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -9,7 +10,6 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
@@ -55,7 +55,7 @@ public class StreetBikeRentalLink extends Edge {
 
     public State traverse(State s0) {
         // Do not even consider bike rental vertices unless bike rental is enabled.
-        if ( ! s0.getOptions().allowBikeRental) {
+        if (!s0.getOptions().bike.isAllowBikeRental()) {
             return null;
         }
         // Disallow traversing two StreetBikeRentalLinks in a row.
