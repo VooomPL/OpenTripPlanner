@@ -17,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class State implements Cloneable {
 
@@ -29,11 +32,13 @@ public class State implements Cloneable {
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
-    private BigDecimal distancePriceForCurrentVehicle;
+    private Map<Integer, BigDecimal> distancePricePerPackage;
 
-    private BigDecimal timePriceForCurrentVehicle;
+    private Map<Integer, BigDecimal> timePricePerPackage;
 
-    private BigDecimal startPriceForCurrentVehicle;
+    private Map<Integer, BigDecimal> startPricePerPackage;
+
+    private Integer activePackageIndex;
 
     // the current time at this state, in milliseconds
     protected long time;
@@ -127,15 +132,16 @@ public class State implements Cloneable {
         if (options.parkAndRide) {
             this.stateData.carParked = options.arriveBy;
             this.stateData.currentTraverseMode = this.stateData.carParked ? TraverseMode.WALK : TraverseMode.CAR;
-        } else if (options.bikeParkAndRide) {
+        } else if (options.bike.isBikeParkAndRide()) {
             this.stateData.bikeParked = options.arriveBy;
             this.stateData.currentTraverseMode = this.stateData.bikeParked ? TraverseMode.WALK
                     : TraverseMode.BICYCLE;
         }
         this.traverseDistanceInMeters = 0;
-        distancePriceForCurrentVehicle = BigDecimal.ZERO;
-        timePriceForCurrentVehicle = BigDecimal.ZERO;
-        startPriceForCurrentVehicle = BigDecimal.ZERO;
+        distancePricePerPackage = new HashMap<>();
+        timePricePerPackage = new HashMap<>();
+        startPricePerPackage = new HashMap<>();
+        activePackageIndex = 0;
         this.preTransitTime = 0;
         this.time = timeSeconds * 1000;
         stateData.routeSequence = new FeedScopedId[0];
@@ -157,6 +163,9 @@ public class State implements Cloneable {
         State ret;
         try {
             ret = (State) super.clone();
+            ret.startPricePerPackage = new HashMap<>(this.startPricePerPackage);
+            ret.distancePricePerPackage = new HashMap<>(this.distancePricePerPackage);
+            ret.timePricePerPackage = new HashMap<>(this.timePricePerPackage);
         } catch (CloneNotSupportedException e1) {
             throw new IllegalStateException("This is not happening");
         }
@@ -291,7 +300,7 @@ public class State implements Cloneable {
     public boolean isFinal() {
         // When drive-to-transit is enabled, we need to check whether the car has been parked (or whether it has been picked up in reverse).
         boolean parkAndRide = stateData.opt.parkAndRide;
-        boolean bikeParkAndRide = stateData.opt.bikeParkAndRide;
+        boolean bikeParkAndRide = stateData.opt.bike.isBikeParkAndRide();
         boolean bikeRentingOk = false;
         boolean bikeParkAndRideOk = false;
         boolean carParkAndRideOk = false;
@@ -304,7 +313,8 @@ public class State implements Cloneable {
             bikeParkAndRideOk = !bikeParkAndRide || isBikeParked();
             carParkAndRideOk = !parkAndRide || isCarParked();
         }
-        return bikeRentingOk && bikeParkAndRideOk && carParkAndRideOk && !isCurrentlyRentingVehicle();
+        boolean forceTransitTripsOk = !stateData.opt.forceTransitTrips || isEverBoarded();
+        return bikeRentingOk && bikeParkAndRideOk && carParkAndRideOk && forceTransitTripsOk && !isCurrentlyRentingVehicle();
     }
 
     public Stop getPreviousStop() {
@@ -908,27 +918,55 @@ public class State implements Cloneable {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
 
-    public BigDecimal getDistancePriceForCurrentVehicle() {
-        return distancePriceForCurrentVehicle;
+    public BigDecimal getDistancePriceForCurrentVehicle(int packageIndex) {
+        return distancePricePerPackage.getOrDefault(packageIndex, BigDecimal.ZERO);
     }
 
-    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle) {
-        this.distancePriceForCurrentVehicle = distancePriceForCurrentVehicle;
+    public void setDistancePriceForCurrentVehicle(BigDecimal distancePriceForCurrentVehicle, int packageIndex) {
+        this.distancePricePerPackage.put(packageIndex, distancePriceForCurrentVehicle);
     }
 
-    public BigDecimal getTimePriceForCurrentVehicle() {
-        return timePriceForCurrentVehicle;
+    public BigDecimal getTimePriceForCurrentVehicle(int packageIndex) {
+        return timePricePerPackage.getOrDefault(packageIndex, BigDecimal.ZERO);
     }
 
-    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle) {
-        this.timePriceForCurrentVehicle = timePriceForCurrentVehicle;
+    public void setTimePriceForCurrentVehicle(BigDecimal timePriceForCurrentVehicle, int packageIndex) {
+        this.timePricePerPackage.put(packageIndex, timePriceForCurrentVehicle);
     }
 
-    public BigDecimal getStartPriceForCurrentVehicle() {
-        return startPriceForCurrentVehicle;
+    public BigDecimal getStartPriceForCurrentVehicle(int packageIndex) {
+        return startPricePerPackage.getOrDefault(packageIndex, BigDecimal.ZERO);
     }
 
-    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle) {
-        this.startPriceForCurrentVehicle = startPriceForCurrentVehicle;
+    public void setStartPriceForCurrentVehicle(BigDecimal startPriceForCurrentVehicle, int packageIndex) {
+        this.startPricePerPackage.put(packageIndex, startPriceForCurrentVehicle);
+    }
+
+    public int getActivePackageIndex() {
+        return activePackageIndex;
+    }
+
+    public void setActivePackageIndex(int activePackageIndex) {
+        this.activePackageIndex = activePackageIndex;
+    }
+
+    public void clearCurrentVehiclePrices() {
+        this.startPricePerPackage.clear();
+        this.timePricePerPackage.clear();
+        this.distancePricePerPackage.clear();
+    }
+
+    public BigDecimal getTotalPriceForCurrentVehicle(int packageIndex) {
+        return this.getTimePriceForCurrentVehicle(packageIndex)
+                .add(this.getDistancePriceForCurrentVehicle(packageIndex))
+                .add(this.getStartPriceForCurrentVehicle(packageIndex));
+    }
+
+    public double getDistanceTraversedInCurrentVehicle() {
+        return distanceTraversedInCurrentVehicle;
+    }
+
+    public void setDistanceTraversedInCurrentVehicle(double distanceTraversedInCurrentVehicle) {
+        this.distanceTraversedInCurrentVehicle = distanceTraversedInCurrentVehicle;
     }
 }

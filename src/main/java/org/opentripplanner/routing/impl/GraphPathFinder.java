@@ -1,16 +1,19 @@
 package org.opentripplanner.routing.impl;
 
 import com.google.common.collect.Lists;
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.AStar;
-import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
-import org.opentripplanner.routing.algorithm.strategies.InterleavedBidirectionalHeuristic;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
+import org.opentripplanner.routing.algorithm.strategies.SimpleEuclideanRWH;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.ProviderFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.LegSwitchingEdge;
 import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.error.PathNotFoundException;
@@ -19,7 +22,6 @@ import org.opentripplanner.routing.flex.DeviatedRouteGraphModifier;
 import org.opentripplanner.routing.flex.FlagStopGraphModifier;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
@@ -88,31 +90,17 @@ public class GraphPathFinder {
             // options.disableRemainingWeightHeuristic = true; // DEBUG
         }
 
-        // Without transit, we'd just just return multiple copies of the same on-street itinerary.
-        if (!options.modes.isTransit()) {
-            options.numItineraries = 1;
+        // Without transit and renting vehicles, we'd just just return multiple copies of the same on-street itinerary.
+        if (!options.modes.isTransit() && !options.rentingAllowed) {
+            options.setNumItineraries(1);
         }
-        options.dominanceFunction = new DominanceFunction.EarliestArrival();
+        OptimizationProfile optimizationProfile = Optional.ofNullable(options.getOptimizationProfile()).orElseGet(() ->
+                OptimizationProfileFactory.getDefaultOptimizationProfile(options));
+        options.dominanceFunction = optimizationProfile.getDominanceFunction();
         LOG.debug("rreq={}", options);
 
         // Choose an appropriate heuristic for goal direction.
-        RemainingWeightHeuristic heuristic;
-        RemainingWeightHeuristic reversedSearchHeuristic;
-        if (options.disableRemainingWeightHeuristic) {
-            heuristic = new TrivialRemainingWeightHeuristic();
-            reversedSearchHeuristic = new TrivialRemainingWeightHeuristic();
-        } else if (options.modes.isTransit() && !options.modes.getCar() && !options.modes.getBicycle()) {
-            // Only use the BiDi heuristic for transit. It is not very useful for on-street modes.
-            // heuristic = new InterleavedBidirectionalHeuristic(options.rctx.graph);
-            // Use a simplistic heuristic until BiDi heuristic is improved, see #2153
-            heuristic = new InterleavedBidirectionalHeuristic();
-            reversedSearchHeuristic = new InterleavedBidirectionalHeuristic();
-        } else {
-            heuristic = new EuclideanRemainingWeightHeuristic();
-            reversedSearchHeuristic = new EuclideanRemainingWeightHeuristic();
-        }
-        options.rctx.remainingWeightHeuristic = heuristic;
-
+        options.rctx.remainingWeightHeuristic = optimizationProfile.getHeuristic();
 
         /* In RoutingRequest, maxTransfers defaults to 2. But as discussed in #2522, you can't limit the number of
          * transfers in our routing algorithm. This is a resource limiting problem, like imposing a walk limit or
@@ -139,18 +127,18 @@ public class GraphPathFinder {
             FlagStopGraphModifier flagStopGraphModifier = new FlagStopGraphModifier(router.graph);
             DeviatedRouteGraphModifier deviatedRouteGraphModifier = new DeviatedRouteGraphModifier(router.graph);
             flagStopGraphModifier.createForwardHops(options);
-            if (options.flexUseReservationServices) {
+            if (options.flex.isUseReservationServices()) {
                 deviatedRouteGraphModifier.createForwardHops(options);
             }
             flagStopGraphModifier.createBackwardHops(options);
-            if (options.flexUseReservationServices) {
+            if (options.flex.isUseReservationServices()) {
                 deviatedRouteGraphModifier.createBackwardHops(options);
             }
         }
         long searchBeginTime = System.currentTimeMillis();
         LOG.debug("BEGIN SEARCH");
         List<GraphPath> paths = Lists.newArrayList();
-        while (paths.size() < options.numItineraries) {
+        while (paths.size() < options.getNumItineraries()) {
             // TODO pull all this timeout logic into a function near org.opentripplanner.util.DateUtils.absoluteTimeout()
             int timeoutIndex = paths.size();
             if (timeoutIndex >= router.timeouts.length) {
@@ -178,7 +166,7 @@ public class GraphPathFinder {
 
             // Do a full reversed search to compact the legs
             if(options.compactLegsByReversedSearch){
-                newPaths = compactLegsByReversedSearch(aStar, originalReq, options, newPaths, timeout, reversedSearchHeuristic);
+                newPaths = compactLegsByReversedSearch(aStar, originalReq, options, newPaths, timeout, optimizationProfile.getReversedSearchHeuristic());
             }
 
             // Find all trips used in this path and ban them for the remaining searches
@@ -191,9 +179,9 @@ public class GraphPathFinder {
                         options.banTrip(tripId);
                     }
                 }
-                if (tripIds.isEmpty()) {
+                if (tripIds.isEmpty() && !options.rentingAllowed) {
                     // This path does not use transit (is entirely on-street). Do not repeatedly find the same one.
-                    options.onlyTransitTrips = true;
+                    options.forceTransitTrips = true;
                 }
                 // Call-and-Ride trips should not use regular trip-banning, since call-and-ride trips can beused in
                 // multiple ways (e.g. from origin to destination, or from origin to a transfer stop.) Instead,
@@ -202,11 +190,19 @@ public class GraphPathFinder {
                 if (tripIds.size() < 2) {
                     int duration = path.getCallAndRideDuration();
                     if (duration > 0) { // only true if there are call-and-ride legs
-                        int constantLimit = Math.min(0, duration - options.flexReduceCallAndRideSeconds);
-                        int ratioLimit = (int) Math.round(options.flexReduceCallAndRideRatio * duration);
-                        options.flexMaxCallAndRideSeconds = Math.min(constantLimit, ratioLimit);
+                        int constantLimit = Math.min(0, duration - options.flex.getReduceCallAndRideSeconds());
+                        int ratioLimit = (int) Math.round(options.flex.getReduceCallAndRideRatio() * duration);
+                        options.flex.setMaxCallAndRideSeconds(Math.min(constantLimit, ratioLimit));
                     }
                 }
+
+                Set<String> providersDisallowed = path.states.stream()
+                        .filter(State::isCurrentlyRentingVehicle)
+                        .map(State::getCurrentVehicle)
+                        .map(VehicleDescription::getProvider)
+                        .map(Provider::getProviderName)
+                        .collect(Collectors.toSet());
+                options.vehicleValidator.addFilter(ProviderFilter.providersDisallowedFilter(providersDisallowed));
             }
 
             paths.addAll(newPaths.stream()
@@ -269,7 +265,7 @@ public class GraphPathFinder {
             Vertex fromVertex = options.arriveBy ? options.rctx.fromVertex : transitStop;
             Vertex toVertex = options.arriveBy ? transitStop : options.rctx.toVertex;
             RoutingRequest reversedTransitRequest = createReversedTransitRequest(originalReq, options, fromVertex, toVertex,
-                    arrDepTime, new EuclideanRemainingWeightHeuristic());
+                    arrDepTime, new SimpleEuclideanRWH());
             aStar.getShortestPathTree(reversedTransitRequest, timeout);
             List<GraphPath> pathsToTarget = aStar.getPathsToTarget();
             if(pathsToTarget.isEmpty()){
@@ -321,7 +317,7 @@ public class GraphPathFinder {
                                                  Vertex toVertex, long arrDepTime, RemainingWeightHeuristic remainingWeightHeuristic){
 
         RoutingRequest request = createReversedRequest(originalReq, options, fromVertex, toVertex,
-                arrDepTime, new EuclideanRemainingWeightHeuristic());
+                arrDepTime, new SimpleEuclideanRWH());
         if(originalReq.parkAndRide && !originalReq.arriveBy){
             request.parkAndRide = false;
             request.modes.setCar(false);
@@ -348,7 +344,7 @@ public class GraphPathFinder {
         reversedOptions.dateTime = dateTime;
         reversedOptions.setArriveBy(!originalReq.arriveBy);
         reversedOptions.setRoutingContext(router.graph, fromVertex, toVertex);
-        reversedOptions.dominanceFunction = new DominanceFunction.EarliestArrival();
+        reversedOptions.dominanceFunction = reversedOptions.getOptimizationProfile().getDominanceFunction();
         reversedOptions.rctx.remainingWeightHeuristic = remainingWeightHeuristic;
         reversedOptions.maxTransfers = 4;
         reversedOptions.longDistance = true;

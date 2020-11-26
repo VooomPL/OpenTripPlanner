@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.hasura_client.mappers.VehiclePositionsMapper;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Vehicle> {
 
@@ -58,5 +61,9 @@ public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Veh
     protected TypeReference<ApiResponse<Vehicle>> hasuraType() {
         return new TypeReference<ApiResponse<Vehicle>>() {
         };
+    }
+
+    public Set<Provider> getResponsiveProviders() {
+        return ((VehiclePositionsMapper) mapper()).getResponsiveProviders();
     }
 }

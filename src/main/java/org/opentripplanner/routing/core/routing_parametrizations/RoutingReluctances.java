@@ -39,6 +39,8 @@ public class RoutingReluctances {
     private double motorbikeReluctance = 1.0;
 
     private double kickScooterReluctance = 1.5;
+
+    private double bicycleReluctance = 1.5;
     /**
      * How much we hate picking up a vehicle/dropping it off
      */
@@ -48,12 +50,14 @@ public class RoutingReluctances {
     public double getModeVehicleReluctance(VehicleType vehicleType, TraverseMode traverseMode) {
         if (traverseMode == TraverseMode.WALK) {
             return walkReluctance;
-        } else if (vehicleType == VehicleType.KICKSCOOTER) {
-            return kickScooterReluctance;
+        } else if (vehicleType == VehicleType.CAR || traverseMode == TraverseMode.CAR) {
+            return carReluctance;
+        } else if (vehicleType == VehicleType.BIKE || traverseMode == TraverseMode.BICYCLE) {
+            return bicycleReluctance;
         } else if (vehicleType == VehicleType.MOTORBIKE) {
             return motorbikeReluctance;
-        } else if (vehicleType == VehicleType.CAR) {
-            return carReluctance;
+        } else if (vehicleType == VehicleType.KICKSCOOTER) {
+            return kickScooterReluctance;
         } else {
             return 1.;
         }
@@ -70,12 +74,14 @@ public class RoutingReluctances {
                 Double.compare(that.carReluctance, carReluctance) == 0 &&
                 Double.compare(that.motorbikeReluctance, motorbikeReluctance) == 0 &&
                 Double.compare(that.kickScooterReluctance, kickScooterReluctance) == 0 &&
+                Double.compare(that.bicycleReluctance, bicycleReluctance) == 0 &&
                 Double.compare(that.rentingReluctance, rentingReluctance) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(waitReluctance, waitAtBeginningFactor, walkReluctance, carReluctance, motorbikeReluctance, kickScooterReluctance, rentingReluctance);
+        return Objects.hash(waitReluctance, waitAtBeginningFactor, walkReluctance, carReluctance, motorbikeReluctance,
+                kickScooterReluctance, bicycleReluctance, rentingReluctance);
     }
 
     public double getWaitReluctance() {
@@ -124,6 +130,14 @@ public class RoutingReluctances {
 
     public void setKickScooterReluctance(double kickScooterReluctance) {
         this.kickScooterReluctance = kickScooterReluctance;
+    }
+
+    public double getBicycleReluctance() {
+        return bicycleReluctance;
+    }
+
+    public void setBicycleReluctance(double bicycleReluctance) {
+        this.bicycleReluctance = bicycleReluctance;
     }
 
     public double getRentingReluctance() {

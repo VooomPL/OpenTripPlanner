@@ -1,12 +1,10 @@
 package org.opentripplanner.base;
 
 import com.google.common.collect.ImmutableList;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.IntegrationTest;
 import org.opentripplanner.api.model.Itinerary;
-import org.opentripplanner.api.model.Leg;
 import org.opentripplanner.api.resource.Response;
 import org.opentripplanner.util.PolylineEncoder;
 
@@ -14,7 +12,8 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
 
 public class LegGeometryIT extends IntegrationTest {
 
@@ -22,7 +21,7 @@ public class LegGeometryIT extends IntegrationTest {
     public void testLegGeometryContinuityWithRenting() {
         List<String> destinations = ImmutableList.of("53.134889, 18.035789", "53.142835, 18.018029", "53.130221, 18.039692", "53.111929, 18.035472", "53.120262, 17.977395");
 
-        for(String toPlace: destinations) {
+        for (String toPlace : destinations) {
             javax.ws.rs.core.Response response = target("/routers/bydgoszcz/plan")
                     .queryParam("fromPlace", "53.119934, 17.997763")
                     .queryParam("toPlace", toPlace)
@@ -49,7 +48,7 @@ public class LegGeometryIT extends IntegrationTest {
     public void testLegGeometryContinuityNoRenting() {
         List<String> destinations = ImmutableList.of("53.1348584,18.0358261", "53.142835, 18.018029", "53.130221, 18.039692", "53.111929, 18.035472", "53.120262, 17.977395");
 
-        for(String toPlace: destinations) {
+        for (String toPlace : destinations) {
             javax.ws.rs.core.Response response = target("/routers/bydgoszcz/plan")
                     .queryParam("fromPlace", "53.1146638,17.9870732")
                     .queryParam("toPlace", toPlace)
@@ -82,7 +81,7 @@ public class LegGeometryIT extends IntegrationTest {
                 assertThat(coordinates.isEmpty(), is(false));
                 next = coordinates.get(0);
                 assertThat(prev.distance(next), closeTo(0, 0.001));
-                prev = coordinates.get(coordinates.size()-1);
+                prev = coordinates.get(coordinates.size() - 1);
             }
         }
     }
