@@ -212,30 +212,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public double turnReluctance = 1.0;
 
     /**
-     * How long does it take to get an elevator, on average (actually, it probably should be a bit *more* than average, to prevent optimistic trips)?
-     * Setting it to "seems like forever," while accurate, will probably prevent OTP from working correctly.
-     */
-    // TODO: how long does it /really/ take to get an elevator?
-    public int elevatorBoardTime = 90;
-
-    /**
-     * What is the cost of boarding an elevator?
-     */
-    public int elevatorBoardCost = 90;
-
-    /**
-     * How long does it take to advance one floor on an elevator?
-     */
-    public int elevatorHopTime = 20;
-
-    /**
-     * What is the cost of travelling one floor on an elevator?
-     */
-    public int elevatorHopCost = 20;
-
-    // it is assumed that getting off an elevator is completely free
-
-    /**
      * Time to get on and off your own bike
      */
     public int bikeSwitchTime;
@@ -1271,10 +1247,6 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && triangleSlopeFactor == other.triangleSlopeFactor
                 && triangleTimeFactor == other.triangleTimeFactor
                 && stairsReluctance == other.stairsReluctance
-                && elevatorBoardTime == other.elevatorBoardTime
-                && elevatorBoardCost == other.elevatorBoardCost
-                && elevatorHopTime == other.elevatorHopTime
-                && elevatorHopCost == other.elevatorHopCost
                 && bikeSwitchTime == other.bikeSwitchTime
                 && bikeSwitchCost == other.bikeSwitchCost
                 && bikeRentalPickupTime == other.bikeRentalPickupTime
