@@ -49,11 +49,11 @@ public abstract class IntegrationTest extends JerseyTest {
         return new OTPApplication(otpServer, false);
     }
 
-
     @BeforeClass
     public static void beforeClass() throws Exception {
         System.setProperty(TestProperties.CONTAINER_PORT, Integer.toString(port));
         System.setProperty("sharedVehiclesApi", "http://localhost:8888/query_db"); // mocked database
+        System.setProperty("predictionApiUrl", "http://localhost:8888/predictions");
 
         params = OTPMain.parseCommandLineParams(args);
         graphService = new GraphService(false, params.graphDirectory);
