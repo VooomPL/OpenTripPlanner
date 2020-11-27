@@ -113,7 +113,7 @@ public class StateData implements Cloneable {
         }
     }
 
-    public int getNumBooardings(){
+    public int getNumBoardings(){
         return numBoardings;
     }
 

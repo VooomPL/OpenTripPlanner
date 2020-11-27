@@ -1,9 +1,11 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
+import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
+@EqualsAndHashCode(callSuper = true)
 public class BikeDescription extends BikePathVehicleDescription {
     protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 15. * (10. / 36.);
     protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_PEDESTRIAN_PATH = 10. * (10. / 36.);

@@ -2,11 +2,13 @@ package org.opentripplanner.routing.core.vehicle_sharing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
 import java.util.Objects;
 
+@EqualsAndHashCode(callSuper = true)
 public class KickScooterDescription extends BikePathVehicleDescription {
     protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 15. * (10. / 36.);
     protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_PEDESTRIAN_PATH = 10. * (10. / 36.);
@@ -68,19 +70,5 @@ public class KickScooterDescription extends BikePathVehicleDescription {
     @Override
     protected Double getMaximumRangeInMeters() {
         return getDefaultRangeInMeters();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        KickScooterDescription that = (KickScooterDescription) o;
-        return Objects.equals(getProviderVehicleId(), that.getProviderVehicleId()) &&
-                Objects.equals(getProvider(), that.getProvider());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getProviderVehicleId(), getProvider());
     }
 }
