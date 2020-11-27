@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -70,5 +71,10 @@ public class KickScooterDescription extends BikePathVehicleDescription {
     @Override
     protected Double getMaximumRangeInMeters() {
         return getDefaultRangeInMeters();
+    }
+
+    @JsonIgnore
+    public static double getMaxPossibleSpeed() {
+        return MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH;
     }
 }

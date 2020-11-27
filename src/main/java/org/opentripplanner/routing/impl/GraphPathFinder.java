@@ -1,16 +1,19 @@
 package org.opentripplanner.routing.impl;
 
 import com.google.common.collect.Lists;
-import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.api.resource.DebugOutput;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
-import org.opentripplanner.routing.algorithm.strategies.EuclideanRemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
+import org.opentripplanner.routing.algorithm.strategies.SimpleEuclideanRWH;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.ProviderFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.LegSwitchingEdge;
 import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.error.PathNotFoundException;
@@ -87,9 +90,9 @@ public class GraphPathFinder {
             // options.disableRemainingWeightHeuristic = true; // DEBUG
         }
 
-        // Without transit, we'd just just return multiple copies of the same on-street itinerary.
-        if (!options.modes.isTransit()) {
-            options.numItineraries = 1;
+        // Without transit and renting vehicles, we'd just just return multiple copies of the same on-street itinerary.
+        if (!options.modes.isTransit() && !options.rentingAllowed) {
+            options.setNumItineraries(1);
         }
         OptimizationProfile optimizationProfile = Optional.ofNullable(options.getOptimizationProfile()).orElseGet(() ->
                 OptimizationProfileFactory.getDefaultOptimizationProfile(options));
@@ -124,18 +127,18 @@ public class GraphPathFinder {
             FlagStopGraphModifier flagStopGraphModifier = new FlagStopGraphModifier(router.graph);
             DeviatedRouteGraphModifier deviatedRouteGraphModifier = new DeviatedRouteGraphModifier(router.graph);
             flagStopGraphModifier.createForwardHops(options);
-            if (options.flexUseReservationServices) {
+            if (options.flex.isUseReservationServices()) {
                 deviatedRouteGraphModifier.createForwardHops(options);
             }
             flagStopGraphModifier.createBackwardHops(options);
-            if (options.flexUseReservationServices) {
+            if (options.flex.isUseReservationServices()) {
                 deviatedRouteGraphModifier.createBackwardHops(options);
             }
         }
         long searchBeginTime = System.currentTimeMillis();
         LOG.debug("BEGIN SEARCH");
         List<GraphPath> paths = Lists.newArrayList();
-        while (paths.size() < options.numItineraries) {
+        while (paths.size() < options.getNumItineraries()) {
             // TODO pull all this timeout logic into a function near org.opentripplanner.util.DateUtils.absoluteTimeout()
             int timeoutIndex = paths.size();
             if (timeoutIndex >= router.timeouts.length) {
@@ -176,7 +179,7 @@ public class GraphPathFinder {
                         options.banTrip(tripId);
                     }
                 }
-                if (tripIds.isEmpty()) {
+                if (tripIds.isEmpty() && !options.rentingAllowed) {
                     // This path does not use transit (is entirely on-street). Do not repeatedly find the same one.
                     options.forceTransitTrips = true;
                 }
@@ -187,11 +190,19 @@ public class GraphPathFinder {
                 if (tripIds.size() < 2) {
                     int duration = path.getCallAndRideDuration();
                     if (duration > 0) { // only true if there are call-and-ride legs
-                        int constantLimit = Math.min(0, duration - options.flexReduceCallAndRideSeconds);
-                        int ratioLimit = (int) Math.round(options.flexReduceCallAndRideRatio * duration);
-                        options.flexMaxCallAndRideSeconds = Math.min(constantLimit, ratioLimit);
+                        int constantLimit = Math.min(0, duration - options.flex.getReduceCallAndRideSeconds());
+                        int ratioLimit = (int) Math.round(options.flex.getReduceCallAndRideRatio() * duration);
+                        options.flex.setMaxCallAndRideSeconds(Math.min(constantLimit, ratioLimit));
                     }
                 }
+
+                Set<String> providersDisallowed = path.states.stream()
+                        .filter(State::isCurrentlyRentingVehicle)
+                        .map(State::getCurrentVehicle)
+                        .map(VehicleDescription::getProvider)
+                        .map(Provider::getProviderName)
+                        .collect(Collectors.toSet());
+                options.vehicleValidator.addFilter(ProviderFilter.providersDisallowedFilter(providersDisallowed));
             }
 
             paths.addAll(newPaths.stream()
@@ -254,7 +265,7 @@ public class GraphPathFinder {
             Vertex fromVertex = options.arriveBy ? options.rctx.fromVertex : transitStop;
             Vertex toVertex = options.arriveBy ? transitStop : options.rctx.toVertex;
             RoutingRequest reversedTransitRequest = createReversedTransitRequest(originalReq, options, fromVertex, toVertex,
-                    arrDepTime, new EuclideanRemainingWeightHeuristic());
+                    arrDepTime, new SimpleEuclideanRWH());
             aStar.getShortestPathTree(reversedTransitRequest, timeout);
             List<GraphPath> pathsToTarget = aStar.getPathsToTarget();
             if(pathsToTarget.isEmpty()){
@@ -306,7 +317,7 @@ public class GraphPathFinder {
                                                  Vertex toVertex, long arrDepTime, RemainingWeightHeuristic remainingWeightHeuristic){
 
         RoutingRequest request = createReversedRequest(originalReq, options, fromVertex, toVertex,
-                arrDepTime, new EuclideanRemainingWeightHeuristic());
+                arrDepTime, new SimpleEuclideanRWH());
         if(originalReq.parkAndRide && !originalReq.arriveBy){
             request.parkAndRide = false;
             request.modes.setCar(false);

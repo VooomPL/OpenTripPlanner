@@ -178,7 +178,7 @@ public class PartialPatternHop extends FlexPatternHop {
             return true;
         double length = SphericalDistanceLibrary.fastLength(getGeometry());
         double parentLength = SphericalDistanceLibrary.fastLength(getOriginalHop().getGeometry());
-        if (length == 0 || length < options.flexMinPartialHopLength) {
+        if (length == 0 || length < options.flex.getMinPartialHopLength()) {
             return true;
         }
         if (parentLength == 0) {

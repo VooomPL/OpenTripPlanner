@@ -37,18 +37,18 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
                 "}}";
     }
 
-
-    public List<GRAPH_OBJECT> getFromHasura(Graph graph, String url) {
+    public List<GRAPH_OBJECT> postFromHasura(Graph graph, String url) {
         String arguments = getGeolocationArguments(graph);
         String body = addGeolocationArguments() ? query() + arguments : query();
         ApiResponse<HASURA_OBJECT> response = HttpUtils.postData(url, body, hasuraType());
         getLogger().info("Got {} objects from API", response != null ? response.getData().getItems().size() : "null");
         return mapper().map(response != null ? response.getData().getItems() : emptyList());
     }
-    public List<GRAPH_OBJECT> getFromHasuraWithPassword(Graph graph, String url, String password ) {
+
+    public List<GRAPH_OBJECT> postFromHasuraWithPassword(Graph graph, String url, String password) {
         String arguments = getGeolocationArguments(graph);
         String body = addGeolocationArguments() ? query() + arguments : query();
-        ApiResponse<HASURA_OBJECT> response = HttpUtils.postDataWithPassword(url, body, hasuraType(),password);
+        ApiResponse<HASURA_OBJECT> response = HttpUtils.postDataWithPassword(url, body, hasuraType(), password);
         getLogger().info("Got {} objects from API", response != null ? response.getData().getItems().size() : "null");
         return mapper().map(response != null ? response.getData().getItems() : emptyList());
     }

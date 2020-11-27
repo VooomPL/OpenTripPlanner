@@ -13,43 +13,21 @@ import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.PatternHop;
 import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.opentripplanner.routing.edgetype.flex.FlexTransitBoardAlight;
-import org.opentripplanner.routing.edgetype.flex.TemporaryDirectPatternHop;
-import org.opentripplanner.routing.edgetype.flex.TemporaryPartialPatternHop;
-import org.opentripplanner.routing.edgetype.flex.TemporaryPreAlightEdge;
-import org.opentripplanner.routing.edgetype.flex.TemporaryPreBoardEdge;
-import org.opentripplanner.routing.edgetype.flex.TemporaryStreetTransitLink;
+import org.opentripplanner.routing.edgetype.flex.*;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
-import org.opentripplanner.routing.vertextype.PatternArriveVertex;
-import org.opentripplanner.routing.vertextype.PatternDepartVertex;
-import org.opentripplanner.routing.vertextype.PatternStopVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TemporaryVertex;
-import org.opentripplanner.routing.vertextype.TransitStop;
-import org.opentripplanner.routing.vertextype.TransitStopArrive;
-import org.opentripplanner.routing.vertextype.TransitStopDepart;
-import org.opentripplanner.routing.vertextype.flex.TemporaryPatternArriveVertex;
-import org.opentripplanner.routing.vertextype.flex.TemporaryPatternDepartVertex;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStop;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStopArrive;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStopDepart;
+import org.opentripplanner.routing.vertextype.*;
+import org.opentripplanner.routing.vertextype.flex.*;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -151,8 +129,6 @@ public abstract class GtfsFlexGraphModifier {
         RoutingRequest forward = request.clone();
         forward.setMode(getMode());
         forward.setArriveBy(false);
-        // allow discovery of stations even with car mode
-        forward.enterStationsWithCar = true;
         streetSearch(forward);
     }
 
@@ -165,7 +141,6 @@ public abstract class GtfsFlexGraphModifier {
         RoutingRequest backward = request.clone();
         backward.setMode(getMode());
         backward.setArriveBy(true);
-        backward.enterStationsWithCar = true;
         streetSearch(backward);
     }
 

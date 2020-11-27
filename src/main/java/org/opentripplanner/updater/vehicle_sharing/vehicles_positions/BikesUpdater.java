@@ -25,7 +25,7 @@ public class BikesUpdater extends PollingGraphUpdater {
     @Override
     protected void runPolling() {
         LOG.info("Polling Bike Stations from API");
-        List<BikeRentalStation> bikeRentalStations = bikeStationsGetter.getFromHasura(graph, url);
+        List<BikeRentalStation> bikeRentalStations = bikeStationsGetter.postFromHasura(graph, url);
         LOG.info("Got {} bike stations possible to place on a map", bikeRentalStations.size());
         graphUpdaterManager.execute(new BikeStationsGraphWriterRunnable(temporaryStreetSplitter, bikeRentalStations));
     }

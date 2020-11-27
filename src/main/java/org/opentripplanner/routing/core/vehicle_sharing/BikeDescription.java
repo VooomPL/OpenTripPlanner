@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -48,4 +49,8 @@ public class BikeDescription extends BikePathVehicleDescription {
         return DEFAULT_RANGE_IN_METERS;
     }
 
+    @JsonIgnore
+    public static double getMaxPossibleSpeed() {
+        return MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH;
+    }
 }

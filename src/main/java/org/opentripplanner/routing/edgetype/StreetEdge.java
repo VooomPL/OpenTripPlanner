@@ -295,7 +295,7 @@ public class StreetEdge extends Edge implements Cloneable {
      * return a StateEditor rather than a State so that we can make parking/mode switch modifications for kiss-and-ride.
      */
     private StateEditor doTraverse(State s0, RoutingRequest options, TraverseMode traverseMode) {
-        boolean walkingBike = options.walkingBike;
+        boolean walkingBike = options.bike.isWalkingBike();
         boolean backWalkingBike = s0.isBackWalkingBike();
         TraverseMode backMode = s0.getBackMode();
         Edge backEdge = s0.getBackEdge();
@@ -362,9 +362,9 @@ public class StreetEdge extends Edge implements Cloneable {
                     double safety = bicycleSafetyFactor * getDistanceInMeters();
                     // TODO This computation is not coherent with the one for FLAT
                     double slope = getSlopeWorkCostEffectiveLength();
-                    weight = quick * options.triangleTimeFactor + slope
-                            * options.triangleSlopeFactor + safety
-                            * options.triangleSafetyFactor;
+                    weight = quick * options.bike.getTriangleTimeFactor() + slope
+                            * options.bike.getTriangleSlopeFactor() + safety
+                            * options.bike.getTriangleSafetyFactor();
                     weight /= speed;
                     break;
                 default:
@@ -479,8 +479,8 @@ public class StreetEdge extends Edge implements Cloneable {
 
         if (walkingBike || TraverseMode.BICYCLE.equals(traverseMode)) {
             if (!(backWalkingBike || TraverseMode.BICYCLE.equals(backMode))) {
-                s1.incrementTimeInSeconds(options.bikeSwitchTime);
-                s1.incrementWeight(options.bikeSwitchCost);
+                s1.incrementTimeInSeconds(options.bike.getSwitchTime());
+                s1.incrementWeight(options.bike.getSwitchCost());
             }
         }
 

@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -55,5 +56,10 @@ public class CarDescription extends VehicleDescription {
     @Override
     protected double getDefaultRangeInMeters() {
         return DEFAULT_RANGE_IN_METERS;
+    }
+
+    @JsonIgnore
+    public static double getMaxPossibleSpeed() {
+        return MAX_SPEED_IN_METERS_PER_SECOND;
     }
 }

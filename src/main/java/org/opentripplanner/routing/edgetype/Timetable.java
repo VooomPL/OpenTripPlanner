@@ -1,20 +1,15 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 import com.beust.jcommander.internal.Lists;
-
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.routing.core.ServiceDay;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StopTransfer;
@@ -24,10 +19,8 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import java.io.Serializable;
+import java.util.*;
 
 
 /**
@@ -298,12 +291,12 @@ public class Timetable implements Serializable {
         TripTimes bestTrip = null;
         Stop currentStop = pattern.getStop(stopIndex);
         long bestTime = boarding ? Long.MAX_VALUE : Long.MIN_VALUE;
-        boolean useClockTime = !s0.getOptions().flexIgnoreDrtAdvanceBookMin;
-        long clockTime = s0.getOptions().clockTimeSec;
+        boolean useClockTime = !s0.getOptions().flex.isIgnoreDrtAdvanceBookMin();
+        long clockTime = s0.getOptions().flex.getClockTimeSec();
         for (TripTimes tt : tripTimes) {
             if (tt.isCanceled()) continue;
-            if ( ! serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
-            if ( ! tt.tripAcceptable(s0, stopIndex)) continue;
+            if (!serviceDay.serviceRunning(tt.serviceCode)) continue; // TODO merge into call on next line
+            if (!tt.tripAcceptable(s0, stopIndex)) continue;
             int adjustedTime = adjustTimeForTransfer(s0, currentStop, tt.trip, boarding, serviceDay, time);
             if (adjustedTime == -1) continue;
             if (boarding) {
