@@ -1,24 +1,20 @@
 package org.opentripplanner.routing.graph;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.common.MavenVersion;
+import org.opentripplanner.common.geometry.DirectionUtils;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.util.I18NString;
+import org.opentripplanner.util.NonLocalizedString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.opentripplanner.common.MavenVersion;
-import org.opentripplanner.common.geometry.DirectionUtils;
-import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.locationtech.jts.geom.Coordinate;
-import java.util.Locale;
-import org.opentripplanner.util.I18NString;
-import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * A vertex in the graph. Each vertex has a longitude/latitude location, as well as a set of
@@ -42,19 +38,23 @@ public abstract class Vertex implements Serializable, Cloneable {
     private final double x;
 
     private final double y;
-    
+
     private transient Edge[] incoming = new Edge[0];
 
     private transient Edge[] outgoing = new Edge[0];
 
-    
+    public double closestStop;
+    public double closestCar;
+    public double closestKickscooter;
+    public double closestMotorbike;
+
     /* CONSTRUCTORS */
 
     protected Vertex(Graph g, String label, double x, double y) {
         this.label = label;
         this.x = x;
         this.y = y;
-        this.index = maxIndex  ++;
+        this.index = maxIndex++;
         // null graph means temporary vertex
         if (g != null)
             g.addVertex(this);

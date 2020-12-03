@@ -14,6 +14,10 @@ import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 
+import java.util.List;
+
+import static java.lang.Math.min;
+
 /**
  * Holds all functions useful in vertex linking, that are manipulating with geometry and locations calculating
  */
@@ -86,6 +90,19 @@ public class LinkingGeoTools {
         // Expand more in the longitude direction than the latitude direction to account for converging meridians.
         env.expandBy(RADIUS_DEG / createXScale(vertex), RADIUS_DEG);
         return env;
+    }
+
+    public <T> List<T> findClosestInIndex(HashGridSpatialIndex<T> index, Vertex vertex) {
+        if (index.getnObjects() == 0) {
+            return null;
+        }
+        Envelope envelope = createEnvelope(vertex);
+        List<T> result = index.query(envelope);
+        while (result.isEmpty()) {
+            envelope.expandBy(1.41 * min(envelope.getWidth(), envelope.getHeight()));
+            result = index.query(envelope);
+        }
+        return result;
     }
 
     /**

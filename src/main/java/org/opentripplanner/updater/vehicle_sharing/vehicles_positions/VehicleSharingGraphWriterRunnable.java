@@ -2,18 +2,17 @@ package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 import org.opentripplanner.routing.vertextype.TemporaryVertex;
+import org.opentripplanner.routing.vertextype.TransitVertex;
 import org.opentripplanner.updater.GraphWriterRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -26,17 +25,19 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private final List<VehicleDescription> vehiclesFetchedFromApi;
 
-
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
                                       List<VehicleDescription> vehiclesFetchedFromApi) {
         this.temporaryStreetSplitter = temporaryStreetSplitter;
         this.vehiclesFetchedFromApi = vehiclesFetchedFromApi;
+
     }
 
     @Override
     public void run(Graph graph) {
         removeDisappearedRentableVehicles(graph);
         addAppearedRentableVehicles(graph);
+        findClosestVehicleForEachNode(graph);
+
     }
 
     private void removeDisappearedRentableVehicles(Graph graph) {
@@ -61,10 +62,50 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
                 .collect(toList());
     }
 
+
+    private void findClosestVehicleForEachNode(Graph graph) {
+
+        List<Vertex> carsVertices = new LinkedList<>();
+        List<Vertex> kickscootersVertices = new LinkedList<>();
+        List<Vertex> motorbikesVertices = new LinkedList<>();
+        List<Vertex> stopVertices = new LinkedList<>();
+
+        graph.getVertices().forEach(vertex -> {
+            if (vertex instanceof TransitVertex) {
+                stopVertices.add(vertex);
+            }
+        });
+
+        graph.vehiclesTriedToLink.keySet().forEach(vehicleDescription -> {
+            Optional<TemporaryRentVehicleVertex> optionalVertex = graph.vehiclesTriedToLink.get(vehicleDescription);
+
+            if (optionalVertex.isPresent()) {
+                if (vehicleDescription.getVehicleType() == VehicleType.CAR) {
+                    carsVertices.add(optionalVertex.get());
+                } else if (vehicleDescription.getVehicleType() == VehicleType.KICKSCOOTER) {
+                    kickscootersVertices.add(optionalVertex.get());
+                } else {
+                    motorbikesVertices.add(optionalVertex.get());
+                }
+            }
+
+        });
+
+        ClosestFinder.findAllClosest(graph, stopVertices, (v, d) -> v.closestStop = d);
+        ClosestFinder.findAllClosest(graph, carsVertices, (v, d) -> v.closestCar = d);
+        ClosestFinder.findAllClosest(graph, kickscootersVertices, (v, d) -> v.closestKickscooter = d);
+        ClosestFinder.findAllClosest(graph, motorbikesVertices, (v, d) -> v.closestMotorbike = d);
+
+        LOG.info("Found the closest vertices for heuristic purposes");
+    }
+
+
     private void addAppearedRentableVehicles(Graph graph) {
         getAppearedVehicles(graph)
                 .forEach(v -> graph.vehiclesTriedToLink.put(v, temporaryStreetSplitter.linkRentableVehicleToGraph(v)));
         long properlyLinked = graph.vehiclesTriedToLink.values().stream().filter(Optional::isPresent).count();
+
+
         LOG.info("Currently there are {} properly linked rentable vehicles in graph", properlyLinked);
         LOG.info("There are {} rentable vehicles which we failed to link to graph", graph.vehiclesTriedToLink.size() - properlyLinked);
     }

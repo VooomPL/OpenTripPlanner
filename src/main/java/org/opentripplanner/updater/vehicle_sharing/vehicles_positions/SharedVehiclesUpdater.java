@@ -32,7 +32,7 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
 
     @Override
     protected void configurePolling(Graph graph, JsonNode config) throws IllegalStateException {
-        this.pollingPeriodSeconds = 60;
+        this.pollingPeriodSeconds = 6000000;
         this.url = System.getProperty("sharedVehiclesApi");
         if (this.url == null) {
             throw new IllegalStateException("Please provide program parameter `--sharedVehiclesApi <URL>`");

@@ -1,7 +1,6 @@
 package org.opentripplanner.routing.algorithm;
 
 import com.beust.jcommander.internal.Lists;
-
 import org.opentripplanner.common.pqueue.BinHeap;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
@@ -19,16 +18,12 @@ import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Find the shortest path between graph vertices using A*.
  * A basic Dijkstra search is a special case of AStar where the heuristic is always zero.
- *
+ * <p>
  * NOTE this is now per-request scoped, which has caused some threading problems in the past.
  * Always make one new instance of this class per request, it contains a lot of state fields.
  */
@@ -49,7 +44,8 @@ public class AStar {
 
     /* TODO instead of having a separate class for search state, we should just make one GenericAStar per request. */
     class RunState {
-
+        int generatedStates = 0;
+        int processedStates = 0;
         public State u;
         public ShortestPathTree spt;
         BinHeap<State> pq;
@@ -132,7 +128,7 @@ public class AStar {
         runState.pq = new BinHeap<>(initialSize);
         runState.nVisited = 0;
         runState.targetAcceptedStates = Lists.newArrayList();
-        
+
         if (addToQueue) {
             State initialState = new State(options);
             runState.spt.add(initialState);
@@ -152,7 +148,7 @@ public class AStar {
 
         // get the lowest-weight state in the queue
         runState.u = runState.pq.extract_min();
-        
+
         // check that this state has not been dominated
         // and mark vertex as visited
         if (!runState.spt.visit(runState.u)) {
@@ -160,26 +156,27 @@ public class AStar {
             // not in any optimal path. drop it on the floor and try the next one.
             return false;
         }
-        
+
         if (traverseVisitor != null) {
             traverseVisitor.visitVertex(runState.u);
         }
-        
+
         runState.u_vertex = runState.u.getVertex();
 
         if (verbose)
             System.out.println("   vertex " + runState.u_vertex);
 
         runState.nVisited += 1;
-        
+
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
+        runState.processedStates++;
         for (Edge edge : edges) {
 
             // Iterate over traversal results. When an edge leads nowhere (as indicated by
             // returning NULL), the iteration is over. TODO Use this to board multiple trips.
             for (State v = edge.traverse(runState.u); v != null; v = v.getNextResult()) {
                 // Could be: for (State v : traverseEdge...)
-
+                runState.generatedStates++;
                 if (traverseVisitor != null) {
                     traverseVisitor.visitEdge(edge, v);
                 }
@@ -234,7 +231,7 @@ public class AStar {
             /*
              * Terminate based on timeout?
              */
-            if (abortTime < Long.MAX_VALUE && System.currentTimeMillis() > abortTime) {
+            if (abortTime < Long.MAX_VALUE && System.currentTimeMillis() > abortTime * 2) {
                 LOG.warn("Search timeout. origin={} target={}", runState.rctx.origin, runState.rctx.target);
                 // Rather than returning null to indicate that the search was aborted/timed out,
                 // we instead set a flag in the routing context and return the SPT anyway. This
@@ -292,6 +289,7 @@ public class AStar {
             }
 
         }
+        LOG.info("Generated {} states, consumed {} states, weight {}", runState.generatedStates, runState.processedStates, runState.u.getWeight());
     }
 
     /**
@@ -335,7 +333,7 @@ public class AStar {
             runSearch(abortTime);
             spt = runState.spt;
         }
-        
+
         return spt;
     }
 

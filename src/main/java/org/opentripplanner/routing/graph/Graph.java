@@ -1262,4 +1262,8 @@ public class Graph implements Serializable {
     public Stream<RentVehicleEdge> getRentEdges() {
         return getEdges().stream().filter(e -> e instanceof RentVehicleEdge).map(e -> (RentVehicleEdge) e);
     }
+
+    public Map<FeedScopedId, Stop> getTransitStops() {
+        return transitStops;
+    }
 }

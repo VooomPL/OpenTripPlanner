@@ -1,29 +1,9 @@
 package org.opentripplanner.graph_builder.module;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.onebusaway.csv_entities.EntityHandler;
 import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
-import org.onebusaway.gtfs.model.Agency;
-import org.onebusaway.gtfs.model.FareAttribute;
-import org.onebusaway.gtfs.model.IdentityBean;
-import org.onebusaway.gtfs.model.Pathway;
-import org.onebusaway.gtfs.model.Route;
-import org.onebusaway.gtfs.model.ServiceCalendar;
-import org.onebusaway.gtfs.model.ServiceCalendarDate;
-import org.onebusaway.gtfs.model.ShapePoint;
-import org.onebusaway.gtfs.model.Stop;
-import org.onebusaway.gtfs.model.Trip;
+import org.onebusaway.gtfs.model.*;
 import org.onebusaway.gtfs.serialization.GtfsReader;
 import org.onebusaway.gtfs.services.GenericMutableDao;
 import org.onebusaway.gtfs.services.GtfsMutableRelationalDao;
@@ -34,14 +14,19 @@ import org.opentripplanner.gtfs.BikeAccess;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.OtpTransitService;
-import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.edgetype.factory.GtfsStopContext;
+import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.services.FareServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.*;
 
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarSrvDataWithoutDatesForLocalizedSrvId;
 import static org.opentripplanner.gtfs.mapping.GTFSToOtpTransitServiceMapper.mapGtfsDaoToOTPTransitService;
@@ -54,10 +39,14 @@ public class GtfsModule implements GraphBuilderModule {
 
     private FareServiceFactory fareServiceFactory;
 
-    /** will be applied to all bundles which do not have the cacheDirectory property set */
+    /**
+     * will be applied to all bundles which do not have the cacheDirectory property set
+     */
     private File cacheDirectory;
 
-    /** will be applied to all bundles which do not have the useCached property set */
+    /**
+     * will be applied to all bundles which do not have the useCached property set
+     */
     private Boolean useCached;
 
     Set<String> agencyIdsSeen = Sets.newHashSet();
@@ -66,7 +55,9 @@ public class GtfsModule implements GraphBuilderModule {
 
     public List<GtfsBundle> gtfsBundles;
 
-    public GtfsModule(List<GtfsBundle> bundles) { this.gtfsBundles = bundles; }
+    public GtfsModule(List<GtfsBundle> bundles) {
+        this.gtfsBundles = bundles;
+    }
 
     public List<String> provides() {
         List<String> result = new ArrayList<String>();
@@ -181,6 +172,7 @@ public class GtfsModule implements GraphBuilderModule {
 
         for (Class<?> entityClass : reader.getEntityClasses()) {
             LOG.info("reading entities: " + entityClass.getName());
+//            try {
             reader.readEntities(entityClass);
             store.flush();
             // NOTE that agencies are first in the list and read before all other entity types, so it is effective to
@@ -207,6 +199,9 @@ public class GtfsModule implements GraphBuilderModule {
                     if (agencyId != null) agencyIdsSeen.add(gtfsFeedId.getId() + agencyId);
                 }
             }
+//            } catch (CsvEntityIOException exception){
+//                LOG.warn("Caought exception " + exception.toString());
+//            }
         }
 
         for (ShapePoint shapePoint : store.getAllEntitiesForType(ShapePoint.class)) {
@@ -241,9 +236,9 @@ public class GtfsModule implements GraphBuilderModule {
 
     /**
      * Generates routeText colors for routes with routeColor and without routeTextColor
-     *
+     * <p>
      * If route doesn't have color or already has routeColor and routeTextColor nothing is done.
-     *
+     * <p>
      * textColor can be black or white. White for dark colors and black for light colors of routeColor.
      * If color is light or dark is calculated based on luminance formula:
      * sqrt( 0.299*Red^2 + 0.587*Green^2 + 0.114*Blue^2 )
@@ -262,14 +257,14 @@ public class GtfsModule implements GraphBuilderModule {
             return;
         }
 
-        Color routeColorColor = Color.decode("#"+routeColor);
+        Color routeColorColor = Color.decode("#" + routeColor);
         //gets float of RED, GREEN, BLUE in range 0...1
         float[] colorComponents = routeColorColor.getRGBColorComponents(null);
         //Calculates luminance based on https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
-        double newRed = 0.299*Math.pow(colorComponents[0],2.0);
-        double newGreen = 0.587*Math.pow(colorComponents[1],2.0);
-        double newBlue = 0.114*Math.pow(colorComponents[2],2.0);
-        double luminance = Math.sqrt(newRed+newGreen+newBlue);
+        double newRed = 0.299 * Math.pow(colorComponents[0], 2.0);
+        double newGreen = 0.587 * Math.pow(colorComponents[1], 2.0);
+        double newBlue = 0.114 * Math.pow(colorComponents[2], 2.0);
+        double luminance = Math.sqrt(newRed + newGreen + newBlue);
 
         //For brighter colors use black text color and reverse for darker
         if (luminance > 0.5) {

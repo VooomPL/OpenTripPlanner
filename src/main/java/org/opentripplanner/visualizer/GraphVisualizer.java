@@ -316,6 +316,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     private JTextField vehicleTypesAllowedField;
 
     private JTextField startingModeField;
+    private JTextField opimizationProfileField;
 
     private DefaultListModel<GraphBuilderAnnotation> annotationMatchesModel;
 
@@ -603,8 +604,13 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         // row: sarting mode
         JLabel startingModeLabel = new JLabel("Starting Mode:");
         pane.add(startingModeLabel);
-        startingModeField = new JTextField("WALK");
-        pane.add(startingModeField);
+        opimizationProfileField = new JTextField("multimodal");
+        pane.add(opimizationProfileField);
+
+        JLabel optimizationProfile = new JLabel("Optimization profile");
+        pane.add(optimizationProfile);
+        boardingPenaltyField = new JTextField("5");
+        pane.add(boardingPenaltyField);
 
         // row: boarding penalty
         JLabel boardPenaltyLabel = new JLabel("Boarding penalty (min):");
@@ -1420,6 +1426,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         options.setDateTime(when);
         options.setFromString(from);
         options.setToString(to);
+//        options
         options.walkSpeed = Float.parseFloat(walkSpeed.getText());
         options.bikeSpeed = Float.parseFloat(bikeSpeed.getText());
         options.softWalkLimiting = (softWalkLimiting.isSelected());

@@ -46,14 +46,14 @@ public class RoutingReluctances {
 
 
     public double getModeVehicleReluctance(VehicleType vehicleType, TraverseMode traverseMode) {
-        if (traverseMode == TraverseMode.WALK) {
-            return walkReluctance;
-        } else if (vehicleType == VehicleType.KICKSCOOTER) {
+        if (vehicleType == VehicleType.KICKSCOOTER) {
             return kickScooterReluctance;
         } else if (vehicleType == VehicleType.MOTORBIKE) {
             return motorbikeReluctance;
         } else if (vehicleType == VehicleType.CAR) {
             return carReluctance;
+        } else if (traverseMode == TraverseMode.WALK) {
+            return walkReluctance;
         } else {
             return 1.;
         }

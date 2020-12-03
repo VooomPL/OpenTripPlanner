@@ -14,6 +14,7 @@ public class TemporaryRentVehicleVertex extends StreetLocation implements Tempor
         super(id, nearestPoint, name);
     }
 
+
     @Override
     public boolean isEndVertex() {
         return false;
