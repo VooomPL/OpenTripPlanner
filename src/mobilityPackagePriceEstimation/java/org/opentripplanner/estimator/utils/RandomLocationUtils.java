@@ -20,7 +20,6 @@ public class RandomLocationUtils {
         return new GenericLocation(latitude, longitude);
     }
 
-    //TODO: test this?
     public static double fixCoordinate(double originalValue, double minValue, double maxValue) {
         double result;
 

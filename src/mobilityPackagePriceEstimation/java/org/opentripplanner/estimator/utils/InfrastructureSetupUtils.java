@@ -13,7 +13,7 @@ import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehi
 
 public class InfrastructureSetupUtils {
 
-    //TODO: do sth about the fixed port number!!
+    //TODO: do sth about the fixed port number?
     private static final int OTP_PORT_DEFAULT_PORT = 9111;
 
     private static final String[] otpDefaultArgs = new String[]{
@@ -30,7 +30,6 @@ public class InfrastructureSetupUtils {
         RoutingRequest request = new RoutingRequest();
 
         request.startingMode = TraverseMode.WALK;
-        //TODO: should check different mode settings within a single pair od origin->destination - get them from presets?
         request.modes = new TraverseModeSet("WALK,CAR,BICYCLE");
         request.rentingAllowed = true;
         request.softWalkLimiting = false;
@@ -41,6 +40,7 @@ public class InfrastructureSetupUtils {
 
     public static SharedVehiclesUpdater createVehiclesUpdater(Router router) {
         SharedVehiclesUpdater vehiclesUpdater = new SharedVehiclesUpdater();
+        System.setProperty("sharedVehiclesApi", "http://localhost:8888/query_db");
         try {
             vehiclesUpdater.setup(router.graph);
             vehiclesUpdater.configure(router.graph, null);

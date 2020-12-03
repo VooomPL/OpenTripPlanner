@@ -37,11 +37,13 @@ public class EdgeDataWithSpeedGetter extends HasuraGetter {
 
     @Override
     protected TypeReference<ApiResponse<EdgeDataWithSpeed>> hasuraType() {
-        return new TypeReference<ApiResponse<EdgeDataWithSpeed>>() {};
+        return new TypeReference<ApiResponse<EdgeDataWithSpeed>>() {
+        };
 
     }
+
     @Override
-    protected boolean addGeolocationArguments() {
+    protected boolean addAdditionalArguments() {
         return false;
     }
 }

@@ -49,6 +49,12 @@ public class EstimatorCommandLineParameters {
     @Parameter(names = {"--snapshotInterval"}, required = true, validateWith = ValidPositiveInteger.class, description = "Interval for snapshots (in minutes)")
     private int snapshotIntervalInMinutes;
 
+    @Parameter(names = {"--snapshotDatabaseURL"}, required = true, description = "URL from which we want to download snapshots")
+    private String databaseURL;
+
+    @Parameter(names = {"--snapshotDatabasePass"}, required = true, description = "URL from which we want to download snapshots")
+    private String databasePassword;
+
     public String getRouterName() {
         return routerName;
     }
@@ -95,6 +101,14 @@ public class EstimatorCommandLineParameters {
 
     public int getSnapshotIntervalInMinutes() {
         return snapshotIntervalInMinutes;
+    }
+
+    public String getDatabaseURL() {
+        return databaseURL;
+    }
+
+    public String getDatabasePassword() {
+        return databasePassword;
     }
 
     public static class CorrectLatitude implements IParameterValidator {

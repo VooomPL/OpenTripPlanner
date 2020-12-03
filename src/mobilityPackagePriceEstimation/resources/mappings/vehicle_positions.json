@@ -13,7 +13,7 @@
       },
       "response": {
         "status": 200,
-        "bodyFileName": "../__files/currentSnapshot.json"
+        "bodyFileName": "../__files/current_snapshot.json"
       }
     }
   ]
