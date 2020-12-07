@@ -31,12 +31,13 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
                 vehiclePositionsGetter.getResponsiveProviders()));
     }
 
-    public void runSinglePolling() {
+    public void runSinglePolling(boolean removalGracePeriodEnabled) {
         LOG.info("Polling vehicles from API");
         List<VehicleDescription> vehicles = vehiclePositionsGetter.getFromHasura(graph, url);
         LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
-        (new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles,
-                vehiclePositionsGetter.getResponsiveProviders())).run(graph);
+        VehicleSharingGraphWriterRunnable graphWriterRunnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles,
+                removalGracePeriodEnabled ? vehiclePositionsGetter.getResponsiveProviders() : null);
+        graphWriterRunnable.run(graph);
     }
 
     @Override

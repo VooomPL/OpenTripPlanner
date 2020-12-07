@@ -27,6 +27,8 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private final Set<Provider> responsiveProvidersFetchedFromApi;
 
+    private boolean removalGracePeriodDisabled;
+
     private final LocalTime updateTimestamp;
 
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
@@ -34,8 +36,14 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
                                       Set<Provider> responsiveProvidersFetchedFromApi) {
         this.temporaryStreetSplitter = temporaryStreetSplitter;
         this.vehiclesFetchedFromApi = vehiclesFetchedFromApi;
-        this.responsiveProvidersFetchedFromApi = responsiveProvidersFetchedFromApi;
         this.updateTimestamp = LocalTime.now();
+        if (Objects.nonNull(responsiveProvidersFetchedFromApi)) {
+            this.removalGracePeriodDisabled = false;
+            this.responsiveProvidersFetchedFromApi = responsiveProvidersFetchedFromApi;
+        } else {
+            this.removalGracePeriodDisabled = true;
+            this.responsiveProvidersFetchedFromApi = Collections.emptySet();
+        }
     }
 
     @Override
@@ -61,8 +69,9 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
         return graph.vehiclesTriedToLink.entrySet().stream()
                 .filter(entry ->
                         !vehiclesFetchedFromApi.contains(entry.getKey()) &&
-                        (responsiveProvidersFetchedFromApi.contains(entry.getKey().getProvider()) ||
-                        graph.isUnresponsiveGracePeriodExceeded(entry.getKey().getProvider(), updateTimestamp))
+                                (removalGracePeriodDisabled ||
+                                        responsiveProvidersFetchedFromApi.contains(entry.getKey().getProvider()) ||
+                                        graph.isUnresponsiveGracePeriodExceeded(entry.getKey().getProvider(), updateTimestamp))
 
                 )
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));

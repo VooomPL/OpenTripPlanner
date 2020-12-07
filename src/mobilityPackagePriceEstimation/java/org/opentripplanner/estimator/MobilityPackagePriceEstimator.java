@@ -79,7 +79,7 @@ public class MobilityPackagePriceEstimator {
                     LOG.info("Creating snapshot and computing morning paths");
                     int vehiclesInSnapshot = databaseSnapshotDownloader.downloadSnapshot(LocalDateTime.of(currentSnapshotDay, currentSnapshotTime));
                     if (vehiclesInSnapshot > 0) {
-                        vehiclesUpdater.runSinglePolling();
+                        vehiclesUpdater.runSinglePolling(false);
                         for (int i = 0; i < requestsPerScenario; i++) {
                             GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, 0.01);
                             BigDecimal pathPrice = getPathPrice(workerHomeLocation, officeLocation);
@@ -96,7 +96,7 @@ public class MobilityPackagePriceEstimator {
                     LOG.info("Creating snapshot and computing evening paths");
                     int vehiclesInSnapshot = databaseSnapshotDownloader.downloadSnapshot(LocalDateTime.of(currentSnapshotDay, currentSnapshotTime));
                     if (vehiclesInSnapshot > 0) {
-                        vehiclesUpdater.runSinglePolling();
+                        vehiclesUpdater.runSinglePolling(false);
                         for (int i = 0; i < requestsPerScenario; i++) {
                             GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, 0.01);
                             BigDecimal pathPrice = getPathPrice(officeLocation, workerHomeLocation);
