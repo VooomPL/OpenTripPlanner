@@ -9,10 +9,14 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Vehicle> {
     private static final Logger LOG = LoggerFactory.getLogger(VehiclePositionsGetter.class);
+
+    private VehiclePositionsMapper mapper;
 
     @Override
     protected String query() {
@@ -53,7 +57,8 @@ public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Veh
 
     @Override
     protected HasuraToOTPMapper<Vehicle, VehicleDescription> mapper() {
-        return new VehiclePositionsMapper();
+        this.mapper = new VehiclePositionsMapper();
+        return this.mapper;
     }
 
     @Override
@@ -63,6 +68,6 @@ public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Veh
     }
 
     public Set<Provider> getResponsiveProviders() {
-        return ((VehiclePositionsMapper) mapper()).getResponsiveProviders();
+        return Objects.nonNull(this.mapper) ? this.mapper.getResponsiveProviders() : Collections.emptySet();
     }
 }
