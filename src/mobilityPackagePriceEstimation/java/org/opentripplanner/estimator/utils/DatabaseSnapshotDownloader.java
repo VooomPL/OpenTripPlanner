@@ -22,13 +22,15 @@ public class DatabaseSnapshotDownloader {
     private Graph graph;
     private String databaseURL;
     private String databasePassword;
+    private String snapshotDirectory;
     private Map<Integer, Provider> vehicleProviders;
 
-    public DatabaseSnapshotDownloader(Graph graph, String databaseURL, String databasePassword) {
+    public DatabaseSnapshotDownloader(Graph graph, String databaseURL, String databasePassword, String snapshotDirectory) {
         this.graph = graph;
         this.databaseURL = databaseURL;
         this.vehicleProviders = new HashMap<>();
         this.databasePassword = databasePassword;
+        this.snapshotDirectory = snapshotDirectory;
     }
 
     public void initializeProviders() {
@@ -45,19 +47,21 @@ public class DatabaseSnapshotDownloader {
             return vehicles.size();
         }
         return 0;
-        //TODO: why timeouts??? Even when session and socket timeouts are increased - gateway timeouts occur
     }
 
     private void saveSnapshotData(List<VehicleDescription> vehicles) {
-        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter("current_snapshot.json"))) {
+        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(this.snapshotDirectory + "current_snapshot.json"))) {
             fileWriter.write("{\"data\":{\"items\":[");
-            for (VehicleDescription vehicle : vehicles) {
+
+            VehicleDescription vehicle;
+            for (int i = 0; i < vehicles.size(); i++) {
+                vehicle = vehicles.get(i);
                 fileWriter.write("{\"providerVehicleId\":\"" + vehicle.getProviderVehicleId() +
                         "\",\"latitude\":" + vehicle.getLatitude() +
                         ",\"longitude\":" + vehicle.getLongitude() +
                         ",\"fuelType\":\"" + vehicle.getFuelType() +
-                        "\",\"gearbox\":" + vehicle.getGearbox() +
-                        ",\"type\":\"" + VehicleType.getDatabaseVehicleType(vehicle.getVehicleType()) +
+                        "\",\"gearbox\":\"" + vehicle.getGearbox() +
+                        "\",\"type\":\"" + VehicleType.getDatabaseVehicleType(vehicle.getVehicleType()) +
                         "\",\"range\":" + vehicle.getRangeInMeters() +
                         ",\"provider\":{\"providerId\":" + vehicle.getProvider().getProviderId() +
                         ",\"providerName\":\"" + vehicle.getProvider().getProviderName() + "\"}," +
@@ -66,7 +70,7 @@ public class DatabaseSnapshotDownloader {
                         ",\"startPrice\":" + vehicle.getVehiclePricingPackage(0).getStartPrice() +
                         ",\"stopPrice\":" + vehicle.getVehiclePricingPackage(0).getParkingPricePerTimeTickInPackageExceeded() +
                         ",\"maxDailyPrice\":" + vehicle.getVehiclePricingPackage(0).getMaxRentingPrice() +
-                        "}");
+                        "}" + (i < vehicles.size() - 1 ? "," : ""));
             }
             fileWriter.write("]}}");
         } catch (IOException e) {

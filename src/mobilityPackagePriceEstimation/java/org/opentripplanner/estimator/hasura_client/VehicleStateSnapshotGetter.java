@@ -36,7 +36,7 @@ public class VehicleStateSnapshotGetter extends HasuraGetter<VehicleDescription,
                         "  where: {\\n" +
                         "      latitude: { _gte: $latMin, _lte: $latMax }\\n" +
                         "      longitude: { _gte: $lonMin, _lte: $lonMax }\\n" +
-                        "      updatedAt: { _gte: $startTimestamp, _lt: $endTimestamp }\\n" +
+                        "      createdAt: { _gte: $startTimestamp, _lt: $endTimestamp }\\n" +
                         "    }\\n" +
                         "  ) {\\n" +
                         "    providerVehicleId\\n" +

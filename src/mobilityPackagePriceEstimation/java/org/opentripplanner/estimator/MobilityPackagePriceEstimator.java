@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 public class MobilityPackagePriceEstimator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobilityPackagePriceEstimator.class);
+    private static final String DEFAULT_WIREMOCK_DIRECTORY = "src/mobilityPackagePriceEstimation/resources/";
 
     private WireMockServer wireMockServer;
     private DatabaseSnapshotDownloader databaseSnapshotDownloader;
@@ -55,7 +56,7 @@ public class MobilityPackagePriceEstimator {
         this.eveningHoursMax = estimatorParameters.getEveningHoursMax();
         this.snapshotIntervalInMinutes = estimatorParameters.getSnapshotIntervalInMinutes();
 
-        this.wireMockServer = new WireMockServer(options().port(8888).usingFilesUnderDirectory("src/mobilityPackagePriceEstimation/resources/"));
+        this.wireMockServer = new WireMockServer(options().port(8888).usingFilesUnderDirectory(DEFAULT_WIREMOCK_DIRECTORY));
         wireMockServer.start();
 
         this.router = InfrastructureSetupUtils.createOTPServer(estimatorParameters).getRouter(estimatorParameters.getRouterName());
@@ -63,7 +64,7 @@ public class MobilityPackagePriceEstimator {
 
         this.request = InfrastructureSetupUtils.createDefaultRequest();
         this.graphPathFinder = new GraphPathFinder(router);
-        this.databaseSnapshotDownloader = new DatabaseSnapshotDownloader(this.router.graph, estimatorParameters.getDatabaseURL(), estimatorParameters.getDatabasePassword());
+        this.databaseSnapshotDownloader = new DatabaseSnapshotDownloader(this.router.graph, estimatorParameters.getDatabaseURL(), estimatorParameters.getDatabasePassword(), DEFAULT_WIREMOCK_DIRECTORY + "__files/");
     }
 
     public void estimatePrice(int requestsPerScenario) {
