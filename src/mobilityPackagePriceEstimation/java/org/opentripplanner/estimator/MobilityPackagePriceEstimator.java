@@ -3,11 +3,16 @@ package org.opentripplanner.estimator;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.estimator.utils.DatabaseSnapshotDownloader;
-import org.opentripplanner.estimator.utils.InfrastructureSetupUtils;
 import org.opentripplanner.estimator.utils.RandomLocationGenerator;
 import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.impl.GraphPathFinder;
+import org.opentripplanner.routing.services.GraphService;
 import org.opentripplanner.routing.spt.GraphPath;
+import org.opentripplanner.standalone.CommandLineParameters;
+import org.opentripplanner.standalone.OTPMain;
+import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesUpdater;
 import org.slf4j.Logger;
@@ -28,7 +33,22 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 public class MobilityPackagePriceEstimator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobilityPackagePriceEstimator.class);
+
     private static final String DEFAULT_WIREMOCK_DIRECTORY = "src/mobilityPackagePriceEstimation/resources/";
+    private static final int DEFAULT_WIREMOCK_PORT = 8888;
+    private static final String DEFAULT_SHARED_VEHICLES_API = "http://localhost:8888/query_db";
+    private static final int DEFAULT_OTP_PORT = 9111;
+    private static final String DEFAULT_OUTPUT_FILE_NAME = "price_estimation.csv";
+
+    private static final String[] otpDefaultArgs = new String[]{
+            "--basePath",
+            "./src/mobilityPackagePriceEstimation/resources/",
+            "--inMemory",
+            "--port",
+            "",
+            "--router",
+            ""
+    };
 
     private WireMockServer wireMockServer;
     private DatabaseSnapshotDownloader databaseSnapshotDownloader;
@@ -61,21 +81,57 @@ public class MobilityPackagePriceEstimator {
         this.eveningHoursMax = estimatorParameters.getEveningHoursMax();
         this.snapshotIntervalInMinutes = estimatorParameters.getSnapshotIntervalInMinutes();
 
-        this.wireMockServer = new WireMockServer(options().port(8888).usingFilesUnderDirectory(DEFAULT_WIREMOCK_DIRECTORY));
+        this.wireMockServer = new WireMockServer(options().port(DEFAULT_WIREMOCK_PORT).usingFilesUnderDirectory(DEFAULT_WIREMOCK_DIRECTORY));
         wireMockServer.start();
 
-        this.router = InfrastructureSetupUtils.createOTPServer(estimatorParameters).getRouter(estimatorParameters.getRouterName());
-        this.vehiclesUpdater = InfrastructureSetupUtils.createVehiclesUpdater(this.router);
+        this.router = createOTPServer(estimatorParameters.getRouterName(), DEFAULT_OTP_PORT).getRouter(estimatorParameters.getRouterName());
+        this.vehiclesUpdater = createVehiclesUpdater(this.router);
 
-        this.request = InfrastructureSetupUtils.createDefaultRequest();
+        this.request = createDefaultRequest();
         this.graphPathFinder = new GraphPathFinder(router);
         this.databaseSnapshotDownloader = new DatabaseSnapshotDownloader(this.router.graph, estimatorParameters.getDatabaseURL(), estimatorParameters.getDatabasePassword(), DEFAULT_WIREMOCK_DIRECTORY + "__files/");
+    }
+
+    private static RoutingRequest createDefaultRequest() {
+        RoutingRequest request = new RoutingRequest();
+
+        request.startingMode = TraverseMode.WALK;
+        request.modes = new TraverseModeSet("WALK,CAR,BICYCLE");
+        request.rentingAllowed = true;
+        request.softWalkLimiting = false;
+        request.setNumItineraries(1);
+
+        return request;
+    }
+
+    public static SharedVehiclesUpdater createVehiclesUpdater(Router router) {
+        SharedVehiclesUpdater vehiclesUpdater = new SharedVehiclesUpdater();
+        System.setProperty("sharedVehiclesApi", DEFAULT_SHARED_VEHICLES_API);
+        try {
+            vehiclesUpdater.setup(router.graph);
+            vehiclesUpdater.configure(router.graph, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return vehiclesUpdater;
+    }
+
+    public static OTPServer createOTPServer(String routerName, int serverPort) {
+        otpDefaultArgs[otpDefaultArgs.length - 3] = "" + serverPort;
+        otpDefaultArgs[otpDefaultArgs.length - 1] = routerName;
+        CommandLineParameters params = OTPMain.parseCommandLineParams(otpDefaultArgs);
+        GraphService graphService = new GraphService(false, params.graphDirectory);
+        OTPServer otpServer = new OTPServer(params, graphService);
+        OTPMain.registerRouters(params, graphService);
+
+        return otpServer;
     }
 
     public void estimatePrice(int requestsPerSnapshot) {
         this.databaseSnapshotDownloader.initializeProviders();
 
-        try (BufferedWriter outputFileWriter = new BufferedWriter(new FileWriter("price_estimation.csv"))) {
+        try (BufferedWriter outputFileWriter = new BufferedWriter(new FileWriter(DEFAULT_OUTPUT_FILE_NAME))) {
             LocalDate currentSnapshotDay = evaluationStartDate;
             int dayCounter = evaluationDaysTotal;
             while (dayCounter > 0) {
@@ -106,8 +162,10 @@ public class MobilityPackagePriceEstimator {
                         pathPrice = getPathPrice(workerHomeLocation, officeLocation);
                     }
                     LOG.info("Path price: {}", pathPrice);
-                    writePathPrice(pathPrice, outputFileWriter);
+                    writePathPriceToFile(pathPrice, outputFileWriter);
                 }
+            } else {
+                LOG.warn("No valid vehicles in snapshot from {} {}", snapshotDate, currentSnapshotTime);
             }
             currentSnapshotTime = currentSnapshotTime.plusMinutes(snapshotIntervalInMinutes);
         }
@@ -128,7 +186,7 @@ public class MobilityPackagePriceEstimator {
         }
     }
 
-    private void writePathPrice(BigDecimal pathPrice, BufferedWriter outputFileWriter) throws IOException {
+    private void writePathPriceToFile(BigDecimal pathPrice, BufferedWriter outputFileWriter) throws IOException {
         if (pathPrice.compareTo(BigDecimal.ZERO) >= 0) {
             outputFileWriter.write(pathPrice + "\n");
         }
