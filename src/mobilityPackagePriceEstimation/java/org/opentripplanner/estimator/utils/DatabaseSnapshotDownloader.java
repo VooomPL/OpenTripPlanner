@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 public class DatabaseSnapshotDownloader {
 
+    private static final String DEFAULT_SNAPSHOT_FILE_NAME = "current_snapshot.json";
+
     private Graph graph;
     private String databaseURL;
     private String databasePassword;
@@ -50,7 +52,7 @@ public class DatabaseSnapshotDownloader {
     }
 
     private void saveSnapshotData(List<VehicleDescription> vehicles) {
-        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(this.snapshotDirectory + "current_snapshot.json"))) {
+        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(snapshotDirectory + DEFAULT_SNAPSHOT_FILE_NAME))) {
             fileWriter.write("{\"data\":{\"items\":[");
 
             VehicleDescription vehicle;
