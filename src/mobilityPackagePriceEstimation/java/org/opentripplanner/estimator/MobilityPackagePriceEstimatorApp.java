@@ -20,7 +20,7 @@ public class MobilityPackagePriceEstimatorApp {
         }
 
         MobilityPackagePriceEstimator priceEstimator = new MobilityPackagePriceEstimator(appParams);
-        priceEstimator.estimatePrice(appParams.getRequestsPerScenario());
+        priceEstimator.estimatePrice(appParams.getRequestsPerSnapshot());
 
         System.exit(0);
     }

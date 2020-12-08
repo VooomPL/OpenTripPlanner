@@ -38,6 +38,7 @@ public class MobilityPackagePriceEstimator {
     private SharedVehiclesUpdater vehiclesUpdater;
 
     private GenericLocation officeLocation;
+    private double radius;
     private LocalDate evaluationStartDate;
     private int evaluationDaysTotal;
     private LocalTime morningHoursMin;
@@ -48,6 +49,7 @@ public class MobilityPackagePriceEstimator {
 
     public MobilityPackagePriceEstimator(EstimatorCommandLineParameters estimatorParameters) {
         this.officeLocation = new GenericLocation(estimatorParameters.getOfficeLat(), estimatorParameters.getOfficeLon());
+        this.radius = estimatorParameters.getRadius();
         this.evaluationStartDate = estimatorParameters.getEvaluationStartDate();
         this.evaluationDaysTotal = estimatorParameters.getEvaluationDaysTotal();
         this.morningHoursMin = estimatorParameters.getMorningHoursMin();
@@ -67,52 +69,44 @@ public class MobilityPackagePriceEstimator {
         this.databaseSnapshotDownloader = new DatabaseSnapshotDownloader(this.router.graph, estimatorParameters.getDatabaseURL(), estimatorParameters.getDatabasePassword(), DEFAULT_WIREMOCK_DIRECTORY + "__files/");
     }
 
-    public void estimatePrice(int requestsPerScenario) {
+    public void estimatePrice(int requestsPerSnapshot) {
         this.databaseSnapshotDownloader.initializeProviders();
 
-        try (BufferedWriter gatheredData = new BufferedWriter(new FileWriter("price_estimation.csv"))) {
+        try (BufferedWriter outputFileWriter = new BufferedWriter(new FileWriter("price_estimation.csv"))) {
             LocalDate currentSnapshotDay = evaluationStartDate;
             int dayCounter = evaluationDaysTotal;
             while (dayCounter > 0) {
-                LocalTime currentSnapshotTime = morningHoursMin;
-                while (!currentSnapshotTime.isAfter(morningHoursMax)) {
-                    LOG.info("Creating snapshot and computing morning paths");
-                    int vehiclesInSnapshot = databaseSnapshotDownloader.downloadSnapshot(LocalDateTime.of(currentSnapshotDay, currentSnapshotTime));
-                    if (vehiclesInSnapshot > 0) {
-                        vehiclesUpdater.runSinglePolling(false);
-                        for (int i = 0; i < requestsPerScenario; i++) {
-                            GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, 0.01);
-                            BigDecimal pathPrice = getPathPrice(workerHomeLocation, officeLocation);
-                            LOG.info("Path price: {}", pathPrice);
-                            if (pathPrice.compareTo(BigDecimal.ZERO) >= 0) {
-                                gatheredData.write(pathPrice + "\n");
-                            }
-                        }
-                    }
-                    currentSnapshotTime = currentSnapshotTime.plusMinutes(snapshotIntervalInMinutes);
-                }
-                currentSnapshotTime = eveningHoursMin;
-                while (!currentSnapshotTime.isAfter(eveningHoursMax)) {
-                    LOG.info("Creating snapshot and computing evening paths");
-                    int vehiclesInSnapshot = databaseSnapshotDownloader.downloadSnapshot(LocalDateTime.of(currentSnapshotDay, currentSnapshotTime));
-                    if (vehiclesInSnapshot > 0) {
-                        vehiclesUpdater.runSinglePolling(false);
-                        for (int i = 0; i < requestsPerScenario; i++) {
-                            GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, 0.01);
-                            BigDecimal pathPrice = getPathPrice(officeLocation, workerHomeLocation);
-                            LOG.info("Path price: {}", pathPrice);
-                            if (pathPrice.compareTo(BigDecimal.ZERO) >= 0) {
-                                gatheredData.write(pathPrice + "\n");
-                            }
-                        }
-                    }
-                    currentSnapshotTime = currentSnapshotTime.plusMinutes(snapshotIntervalInMinutes);
-                }
+                generateDailyPaths(currentSnapshotDay, morningHoursMin, morningHoursMax, false, requestsPerSnapshot, outputFileWriter);
+                generateDailyPaths(currentSnapshotDay, eveningHoursMin, eveningHoursMax, true, requestsPerSnapshot, outputFileWriter);
                 currentSnapshotDay = currentSnapshotDay.plusDays(1);
                 dayCounter--;
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void generateDailyPaths(LocalDate snapshotDate, LocalTime snapshotTimeMin, LocalTime snapshotTimeMax, boolean isFromOffice,
+                                    int requestsPerSnapshot, BufferedWriter outputFileWriter) throws IOException {
+        LocalTime currentSnapshotTime = snapshotTimeMin;
+        while (!currentSnapshotTime.isAfter(snapshotTimeMax)) {
+            LOG.info("Creating snapshot and computing paths for {} {}", snapshotDate, currentSnapshotTime);
+            int vehiclesInSnapshot = databaseSnapshotDownloader.downloadSnapshot(LocalDateTime.of(snapshotDate, currentSnapshotTime));
+            if (vehiclesInSnapshot > 0) {
+                vehiclesUpdater.runSinglePolling(false);
+                for (int i = 0; i < requestsPerSnapshot; i++) {
+                    GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, radius);
+                    BigDecimal pathPrice;
+                    if (isFromOffice) {
+                        pathPrice = getPathPrice(officeLocation, workerHomeLocation);
+                    } else {
+                        pathPrice = getPathPrice(workerHomeLocation, officeLocation);
+                    }
+                    LOG.info("Path price: {}", pathPrice);
+                    writePathPrice(pathPrice, outputFileWriter);
+                }
+            }
+            currentSnapshotTime = currentSnapshotTime.plusMinutes(snapshotIntervalInMinutes);
         }
     }
 
@@ -128,6 +122,12 @@ public class MobilityPackagePriceEstimator {
             return BigDecimal.valueOf(-1);
         } else {
             return paths.get(0).states.getLast().getTraversalPrice();
+        }
+    }
+
+    private void writePathPrice(BigDecimal pathPrice, BufferedWriter outputFileWriter) throws IOException {
+        if (pathPrice.compareTo(BigDecimal.ZERO) >= 0) {
+            outputFileWriter.write(pathPrice + "\n");
         }
     }
 }

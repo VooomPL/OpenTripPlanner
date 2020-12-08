@@ -25,8 +25,8 @@ public class EstimatorCommandLineParameters {
     @Parameter(names = {"--radius"}, required = true, description = "Estimated euclidean distance from worker home to the office")
     private Double radius;
 
-    @Parameter(names = {"--requestsPerScenario"}, required = true, validateWith = ValidPositiveInteger.class, description = "Number of requests sent for a single vehicle positions snapshot")
-    private Integer requestsPerScenario;
+    @Parameter(names = {"--requestsPerSnapshot"}, required = true, validateWith = ValidPositiveInteger.class, description = "Number of requests sent for a single vehicle positions snapshot")
+    private Integer requestsPerSnapshot;
 
     @Parameter(names = {"--startDate"}, required = true, converter = DateConverter.class, description = "First snapshot date")
     private LocalDate evaluationStartDate;
@@ -71,8 +71,8 @@ public class EstimatorCommandLineParameters {
         return radius;
     }
 
-    public Integer getRequestsPerScenario() {
-        return requestsPerScenario;
+    public Integer getRequestsPerSnapshot() {
+        return requestsPerSnapshot;
     }
 
     public LocalDate getEvaluationStartDate() {
