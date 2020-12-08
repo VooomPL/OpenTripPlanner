@@ -93,7 +93,7 @@ public class MobilityPackagePriceEstimator {
             LOG.info("Creating snapshot and computing paths for {} {}", snapshotDate, currentSnapshotTime);
             int vehiclesInSnapshot = databaseSnapshotDownloader.downloadSnapshot(LocalDateTime.of(snapshotDate, currentSnapshotTime));
             if (vehiclesInSnapshot > 0) {
-                vehiclesUpdater.runSinglePolling(false);
+                vehiclesUpdater.readFromSnapshot();
                 for (int i = 0; i < requestsPerSnapshot; i++) {
                     GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, radius);
                     BigDecimal pathPrice;
