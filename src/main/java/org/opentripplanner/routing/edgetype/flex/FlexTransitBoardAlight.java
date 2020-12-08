@@ -10,7 +10,6 @@ import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
-import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStop;
 
 public class FlexTransitBoardAlight extends TransitBoardAlight implements TemporaryEdge {
 
@@ -74,8 +73,8 @@ public class FlexTransitBoardAlight extends TransitBoardAlight implements Tempor
     public int calculateWait(State s0, ServiceDay sd, TripTimes tripTimes) {
         if (hop.isUnscheduled()) {
             int currTime = sd.secondsSinceMidnight(s0.getTimeSeconds());
-            boolean useClockTime = !s0.getOptions().flexIgnoreDrtAdvanceBookMin;
-            long clockTime = s0.getOptions().clockTimeSec;
+            boolean useClockTime = !s0.getOptions().flex.isIgnoreDrtAdvanceBookMin();
+            long clockTime = s0.getOptions().flex.getClockTimeSec();
             if (boarding) {
                 int scheduledTime = tripTimes.getCallAndRideBoardTime(getStopIndex(), currTime, (int) hop.timeLowerBound(s0.getOptions()), sd, useClockTime, clockTime);
                 if (scheduledTime < 0)
@@ -110,7 +109,7 @@ public class FlexTransitBoardAlight extends TransitBoardAlight implements Tempor
     @Override
     public long getExtraWeight(RoutingRequest options) {
         boolean deviatedRoute = (boarding && hop.isDeviatedRouteBoard()) || (!boarding && hop.isDeviatedRouteAlight());
-        return (deviatedRoute ? options.flexDeviatedRouteExtraPenalty : options.flexFlagStopExtraPenalty);
+        return (deviatedRoute ? options.flex.getDeviatedRouteExtraPenalty() : options.flex.getFlagStopExtraPenalty());
     }
 
     @Override

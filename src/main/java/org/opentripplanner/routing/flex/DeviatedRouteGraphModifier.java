@@ -13,19 +13,14 @@ import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.TripPattern;
+import org.opentripplanner.routing.edgetype.flex.FlexPatternHop;
 import org.opentripplanner.routing.edgetype.flex.TemporaryPartialPatternHop;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
-import org.opentripplanner.routing.vertextype.PatternArriveVertex;
-import org.opentripplanner.routing.vertextype.PatternDepartVertex;
-import org.opentripplanner.routing.vertextype.PatternStopVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
-import org.opentripplanner.routing.vertextype.TemporaryVertex;
-import org.opentripplanner.routing.vertextype.TransitStop;
+import org.opentripplanner.routing.vertextype.*;
 import org.opentripplanner.routing.vertextype.flex.TemporaryTransitStop;
 
 import java.util.Collection;
@@ -55,7 +50,7 @@ public class DeviatedRouteGraphModifier extends GtfsFlexGraphModifier {
         return new SearchTerminationStrategy() {
             @Override
             public boolean shouldSearchTerminate(Vertex origin, Vertex target, State current, ShortestPathTree spt, RoutingRequest traverseOptions) {
-                return current.getElapsedTimeSeconds() > traverseOptions.flexMaxCallAndRideSeconds;
+                return current.getElapsedTimeSeconds() > traverseOptions.flex.getMaxCallAndRideSeconds();
             }
         };
     }
@@ -74,7 +69,7 @@ public class DeviatedRouteGraphModifier extends GtfsFlexGraphModifier {
             return null;
         }
         return new TemporaryPartialPatternHop(hop, (PatternStopVertex) hop.getFromVertex(), to, hop.getBeginStop(), toStop,
-                startIndex, endIndex, null, 0, path.getGeometry(), path.getDuration(), opt.flexFlagStopBufferSize);
+                startIndex, endIndex, null, 0, path.getGeometry(), path.getDuration(), opt.flex.getFlagStopBufferSize());
     }
 
     @Override
@@ -92,7 +87,7 @@ public class DeviatedRouteGraphModifier extends GtfsFlexGraphModifier {
             return null;
         }
         return new TemporaryPartialPatternHop(hop, from, (PatternStopVertex) hop.getToVertex(), fromStop, hop.getEndStop(),
-                startIndex, endIndex, path.getGeometry(), path.getDuration(), null, 0, opt.flexFlagStopBufferSize);
+                startIndex, endIndex, path.getGeometry(), path.getDuration(), null, 0, opt.flex.getFlagStopBufferSize());
     }
 
     @Override
@@ -110,7 +105,7 @@ public class DeviatedRouteGraphModifier extends GtfsFlexGraphModifier {
             return null;
         } else {
             return new TemporaryPartialPatternHop(originalHop, (PatternStopVertex) hop.getFromVertex(), to, hop.getBeginStop(), toStop,
-                    startIndex, endIndex, hop.getStartGeometry(), hop.getStartVehicleTime(), path.getGeometry(), path.getDuration(), opt.flexFlagStopBufferSize);
+                    startIndex, endIndex, hop.getStartGeometry(), hop.getStartVehicleTime(), path.getGeometry(), path.getDuration(), opt.flex.getFlagStopBufferSize());
         }
     }
 

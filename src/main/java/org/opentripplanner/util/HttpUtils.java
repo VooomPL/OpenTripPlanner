@@ -14,11 +14,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.opentripplanner.hasura_client.ApiResponse;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 public class HttpUtils {
@@ -64,6 +64,21 @@ public class HttpUtils {
         return null;
     }
 
+    public static <T> T getData(URI uri, TypeReference<T> type, int timeout) {
+        try {
+            HttpGet request = new HttpGet(uri);
+            HttpClient client = getClient(timeout, timeout);
+            request.addHeader("content-type", "application/json");
+            request.addHeader("accept", "application/json");
+            HttpResponse response = client.execute(request);
+            String json = EntityUtils.toString(response.getEntity(), "UTF-8");
+            return objectMapper.readValue(json, type);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void testUrl(String url) throws IOException {
         HttpHead head = new HttpHead(url);
         HttpClient httpclient = getClient();
@@ -97,13 +112,17 @@ public class HttpUtils {
               return null;
            }
 
-
     private static HttpClient getClient() {
+        return getClient(TIMEOUT_SOCKET, TIMEOUT_CONNECTION);
+    }
+
+    private static HttpClient getClient(int socket_timeout, long connection_timeout) {
         HttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT_SOCKET).build())
-                .setConnectionTimeToLive(TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS)
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(socket_timeout).build())
+                .setConnectionTimeToLive(connection_timeout, TimeUnit.MILLISECONDS)
                 .build();
 
         return httpClient;
     }
+
 }

@@ -1,5 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -10,8 +12,6 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.BikeParkVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
@@ -64,7 +64,7 @@ public class StreetBikeParkLink extends Edge {
 
     public State traverse(State s0) {
         // Do not even consider bike park vertices unless bike P+R is enabled.
-        if (!s0.getOptions().bikeParkAndRide) {
+        if (!s0.getOptions().bike.isBikeParkAndRide()) {
             return null;
         }
         // Disallow traversing two StreetBikeParkLinks in a row.

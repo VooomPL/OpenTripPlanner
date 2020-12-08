@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -7,7 +8,6 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.BikeParkVertex;
 
-import org.locationtech.jts.geom.LineString;
 import java.util.Locale;
 
 /**
@@ -53,8 +53,8 @@ public class BikeParkEdge extends Edge {
             return null;
 
         StateEditor s0e = s0.edit(this);
-        s0e.incrementWeight(options.bikeParkCost);
-        s0e.incrementTimeInSeconds(options.bikeParkTime);
+        s0e.incrementWeight(options.bike.getParkCost());
+        s0e.incrementTimeInSeconds(options.bike.getParkTime());
         s0e.setBackMode(TraverseMode.LEG_SWITCH);
         s0e.setBikeParked(false);
         State s1 = s0e.makeState();
@@ -76,8 +76,8 @@ public class BikeParkEdge extends Edge {
         }
 
         StateEditor s0e = s0.edit(this);
-        s0e.incrementWeight(options.bikeParkCost);
-        s0e.incrementTimeInSeconds(options.bikeParkTime);
+        s0e.incrementWeight(options.bike.getParkCost());
+        s0e.incrementTimeInSeconds(options.bike.getParkTime());
         s0e.setBackMode(TraverseMode.LEG_SWITCH);
         s0e.setBikeParked(true);
         State s1 = s0e.makeState();

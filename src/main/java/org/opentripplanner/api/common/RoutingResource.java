@@ -583,6 +583,9 @@ public abstract class RoutingResource {
     @QueryParam("forceTransitTrips")
     private Boolean forceTransitTrips;
 
+    @QueryParam("vehiclePresenceThreshold")
+    private Float vehiclePresenceThreshold;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -638,7 +641,7 @@ public abstract class RoutingResource {
                 request.setDateTime(date, time, tz);
             }
 
-            request.resetClockTime();
+            request.flex.resetClockTime();
         }
 
         if (wheelchair != null)
@@ -693,10 +696,10 @@ public abstract class RoutingResource {
             request.carSpeed = carSpeed;
 
         if (bikeSwitchTime != null)
-            request.bikeSwitchTime = bikeSwitchTime;
+            request.bike.setSwitchTime(bikeSwitchTime);
 
         if (bikeSwitchCost != null)
-            request.bikeSwitchCost = bikeSwitchCost;
+            request.bike.setSwitchCost(bikeSwitchCost);
 
         if (optimize != null) {
             // Optimize types are basically combined presets of routing parameters, except for triangle
@@ -800,7 +803,7 @@ public abstract class RoutingResource {
             buildVehicleValidator(request);
         }
 
-        if (request.allowBikeRental && bikeSpeed == null) {
+        if (request.bike.isAllowBikeRental() && bikeSpeed == null) {
             //slower bike speed for bike sharing, based on empirical evidence from DC.
             request.bikeSpeed = 4.3;
         }
@@ -827,7 +830,7 @@ public abstract class RoutingResource {
 
         final long NOW_THRESHOLD_MILLIS = 15 * 60 * 60 * 1000;
         boolean tripPlannedForNow = Math.abs(request.getDateTime().getTime() - new Date().getTime()) < NOW_THRESHOLD_MILLIS;
-        request.useBikeRentalAvailabilityInformation = (tripPlannedForNow); // TODO the same thing for GTFS-RT
+        request.bike.setUseBikeRentalAvailabilityInformation(tripPlannedForNow); // TODO the same thing for GTFS-RT
 
         if (startTransitStopId != null && !startTransitStopId.isEmpty())
             request.startingTransitStopId = FeedScopedId.convertFromString(startTransitStopId);
@@ -857,16 +860,16 @@ public abstract class RoutingResource {
             request.routingStateDiffOptions.setKickscooterRangeGroupsInMeters(kickscooterRangeGroups);
 
         if (flexFlagStopBufferSize != null)
-            request.flexFlagStopBufferSize = flexFlagStopBufferSize;
+            request.flex.setFlagStopBufferSize(flexFlagStopBufferSize);
 
         if (flexUseReservationServices != null)
-            request.flexUseReservationServices = flexUseReservationServices;
+            request.flex.setUseReservationServices(flexUseReservationServices);
 
         if (flexUseEligibilityServices != null)
-            request.flexUseEligibilityServices = flexUseEligibilityServices;
+            request.flex.setUseEligibilityServices(flexUseEligibilityServices);
 
         if (flexIgnoreDrtAdvanceBookMin != null)
-            request.flexIgnoreDrtAdvanceBookMin = flexIgnoreDrtAdvanceBookMin;
+            request.flex.setIgnoreDrtAdvanceBookMin(flexIgnoreDrtAdvanceBookMin);
 
         if (maxHours != null)
             request.maxHours = maxHours;
@@ -885,6 +888,9 @@ public abstract class RoutingResource {
 
         if (forceTransitTrips != null)
             request.forceTransitTrips = forceTransitTrips;
+
+        if (vehiclePresenceThreshold != null)
+            request.vehiclePredictionThreshold = vehiclePresenceThreshold;
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
