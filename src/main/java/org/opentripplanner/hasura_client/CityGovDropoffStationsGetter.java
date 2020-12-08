@@ -14,7 +14,18 @@ public class CityGovDropoffStationsGetter extends HasuraGetter<CityGovDropoffSta
 
     @Override
     protected String query() {
-        return ""; // TODO AdamWiktor VMP-62
+        return "{\"query\": \"query getCityGovDropoffStations($latMin: float8, $lonMin: float8, $latMax: float8, $lonMax: float8) {\\n" +
+                "  items:city_gov_dropoff_stations(\\n" +
+                "  where: {\\n" +
+                "      latitude: { _gte: $latMin, _lte: $latMax }\\n" +
+                "      longitude: { _gte: $lonMin, _lte: $lonMax }\\n" +
+                "    }\\n" +
+                "  ) {\\n" +
+                "    latitude\\n" +
+                "    longitude\\n" +
+                "    vehicleType:vehicle_type\\n" +
+                "  }\\n" +
+                "}\",";
     }
 
     @Override
@@ -24,7 +35,7 @@ public class CityGovDropoffStationsGetter extends HasuraGetter<CityGovDropoffSta
 
     @Override
     protected boolean addGeolocationArguments() {
-        return true; // TODO AdamWiktor VMP-62
+        return true;
     }
 
     @Override

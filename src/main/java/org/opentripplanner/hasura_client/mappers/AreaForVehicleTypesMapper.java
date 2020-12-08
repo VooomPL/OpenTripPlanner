@@ -4,7 +4,6 @@ import org.opentripplanner.hasura_client.hasura_objects.Area;
 import org.opentripplanner.hasura_client.hasura_objects.AreaForVehicleType;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometriesDisallowedForVehicleType;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class AreaForVehicleTypesMapper extends HasuraToOTPMapper<AreaForVehicleT
     @Override
     protected GeometriesDisallowedForVehicleType mapSingleHasuraObject(AreaForVehicleType areaForVehicleType) {
         // This feature requires custom list mapping, we cannot map one parking zone into one geometry parking zone
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override

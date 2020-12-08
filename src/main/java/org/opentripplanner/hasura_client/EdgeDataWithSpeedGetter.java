@@ -7,7 +7,7 @@ import org.opentripplanner.updater.traficstreetupdater.EdgeDataWithSpeed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EdgeDataWithSpeedGetter extends HasuraGetter {
+public class EdgeDataWithSpeedGetter extends HasuraGetter<EdgeDataWithSpeed, EdgeDataWithSpeed> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
 

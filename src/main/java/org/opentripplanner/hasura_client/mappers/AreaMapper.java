@@ -7,7 +7,6 @@ import org.opentripplanner.hasura_client.hasura_objects.Area;
 import org.opentripplanner.hasura_client.hasura_objects.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +23,7 @@ public class AreaMapper extends HasuraToOTPMapper<Area, Geometry> {
     @Override
     protected Geometry mapSingleHasuraObject(Area area) {
         // This feature requires custom list mapping, one area maps to many geometries
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     private Geometry deserializeGeometry(JsonNode jsonObject) {

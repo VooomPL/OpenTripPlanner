@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -348,8 +349,11 @@ public class GraphBuilder implements Runnable {
     }
 
     private static void tryAddVehicleSharingBuilderModule(GraphBuilder graphBuilder) {
-        if (System.getProperties().containsKey("sharedVehiclesApi")) {
-            graphBuilder.addModule(new VehicleSharingBuilderModule(System.getProperty("sharedVehiclesApi")));
+        Properties properties = System.getProperties();
+        if (properties.containsKey("sharedVehiclesApi") && properties.containsKey("trfficApi")
+                && properties.containsKey("trfficApiPass")) {
+            graphBuilder.addModule(new VehicleSharingBuilderModule(properties.getProperty("sharedVehiclesApi"),
+                    properties.getProperty("trfficApi"), properties.getProperty("trfficApiPass")));
         } else {
             graphBuilder.addModule(VehicleSharingBuilderModule.withoutParkingZones());
             LOG.warn("Building graph without rentable vehicles parking zones. If you want to add parking zones, " +

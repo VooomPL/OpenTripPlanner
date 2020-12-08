@@ -14,7 +14,13 @@ public class CityGovForbiddenZonesGetter extends HasuraGetter<GeometriesDisallow
 
     @Override
     protected String query() {
-        return ""; // TODO AdamWiktor VMP-62
+        return "{\"query\": \"query GetCityGovForbiddenZones {\\n" +
+                "  items:city_gov_forbidden_dropoff_areas {\\n" +
+                "    vehicleType:vehicle_type\\n" +
+                "    area\\n" +
+                "    }\\n" +
+                "  }\"" +
+                "}";
     }
 
     @Override
@@ -24,7 +30,7 @@ public class CityGovForbiddenZonesGetter extends HasuraGetter<GeometriesDisallow
 
     @Override
     protected boolean addGeolocationArguments() {
-        return true; // TODO AdamWiktor VMP-62
+        return false;
     }
 
     @Override

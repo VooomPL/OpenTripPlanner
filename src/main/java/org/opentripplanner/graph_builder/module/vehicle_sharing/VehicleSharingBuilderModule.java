@@ -32,19 +32,28 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     private final CityGovDropoffStationsGetter cityGovDropoffStationsGetter = new CityGovDropoffStationsGetter();
 
     @Nullable
-    private final String url;
+    private final String sharedVehiclesApiUrl;
 
-    public VehicleSharingBuilderModule(String url) {
-        this.url = url;
+    @Nullable
+    private final String cityGovHasuraApiUrl;
+
+    @Nullable
+    private final String cityGovHasuraApiPassword;
+
+    public VehicleSharingBuilderModule(String sharedVehiclesApiUrl, String cityGovHasuraApiUrl,
+                                       String cityGovHasuraApiPassword) {
+        this.sharedVehiclesApiUrl = sharedVehiclesApiUrl;
+        this.cityGovHasuraApiUrl = cityGovHasuraApiUrl;
+        this.cityGovHasuraApiPassword = cityGovHasuraApiPassword;
     }
 
     public static VehicleSharingBuilderModule withoutParkingZones() {
-        return new VehicleSharingBuilderModule(null);
+        return new VehicleSharingBuilderModule(null, null, null);
     }
 
     @Override
     public void buildGraph(Graph graph, HashMap<Class<?>, Object> extra) {
-        if (url == null) {
+        if (sharedVehiclesApiUrl == null || cityGovHasuraApiUrl == null || cityGovHasuraApiPassword == null) {
             LOG.info("Creating vehicle dropoff edges without parking zones");
             createDropoffVehicleEdgesWithoutParkingZones(graph);
             LOG.info("Finished creating vehicle dropoff edges without parking zones");
@@ -66,9 +75,9 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     }
 
     private void createParkingZonesCalculator(Graph graph) {
-        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.postFromHasura(graph, url);
-        List<GeometriesDisallowedForVehicleType> cityGovForbiddenGeometryParkingZones =
-                cityGovForbiddenZonesGetter.postFromHasura(graph, url);
+        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.postFromHasura(graph, sharedVehiclesApiUrl);
+        List<GeometriesDisallowedForVehicleType> cityGovForbiddenGeometryParkingZones = cityGovForbiddenZonesGetter
+                .postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword);
         graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones,
                 cityGovForbiddenGeometryParkingZones);
     }
@@ -85,7 +94,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
 
     private void createCityGovVehicleDropoffStations(Graph graph) {
         PermanentStreetSplitter splitter = PermanentStreetSplitter.createNewDefaultInstance(graph, null, false);
-        cityGovDropoffStationsGetter.getFromHasura(graph, url)
+        cityGovDropoffStationsGetter.postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword)
                 .forEach(station -> createCityGovVehicleDropoffStation(graph, splitter, station));
     }
 
