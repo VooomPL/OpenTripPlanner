@@ -33,7 +33,7 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
 
     public void readFromSnapshot() {
         LOG.info("Reading vehicles from API (vehicle removal grace period disabled)");
-        List<VehicleDescription> vehicles = vehiclePositionsGetter.getFromHasura(graph, url);
+        List<VehicleDescription> vehicles = vehiclePositionsGetter.postFromHasura(graph, url);
         LOG.info("Got {} vehicles possible to place on a map", vehicles.size());
         VehicleSharingGraphWriterRunnable graphWriterRunnable = new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles, null);
         graphWriterRunnable.run(graph);
