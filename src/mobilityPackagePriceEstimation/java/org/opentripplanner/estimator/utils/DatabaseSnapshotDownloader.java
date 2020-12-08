@@ -35,13 +35,13 @@ public class DatabaseSnapshotDownloader {
 
     public void initializeProviders() {
         ProvidersGetter providersGetter = new ProvidersGetter();
-        this.vehicleProviders = providersGetter.getFromHasura(this.graph, this.databaseURL).stream()
+        this.vehicleProviders = providersGetter.postFromHasura(this.graph, this.databaseURL).stream()
                 .collect(Collectors.toMap(Provider::getProviderId, provider -> provider));
     }
 
     public int downloadSnapshot(LocalDateTime timestamp) {
         VehicleStateSnapshotGetter vehicleSnapshotGetter = new VehicleStateSnapshotGetter(this.vehicleProviders, timestamp);
-        List<VehicleDescription> vehicles = vehicleSnapshotGetter.getFromHasuraWithPassword(this.graph, this.databaseURL, this.databasePassword);
+        List<VehicleDescription> vehicles = vehicleSnapshotGetter.postFromHasuraWithPassword(this.graph, this.databaseURL, this.databasePassword);
         if (Objects.nonNull(vehicles)) {
             saveSnapshotData(vehicles);
             return vehicles.size();
