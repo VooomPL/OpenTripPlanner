@@ -104,7 +104,7 @@ public class MobilityPackagePriceEstimator {
         return request;
     }
 
-    public static SharedVehiclesUpdater createVehiclesUpdater(Router router) {
+    private static SharedVehiclesUpdater createVehiclesUpdater(Router router) {
         SharedVehiclesUpdater vehiclesUpdater = new SharedVehiclesUpdater();
         System.setProperty("sharedVehiclesApi", DEFAULT_SHARED_VEHICLES_API);
         try {
@@ -117,7 +117,7 @@ public class MobilityPackagePriceEstimator {
         return vehiclesUpdater;
     }
 
-    public static OTPServer createOTPServer(String routerName, int serverPort) {
+    private static OTPServer createOTPServer(String routerName, int serverPort) {
         otpDefaultArgs[otpDefaultArgs.length - 3] = "" + serverPort;
         otpDefaultArgs[otpDefaultArgs.length - 1] = routerName;
         CommandLineParameters params = OTPMain.parseCommandLineParams(otpDefaultArgs);
