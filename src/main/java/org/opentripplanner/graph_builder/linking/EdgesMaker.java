@@ -1,10 +1,7 @@
 package org.opentripplanner.graph_builder.linking;
 
 import com.google.common.collect.Iterables;
-import org.opentripplanner.routing.edgetype.StreetBikeParkLink;
-import org.opentripplanner.routing.edgetype.StreetBikeRentalLink;
-import org.opentripplanner.routing.edgetype.StreetTransitLink;
-import org.opentripplanner.routing.edgetype.TemporaryFreeEdge;
+import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleLinkEdge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.StreetLocation;
@@ -59,6 +56,8 @@ public class EdgesMaker {
             makeBikeRentalLinkEdges((BikeRentalStationVertex) v1, v2);
         } else if (v1 instanceof BikeParkVertex) {
             makeBikeParkEdges((BikeParkVertex) v1, v2);
+        } else if (v1 instanceof CityGovVehicleDropoffStationVertex) {
+            makeCityGovDropoffStationEdges((CityGovVehicleDropoffStationVertex) v1, v2);
         } else {
             LOG.warn("Not supported type of vertex: {}", v1.getClass());
         }
@@ -103,5 +102,15 @@ public class EdgesMaker {
 
         new StreetBikeParkLink(from, to);
         new StreetBikeParkLink(to, from);
+    }
+
+    private void makeCityGovDropoffStationEdges(CityGovVehicleDropoffStationVertex from, StreetVertex to) {
+        for (CityGovVehicleDropoffStationLink sbpl : Iterables.filter(from.getOutgoing(), CityGovVehicleDropoffStationLink.class)) {
+            if (sbpl.getToVertex() == to)
+                return;
+        }
+
+        new CityGovVehicleDropoffStationLink(from, to);
+        new CityGovVehicleDropoffStationLink(to, from);
     }
 }
