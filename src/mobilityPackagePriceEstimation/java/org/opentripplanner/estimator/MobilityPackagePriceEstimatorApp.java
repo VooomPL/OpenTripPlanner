@@ -12,8 +12,7 @@ public class MobilityPackagePriceEstimatorApp {
     public static void main(String[] args) {
         EstimatorCommandLineParameters appParams = new EstimatorCommandLineParameters();
         try {
-            JCommander jc = new JCommander(appParams, args);
-            //TODO: jc usage???
+            new JCommander(appParams, args);
         } catch (ParameterException e) {
             LOG.error("Parameter error: {}", e.getMessage());
             System.exit(1);
