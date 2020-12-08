@@ -6,27 +6,33 @@ import org.opentripplanner.common.model.GenericLocation;
 
 import java.util.Random;
 
-public class RandomLocationUtils {
+public class RandomLocationGenerator {
 
-    private static final Random random = new Random();
+    private Random random;
 
-    public static GenericLocation generateRandomLocation(GenericLocation center, double radius) {
+    public RandomLocationGenerator(Random random) {
+        this.random = random;
+    }
+
+    public GenericLocation generateRandomLocation(GenericLocation center, double radius) {
         double r = radius * Math.sqrt(random.nextDouble());
         double theta = random.nextDouble() * 2 * Math.PI;
 
-        double latitude = fixCoordinate(center.lat + r * Math.sin(theta), Latitude.MIN_VALUE, Latitude.MAX_VALUE);
         double longitude = fixCoordinate(center.lng + r * Math.cos(theta), Longitude.MIN_VALUE, Longitude.MAX_VALUE);
+        double latitude = fixCoordinate(center.lat + r * Math.sin(theta), Latitude.MIN_VALUE, Latitude.MAX_VALUE);
 
         return new GenericLocation(latitude, longitude);
     }
 
-    public static double fixCoordinate(double originalValue, double minValue, double maxValue) {
+    private double fixCoordinate(double originalValue, double minValue, double maxValue) {
         double result;
 
+        double diff = maxValue - minValue;
+
         if (originalValue < minValue) {
-            result = maxValue + (originalValue - minValue);
+            result = originalValue + diff;
         } else if (originalValue > maxValue) {
-            result = minValue + (originalValue - maxValue);
+            result = originalValue - diff;
         } else {
             result = originalValue;
         }

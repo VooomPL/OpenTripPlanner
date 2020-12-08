@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.estimator.utils.DatabaseSnapshotDownloader;
 import org.opentripplanner.estimator.utils.InfrastructureSetupUtils;
-import org.opentripplanner.estimator.utils.RandomLocationUtils;
+import org.opentripplanner.estimator.utils.RandomLocationGenerator;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.impl.GraphPathFinder;
 import org.opentripplanner.routing.spt.GraphPath;
@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Random;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -38,6 +39,7 @@ public class MobilityPackagePriceEstimator {
     private SharedVehiclesUpdater vehiclesUpdater;
 
     private GenericLocation officeLocation;
+    private RandomLocationGenerator locationGenerator;
     private double radius;
     private LocalDate evaluationStartDate;
     private int evaluationDaysTotal;
@@ -49,6 +51,7 @@ public class MobilityPackagePriceEstimator {
 
     public MobilityPackagePriceEstimator(EstimatorCommandLineParameters estimatorParameters) {
         this.officeLocation = new GenericLocation(estimatorParameters.getOfficeLat(), estimatorParameters.getOfficeLon());
+        this.locationGenerator = new RandomLocationGenerator(new Random());
         this.radius = estimatorParameters.getRadius();
         this.evaluationStartDate = estimatorParameters.getEvaluationStartDate();
         this.evaluationDaysTotal = estimatorParameters.getEvaluationDaysTotal();
@@ -95,7 +98,7 @@ public class MobilityPackagePriceEstimator {
             if (vehiclesInSnapshot > 0) {
                 vehiclesUpdater.readFromSnapshot();
                 for (int i = 0; i < requestsPerSnapshot; i++) {
-                    GenericLocation workerHomeLocation = RandomLocationUtils.generateRandomLocation(officeLocation, radius);
+                    GenericLocation workerHomeLocation = locationGenerator.generateRandomLocation(officeLocation, radius);
                     BigDecimal pathPrice;
                     if (isFromOffice) {
                         pathPrice = getPathPrice(officeLocation, workerHomeLocation);
