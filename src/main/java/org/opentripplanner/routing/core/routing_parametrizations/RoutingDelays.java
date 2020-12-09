@@ -88,4 +88,32 @@ public class RoutingDelays {
     public void setBikeRentingTime(int bikeRentingTime) {
         this.bikeRentingTime = bikeRentingTime;
     }
+
+    public int getKickScooterRentingTime() {
+        return kickScooterRentingTime;
+    }
+
+    public int getKickScooterDropoffTime() {
+        return kickScooterDropoffTime;
+    }
+
+    public int getMotorbikeRentingTime() {
+        return motorbikeRentingTime;
+    }
+
+    public int getMotorbikeDropoffTime() {
+        return motorbikeDropoffTime;
+    }
+
+    public int getCarRentingTime() {
+        return carRentingTime;
+    }
+
+    public int getBikeDropoffTime() {
+        return bikeDropoffTime;
+    }
+
+    public int getBikeRentingTime() {
+        return bikeRentingTime;
+    }
 }

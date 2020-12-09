@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class MultimodalHeuristic implements RemainingWeightHeuristic {
-    private static Logger LOG = LoggerFactory.getLogger(MultimodalHeuristic.class);
+public class MultimodalHeuristic2 implements RemainingWeightHeuristic {
+    private static Logger LOG = LoggerFactory.getLogger(MultimodalHeuristic2.class);
 
     private double lat;
     private double lon;
@@ -87,11 +87,11 @@ public class MultimodalHeuristic implements RemainingWeightHeuristic {
 
         double distanceToTarget = SphericalDistanceLibrary.fastDistance(sv.getLat(), sv.getLon(), lat, lon);
 
-//To jest oryginalny, euklidesowy szacunek
+//      To jest oryginalny, euklidesowy szacunek
         double w0 = options.routingReluctances.getWalkReluctance() * distanceToTarget / options.carSpeed;
-//        double w0 = ;
+//      double w0 = ;
 
-        //We can go straight for the target
+//      We can go straight for the target
         double w1 = transferTrip(Collections.singletonList(currentModePackage), distanceToTarget, sv);
 
         //We can go to the nearest kickscooter
@@ -100,18 +100,19 @@ public class MultimodalHeuristic implements RemainingWeightHeuristic {
         double w3 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage), distanceToTarget, sv);
         //We can take the nearest motorbike
         double w4 = transferTrip(Arrays.asList(currentModePackage, motorbikePackage), distanceToTarget, sv);
-        double w5 = transferTrip(Arrays.asList(currentModePackage, publicTransportPackage), distanceToTarget, sv);
+//        double w5 = transferTrip(Arrays.asList(currentModePackage, publicTransportPackage), distanceToTarget, sv);
 
 
-        double w6 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage, carPackage), distanceToTarget, sv);
-        double w7 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage, publicTransportPackage), distanceToTarget, sv);
-        double w8 = transferTrip(Arrays.asList(currentModePackage, motorbikePackage, carPackage), distanceToTarget, sv);
-        double w9 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage, motorbikePackage), distanceToTarget, sv);
-        double w10 = transferTrip(Arrays.asList(currentModePackage, motorbikePackage, publicTransportPackage), distanceToTarget, sv);
+//        double w6 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage, carPackage), distanceToTarget, sv);
+//        double w7 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage, publicTransportPackage), distanceToTarget, sv);
+//        double w8 = transferTrip(Arrays.asList(currentModePackage, motorbikePackage, carPackage), distanceToTarget, sv);
+//        double w9 = transferTrip(Arrays.asList(currentModePackage, kickscooterPackage, motorbikePackage), distanceToTarget, sv);
+//        double w10 = transferTrip(Arrays.asList(currentModePackage, motorbikePackage, publicTransportPackage), distanceToTarget, sv);
 
 
-//        return options.remainingWeightWeight * w0 + (1.5-options.remainingWeightWeight) * Collections.min(Arrays.asList(w1, w2, w3, w4, w5));//, w6, w6, w7, w8, w9, w10));
-        return 0.5 * w0 + 0.5 * Collections.min(Arrays.asList(w1, w2, w3, w4, w5, w6, w6, w7, w8, w9, w10));
+        return 0 * w0 + 1.0 * Collections.min(Arrays.asList(w1, w2, w3, w4));// w5));//, w6, w6, w7, w8, w9, w10));
+//        return 0* w0 + 1.0 * Collections.min(Arrays.asList(w1, w2, w3, w4, w5));//, w6, w6, w7, w8, w9, w10));
+//        return 0.5 * w0 + 0.5* Collections.min(Arrays.asList(w1, w2, w3, w4, w5, w6, w6, w7, w8, w9, w10));
     }
 
     @Override
@@ -193,7 +194,7 @@ public class MultimodalHeuristic implements RemainingWeightHeuristic {
 
         @Override
         double getSpeed() {
-            return options.carSpeed;
+            return 70D / 3.6;
         }
 
         @Override
@@ -216,7 +217,7 @@ public class MultimodalHeuristic implements RemainingWeightHeuristic {
 
         @Override
         double findClosest(Vertex vertex) {
-            return vertex.closestCar;
+            return 0d;
         }
 
         @Override
@@ -244,7 +245,7 @@ public class MultimodalHeuristic implements RemainingWeightHeuristic {
 
         @Override
         double findClosest(Vertex vertex) {
-            return vertex.closestKickscooter;
+            return 0d;
         }
 
         @Override
@@ -272,7 +273,7 @@ public class MultimodalHeuristic implements RemainingWeightHeuristic {
 
         @Override
         double findClosest(Vertex vertex) {
-            return vertex.closestMotorbike;
+            return 0d;
         }
 
         @Override

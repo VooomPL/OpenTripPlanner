@@ -72,6 +72,7 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
         graph.getVertices().forEach(vertex -> {
             if (vertex instanceof TransitVertex) {
+//                carsVertices.add(vertex);
                 stopVertices.add(vertex);
             }
         });

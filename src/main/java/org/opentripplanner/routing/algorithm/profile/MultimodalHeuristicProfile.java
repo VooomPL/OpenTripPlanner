@@ -26,7 +26,7 @@ public class MultimodalHeuristicProfile implements OptimizationProfile {
             heuristic = new InterleavedBidirectionalHeuristic();
             reversedSearchHeuristic = new InterleavedBidirectionalHeuristic();
         } else {
-            heuristic = new MultimodalHeuristic();
+            heuristic = new MultimodalHeuristic2();
             reversedSearchHeuristic = new EuclideanRemainingWeightHeuristic();
         }
     }
