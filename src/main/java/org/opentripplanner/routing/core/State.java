@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.core;
 
+import lombok.Getter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Getter
 public class State implements Cloneable {
 
     /* Data which is likely to change at most traversals */
@@ -51,7 +53,6 @@ public class State implements Cloneable {
 
     // allow path reconstruction from states
     protected State backState;
-
 
     public Edge backEdge;
 
@@ -325,20 +326,8 @@ public class State implements Cloneable {
         return stateData.lastAlightedTime;
     }
 
-    public double getTraverseDistanceInMeters() {
-        return traverseDistanceInMeters;
-    }
-
     public BigDecimal getTraversalPrice() {
         return traversalStatistics.getPrice();
-    }
-
-    public int getPreTransitTime() {
-        return preTransitTime;
-    }
-
-    public int getCallAndRideTime() {
-        return callAndRideTime;
     }
 
     public Vertex getVertex() {
@@ -910,10 +899,6 @@ public class State implements Cloneable {
         return true;
     }
 
-    public int getTimeTraversedInCurrentVehicleInSeconds() {
-        return timeTraversedInCurrentVehicleInSeconds;
-    }
-
     public void setTimeTraversedInCurrentVehicleInSeconds(int timeTraversedInCurrentVehicleInSeconds) {
         this.timeTraversedInCurrentVehicleInSeconds = timeTraversedInCurrentVehicleInSeconds;
     }
@@ -960,10 +945,6 @@ public class State implements Cloneable {
         return this.getTimePriceForCurrentVehicle(packageIndex)
                 .add(this.getDistancePriceForCurrentVehicle(packageIndex))
                 .add(this.getStartPriceForCurrentVehicle(packageIndex));
-    }
-
-    public double getDistanceTraversedInCurrentVehicle() {
-        return distanceTraversedInCurrentVehicle;
     }
 
     public void setDistanceTraversedInCurrentVehicle(double distanceTraversedInCurrentVehicle) {
