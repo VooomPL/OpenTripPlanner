@@ -1238,4 +1238,10 @@ public class OpenStreetMapModule implements GraphBuilderModule {
             provider.checkInputs();
         }
     }
+
+    @Override
+    public void clearLocals() {
+        elevationData = null;
+        wayPropertySet = null;
+    }
 }

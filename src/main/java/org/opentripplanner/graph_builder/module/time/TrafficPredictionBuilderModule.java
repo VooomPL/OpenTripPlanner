@@ -46,8 +46,14 @@ public class TrafficPredictionBuilderModule implements GraphBuilderModule {
             }
         }
     }
+
     @Override
     public void checkInputs() {
 
+    }
+
+    @Override
+    public void clearLocals() {
+        clusterlist.setclusters(null);
     }
 }

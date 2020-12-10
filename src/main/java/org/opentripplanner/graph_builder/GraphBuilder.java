@@ -154,8 +154,11 @@ public class GraphBuilder implements Runnable {
         }
 
         HashMap<Class<?>, Object> extra = new HashMap<Class<?>, Object>();
-        for (GraphBuilderModule load : _graphBuilderModules)
+        for (GraphBuilderModule load : _graphBuilderModules) {
             load.buildGraph(graph, extra);
+            load.clearLocals();
+            System.gc();
+        }
 
         graph.summarizeBuilderAnnotations();
         if (serializeGraph) {
