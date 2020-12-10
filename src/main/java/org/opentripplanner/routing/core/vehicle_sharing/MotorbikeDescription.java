@@ -3,11 +3,13 @@ package org.opentripplanner.routing.core.vehicle_sharing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
 import java.util.Objects;
 
+@EqualsAndHashCode(callSuper = true)
 public class MotorbikeDescription extends VehicleDescription {
 
     private static final double DEFAULT_RANGE_IN_METERS = 50 * 1000;
@@ -63,19 +65,5 @@ public class MotorbikeDescription extends VehicleDescription {
     @JsonIgnore
     public static double getMaxPossibleSpeed() {
         return MAX_SPEED_IN_METERS_PER_SECOND;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MotorbikeDescription that = (MotorbikeDescription) o;
-        return Objects.equals(getProviderVehicleId(), that.getProviderVehicleId()) &&
-                Objects.equals(getProvider(), that.getProvider());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getProviderVehicleId(), getProvider());
     }
 }

@@ -1,5 +1,7 @@
 package org.opentripplanner.api.resource;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.api.model.TripPlan;
 import org.opentripplanner.api.model.error.PlannerError;
 
@@ -10,11 +12,19 @@ import java.util.List;
 import java.util.Map.Entry;
 
 /** Represents a trip planner response, will be serialized into XML or JSON by Jersey */
+@Getter
+@Setter
 public class Response implements Serializable {
+
+    // NOTE: the order below is semi-important, in that Jersey will use the
+    // same order for the elements in the JS or XML serialized response. The traditional order
+    // is request params, followed by plan, followed by errors.
 
     /** A dictionary of the parameters provided in the request that triggered this response. */
     private HashMap<String, String> requestParameters;
+    /** The actual trip plan. */
     private TripPlan plan;
+    /** The error (if any) that this response raised. */
     private PlannerError error = null;
 
     /** Debugging and profiling information */
@@ -37,35 +47,5 @@ public class Response implements Serializable {
             // include only the first instance of each query parameter
             requestParameters.put(e.getKey(), e.getValue().get(0));
         }
-    }
-
-    // NOTE: the order the getter methods below is semi-important, in that Jersey will use the
-    // same order for the elements in the JS or XML serialized response. The traditional order
-    // is request params, followed by plan, followed by errors.
-
-    /** The actual trip plan. */
-    public TripPlan getPlan() {
-        return plan;
-    }
-
-    public void setPlan(TripPlan plan) {
-        this.plan = plan;
-    }
-
-    /** The error (if any) that this response raised. */
-    public PlannerError getError() {
-        return error;
-    }
-
-    public void setError(PlannerError error) {
-        this.error = error;
-    }
-
-    public HashMap<String, String> getRequestParameters() {
-        return requestParameters;
-    }
-
-    public void setRequestParameters(HashMap<String, String> requestParameters) {
-        this.requestParameters = requestParameters;
     }
 }

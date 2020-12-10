@@ -3,6 +3,8 @@ package org.opentripplanner.routing.core.vehicle_sharing;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
@@ -18,6 +20,8 @@ import static java.lang.Double.min;
         @JsonSubTypes.Type(value = MotorbikeDescription.class, name = "MOTORBIKE"),
         @JsonSubTypes.Type(value = BikeDescription.class, name = "BIKE"),
 })
+@Getter
+@EqualsAndHashCode(of = {"provider", "providerVehicleId"})
 public abstract class VehicleDescription {
 
     private final String providerVehicleId;
@@ -91,30 +95,6 @@ public abstract class VehicleDescription {
                 ", providerId=" + provider.getProviderId() +
                 ", providerName=" + provider.getProviderName() +
                 '}';
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public String getProviderVehicleId() {
-        return providerVehicleId;
-    }
-
-    public FuelType getFuelType() {
-        return fuelType;
-    }
-
-    public Gearbox getGearbox() {
-        return gearbox;
-    }
-
-    public Provider getProvider() {
-        return provider;
     }
 
     public double getRangeInMeters() {
