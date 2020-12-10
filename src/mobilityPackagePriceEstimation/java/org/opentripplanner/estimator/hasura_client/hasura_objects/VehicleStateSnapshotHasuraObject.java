@@ -1,11 +1,15 @@
 package org.opentripplanner.estimator.hasura_client.hasura_objects;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.hasura_client.hasura_objects.HasuraObject;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 public class VehicleStateSnapshotHasuraObject extends HasuraObject {
 
     private String providerVehicleId;
@@ -29,7 +33,7 @@ public class VehicleStateSnapshotHasuraObject extends HasuraObject {
             return null;
     }
 
-    public String getProviderVehicleId() {
+  /*  public String getProviderVehicleId() {
         return providerVehicleId;
     }
 
@@ -131,7 +135,7 @@ public class VehicleStateSnapshotHasuraObject extends HasuraObject {
 
     public void setMaxDailyPrice(BigDecimal maxDailyPrice) {
         this.maxDailyPrice = maxDailyPrice;
-    }
+    }*/
 
     public Vehicle toVehicle(Provider provider) {
         Vehicle stateSnapshotAsVehicle = new Vehicle();
