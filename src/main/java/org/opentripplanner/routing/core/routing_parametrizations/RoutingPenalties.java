@@ -1,12 +1,17 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.routing.core.TraverseMode;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+@Getter
+@Setter
+@EqualsAndHashCode
 public class RoutingPenalties {
-    // TODO equals and hash code
 
     /**
      * This prevents unnecessary transfers by adding a cost for boarding a vehicle.
@@ -34,16 +39,8 @@ public class RoutingPenalties {
      */
     private int transferPenalty = 0;
 
-    public int getWalkBoardCost() {
-        return walkBoardCost;
-    }
-
     public void setWalkBoardCost(int walkBoardCost) {
         this.walkBoardCost = max(walkBoardCost, 0);
-    }
-
-    public int getBikeBoardCost() {
-        return bikeBoardCost;
     }
 
     public void setBikeBoardCost(int bikeBoardCost) {
@@ -57,10 +54,6 @@ public class RoutingPenalties {
 
     public int getBoardCostLowerBound() {
         return min(walkBoardCost, bikeBoardCost);
-    }
-
-    public int getTransferPenalty() {
-        return transferPenalty;
     }
 
     public void setTransferPenalty(int transferPenalty) {
