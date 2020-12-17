@@ -39,6 +39,10 @@ public class RoutingPenalties {
      */
     private int transferPenalty = 0;
 
+    private int rentingVehiclePenalty = 600;
+
+    private int transitBoardPenalty = 600;
+
     public void setWalkBoardCost(int walkBoardCost) {
         this.walkBoardCost = max(walkBoardCost, 0);
     }

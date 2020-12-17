@@ -78,19 +78,19 @@ public class PreBoardEdge extends FreeEdge implements StationEdge {
                 slack = options.boardSlack;
             }
             long board_after = t0 + slack;
-            long transfer_penalty = 0;
+            long transit_penalty = options.routingPenalties.getTransitBoardPenalty();
 
             // penalize transfers more heavily if requested by the user
             if (s0.isEverBoarded()) {
                 // this is not the first boarding, therefore we must have "transferred" -- whether
                 // via a formal transfer or by walking.
-                transfer_penalty += options.routingPenalties.getTransferPenalty();
+                transit_penalty += options.routingPenalties.getTransferPenalty();
             }
 
             StateEditor s1 = s0.edit(this);
             s1.setTimeSeconds(board_after);
             long wait_cost = board_after - t0;
-            s1.incrementWeight(wait_cost + transfer_penalty);
+            s1.incrementWeight(wait_cost + transit_penalty);
             s1.setBackMode(getMode());
             return s1.makeState();
         }
