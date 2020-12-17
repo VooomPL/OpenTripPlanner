@@ -1,20 +1,20 @@
 package org.opentripplanner.routing.edgetype;
 
-import java.util.Locale;
-
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
+
+import java.util.Locale;
 
 /**
  * A transit vehicle's journey between departure at one stop and arrival at the next.
@@ -70,21 +70,21 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
 
     public State optimisticTraverse(State state0) {
         RoutingRequest options = state0.getOptions();
-        
+
         // Ignore this edge if either of its stop is banned hard
-        if (!options.bannedStopsHard.isEmpty()) {
-            if (options.bannedStopsHard.matches(((PatternStopVertex) fromv).getStop())
-                    || options.bannedStopsHard.matches(((PatternStopVertex) tov).getStop())) {
+        if (!options.bannedTransit.getBannedStopsHard().isEmpty()) {
+            if (options.bannedTransit.getBannedStopsHard().matches(((PatternStopVertex) fromv).getStop())
+                    || options.bannedTransit.getBannedStopsHard().matches(((PatternStopVertex) tov).getStop())) {
                 return null;
             }
         }
 
         int runningTime = (int) timeLowerBound(options);
-    	StateEditor s1 = state0.edit(this);
-    	s1.incrementTimeInSeconds(runningTime);
-    	s1.setBackMode(getMode());
-    	s1.incrementWeight(runningTime);
-    	return s1.makeState();
+        StateEditor s1 = state0.edit(this);
+        s1.incrementTimeInSeconds(runningTime);
+        s1.setBackMode(getMode());
+        s1.incrementWeight(runningTime);
+        return s1.makeState();
     }
 
     @Override
@@ -107,9 +107,9 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
         RoutingRequest options = s0.getOptions();
 
         // Ignore this edge if either of its stop is banned hard
-        if (!options.bannedStopsHard.isEmpty()) {
-            if (options.bannedStopsHard.matches(((PatternStopVertex) fromv).getStop())
-                    || options.bannedStopsHard.matches(((PatternStopVertex) tov).getStop())) {
+        if (!options.bannedTransit.getBannedStopsHard().isEmpty()) {
+            if (options.bannedTransit.getBannedStopsHard().matches(((PatternStopVertex) fromv).getStop())
+                    || options.bannedTransit.getBannedStopsHard().matches(((PatternStopVertex) tov).getStop())) {
                 return null;
             }
         }

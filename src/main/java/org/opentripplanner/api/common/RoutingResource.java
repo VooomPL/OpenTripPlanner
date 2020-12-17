@@ -752,27 +752,27 @@ public abstract class RoutingResource {
             request.setBikeBoardCost(bikeBoardCost);
 
         if (bannedRoutes != null)
-            request.setBannedRoutes(bannedRoutes);
+            request.bannedTransit.setBannedRoutes(bannedRoutes);
 
         if (whiteListedRoutes != null)
-            request.setWhiteListedRoutes(whiteListedRoutes);
+            request.bannedTransit.setWhiteListedRoutes(whiteListedRoutes);
 
         if (bannedAgencies != null)
-            request.setBannedAgencies(bannedAgencies);
+            request.bannedTransit.setBannedAgencies(bannedAgencies);
 
         if (whiteListedAgencies != null)
-            request.setWhiteListedAgencies(whiteListedAgencies);
+            request.bannedTransit.setWhiteListedAgencies(whiteListedAgencies);
 
         HashMap<FeedScopedId, BannedStopSet> bannedTripMap = makeBannedTripMap(bannedTrips);
 
         if (bannedTripMap != null)
-            request.bannedTrips = bannedTripMap;
+            request.bannedTransit.setBannedTrips(bannedTripMap);
 
         if (bannedStops != null)
-            request.setBannedStops(bannedStops);
+            request.bannedTransit.setBannedStops(bannedStops);
 
         if (bannedStopsHard != null)
-            request.setBannedStopsHard(bannedStopsHard);
+            request.bannedTransit.setBannedStopsHard(bannedStopsHard);
 
         // The "Least transfers" optimization is accomplished via an increased transfer penalty.
         // See comment on RoutingRequest.transferPentalty.

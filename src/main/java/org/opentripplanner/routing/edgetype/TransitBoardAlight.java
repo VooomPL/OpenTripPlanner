@@ -236,7 +236,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             }
 
             /* Check if route and/or agency are banned or whitelisted for this pattern */
-            if (options.routeIsBanned(this.getPattern().route)) return null;
+            if (options.bannedTransit.routeIsBanned(this.getPattern().route)) return null;
             
             /*
              * Find the next boarding/alighting time relative to the current State. Check lists of
