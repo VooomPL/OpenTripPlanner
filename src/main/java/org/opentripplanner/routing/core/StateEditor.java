@@ -19,7 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -257,13 +260,14 @@ public class StateEditor {
     public void incrementTimeInSeconds(int seconds, boolean beginningVehicleRenting) {
         incrementTimeInMilliseconds(seconds * 1000L);
         incrementTimeTraversedInMode(seconds);
-        if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
-            incrementTimeAssociatedVehiclePrice(seconds);
-        }
-        else if(Objects.isNull(child.getCurrentVehicle())) {
-            BigDecimal walkPrice = child.getOptions().getWalkPrice().multiply(BigDecimal.valueOf(seconds)
-                    .divide(BigDecimal.valueOf(TimeUnit.MINUTES.toSeconds(1)), RoundingMode.UP));
-            incrementWeight(CostFunction.CostCategory.PRICE_ASSOCIATED, walkPrice.doubleValue());
+        if (!child.stateData.opt.reverseOptimizing) {
+            if (!beginningVehicleRenting && Objects.nonNull(child.getCurrentVehicle())) {
+                incrementTimeAssociatedVehiclePrice(seconds);
+            } else if (Objects.isNull(child.getCurrentVehicle())) {
+                BigDecimal walkPrice = child.getOptions().getWalkPrice().multiply(BigDecimal.valueOf(seconds)
+                        .divide(BigDecimal.valueOf(TimeUnit.MINUTES.toSeconds(1)), RoundingMode.UP));
+                incrementWeight(CostFunction.CostCategory.PRICE_ASSOCIATED, walkPrice.doubleValue());
+            }
         }
     }
 
