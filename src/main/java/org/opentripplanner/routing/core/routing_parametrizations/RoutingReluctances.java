@@ -12,7 +12,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class RoutingReluctances {
+public class RoutingReluctances implements Cloneable {
     /**
      * How much worse is waiting for a transit vehicle than being on a transit vehicle, as a multiplier. The default value treats wait and on-vehicle
      * time as the same.

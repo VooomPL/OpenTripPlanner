@@ -11,7 +11,7 @@ import static java.lang.Math.min;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class RoutingPenalties {
+public class RoutingPenalties implements Cloneable {
 
     /**
      * This prevents unnecessary transfers by adding a cost for boarding a vehicle.

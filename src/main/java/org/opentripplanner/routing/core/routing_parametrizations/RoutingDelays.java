@@ -11,7 +11,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class RoutingDelays {
+public class RoutingDelays implements Cloneable {
 
     private int kickScooterRentingTime = 30;
 
