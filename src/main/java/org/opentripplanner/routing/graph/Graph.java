@@ -25,6 +25,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.objenesis.strategy.SerializingInstantiatorStrategy;
 import org.opentripplanner.analyst.core.GeometryIndex;
 import org.opentripplanner.analyst.request.SampleFactory;
+import org.opentripplanner.api.model.RouterHealth;
 import org.opentripplanner.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.geometry.GraphUtils;
@@ -297,6 +298,9 @@ public class Graph implements Serializable {
      * Timestamp for the last update of vehicles positions from each provider
      */
     private final Map<Provider, LocalTime> lastProviderVehiclesUpdateTimestamps = new HashMap<>();
+
+    /** Stores initialization status of graph. E. g. If router updaters have run successfully at least once*/
+    public RouterHealth routerHealth = new RouterHealth();
 
     public Graph(Graph basedOn) {
         this();

@@ -103,6 +103,8 @@ public abstract class GraphUpdaterConfigurator {
 
         // Now that all the updaters are configured, kick them all off in their own threads.
         updaterManager.startUpdaters();
+        graph.routerHealth.setConfigReady(true);
+
         return updaterManager;
     }
 
