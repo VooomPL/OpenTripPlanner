@@ -13,7 +13,7 @@ import java.util.HashSet;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class PreferredTransit {
+public class PreferredTransit implements Cloneable {
 
     /**
      * Penalty for using a non-preferred transfer

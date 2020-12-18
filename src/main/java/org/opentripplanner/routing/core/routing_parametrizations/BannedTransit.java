@@ -16,7 +16,7 @@ import java.util.HashSet;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class BannedTransit {
+public class BannedTransit implements Cloneable {
 
 
     /**
