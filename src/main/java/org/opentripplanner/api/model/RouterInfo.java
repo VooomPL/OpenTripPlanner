@@ -24,9 +24,9 @@ public class RouterInfo {
     private final BikeRentalStationService service;
 
     public String routerId;
-    
-    @JsonSerialize(using= GeometrySerializer.class)
-    @JsonDeserialize(using= GeometryDeserializer.class)
+
+    @JsonSerialize(using = GeometrySerializer.class)
+    @JsonDeserialize(using = GeometryDeserializer.class)
     public Geometry polygon;
 
     public Date buildTime;
@@ -47,6 +47,7 @@ public class RouterInfo {
 
     public List<TravelOption> travelOptions;
 
+    public boolean health;
 
     public RouterInfo(String routerId, Graph graph) {
         this.routerId = routerId;
@@ -60,6 +61,7 @@ public class RouterInfo {
         service = graph.getService(BikeRentalStationService.class, false);
         hasParkRide = graph.hasParkRide;
         travelOptions = TravelOptionsMaker.makeOptions(graph);
+        this.health = graph.routerHealth.calculateHealth();
     }
 
     public boolean getHasBikeSharing() {
@@ -82,14 +84,15 @@ public class RouterInfo {
     /**
      * Set center coordinate from transit center in {@link Graph#calculateTransitCenter()} if transit is used
      * or as mean coordinate if not
-     *
+     * <p>
      * It is first called when OSM is loaded. Then after transit data is loaded.
      * So that center is set in all combinations of street and transit loading.
+     *
      * @param center
      */
     public void addCenter(Optional<Coordinate> center) {
         //Transit data was loaded and center was calculated with calculateTransitCenter
-        if(center.isPresent()) {
+        if (center.isPresent()) {
             centerLongitude = center.get().x;
             centerLatitude = center.get().y;
         } else {
@@ -114,4 +117,5 @@ public class RouterInfo {
     public double getUpperRightLongitude() {
         return envelope.getUpperRightLongitude();
     }
+
 }
