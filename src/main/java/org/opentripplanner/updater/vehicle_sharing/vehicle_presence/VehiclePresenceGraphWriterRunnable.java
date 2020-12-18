@@ -19,6 +19,7 @@ public class VehiclePresenceGraphWriterRunnable implements GraphWriterRunnable {
         if(vehiclePresenceHeatmapsFromApi.getVehicleType().equalsIgnoreCase(VehicleType.CAR.name())) {
             LOG.info("Updating vehicle presence prediction heatmaps from API");
             graph.carPresencePredictor = new CarPresencePredictor(vehiclePresenceHeatmapsFromApi);
+            graph.routerHealth.setVehiclePresence(true);
         }
     }
 
