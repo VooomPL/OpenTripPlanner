@@ -79,8 +79,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * A graph is really just one or more indexes into a set of vertexes. It used to keep edgelists for each vertex, but those are in the vertex now.
@@ -537,7 +538,7 @@ public class Graph implements Serializable {
 
     public void addTransitRoutes(Collection<Route> routes) {
         this.transitRoutes = Stream.of(this.transitRoutes, routes)
-                .flatMap(Collection::stream).collect(Collectors.toList());
+                .flatMap(Collection::stream).collect(toList());
     }
 
     public Collection<Route> getTransitRoutes() {
@@ -1081,51 +1082,43 @@ public class Graph implements Serializable {
      */
     public TimeZone getTimeZone() {
         if (timeZone == null) {
-            Collection<Agency> agencies = null;
-            if (agenciesForFeedId.entrySet().size() > 0) {
-                agencies = agenciesForFeedId.entrySet().iterator().next().getValue();
-            }
-            if (agencies == null || agencies.size() == 0) {
-                timeZone = TimeZone.getTimeZone("GMT");
-                LOG.warn("graph contains no agencies (yet); API request times will be interpreted as GMT.");
-            } else {
-                CalendarService cs = this.getCalendarService();
-                for (Agency agency : agencies) {
-                    TimeZone tz = cs.getTimeZoneForAgencyId(agency.getId());
-                    if (timeZone == null) {
-                        LOG.debug("graph time zone set to {}", tz);
-                        timeZone = tz;
-                    } else if (!timeZone.equals(tz)) {
-                        LOG.error("agency time zone differs from graph time zone: {}", tz);
-                    }
-                }
-            }
+            timeZone = calculateTimeZone();
         }
         return timeZone;
     }
 
+    private TimeZone calculateTimeZone() {
+        List<TimeZone> timeZones = getAllTimeZones();
+        if (timeZones.size() == 0) {
+            LOG.warn("Graph contains no agencies (yet); API request times will be interpreted as GMT.");
+            return TimeZone.getTimeZone("GMT");
+        } else if (timeZones.size() > 1) {
+            LOG.error("More than one time zone for graph: {}", timeZones);
+        }
+        return timeZones.get(0);
+    }
+
     /**
      * Return all TimeZones for all agencies in the graph
+     *
      * @return collection of referenced timezones
      */
-    public Collection<TimeZone> getAllTimeZones() {
-        List<TimeZone> timeZones = new ArrayList<>();
-        for (String feedId : getFeedIds()) {
-            for (Agency agency : getAgencies(feedId)) {
-                TimeZone timeZone = calendarService.getTimeZoneForAgencyId(agency.getId());
-                if (timeZone != null) {
-                    timeZones.add(timeZone);
-                }
-            }
-        }
-        return timeZones;
+    public List<TimeZone> getAllTimeZones() {
+        CalendarService cs = getCalendarService();
+        return agenciesForFeedId.values().stream()
+                .flatMap(Collection::stream)
+                .map(Agency::getId)
+                .map(cs::getTimeZoneForAgencyId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(toList());
     }
 
     /**
      * The timezone is cached by the graph. If you've done something to the graph that has the
-     * potential to change the time zone, you should call this to ensure it is reset. 
+     * potential to change the time zone, you should call this to ensure it is reset.
      */
-    public void clearTimeZone () {
+    public void clearTimeZone() {
         this.timeZone = null;
     }
 
