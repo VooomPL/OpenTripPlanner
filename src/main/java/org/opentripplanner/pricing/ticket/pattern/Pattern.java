@@ -47,7 +47,22 @@ public abstract class Pattern {
         }
     }
 
-    protected static boolean matches(NumericalOperator operator, String testedValue, Double patternValue) {
-        return false;
+    protected static boolean matches(NumericalOperator operator, Double testedValue, Double patternValue) {
+        switch (operator) {
+            case GREATER_THAN:
+                return testedValue.compareTo(patternValue) > 0;
+            case LESS_THAN:
+                return testedValue.compareTo(patternValue) < 0;
+            case GREATER_OR_EQUAL:
+                return testedValue.compareTo(patternValue) >= 0;
+            case LESS_OR_EQUAL:
+                return testedValue.compareTo(patternValue) <= 0;
+            case EQUAL:
+                return testedValue.equals(patternValue);
+            case NOT_EQUAL:
+                return !testedValue.equals(patternValue);
+            default:
+                return false;
+        }
     }
 }

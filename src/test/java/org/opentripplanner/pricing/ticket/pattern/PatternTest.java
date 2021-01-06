@@ -157,4 +157,64 @@ public class PatternTest {
         assertFalse(Pattern.matches(Pattern.TextOperator.NOT_IN, "50", patternValues));
     }
 
+    @Test
+    public void shouldMatchGreaterThan() {
+        Double patternValue = 50.0;
+        assertTrue(Pattern.matches(Pattern.NumericalOperator.GREATER_THAN, 65.1234, patternValue));
+    }
+
+    @Test
+    public void shouldNotMatchGreaterThan() {
+        Double patternValue = 50.0;
+        assertFalse(Pattern.matches(Pattern.NumericalOperator.GREATER_THAN, 50.0, patternValue));
+    }
+
+    @Test
+    public void shouldMatchGreaterOrEqual() {
+        Double patternValue = 50.0;
+        assertTrue(Pattern.matches(Pattern.NumericalOperator.GREATER_OR_EQUAL, 50.0, patternValue));
+    }
+
+    @Test
+    public void shouldMatchLessThan() {
+        Double patternValue = 50.0;
+        assertTrue(Pattern.matches(Pattern.NumericalOperator.LESS_THAN, 45.1234, patternValue));
+    }
+
+    @Test
+    public void shouldNotMatchLessThan() {
+        Double patternValue = 50.0;
+        assertFalse(Pattern.matches(Pattern.NumericalOperator.LESS_THAN, 50.0, patternValue));
+    }
+
+    @Test
+    public void shouldMatchLessOrEqual() {
+        Double patternValue = 50.0;
+        assertTrue(Pattern.matches(Pattern.NumericalOperator.LESS_OR_EQUAL, 50.0, patternValue));
+    }
+
+    @Test
+    public void shouldMatchEqual() {
+        Double patternValue = 50.0;
+        assertTrue(Pattern.matches(Pattern.NumericalOperator.EQUAL, 50.0, patternValue));
+    }
+
+    @Test
+    public void shouldNotMatchEqual() {
+        Double patternValue = 50.0;
+        assertFalse(Pattern.matches(Pattern.NumericalOperator.EQUAL, 55.0, patternValue));
+    }
+
+    @Test
+    public void shouldMatchNotEqual() {
+        Double patternValue = 50.0;
+        assertTrue(Pattern.matches(Pattern.NumericalOperator.NOT_EQUAL, 50.1, patternValue));
+    }
+
+    @Test
+    public void shouldNotMatchNotEqual() {
+        Double patternValue = 50.0;
+        assertFalse(Pattern.matches(Pattern.NumericalOperator.NOT_EQUAL, 50.0, patternValue));
+    }
+
 }
