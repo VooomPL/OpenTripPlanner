@@ -70,7 +70,7 @@ public abstract class Pattern<T> {
         }
     }
 
-    protected void addConstraint(HashMap<Pattern.TextOperator, ArrayList<String>> constraintMap, Pattern.TextOperator operator, String patternValue) {
+    protected void addConstraint(HashMap<TextOperator, ArrayList<String>> constraintMap, TextOperator operator, String patternValue) {
         if (constraintMap.containsKey(operator)) {
             constraintMap.get(operator).add(patternValue);
         } else {
