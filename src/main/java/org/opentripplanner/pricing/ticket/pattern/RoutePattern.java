@@ -3,10 +3,9 @@ package org.opentripplanner.pricing.ticket.pattern;
 import org.opentripplanner.model.Route;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
-public class RoutePattern {
+public class RoutePattern extends Pattern<Route> {
 
     public enum RouteAttribute {ID, SHORT_NAME, LONG_NAME, TYPE}
 
@@ -41,19 +40,12 @@ public class RoutePattern {
         }
     }
 
-    private void addConstraint(HashMap<Pattern.TextOperator, ArrayList<String>> constraintMap, Pattern.TextOperator operator, String patternValue) {
-        if (constraintMap.containsKey(operator)) {
-            constraintMap.get(operator).add(patternValue);
-        } else {
-            constraintMap.put(operator, new ArrayList<>(Collections.singletonList(patternValue)));
-        }
-    }
-
-    public boolean matches(Route route) {
-        return Pattern.matches(idConstraints, route.getId().getId()) &&
-                Pattern.matches(shortNameConstraints, route.getShortName()) &&
-                Pattern.matches(longNameConstraints, route.getLongName()) &&
-                Pattern.matches(typeConstraints, Double.valueOf(route.getType()));
+    @Override
+    public boolean matches(Route validatedObject) {
+        return Pattern.matches(idConstraints, validatedObject.getId().getId()) &&
+                Pattern.matches(shortNameConstraints, validatedObject.getShortName()) &&
+                Pattern.matches(longNameConstraints, validatedObject.getLongName()) &&
+                Pattern.matches(typeConstraints, Double.valueOf(validatedObject.getType()));
     }
 
 }

@@ -1,11 +1,8 @@
 package org.opentripplanner.pricing.ticket.pattern;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public abstract class Pattern {
+public abstract class Pattern<T> {
 
     public enum TextOperator {STARTS_WITH, ENDS_WITH, IN, NOT_STARTS_WITH, NOT_ENDS_WITH, NOT_IN}
 
@@ -73,6 +70,14 @@ public abstract class Pattern {
         }
     }
 
+    protected void addConstraint(HashMap<Pattern.TextOperator, ArrayList<String>> constraintMap, Pattern.TextOperator operator, String patternValue) {
+        if (constraintMap.containsKey(operator)) {
+            constraintMap.get(operator).add(patternValue);
+        } else {
+            constraintMap.put(operator, new ArrayList<>(Collections.singletonList(patternValue)));
+        }
+    }
+
     protected static boolean matches(HashMap<TextOperator, ArrayList<String>> constraints, String testedValue) {
         for (TextOperator operator : constraints.keySet()) {
             if (!matches(operator, testedValue, constraints.get(operator))) {
@@ -90,4 +95,6 @@ public abstract class Pattern {
         }
         return true;
     }
+
+    public abstract boolean matches(T validatedObject);
 }
