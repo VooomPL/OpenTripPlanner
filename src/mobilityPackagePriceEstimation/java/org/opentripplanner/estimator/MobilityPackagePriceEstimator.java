@@ -54,7 +54,6 @@ public class MobilityPackagePriceEstimator {
     private DatabaseSnapshotDownloader databaseSnapshotDownloader;
 
     private Router router;
-    private RoutingRequest request;
     private GraphPathFinder graphPathFinder;
     private SharedVehiclesUpdater vehiclesUpdater;
 
@@ -87,7 +86,6 @@ public class MobilityPackagePriceEstimator {
         this.router = createOTPServer(estimatorParameters.getRouterName(), DEFAULT_OTP_PORT).getRouter(estimatorParameters.getRouterName());
         this.vehiclesUpdater = createVehiclesUpdater(this.router);
 
-        this.request = createDefaultRequest();
         this.graphPathFinder = new GraphPathFinder(router);
         this.databaseSnapshotDownloader = new DatabaseSnapshotDownloader(this.router.graph, estimatorParameters.getDatabaseURL(), estimatorParameters.getDatabasePassword(), DEFAULT_WIREMOCK_DIRECTORY + "__files/");
     }
@@ -172,6 +170,7 @@ public class MobilityPackagePriceEstimator {
     }
 
     private BigDecimal getPathPrice(GenericLocation origin, GenericLocation destination) {
+        RoutingRequest request = createDefaultRequest();
         request.from.lat = origin.lat;
         request.from.lng = origin.lng;
         request.to.lat = destination.lat;
