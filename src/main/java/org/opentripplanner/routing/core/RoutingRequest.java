@@ -615,8 +615,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     }
 
     public void setDateTime(String date, String time, TimeZone tz) {
-        Date dateObject = DateUtils.toDate(date, time, tz);
-        setDateTime(dateObject);
+        setDateTime(DateUtils.toDate(date, time, tz));
     }
 
     public int getNumItineraries() {
