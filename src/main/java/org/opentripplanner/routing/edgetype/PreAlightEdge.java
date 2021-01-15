@@ -34,17 +34,17 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
         // used.
 
         // Ignore this edge if its stop is banned
-        if (!options.bannedStops.isEmpty()) {
-            if (options.bannedStops.matches(((TransitStop) tov).getStop())) {
+        if (!options.bannedTransit.getBannedStops().isEmpty()) {
+            if (options.bannedTransit.getBannedStops().matches(((TransitStop) tov).getStop())) {
                 return null;
             }
         }
-        if (!options.bannedStopsHard.isEmpty()) {
-            if (options.bannedStopsHard.matches(((TransitStop) tov).getStop())) {
+        if (!options.bannedTransit.getBannedStopsHard().isEmpty()) {
+            if (options.bannedTransit.getBannedStopsHard().matches(((TransitStop) tov).getStop())) {
                 return null;
             }
         }
-        
+
         if (options.arriveBy) {
             /* Backward traversal: apply stop(pair)-specific costs */
             // Do not pre-board if transit modes are not selected.
