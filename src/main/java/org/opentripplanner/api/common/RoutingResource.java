@@ -746,10 +746,10 @@ public abstract class RoutingResource {
             request.preferredTransit.setUnpreferredAgencies(unpreferredAgencies);
 
         if (walkBoardCost != null)
-            request.setWalkBoardCost(walkBoardCost);
+            request.routingPenalties.setWalkBoardCost(walkBoardCost);
 
         if (bikeBoardCost != null)
-            request.setBikeBoardCost(bikeBoardCost);
+            request.routingPenalties.setBikeBoardCost(bikeBoardCost);
 
         if (bannedRoutes != null)
             request.bannedTransit.setBannedRoutes(bannedRoutes);
@@ -776,10 +776,10 @@ public abstract class RoutingResource {
 
         // The "Least transfers" optimization is accomplished via an increased transfer penalty.
         // See comment on RoutingRequest.transferPentalty.
-        if (transferPenalty != null) request.transferPenalty = transferPenalty;
+        if (transferPenalty != null) request.routingPenalties.setTransferPenalty(transferPenalty);
         if (optimize == OptimizeType.TRANSFERS) {
             optimize = OptimizeType.QUICK;
-            request.transferPenalty += 1800;
+            request.routingPenalties.setTransferPenalty(request.routingPenalties.getTransferPenalty() + 1800);
         }
 
         if (batch != null)

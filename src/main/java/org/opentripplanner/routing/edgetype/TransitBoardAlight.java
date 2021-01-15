@@ -198,7 +198,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             // during reverse optimization, board costs should be applied to PatternBoards
             // so that comparable trip plans result (comparable to non-optimized plans)
             if (options.reverseOptimizing)
-                s1.incrementWeight(options.getBoardCost(s0.getNonTransitMode()));
+                s1.incrementWeight(options.routingPenalties.getBoardCost(s0.getNonTransitMode()));
 
             if (options.reverseOptimizeOnTheFly) {
                 TripPattern pattern = getPattern();
@@ -322,7 +322,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             if (options.reverseOptimizing) {
                 s1.incrementWeight(wait_cost);
             } else {
-                s1.incrementWeight(wait_cost + options.getBoardCost(s0.getNonTransitMode()));
+                s1.incrementWeight(wait_cost + options.routingPenalties.getBoardCost(s0.getNonTransitMode()));
             }
 
             s1.incrementWeight(getExtraWeight(options));
@@ -405,7 +405,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
         if ((options.arriveBy && boarding) || (!options.arriveBy && !boarding))
             return timeLowerBound(options);
         else
-            return options.getBoardCostLowerBound();
+            return options.routingPenalties.getBoardCostLowerBound();
     }
 
     @Override

@@ -125,7 +125,8 @@ public abstract class GtfsTest extends TestCase {
         }
         routingRequest.setRoutingContext(graph);
         routingRequest.setWheelchairAccessible(wheelchairAccessible);
-        routingRequest.transferPenalty = (preferLeastTransfers ? 300 : 0);
+        routingRequest.routingPenalties.setTransferPenalty((preferLeastTransfers ? 300 : 0));
+        routingRequest.routingPenalties.setTransitBoardPenalty(0);
         routingRequest.setModes(new TraverseModeSet(TraverseMode.WALK, mode));
         // TODO route matcher still using underscores because it's quite nonstandard and should be eliminated from the 1.0 release rather than reworked
         if (excludedRoute != null && !excludedRoute.isEmpty()) {
@@ -140,7 +141,7 @@ public abstract class GtfsTest extends TestCase {
         // since this makes interlining _worse_ than alighting and re-boarding the same line.
         // TODO rethink whether it makes sense to weight waiting to board _less_ than 1.
         routingRequest.routingReluctances.setWaitReluctance(1);
-        routingRequest.setWalkBoardCost(30);
+        routingRequest.routingPenalties.setWalkBoardCost(30);
 
         List<GraphPath> paths = new GraphPathFinder(router).getPaths(routingRequest);
         if (paths.isEmpty())

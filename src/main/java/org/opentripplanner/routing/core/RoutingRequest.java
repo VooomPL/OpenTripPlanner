@@ -5,11 +5,17 @@ import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.common.model.NamedPlace;
-import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
-import org.opentripplanner.routing.core.routing_parametrizations.*;
+import org.opentripplanner.routing.core.routing_parametrizations.BannedTransit;
+import org.opentripplanner.routing.core.routing_parametrizations.BikeParameters;
+import org.opentripplanner.routing.core.routing_parametrizations.GtfsFlexParameters;
+import org.opentripplanner.routing.core.routing_parametrizations.PreferredTransit;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingPenalties;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -192,22 +198,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public Locale locale = new Locale("en", "US");
 
     /**
-     * An extra penalty added on transfers (i.e. all boardings except the first one).
-     * Not to be confused with bikeBoardCost and walkBoardCost, which are the cost of boarding a
-     * vehicle with and without a bicycle. The boardCosts are used to model the 'usual' perceived
-     * cost of using a transit vehicle, and the transferPenalty is used when a user requests even
-     * less transfers. In the latter case, we don't actually optimize for fewest transfers, as this
-     * can lead to absurd results. Consider a trip in New York from Grand Army
-     * Plaza (the one in Brooklyn) to Kalustyan's at noon. The true lowest transfers route is to
-     * wait until midnight, when the 4 train runs local the whole way. The actual fastest route is
-     * the 2/3 to the 4/5 at Nevins to the 6 at Union Square, which takes half an hour.
-     * Even someone optimizing for fewest transfers doesn't want to wait until midnight. Maybe they
-     * would be willing to walk to 7th Ave and take the Q to Union Square, then transfer to the 6.
-     * If this takes less than optimize_transfer_penalty seconds, then that's what we'll return.
-     */
-    public int transferPenalty = 0;
-
-    /**
      * Used instead of walk reluctance for stairs
      */
     public double stairsReluctance = 2.0;
@@ -223,17 +213,9 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public RoutingReluctances routingReluctances;
 
+    public RoutingPenalties routingPenalties;
+
     public RoutingStateDiffOptions routingStateDiffOptions = new RoutingStateDiffOptions();
-
-    /**
-     * This prevents unnecessary transfers by adding a cost for boarding a vehicle.
-     */
-    public int walkBoardCost = 60 * 10;
-
-    /**
-     * Separate cost for boarding a vehicle with a bicycle, which is more difficult than on foot.
-     */
-    public int bikeBoardCost = 60 * 10;
 
     public BannedTransit bannedTransit;
 
@@ -429,6 +411,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest() {
         routingDelays = new RoutingDelays();
         routingReluctances = new RoutingReluctances();
+        routingPenalties = new RoutingPenalties();
         bike = new BikeParameters();
         flex = new GtfsFlexParameters();
         bannedTransit = new BannedTransit();
@@ -593,22 +576,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         this.softWalkLimiting = softWalkLimitEnabled;
     }
 
-    public void setWalkBoardCost(int walkBoardCost) {
-        if (walkBoardCost < 0) {
-            this.walkBoardCost = 0;
-        } else {
-            this.walkBoardCost = walkBoardCost;
-        }
-    }
-
-    public void setBikeBoardCost(int bikeBoardCost) {
-        if (bikeBoardCost < 0) {
-            this.bikeBoardCost = 0;
-        } else {
-            this.bikeBoardCost = bikeBoardCost;
-        }
-    }
-
     public void setFromString(String from) {
         this.from = GenericLocation.fromOldStyleString(from);
     }
@@ -745,6 +712,9 @@ public class RoutingRequest implements Cloneable, Serializable {
     public RoutingRequest clone() {
         try {
             RoutingRequest clone = (RoutingRequest) super.clone();
+            clone.routingDelays = routingDelays.clone();
+            clone.routingReluctances = routingReluctances.clone();
+            clone.routingPenalties = routingPenalties.clone();
             clone.bike = bike.clone();
             clone.flex = flex.clone();
             clone.bannedTransit = bannedTransit.clone();
@@ -870,12 +840,10 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && maxWalkDistance == other.maxWalkDistance
                 && maxTransferWalkDistance == other.maxTransferWalkDistance
                 && maxPreTransitTime == other.maxPreTransitTime
-                && transferPenalty == other.transferPenalty
                 && maxSlope == other.maxSlope
                 && routingReluctances.equals(other.routingReluctances)
                 && routingDelays.equals(other.routingDelays)
-                && walkBoardCost == other.walkBoardCost
-                && bikeBoardCost == other.bikeBoardCost
+                && routingPenalties.equals(other.routingPenalties)
                 && bannedTransit.equals(other.bannedTransit)
                 && transferSlack == other.transferSlack
                 && boardSlack == other.boardSlack
@@ -909,13 +877,11 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + (arriveBy ? 8966786 : 0) + (wheelchairAccessible ? 731980 : 0)
                 + optimize.hashCode() + new Double(maxWalkDistance).hashCode()
                 + new Double(maxTransferWalkDistance).hashCode()
-                + new Double(transferPenalty).hashCode() + new Double(maxSlope).hashCode()
+                + new Double(maxSlope).hashCode()
                 + routingReluctances.hashCode()
                 + routingDelays.hashCode() * 15485863
-                + walkBoardCost + bikeBoardCost
+                + routingPenalties.hashCode()
                 + bannedTransit.hashCode()
-                + transferSlack * 20996011
-                + transferPenalty * 163013803
                 + bike.hashCode()
                 + new Double(stairsReluctance).hashCode() * 315595321
                 + maxPreTransitTime * 63061489
@@ -989,27 +955,6 @@ public class RoutingRequest implements Cloneable, Serializable {
         if (modes.getBicycle())
             return bikeSpeed;
         return walkSpeed;
-    }
-
-    /**
-     * @param mode
-     * @return The board cost for a specific traverse mode.
-     */
-    public int getBoardCost(TraverseMode mode) {
-        if (mode == TraverseMode.BICYCLE)
-            return bikeBoardCost;
-        // I assume you can't bring your car in the bus
-        return walkBoardCost;
-    }
-
-    /**
-     * @return The lower boarding cost for all possible road-modes.
-     */
-    public int getBoardCostLowerBound() {
-        // Assume walkBoardCost < bikeBoardCost
-        if (modes.getWalk())
-            return walkBoardCost;
-        return bikeBoardCost;
     }
 
     /**
@@ -1088,7 +1033,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      * <p>
      * But throws TrivialPathException if same edge is split in origin/destination search.
      * <p>
-     * used in {@link PermanentStreetSplitter} in {@link PermanentStreetSplitter#link(Vertex, StreetEdge, double, RoutingRequest)}
+     * used in {@link org.opentripplanner.graph_builder.linking.ToStreetEdgeLinker}}
      *
      * @param edge
      */
