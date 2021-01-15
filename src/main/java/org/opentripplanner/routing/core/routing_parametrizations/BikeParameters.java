@@ -1,13 +1,17 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-
-import java.util.Objects;
 
 /**
  * This class contains bicycle parameters. ALl rental parameters refer to old way of renting bicycles,
  * which is NOT COMPATIBLE with {@link VehicleDescription}.
  */
+@Getter
+@Setter
+@EqualsAndHashCode
 public class BikeParameters implements Cloneable {
 
     /**
@@ -81,94 +85,6 @@ public class BikeParameters implements Cloneable {
 
     private boolean bikeParkAndRide = false;
 
-    public int getSwitchTime() {
-        return switchTime;
-    }
-
-    public void setSwitchTime(int switchTime) {
-        this.switchTime = switchTime;
-    }
-
-    public int getSwitchCost() {
-        return switchCost;
-    }
-
-    public void setSwitchCost(int switchCost) {
-        this.switchCost = switchCost;
-    }
-
-    public int getRentalPickupTime() {
-        return rentalPickupTime;
-    }
-
-    public void setRentalPickupTime(int rentalPickupTime) {
-        this.rentalPickupTime = rentalPickupTime;
-    }
-
-    public int getRentalPickupCost() {
-        return rentalPickupCost;
-    }
-
-    public void setRentalPickupCost(int rentalPickupCost) {
-        this.rentalPickupCost = rentalPickupCost;
-    }
-
-    public int getRentalDropoffTime() {
-        return rentalDropoffTime;
-    }
-
-    public void setRentalDropoffTime(int rentalDropoffTime) {
-        this.rentalDropoffTime = rentalDropoffTime;
-    }
-
-    public int getRentalDropoffCost() {
-        return rentalDropoffCost;
-    }
-
-    public void setRentalDropoffCost(int rentalDropoffCost) {
-        this.rentalDropoffCost = rentalDropoffCost;
-    }
-
-    public int getParkTime() {
-        return parkTime;
-    }
-
-    public void setParkTime(int parkTime) {
-        this.parkTime = parkTime;
-    }
-
-    public int getParkCost() {
-        return parkCost;
-    }
-
-    public void setParkCost(int parkCost) {
-        this.parkCost = parkCost;
-    }
-
-    public double getTriangleTimeFactor() {
-        return triangleTimeFactor;
-    }
-
-    public void setTriangleTimeFactor(double triangleTimeFactor) {
-        this.triangleTimeFactor = triangleTimeFactor;
-    }
-
-    public double getTriangleSlopeFactor() {
-        return triangleSlopeFactor;
-    }
-
-    public void setTriangleSlopeFactor(double triangleSlopeFactor) {
-        this.triangleSlopeFactor = triangleSlopeFactor;
-    }
-
-    public double getTriangleSafetyFactor() {
-        return triangleSafetyFactor;
-    }
-
-    public void setTriangleSafetyFactor(double triangleSafetyFactor) {
-        this.triangleSafetyFactor = triangleSafetyFactor;
-    }
-
     /**
      * Sets the bicycle triangle routing parameters -- the relative importance of safety, flatness, and speed.
      * These three fields of the RoutingRequest should have values between 0 and 1, and should add up to 1.
@@ -179,67 +95,6 @@ public class BikeParameters implements Cloneable {
         triangleSafetyFactor = safe / total;
         triangleSlopeFactor = slope / total;
         triangleTimeFactor = time / total;
-    }
-
-    public boolean isUseBikeRentalAvailabilityInformation() {
-        return useBikeRentalAvailabilityInformation;
-    }
-
-    public void setUseBikeRentalAvailabilityInformation(boolean useBikeRentalAvailabilityInformation) {
-        this.useBikeRentalAvailabilityInformation = useBikeRentalAvailabilityInformation;
-    }
-
-    public boolean isWalkingBike() {
-        return walkingBike;
-    }
-
-    public void setWalkingBike(boolean walkingBike) {
-        this.walkingBike = walkingBike;
-    }
-
-    public boolean isAllowBikeRental() {
-        return allowBikeRental;
-    }
-
-    public void setAllowBikeRental(boolean allowBikeRental) {
-        this.allowBikeRental = allowBikeRental;
-    }
-
-    public boolean isBikeParkAndRide() {
-        return bikeParkAndRide;
-    }
-
-    public void setBikeParkAndRide(boolean bikeParkAndRide) {
-        this.bikeParkAndRide = bikeParkAndRide;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BikeParameters that = (BikeParameters) o;
-        return switchTime == that.switchTime &&
-                switchCost == that.switchCost &&
-                rentalPickupTime == that.rentalPickupTime &&
-                rentalPickupCost == that.rentalPickupCost &&
-                rentalDropoffTime == that.rentalDropoffTime &&
-                rentalDropoffCost == that.rentalDropoffCost &&
-                parkCost == that.parkCost &&
-                parkTime == that.parkTime &&
-                Double.compare(that.triangleTimeFactor, triangleTimeFactor) == 0 &&
-                Double.compare(that.triangleSlopeFactor, triangleSlopeFactor) == 0 &&
-                Double.compare(that.triangleSafetyFactor, triangleSafetyFactor) == 0 &&
-                useBikeRentalAvailabilityInformation == that.useBikeRentalAvailabilityInformation &&
-                walkingBike == that.walkingBike &&
-                allowBikeRental == that.allowBikeRental &&
-                bikeParkAndRide == that.bikeParkAndRide;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(switchTime, switchCost, rentalPickupTime, rentalPickupCost, rentalDropoffTime,
-                rentalDropoffCost, parkCost, parkTime, triangleTimeFactor, triangleSlopeFactor, triangleSafetyFactor,
-                useBikeRentalAvailabilityInformation, walkingBike, allowBikeRental, bikeParkAndRide);
     }
 
     public BikeParameters clone() {
