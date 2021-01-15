@@ -148,6 +148,9 @@ public class BannedTransit implements Cloneable {
             BannedTransit clone = (BannedTransit) super.clone();
             clone.bannedRoutes = bannedRoutes.clone();
             clone.whiteListedRoutes = whiteListedRoutes.clone();
+            clone.bannedAgencies = (HashSet<String>) bannedAgencies.clone();
+            clone.whiteListedAgencies = (HashSet<String>) whiteListedAgencies.clone();
+            clone.bannedTrips = (HashMap<FeedScopedId, BannedStopSet>) bannedTrips.clone();
             clone.bannedStops = bannedStops.clone();
             clone.bannedStopsHard = bannedStopsHard.clone();
             return clone;

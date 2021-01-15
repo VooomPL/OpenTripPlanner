@@ -114,7 +114,9 @@ public class PreferredTransit implements Cloneable {
         try {
             PreferredTransit clone = (PreferredTransit) super.clone();
             clone.preferredRoutes = preferredRoutes.clone();
+            clone.preferredAgencies = (HashSet<String>) preferredAgencies.clone();
             clone.unpreferredRoutes = unpreferredRoutes.clone();
+            clone.unpreferredAgencies = (HashSet<String>) unpreferredAgencies.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             /* this will never happen since our super is the cloneable object */
