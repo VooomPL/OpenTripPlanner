@@ -129,12 +129,12 @@ public abstract class GtfsTest extends TestCase {
         routingRequest.setModes(new TraverseModeSet(TraverseMode.WALK, mode));
         // TODO route matcher still using underscores because it's quite nonstandard and should be eliminated from the 1.0 release rather than reworked
         if (excludedRoute != null && !excludedRoute.isEmpty()) {
-            routingRequest.setBannedRoutes(feedId.getId() + "__" + excludedRoute);
+            routingRequest.bannedTransit.setBannedRoutes(feedId.getId() + "__" + excludedRoute);
         }
         if (excludedStop != null && !excludedStop.isEmpty()) {
-            routingRequest.setBannedStopsHard(feedId.getId() + ":" + excludedStop);
+            routingRequest.bannedTransit.setBannedStopsHard(feedId.getId() + ":" + excludedStop);
         }
-        routingRequest.setOtherThanPreferredRoutesPenalty(0);
+        routingRequest.preferredTransit.setOtherThanPreferredRoutesPenalty(0);
         // The walk board cost is set low because it interferes with test 2c1.
         // As long as boarding has a very low cost, waiting should not be "better" than riding
         // since this makes interlining _worse_ than alighting and re-boarding the same line.

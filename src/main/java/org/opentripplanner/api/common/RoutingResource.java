@@ -731,19 +731,19 @@ public abstract class RoutingResource {
             request.setIntermediatePlacesFromStrings(intermediatePlaces);
 
         if (preferredRoutes != null)
-            request.setPreferredRoutes(preferredRoutes);
+            request.preferredTransit.setPreferredRoutes(preferredRoutes);
 
         if (otherThanPreferredRoutesPenalty != null)
-            request.setOtherThanPreferredRoutesPenalty(otherThanPreferredRoutesPenalty);
+            request.preferredTransit.setOtherThanPreferredRoutesPenalty(otherThanPreferredRoutesPenalty);
 
         if (preferredAgencies != null)
-            request.setPreferredAgencies(preferredAgencies);
+            request.preferredTransit.setPreferredAgencies(preferredAgencies);
 
         if (unpreferredRoutes != null)
-            request.setUnpreferredRoutes(unpreferredRoutes);
+            request.preferredTransit.setUnpreferredRoutes(unpreferredRoutes);
 
         if (unpreferredAgencies != null)
-            request.setUnpreferredAgencies(unpreferredAgencies);
+            request.preferredTransit.setUnpreferredAgencies(unpreferredAgencies);
 
         if (walkBoardCost != null)
             request.setWalkBoardCost(walkBoardCost);
@@ -752,27 +752,27 @@ public abstract class RoutingResource {
             request.setBikeBoardCost(bikeBoardCost);
 
         if (bannedRoutes != null)
-            request.setBannedRoutes(bannedRoutes);
+            request.bannedTransit.setBannedRoutes(bannedRoutes);
 
         if (whiteListedRoutes != null)
-            request.setWhiteListedRoutes(whiteListedRoutes);
+            request.bannedTransit.setWhiteListedRoutes(whiteListedRoutes);
 
         if (bannedAgencies != null)
-            request.setBannedAgencies(bannedAgencies);
+            request.bannedTransit.setBannedAgencies(bannedAgencies);
 
         if (whiteListedAgencies != null)
-            request.setWhiteListedAgencies(whiteListedAgencies);
+            request.bannedTransit.setWhiteListedAgencies(whiteListedAgencies);
 
         HashMap<FeedScopedId, BannedStopSet> bannedTripMap = makeBannedTripMap(bannedTrips);
 
         if (bannedTripMap != null)
-            request.bannedTrips = bannedTripMap;
+            request.bannedTransit.setBannedTrips(bannedTripMap);
 
         if (bannedStops != null)
-            request.setBannedStops(bannedStops);
+            request.bannedTransit.setBannedStops(bannedStops);
 
         if (bannedStopsHard != null)
-            request.setBannedStopsHard(bannedStopsHard);
+            request.bannedTransit.setBannedStopsHard(bannedStopsHard);
 
         // The "Least transfers" optimization is accomplished via an increased transfer penalty.
         // See comment on RoutingRequest.transferPentalty.
@@ -818,7 +818,7 @@ public abstract class RoutingResource {
             request.transferSlack = minTransferTime; // TODO rename field in routingrequest
 
         if (nonpreferredTransferPenalty != null)
-            request.nonpreferredTransferPenalty = nonpreferredTransferPenalty;
+            request.preferredTransit.setNonpreferredTransferPenalty(nonpreferredTransferPenalty);
 
         if (request.boardSlack + request.alightSlack > request.transferSlack) {
             throw new RuntimeException("Invalid parameters: " +
