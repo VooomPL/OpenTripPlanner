@@ -9,11 +9,11 @@ public class StopPattern extends Pattern<Stop> {
 
     public enum StopAttribute {ID, NAME, ZONE, LATITUDE, LONGITUDE}
 
-    private HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints;
-    private HashMap<Pattern.TextOperator, ArrayList<String>> nameConstraints;
-    private HashMap<Pattern.TextOperator, ArrayList<String>> zoneConstraints;
-    private HashMap<Pattern.NumericalOperator, Double> latitudeConstraints;
-    private HashMap<Pattern.NumericalOperator, Double> longitudeConstraints;
+    private HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
+    private HashMap<Pattern.TextOperator, ArrayList<String>> nameConstraints = new HashMap<>();
+    private HashMap<Pattern.TextOperator, ArrayList<String>> zoneConstraints = new HashMap<>();
+    private HashMap<Pattern.NumericalOperator, Double> latitudeConstraints = new HashMap<>();
+    private HashMap<Pattern.NumericalOperator, Double> longitudeConstraints = new HashMap<>();
     //TODO: RoutePattern - może być nullem - wtedy reguła obowiązuje niezależnie od linii
     //TODO: Testy!!!
 

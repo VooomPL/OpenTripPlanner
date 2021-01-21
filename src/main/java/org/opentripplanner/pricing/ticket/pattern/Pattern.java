@@ -52,21 +52,25 @@ public abstract class Pattern<T> {
     }
 
     protected static boolean matches(NumericalOperator operator, Double testedValue, Double patternValue) {
-        switch (operator) {
-            case GREATER_THAN:
-                return testedValue.compareTo(patternValue) > 0;
-            case LESS_THAN:
-                return testedValue.compareTo(patternValue) < 0;
-            case GREATER_OR_EQUAL:
-                return testedValue.compareTo(patternValue) >= 0;
-            case LESS_OR_EQUAL:
-                return testedValue.compareTo(patternValue) <= 0;
-            case EQUAL:
-                return testedValue.equals(patternValue);
-            case NOT_EQUAL:
-                return !testedValue.equals(patternValue);
-            default:
-                return false;
+        if (Objects.isNull(testedValue)) {
+            return false;
+        } else {
+            switch (operator) {
+                case GREATER_THAN:
+                    return testedValue.compareTo(patternValue) > 0;
+                case LESS_THAN:
+                    return testedValue.compareTo(patternValue) < 0;
+                case GREATER_OR_EQUAL:
+                    return testedValue.compareTo(patternValue) >= 0;
+                case LESS_OR_EQUAL:
+                    return testedValue.compareTo(patternValue) <= 0;
+                case EQUAL:
+                    return testedValue.equals(patternValue);
+                case NOT_EQUAL:
+                    return !testedValue.equals(patternValue);
+                default:
+                    return false;
+            }
         }
     }
 

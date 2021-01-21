@@ -24,7 +24,7 @@ public class RoutePatternTest {
     }
 
     @Test
-    public void shouldMatchRouteWhenSinlgeTextConstraint() {
+    public void shouldMatchRouteWhenSingleTextConstraint() {
         RoutePattern routePattern = new RoutePattern();
         routePattern.addConstraint(RoutePattern.RouteAttribute.SHORT_NAME, Pattern.TextOperator.NOT_STARTS_WITH, "A");
         routePattern.addConstraint(RoutePattern.RouteAttribute.TYPE, Pattern.NumericalOperator.GREATER_THAN, 1.0);
@@ -57,7 +57,7 @@ public class RoutePatternTest {
     }
 
     @Test
-    public void shouldMatchRouteDueToNotStartsWithConstraint() {
+    public void shouldNotMatchRouteDueToNotStartsWithConstraint() {
         RoutePattern routePattern = new RoutePattern();
         routePattern.addConstraint(RoutePattern.RouteAttribute.SHORT_NAME, Pattern.TextOperator.NOT_STARTS_WITH, "A");
         routePattern.addConstraint(RoutePattern.RouteAttribute.SHORT_NAME, Pattern.TextOperator.IN, "510");
