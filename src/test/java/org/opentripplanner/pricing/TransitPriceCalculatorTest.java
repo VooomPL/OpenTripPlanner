@@ -12,11 +12,12 @@ import static org.junit.Assert.assertTrue;
 
 public class TransitPriceCalculatorTest {
 
-    private TransitTicketType timeLimitedTicket20 = new TransitTicketType(0, 20, BigDecimal.valueOf(3.4));
-    private TransitTicketType timeLimitedTicket75 = new TransitTicketType(1, 75, BigDecimal.valueOf(4.4));
-    private TransitTicketType timeLimitedTicketSingleFare = new TransitTicketType(2, -1, BigDecimal.valueOf(4.4));
-    private TransitTicketType timeLimitedTicket90 = new TransitTicketType(3, 90, BigDecimal.valueOf(7));
-    private TransitTicketType timeLimitedTicketDaily = new TransitTicketType(4, 1440, BigDecimal.valueOf(15));
+    private TransitTicketType timeLimitedTicket20 = new TransitTicketType(0, 20, BigDecimal.valueOf(3.4), null);
+    private TransitTicketType timeLimitedTicket75 = new TransitTicketType(1, 75, BigDecimal.valueOf(4.4), null);
+    //TODO: Add fares number limit below
+    private TransitTicketType timeLimitedTicketSingleFare = new TransitTicketType(2, -1, BigDecimal.valueOf(4.4), null);
+    private TransitTicketType timeLimitedTicket90 = new TransitTicketType(3, 90, BigDecimal.valueOf(7), null);
+    private TransitTicketType timeLimitedTicketDaily = new TransitTicketType(4, 1440, BigDecimal.valueOf(15), null);
     //TODO: add tickets with limitations (eg. zone-associated, stop/line-associated distance ticket types)
 
     /*
@@ -78,5 +79,4 @@ public class TransitPriceCalculatorTest {
 
         assertTrue(transitPrice.compareTo(BigDecimal.valueOf(10.2)) == 0);
     }
-
 }
