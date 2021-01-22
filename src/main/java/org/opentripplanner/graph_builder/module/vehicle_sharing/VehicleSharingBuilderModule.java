@@ -21,6 +21,8 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+
 public class VehicleSharingBuilderModule implements GraphBuilderModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehicleSharingBuilderModule.class);
@@ -47,24 +49,33 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
         this.cityGovHasuraApiPassword = cityGovHasuraApiPassword;
     }
 
+    public static VehicleSharingBuilderModule justParkingZones(String sharedVehiclesApiUrl) {
+        return new VehicleSharingBuilderModule(sharedVehiclesApiUrl, null, null);
+    }
+
     public static VehicleSharingBuilderModule withoutParkingZones() {
         return new VehicleSharingBuilderModule(null, null, null);
     }
 
     @Override
     public void buildGraph(Graph graph, HashMap<Class<?>, Object> extra) {
-        if (sharedVehiclesApiUrl == null || cityGovHasuraApiUrl == null || cityGovHasuraApiPassword == null) {
+        if (sharedVehiclesApiUrl == null) {
             LOG.info("Creating vehicle dropoff edges without parking zones");
             createDropoffVehicleEdgesWithoutParkingZones(graph);
             LOG.info("Finished creating vehicle dropoff edges without parking zones");
         } else {
-            LOG.info("Fetching parking zones from API");
-            createParkingZonesCalculator(graph);
+            if (cityGovHasuraApiUrl == null || cityGovHasuraApiPassword == null) {
+                LOG.info("Creating vehicle dropoff edges with just parking zones");
+                createParkingZonesCalculatorWithNoCityGovForbiddenParkingZones(graph);
+            } else {
+                LOG.info("Creating vehicle dropoff edges with parking zones and city gov forbidden parking zones");
+                createParkingZonesCalculator(graph);
+                LOG.info("Creating city government vehicle dropoff stations");
+                createCityGovVehicleDropoffStations(graph);
+            }
             LOG.info("Creating vehicle dropoff edges");
             createDropoffVehicleEdges(graph);
-            LOG.info("Creating city government vehicle dropoff stations");
-            createCityGovVehicleDropoffStations(graph);
-            LOG.info("Finished creating vehicle dropoff edges and stations");
+            LOG.info("Finished creating vehicle dropoff edges");
         }
     }
 
@@ -72,6 +83,11 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
         graph.getVertices().stream()
                 .filter(vertex -> vertex.getIncoming().stream().anyMatch(e -> e instanceof StreetEdge))
                 .forEach(DropoffVehicleEdge::new);
+    }
+
+    private void createParkingZonesCalculatorWithNoCityGovForbiddenParkingZones(Graph graph) {
+        List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.postFromHasura(graph, sharedVehiclesApiUrl);
+        graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones, emptyList());
     }
 
     private void createParkingZonesCalculator(Graph graph) {
@@ -85,6 +101,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     private void createDropoffVehicleEdges(Graph graph) {
         graph.getVertices().stream()
                 .filter(vertex -> vertex.getIncoming().stream().anyMatch(e -> e instanceof StreetEdge))
+                .filter(vertex -> !(vertex instanceof CityGovVehicleDropoffStationVertex))
                 .forEach(vertex -> createDropoffVehicleEdge(graph, vertex));
     }
 
