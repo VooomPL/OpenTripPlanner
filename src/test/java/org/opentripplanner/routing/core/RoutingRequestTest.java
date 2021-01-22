@@ -1,11 +1,11 @@
 package org.opentripplanner.routing.core;
 
 import org.junit.Test;
+import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Trip;
-import org.opentripplanner.common.model.GenericLocation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -63,6 +63,6 @@ public class RoutingRequestTest {
         trip.setRoute(route);
         route.setId(id);
         route.setAgency(agency);
-        assertEquals(0, routingRequest.preferencesPenaltyForRoute(trip.getRoute()));
+        assertEquals(0, routingRequest.preferredTransit.preferencesPenaltyForRoute(trip.getRoute()));
     }
 }

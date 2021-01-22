@@ -6,7 +6,11 @@ import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Graph;
@@ -18,7 +22,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class StateEditorTest {
 
@@ -268,7 +275,9 @@ public class StateEditorTest {
         assertEquals(CAR_1, next.getCurrentVehicle());
         assertEquals(0, next.distanceTraversedInCurrentVehicle, DELTA);
         assertEquals(state.time + request.routingDelays.getRentingTime(CAR_1) * 1000, next.time);
-        assertEquals(state.weight + request.routingDelays.getRentingTime(CAR_1) * request.routingReluctances.getRentingReluctance(), next.weight, DELTA);
+        assertEquals(state.weight +
+                request.routingDelays.getRentingTime(CAR_1) * request.routingReluctances.getRentingReluctance() +
+                request.routingPenalties.getRentingVehiclePenalty(), next.weight, DELTA);
     }
 
     @Test

@@ -46,14 +46,14 @@ public class TestBanning extends TestCase {
             String lineId = maxLines[i][1];
             String routeSpecStr = feedId + "_" + (lineName != null ? lineName : "")
                     + (lineId != null ? "_" + lineId : "");
-            options.setBannedRoutes(routeSpecStr);
+            options.bannedTransit.setBannedRoutes(routeSpecStr);
             spt = aStar.getShortestPathTree(options);
             GraphPath path = spt.getPath(end, true);
             for (State s : path.states) {
                 if (s.getBackEdge() instanceof PatternHop) {
                     PatternHop e = (PatternHop) s.getBackEdge();
                     Route route = e.getPattern().route;
-                    assertFalse(options.bannedRoutes.matches(route));
+                    assertFalse(options.bannedTransit.getBannedRoutes().matches(route));
                     boolean foundMaxLine = false;
                     for (int j = 0; j < maxLines.length; ++j) {
                         if (j != i) {
@@ -92,14 +92,14 @@ public class TestBanning extends TestCase {
             String lineId = maxLines[i][1];
             String routeSpecStr = feedId + "_" + (lineName != null ? lineName : "")
                     + (lineId != null ? "_" + lineId : "");
-            options.setWhiteListedRoutes(routeSpecStr);
+            options.bannedTransit.setWhiteListedRoutes(routeSpecStr);
             spt = aStar.getShortestPathTree(options);
             GraphPath path = spt.getPath(end, true);
             for (State s : path.states) {
                 if (s.getBackEdge() instanceof PatternHop) {
                     PatternHop e = (PatternHop) s.getBackEdge();
                     Route route = e.getPattern().route;
-                    assertTrue(options.whiteListedRoutes.matches(route));
+                    assertTrue(options.bannedTransit.getWhiteListedRoutes().matches(route));
                     boolean notFoundMaxLine = true;
                     boolean foundMaxLine = false;
                     for (int j = 0; j < maxLines.length; ++j) {
@@ -182,7 +182,7 @@ public class TestBanning extends TestCase {
                 }
                 // Used trips should not contains a banned trip
                 for (T2<FeedScopedId, BannedStopSet> usedTripDef : usedTripDefs) {
-                    BannedStopSet bannedStopSet = options.bannedTrips.get(usedTripDef.first);
+                    BannedStopSet bannedStopSet = options.bannedTransit.getBannedTrips().get(usedTripDef.first);
                     if (bannedStopSet != null) {
                         for (Integer stopIndex : usedTripDef.second) {
                             assertFalse(bannedStopSet.contains(stopIndex));
@@ -196,9 +196,9 @@ public class TestBanning extends TestCase {
                         usedTripDefs);
                 T2<FeedScopedId, BannedStopSet> tripDefToBan = usedTripDefsList.get(rand
                         .nextInt(usedTripDefs.size()));
-                options.bannedTrips.put(tripDefToBan.first, tripDefToBan.second);
+                options.bannedTransit.getBannedTrips().put(tripDefToBan.first, tripDefToBan.second);
             }
-            options.bannedTrips.clear();
+            options.bannedTransit.getBannedTrips().clear();
         }
     }
 }

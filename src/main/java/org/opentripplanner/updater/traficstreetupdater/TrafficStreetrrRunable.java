@@ -23,6 +23,6 @@ class TrafficStreetrrRunable implements GraphWriterRunnable {
                 e.setTemporarySpeedLimit(map.get(el));
             }
         }
-
+        graph.routerHealth.setTraffic(true);
     }
 }
