@@ -1,7 +1,7 @@
 package org.opentripplanner.pricing;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.pricing.ticket.pattern.RoutePattern;
@@ -9,20 +9,21 @@ import org.opentripplanner.pricing.ticket.pattern.RoutePattern;
 import java.math.BigDecimal;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TransitTicketType {
 
     @Getter
-    private int id;
+    private final int id;
+
+    //TODO: encapsulate default value when maxMinutes are not used in order to prevent errors?
+    @Getter
+    private final int maxMinutes;
 
     @Getter
-    private int maxMinutes;
+    private final BigDecimal standardPrice;
 
     @Getter
-    private BigDecimal standardPrice;
-
-    @Getter
-    private RoutePattern routePattern;
+    private final RoutePattern routePattern;
 
     public int getTotalMinutesWhenValid(int finishesAtMinute, List<Route> sortedRoutes, List<Pair<Integer, Integer>> routeTimeSpans) {
         int totalMinutesWhenValid = finishesAtMinute;
