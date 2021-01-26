@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class BikeStationsGetter extends HasuraGetter<BikeRentalStation, BikeStationHasura> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BikeStationsGetter.class);
 
     @Override
     protected String query() {
