@@ -13,6 +13,7 @@ public class OptimizationProfileFactory {
     private static final String PROFILE_NAME_ORIGINAL = "original";
     private static final String PROFILE_NAME_PRICE_BASED = "cheapest";
     private static final String PROFILE_NAME_MULTIMODAL = "multimodal";
+    private static final String PROFILE_NAME_MULTIMODAL2 = "multimodal2";
 
     public static OptimizationProfile getOptimizationProfile(String profileName, RoutingRequest request) {
         switch (Optional.ofNullable(profileName).orElse(PROFILE_NAME_ORIGINAL)) {
@@ -22,6 +23,8 @@ public class OptimizationProfileFactory {
                 return new PriceBasedOptimizationProfile(request.getCostCategoryWeights());
             case PROFILE_NAME_MULTIMODAL:
                 return new MultimodalHeuristicProfile(request);
+            case PROFILE_NAME_MULTIMODAL2:
+                return new MultimodalHeuristicProfile2(request);
             default:
                 LOG.error("Optimization profile '" + profileName + "' undefined - returning default profile");
                 return getDefaultOptimizationProfile(request);

@@ -6,14 +6,14 @@ import org.opentripplanner.routing.algorithm.strategies.*;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.spt.DominanceFunction;
 
-public class MultimodalHeuristicProfile implements OptimizationProfile {
+public class MultimodalHeuristicProfile2 implements OptimizationProfile {
 
     private final CostFunction costFunction;
     private final DominanceFunction dominanceFunction;
     private final RemainingWeightHeuristic heuristic;
     private final RemainingWeightHeuristic reversedSearchHeuristic;
 
-    public MultimodalHeuristicProfile(RoutingRequest request) {
+    public MultimodalHeuristicProfile2(RoutingRequest request) {
         this.costFunction = new OriginalCostFunction();
         this.dominanceFunction = new DominanceFunction.EarliestArrival();
         if (request.disableRemainingWeightHeuristic) {
@@ -26,7 +26,7 @@ public class MultimodalHeuristicProfile implements OptimizationProfile {
             heuristic = new InterleavedBidirectionalHeuristic();
             reversedSearchHeuristic = new InterleavedBidirectionalHeuristic();
         } else {
-            heuristic = new MultimodalHeuristic();
+            heuristic = new MultimodalHeuristic2();
             reversedSearchHeuristic = new EuclideanRemainingWeightHeuristic();
         }
     }
