@@ -1,6 +1,5 @@
 package org.opentripplanner.pricing.transit;
 
-import lombok.NonNull;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +22,10 @@ public class TransitPriceCalculator {
         availableTicketTypesList.stream().forEach(ticketType -> this.availableTicketTypes.put(ticketType.getId(), ticketType));
     }
 
-    //TODO: is there any better collection type for unavailableTicketTypesIMinute???
-    public BigDecimal computePrice(@NonNull List<Integer> minutesWhenTraveling,
-                                   @NonNull HashMap<Integer, List<Integer>> unavailableTicketTypesIMinute)
+    public BigDecimal computePrice(List<Integer> minutesWhenTraveling)
             throws NullPointerException {
         //TODO: make sure that there is no problem, when available tickets = null (or prevent this from happening)
         //TODO: empty unavailableTicketTypesIMinute means that all ticket types are avaialble at any part of the trip
-        //TODO: include unavailableTicketTypes
-        //TODO: co zrobić z jednorazowymi (lub kilko-przesiadkowymi - wziąć pod uwagę reguły przesiadek!!!!)
         this.minutesWhenTraveling = minutesWhenTraveling;
 
         return dp(minutesWhenTraveling.get(minutesWhenTraveling.size() - 1));

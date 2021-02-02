@@ -19,8 +19,6 @@ public class StopPattern extends Pattern<Stop> {
 
     private final HashMap<Pattern.NumericalOperator, Double> longitudeConstraints = new HashMap<>();
 
-    //TODO: for rule-associated stop patterns-how to match with stop? private final RoutePattern routePattern = new RoutePattern();
-
     public void addConstraint(StopAttribute attribute, Pattern.TextOperator operator, String patternValue) {
         switch (attribute) {
             case ID:
