@@ -7,9 +7,9 @@ import org.opentripplanner.model.Stop;
 
 @AllArgsConstructor
 public class TransitTripStage {
-
+    //TODO: ensure non null attributes?
     @Getter
-    private final Route currentRoute; //TODO: ensure non null?
+    private final Route currentRoute;
 
     @Getter
     private final Stop currentStop;

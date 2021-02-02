@@ -1,6 +1,7 @@
 package org.opentripplanner.pricing.transit;
 
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,25 +15,24 @@ public class TransitPriceCalculator {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransitPriceCalculator.class);
 
-    private HashMap<Integer, TransitTicket> availableTicketTypes;
+    private HashMap<Integer, TransitTicket> availableTickets;
     private List<Integer> minutesWhenTraveling;
 
-    public void setAvailableTicketTypes(List<TransitTicket> availableTicketTypesList) {
-        this.availableTicketTypes = new HashMap<>();
-        availableTicketTypesList.stream().forEach(ticketType -> this.availableTicketTypes.put(ticketType.getId(), ticketType));
+    public void setAvailableTickets(List<TransitTicket> availableTicketTypesList) {
+        this.availableTickets = new HashMap<>();
+        availableTicketTypesList.stream().forEach(ticketType -> this.availableTickets.put(ticketType.getId(), ticketType));
     }
 
-    public BigDecimal computePrice(List<Integer> minutesWhenTraveling)
+    public BigDecimal computePrice(List<Integer> minutesWhenTraveling, List<TransitTripStage> tripStages)
             throws NullPointerException {
         //TODO: make sure that there is no problem, when available tickets = null (or prevent this from happening)
         //TODO: empty unavailableTicketTypesIMinute means that all ticket types are avaialble at any part of the trip
         this.minutesWhenTraveling = minutesWhenTraveling;
 
-        return dp(minutesWhenTraveling.get(minutesWhenTraveling.size() - 1));
+        return computePrice(minutesWhenTraveling.get(minutesWhenTraveling.size() - 1), tripStages);
     }
 
-    //TODO: change method name to sth more meaningful
-    private BigDecimal dp(int minutes) {
+    private BigDecimal computePrice(int minutes, List<TransitTripStage> tripStages) {
         if (minutes == 0) {
             return BigDecimal.ZERO;
         }
@@ -40,9 +40,9 @@ public class TransitPriceCalculator {
         if (minutesWhenTraveling.contains(minutes)) {
             List<BigDecimal> results = new ArrayList<>();
             //TODO: check, whether the ticket on the available tickets is available at this point and only if so, compute the price
-            for (TransitTicket ticketType : availableTicketTypes.values()) {
+            for (TransitTicket ticketType : availableTickets.values()) {
                 //TODO: allow discounts!!!
-                results.add(dp(minutes - ticketType.getMaxMinutes()).add(ticketType.getStandardPrice()));
+                results.add(computePrice(minutes - ticketType.getTotalMinutesWhenValid(minutes, tripStages), tripStages).add(ticketType.getStandardPrice()));
             }
 
             Collections.sort(results);
