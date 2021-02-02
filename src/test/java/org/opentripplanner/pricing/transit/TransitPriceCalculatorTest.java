@@ -1,6 +1,7 @@
-package org.opentripplanner.pricing;
+package org.opentripplanner.pricing.transit;
 
 import org.junit.Test;
+import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,19 +39,18 @@ public class TransitPriceCalculatorTest {
 
     private TransitPriceCalculator priceCalculator = new TransitPriceCalculator();
 
-    private TransitTicketType timeLimitedTicket20 = new TransitTicketType(0, 20, BigDecimal.valueOf(3.4), null);
-    private TransitTicketType timeLimitedTicket75 = new TransitTicketType(1, 75, BigDecimal.valueOf(4.4), null);
-    //TODO: Add fares number limit below
-    private TransitTicketType timeLimitedTicketSingleFare = new TransitTicketType(2, -1, BigDecimal.valueOf(4.4), null);
-    private TransitTicketType timeLimitedTicket90 = new TransitTicketType(3, 90, BigDecimal.valueOf(7), null);
-    private TransitTicketType timeLimitedTicketDaily = new TransitTicketType(4, 1440, BigDecimal.valueOf(15), null);
+    private TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(3.4)).setTimeLimit(20).build();//TODO: rm new TransitTicket(0, 20, BigDecimal.valueOf(3.4), null, null);
+    private TransitTicket timeLimitedTicket75 = TransitTicket.builder(1, BigDecimal.valueOf(4.4)).setTimeLimit(75).build();//TODO: rm new TransitTicket(1, 75, BigDecimal.valueOf(4.4), null, null);
+    private TransitTicket singleFareTicket = TransitTicket.builder(2, BigDecimal.valueOf(4.4)).setFaresNumberLimit(1).build();//TODO: rm new TransitTicket(2, -1, BigDecimal.valueOf(4.4), null, null);
+    private TransitTicket timeLimitedTicket90 = TransitTicket.builder(3, BigDecimal.valueOf(7)).setTimeLimit(90).build();//TODO: rm new TransitTicket(3, 90, BigDecimal.valueOf(7), null, null);
+    private TransitTicket timeLimitedTicketDaily = TransitTicket.builder(4, BigDecimal.valueOf(15)).setTimeLimit(1440).build();//TODO: rm new TransitTicket(4, 1440, BigDecimal.valueOf(15), null, null);
     //TODO: add tickets with limitations (eg. zone-associated, stop/line-associated distance ticket types)
 
     //TODO: make sure that also null-associated scenarios are included
 
     @Test
     public void shouldReturn75minuteTicketPrice() {
-        List<TransitTicketType> availableTicketTypes = new ArrayList<>();
+        List<TransitTicket> availableTicketTypes = new ArrayList<>();
         availableTicketTypes.add(timeLimitedTicket20);
         availableTicketTypes.add(timeLimitedTicket75);
         availableTicketTypes.add(timeLimitedTicket90);
@@ -66,7 +66,7 @@ public class TransitPriceCalculatorTest {
 
     @Test
     public void shouldReturn3x20minuteTicketPrice() {
-        List<TransitTicketType> availableTicketTypes = new ArrayList<>();
+        List<TransitTicket> availableTicketTypes = new ArrayList<>();
         availableTicketTypes.add(timeLimitedTicket20);
         availableTicketTypes.add(timeLimitedTicketDaily);
         priceCalculator.setAvailableTicketTypes(availableTicketTypes);

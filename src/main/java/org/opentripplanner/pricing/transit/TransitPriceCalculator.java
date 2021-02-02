@@ -1,6 +1,7 @@
-package org.opentripplanner.pricing;
+package org.opentripplanner.pricing.transit;
 
 import lombok.NonNull;
+import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +15,10 @@ public class TransitPriceCalculator {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransitPriceCalculator.class);
 
-    private HashMap<Integer, TransitTicketType> availableTicketTypes;
+    private HashMap<Integer, TransitTicket> availableTicketTypes;
     private List<Integer> minutesWhenTraveling;
 
-    public void setAvailableTicketTypes(List<TransitTicketType> availableTicketTypesList) {
+    public void setAvailableTicketTypes(List<TransitTicket> availableTicketTypesList) {
         this.availableTicketTypes = new HashMap<>();
         availableTicketTypesList.stream().forEach(ticketType -> this.availableTicketTypes.put(ticketType.getId(), ticketType));
     }
@@ -44,7 +45,7 @@ public class TransitPriceCalculator {
         if (minutesWhenTraveling.contains(minutes)) {
             List<BigDecimal> results = new ArrayList<>();
             //TODO: check, whether the ticket on the available tickets is available at this point and only if so, compute the price
-            for (TransitTicketType ticketType : availableTicketTypes.values()) {
+            for (TransitTicket ticketType : availableTicketTypes.values()) {
                 //TODO: allow discounts!!!
                 results.add(dp(minutes - ticketType.getMaxMinutes()).add(ticketType.getStandardPrice()));
             }

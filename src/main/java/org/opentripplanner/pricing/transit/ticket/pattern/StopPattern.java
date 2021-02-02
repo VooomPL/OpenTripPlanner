@@ -1,4 +1,4 @@
-package org.opentripplanner.pricing.ticket.pattern;
+package org.opentripplanner.pricing.transit.ticket.pattern;
 
 import org.opentripplanner.model.Stop;
 
@@ -9,13 +9,17 @@ public class StopPattern extends Pattern<Stop> {
 
     public enum StopAttribute {ID, NAME, ZONE, LATITUDE, LONGITUDE}
 
-    private HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
-    private HashMap<Pattern.TextOperator, ArrayList<String>> nameConstraints = new HashMap<>();
-    private HashMap<Pattern.TextOperator, ArrayList<String>> zoneConstraints = new HashMap<>();
-    private HashMap<Pattern.NumericalOperator, Double> latitudeConstraints = new HashMap<>();
-    private HashMap<Pattern.NumericalOperator, Double> longitudeConstraints = new HashMap<>();
-    //TODO: RoutePattern - może być nullem - wtedy reguła obowiązuje niezależnie od linii
-    //TODO: Testy!!!
+    private final HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
+
+    private final HashMap<Pattern.TextOperator, ArrayList<String>> nameConstraints = new HashMap<>();
+
+    private final HashMap<Pattern.TextOperator, ArrayList<String>> zoneConstraints = new HashMap<>();
+
+    private final HashMap<Pattern.NumericalOperator, Double> latitudeConstraints = new HashMap<>();
+
+    private final HashMap<Pattern.NumericalOperator, Double> longitudeConstraints = new HashMap<>();
+
+    //TODO: for rule-associated stop patterns-how to match with stop? private final RoutePattern routePattern = new RoutePattern();
 
     public void addConstraint(StopAttribute attribute, Pattern.TextOperator operator, String patternValue) {
         switch (attribute) {
@@ -48,11 +52,11 @@ public class StopPattern extends Pattern<Stop> {
 
     @Override
     public boolean matches(Stop validatedObject) {
-        return Pattern.matches(idConstraints, validatedObject.getId().getId()) &&
-                Pattern.matches(nameConstraints, validatedObject.getName()) &&
-                Pattern.matches(zoneConstraints, validatedObject.getZoneId()) &&
-                Pattern.matches(latitudeConstraints, validatedObject.getLat()) &&
-                Pattern.matches(longitudeConstraints, validatedObject.getLon());
+        return matches(idConstraints, validatedObject.getId().getId()) &&
+                matches(nameConstraints, validatedObject.getName()) &&
+                matches(zoneConstraints, validatedObject.getZoneId()) &&
+                matches(latitudeConstraints, validatedObject.getLat()) &&
+                matches(longitudeConstraints, validatedObject.getLon());
     }
 
 }

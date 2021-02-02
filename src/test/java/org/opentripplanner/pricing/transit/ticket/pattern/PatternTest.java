@@ -1,4 +1,4 @@
-package org.opentripplanner.pricing.ticket.pattern;
+package org.opentripplanner.pricing.transit.ticket.pattern;
 
 import org.junit.Test;
 

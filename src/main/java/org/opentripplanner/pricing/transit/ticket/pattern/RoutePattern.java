@@ -1,4 +1,4 @@
-package org.opentripplanner.pricing.ticket.pattern;
+package org.opentripplanner.pricing.transit.ticket.pattern;
 
 import org.opentripplanner.model.Route;
 
@@ -9,10 +9,10 @@ public class RoutePattern extends Pattern<Route> {
 
     public enum RouteAttribute {ID, SHORT_NAME, LONG_NAME, TYPE}
 
-    private HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
-    private HashMap<Pattern.TextOperator, ArrayList<String>> shortNameConstraints = new HashMap<>();
-    private HashMap<Pattern.TextOperator, ArrayList<String>> longNameConstraints = new HashMap<>();
-    private HashMap<Pattern.NumericalOperator, Double> typeConstraints = new HashMap<>();
+    private final HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
+    private final HashMap<Pattern.TextOperator, ArrayList<String>> shortNameConstraints = new HashMap<>();
+    private final HashMap<Pattern.TextOperator, ArrayList<String>> longNameConstraints = new HashMap<>();
+    private final HashMap<Pattern.NumericalOperator, Double> typeConstraints = new HashMap<>();
 
     public void addConstraint(RouteAttribute attribute, Pattern.TextOperator operator, String patternValue) {
         switch (attribute) {
