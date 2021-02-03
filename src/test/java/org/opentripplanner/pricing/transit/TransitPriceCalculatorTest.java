@@ -53,11 +53,9 @@ public class TransitPriceCalculatorTest {
 
     @Test
     public void shouldReturn75minuteTicketPrice() {
-        List<TransitTicket> availableTicketTypes = new ArrayList<>();
-        availableTicketTypes.add(timeLimitedTicket20);
-        availableTicketTypes.add(timeLimitedTicket75);
-        availableTicketTypes.add(timeLimitedTicket90);
-        priceCalculator.setAvailableTickets(availableTicketTypes);
+        priceCalculator.getAvailableTickets().put(timeLimitedTicket20.getId(), timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().put(timeLimitedTicket75.getId(), timeLimitedTicket75);
+        priceCalculator.getAvailableTickets().put(timeLimitedTicket90.getId(), timeLimitedTicket90);
 
         List<Integer> minutesWhenTraveling = Arrays.asList(minutesWhenTravelling);
 
@@ -118,10 +116,8 @@ public class TransitPriceCalculatorTest {
 
     @Test
     public void shouldReturn3x20minuteTicketPrice() {
-        List<TransitTicket> availableTicketTypes = new ArrayList<>();
-        availableTicketTypes.add(timeLimitedTicket20);
-        availableTicketTypes.add(timeLimitedTicketDaily);
-        priceCalculator.setAvailableTickets(availableTicketTypes);
+        priceCalculator.getAvailableTickets().put(timeLimitedTicket20.getId(), timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().put(timeLimitedTicketDaily.getId(), timeLimitedTicketDaily);
 
         List<Integer> minutesWhenTraveling = Arrays.asList(minutesWhenTravelling);
 
