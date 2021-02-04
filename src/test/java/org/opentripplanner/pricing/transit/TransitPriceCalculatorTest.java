@@ -5,8 +5,8 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripDescription;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
-import org.opentripplanner.pricing.transit.trip.model.TripDescription;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -84,9 +84,9 @@ public class TransitPriceCalculatorTest {
         tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 0));
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 0));
 
-        TripDescription tripDescription = new TripDescription(tripStages);
+        TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.getMinPrice(tripDescription);
+        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
         assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(4.4)));
     }
 
@@ -146,9 +146,9 @@ public class TransitPriceCalculatorTest {
         tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 0));
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 0));
 
-        TripDescription tripDescription = new TripDescription(tripStages);
+        TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.getMinPrice(tripDescription);
+        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
 
         assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(10.2)));
     }

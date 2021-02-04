@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class TripDescription {
+public class TransitTripDescription {
 
     @Getter
     private final List<TransitTripStage> tripStages = new ArrayList<>();
 
     private final RangeSet<Integer> tripStagesTimeBounds = TreeRangeSet.create();
 
-    public TripDescription(List<TransitTripStage> tripStages) {
+    public TransitTripDescription(List<TransitTripStage> tripStages) {
         if (Objects.nonNull(tripStages)) {
 
             TransitTripStage currentTripStage;

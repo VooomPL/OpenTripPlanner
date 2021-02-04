@@ -2,15 +2,12 @@ package org.opentripplanner.pricing.transit;
 
 import lombok.Getter;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
-import org.opentripplanner.pricing.transit.trip.model.TripDescription;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class TransitPriceCalculator {
 
@@ -19,29 +16,32 @@ public class TransitPriceCalculator {
     @Getter
     private final HashMap<Integer, TransitTicket> availableTickets = new HashMap<>();
 
-    public BigDecimal getMinPrice(TripDescription tripDescription) {
+    public BigDecimal computePrice(TransitTripDescription tripDescription) {
         if (tripDescription.isEmpty()) return BigDecimal.ZERO;
 
-        return getMinPrice(tripDescription.getLastMinute(), tripDescription);
+        BigDecimal[] memoizedCostsPerMinute = new BigDecimal[tripDescription.getLastMinute()];
+
+        return getMinPrice(tripDescription.getLastMinute(), tripDescription, memoizedCostsPerMinute);
     }
 
-    private BigDecimal getMinPrice(int minute, TripDescription tripDescription) {
+    private BigDecimal getMinPrice(int minute, TransitTripDescription tripDescription, BigDecimal[] memoizedCostsPerMinute) {
         if (minute == 0) {
             return BigDecimal.ZERO;
         }
-        //TODO: implement memoization-associated if here (and check later on if this is useful in any way)
+        if (Objects.nonNull(memoizedCostsPerMinute[minute - 1])) {
+            LOG.info("Returning memoized value"); //TODO: does memoization even makes sense here?
+            return memoizedCostsPerMinute[minute - 1];
+        }
         if (tripDescription.isTravelingAtMinute(minute)) {
             List<BigDecimal> results = new ArrayList<>();
             for (TransitTicket ticketType : availableTickets.values()) {
                 //TODO: allow discounts!!!
                 results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute, tripDescription.getTripStages()),
-                        tripDescription).add(ticketType.getStandardPrice()));
+                        tripDescription, memoizedCostsPerMinute).add(ticketType.getStandardPrice()));
             }
 
             Collections.sort(results);
-            //TODO: memoize the result before returning??? Does it give us any significant gain???
-            //TODO: if one could detect, that the solution is worse than an already existing one and stop further computations,
-            // than it might be more efficient than memoization....
+            memoizedCostsPerMinute[minute - 1] = results.get(0);
             return results.get(0);
         } else {
             return BigDecimal.ZERO;

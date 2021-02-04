@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class TripDescriptionTest {
+public class TransitTripDescriptionTest {
 
     @Test
     public void shouldCreateValidTripDescription() {
@@ -65,7 +65,7 @@ public class TripDescriptionTest {
         tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 0));
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 0));
 
-        TripDescription tripDescription = new TripDescription(tripStages);
+        TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
         assertTrue(tripDescription.isTravelingAtMinute(1));
         assertTrue(tripDescription.isTravelingAtMinute(4));
@@ -80,7 +80,7 @@ public class TripDescriptionTest {
 
     @Test
     public void shouldCreateEmptyTripDescription() {
-        TripDescription tripDescription = new TripDescription(null);
+        TransitTripDescription tripDescription = new TransitTripDescription(null);
 
         assertTrue(tripDescription.isEmpty());
     }
