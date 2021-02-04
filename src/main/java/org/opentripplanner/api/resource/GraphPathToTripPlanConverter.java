@@ -13,6 +13,8 @@ import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
+import org.opentripplanner.pricing.transit.TransitPriceCalculator;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.profile.BikeRentalStationInfo;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
@@ -189,6 +191,9 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.distanceTraversedInMode = lastState.createDistanceTraversedInModeMap();
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
         itinerary.price = lastState.getTraversalPrice();
+        itinerary.getTripStages().addAll(generateTransitTripStages(states));
+        TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
+        //TODO: uncomment me! itinerary.transitPrice = transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages()));
 
         itinerary.transfers = lastState.getNumBoardings();
         if (itinerary.transfers > 0 && !(states.get(0).getVertex() instanceof OnboardDepartVertex)) {
@@ -779,6 +784,39 @@ public abstract class GraphPathToTripPlanConverter {
                 leg.stop.add(makePlace(states.get(i), vertex, edges.get(i), currentStop, tripTimes, requestedLocale, streetIndex));
             }
         }
+    }
+
+    private static List<TransitTripStage> generateTransitTripStages(List<State> states) {
+        List<TransitTripStage> transitTripStages = new ArrayList<>();
+
+        Vertex firstVertex = states.get(0).getVertex();
+
+        if (firstVertex instanceof TransitVertex) {
+            transitTripStages.add(new TransitTripStage(states.get(0).stateData.getLastPattern().route,
+                    ((TransitVertex) firstVertex).getStop(), 0, 0));
+        }
+
+        for (int i = 1; i < states.size(); i++) {
+            Vertex vertex = states.get(i).getVertex();
+
+            if (!(vertex instanceof TransitVertex)) continue;
+
+            /*
+            TODO:
+            Jaka to realna sytuacja:
+            if (currentStop == previousStop) {                  // Avoid duplication of stops
+                    leg.stop.get(leg.stop.size() - 1).departure = makeCalendar(states.get(i));
+                    continue;
+                }
+             */
+
+            transitTripStages.add(new TransitTripStage(states.get(states.size() - 1).getStateData().getLastPattern().route,
+                    ((TransitVertex) firstVertex).getStop(),
+                    states.get(states.size() - 1).getTimeDeltaSeconds(),
+                    (int) states.get(states.size() - 1).getWalkDistanceDelta()));
+        }
+
+        return transitTripStages;
     }
 
     /**
