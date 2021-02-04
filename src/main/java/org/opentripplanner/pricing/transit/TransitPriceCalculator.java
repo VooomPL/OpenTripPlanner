@@ -2,7 +2,7 @@ package org.opentripplanner.pricing.transit;
 
 import lombok.Getter;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
-import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
+import org.opentripplanner.pricing.transit.trip.model.TripDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,23 +19,23 @@ public class TransitPriceCalculator {
     @Getter
     private final HashMap<Integer, TransitTicket> availableTickets = new HashMap<>();
 
-    public BigDecimal computePrice(List<Integer> minutesWhenTraveling, List<TransitTripStage> tripStages) {
-        if (minutesWhenTraveling.isEmpty() || tripStages.isEmpty()) return BigDecimal.ZERO;
+    public BigDecimal getMinPrice(TripDescription tripDescription) {
+        if (tripDescription.isEmpty()) return BigDecimal.ZERO;
 
-        return computePrice(minutesWhenTraveling.get(minutesWhenTraveling.size() - 1), minutesWhenTraveling, tripStages);
+        return getMinPrice(tripDescription.getLastMinute(), tripDescription);
     }
 
-    private BigDecimal computePrice(int minutes, List<Integer> minutesWhenTraveling, List<TransitTripStage> tripStages) {
-        if (minutes == 0) {
+    private BigDecimal getMinPrice(int minute, TripDescription tripDescription) {
+        if (minute == 0) {
             return BigDecimal.ZERO;
         }
         //TODO: implement memoization-associated if here (and check later on if this is useful in any way)
-        if (minutesWhenTraveling.contains(minutes)) {
+        if (tripDescription.isTravelingAtMinute(minute)) {
             List<BigDecimal> results = new ArrayList<>();
             for (TransitTicket ticketType : availableTickets.values()) {
                 //TODO: allow discounts!!!
-                results.add(computePrice(minutes - ticketType.getTotalMinutesWhenValid(minutes, tripStages),
-                        minutesWhenTraveling, tripStages).add(ticketType.getStandardPrice()));
+                results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute, tripDescription.getTripStages()),
+                        tripDescription).add(ticketType.getStandardPrice()));
             }
 
             Collections.sort(results);
