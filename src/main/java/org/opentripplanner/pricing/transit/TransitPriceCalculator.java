@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class TransitPriceCalculator {
 
@@ -17,34 +20,35 @@ public class TransitPriceCalculator {
     private final HashMap<Integer, TransitTicket> availableTickets = new HashMap<>();
 
     public BigDecimal computePrice(TransitTripDescription tripDescription) {
-        if (tripDescription.isEmpty()) return BigDecimal.ZERO;
+        if (tripDescription.isEmpty() || this.availableTickets.isEmpty()) return BigDecimal.ZERO;
 
-        BigDecimal[] memoizedCostsPerMinute = new BigDecimal[tripDescription.getLastMinute()];
+        HashMap<Integer, BigDecimal> memoizedCostsPerMinute = new HashMap<>();
 
         return getMinPrice(tripDescription.getLastMinute(), tripDescription, memoizedCostsPerMinute);
     }
 
-    private BigDecimal getMinPrice(int minute, TransitTripDescription tripDescription, BigDecimal[] memoizedCostsPerMinute) {
+    private BigDecimal getMinPrice(int minute, TransitTripDescription tripDescription, HashMap<Integer, BigDecimal> memoizedCostsPerMinute) {
         if (minute == 0) {
             return BigDecimal.ZERO;
         }
-        if (Objects.nonNull(memoizedCostsPerMinute[minute - 1])) {
-            LOG.info("Returning memoized value"); //TODO: does memoization even makes sense here?
-            return memoizedCostsPerMinute[minute - 1];
+        if (memoizedCostsPerMinute.get(minute - 1) != null) {
+            return memoizedCostsPerMinute.get(minute - 1);
         }
         if (tripDescription.isTravelingAtMinute(minute)) {
             List<BigDecimal> results = new ArrayList<>();
             for (TransitTicket ticketType : availableTickets.values()) {
                 //TODO: allow discounts!!!
-                results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute, tripDescription.getTripStages()),
-                        tripDescription, memoizedCostsPerMinute).add(ticketType.getStandardPrice()));
+                results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute,
+                        tripDescription.getTripStages()),
+                        tripDescription, memoizedCostsPerMinute)
+                        .add(ticketType.getStandardPrice()));
             }
 
             Collections.sort(results);
-            memoizedCostsPerMinute[minute - 1] = results.get(0);
+            memoizedCostsPerMinute.put(minute - 1, results.get(0));
             return results.get(0);
         } else {
-            return BigDecimal.ZERO;
+            return getMinPrice(minute - 1, tripDescription, memoizedCostsPerMinute);
         }
     }
 
