@@ -25,8 +25,6 @@ public class TransitPriceCalculatorTest {
     private final TransitTicket timeLimitedTicketDaily = TransitTicket.builder(4, BigDecimal.valueOf(15)).setTimeLimit(1440).build();
     //TODO: add tickets with limitations (eg. zone-associated, stop/line-associated distance ticket types)
 
-    //TODO: make sure that also null-associated scenarios are included
-
     @Test
     public void shouldReturn75minuteTicketPrice() {
         priceCalculator.getAvailableTickets().put(timeLimitedTicket20.getId(), timeLimitedTicket20);
