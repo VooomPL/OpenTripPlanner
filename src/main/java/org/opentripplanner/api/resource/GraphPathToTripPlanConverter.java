@@ -14,6 +14,7 @@ import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.pricing.transit.TransitPriceCalculator;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripDescription;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.profile.BikeRentalStationInfo;
 import org.opentripplanner.routing.alertpatch.Alert;
@@ -193,7 +194,7 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.price = lastState.getTraversalPrice();
         itinerary.getTripStages().addAll(generateTransitTripStages(states));
         TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
-        //TODO: uncomment me! itinerary.transitPrice = transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages()));
+        itinerary.transitPrice = transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages()));
 
         itinerary.transfers = lastState.getNumBoardings();
         if (itinerary.transfers > 0 && !(states.get(0).getVertex() instanceof OnboardDepartVertex)) {
@@ -803,7 +804,7 @@ public abstract class GraphPathToTripPlanConverter {
 
             /*
             TODO:
-            Jaka to realna sytuacja:
+             Paulina Jaka to realna sytuacja:
             if (currentStop == previousStop) {                  // Avoid duplication of stops
                     leg.stop.get(leg.stop.size() - 1).departure = makeCalendar(states.get(i));
                     continue;
