@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -791,10 +792,11 @@ public abstract class GraphPathToTripPlanConverter {
         List<TransitTripStage> transitTripStages = new ArrayList<>();
 
         Vertex firstVertex = states.get(0).getVertex();
+        int currentTripTime = 0;
 
         if (firstVertex instanceof TransitVertex) {
             transitTripStages.add(new TransitTripStage(states.get(0).stateData.getLastPattern().route,
-                    ((TransitVertex) firstVertex).getStop(), 0, 0));
+                    ((TransitVertex) firstVertex).getStop(), currentTripTime, 0));
         }
 
         for (int i = 1; i < states.size(); i++) {
@@ -810,10 +812,9 @@ public abstract class GraphPathToTripPlanConverter {
                     continue;
                 }
              */
-
+            currentTripTime += (states.get(states.size() - 1).getTimeDeltaSeconds() / TimeUnit.MINUTES.toSeconds(1));
             transitTripStages.add(new TransitTripStage(states.get(states.size() - 1).getStateData().getLastPattern().route,
-                    ((TransitVertex) firstVertex).getStop(),
-                    states.get(states.size() - 1).getTimeDeltaSeconds(),
+                    ((TransitVertex) firstVertex).getStop(), currentTripTime,
                     (int) states.get(states.size() - 1).getWalkDistanceDelta()));
         }
 
