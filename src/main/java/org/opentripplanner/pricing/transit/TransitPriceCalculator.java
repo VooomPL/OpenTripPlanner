@@ -48,7 +48,8 @@ public class TransitPriceCalculator {
             memoizedCostsPerMinute.put(minute - 1, results.get(0));
             return results.get(0);
         } else {
-            return getMinPrice(minute - 1, tripDescription, memoizedCostsPerMinute);
+            //Walking from one transit trip to another
+            return getMinPrice(tripDescription.getLastMinuteOfPreviousFare(minute), tripDescription, memoizedCostsPerMinute);
         }
     }
 
