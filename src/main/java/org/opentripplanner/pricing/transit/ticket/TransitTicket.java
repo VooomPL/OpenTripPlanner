@@ -9,10 +9,8 @@ import org.opentripplanner.pricing.transit.trip.model.FareSwitch;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 
@@ -46,12 +44,21 @@ public class TransitTicket {
     @Getter
     private final int maxDistance;
 
-    private TransitTicket(int id, BigDecimal standardPrice, int validForMinutes, int validForFares, int validForDistance) {
+    @Getter
+    private final LocalDateTime availableFrom;
+
+    @Getter
+    private final LocalDateTime availableTo;
+
+    private TransitTicket(int id, BigDecimal standardPrice, int validForMinutes, int validForFares, int validForDistance,
+                          LocalDateTime availableFrom, LocalDateTime availableTo) {
         this.id = id;
         this.standardPrice = standardPrice;
         this.maxMinutes = validForMinutes;
         this.maxFares = validForFares;
         this.maxDistance = validForDistance;
+        this.availableFrom = availableFrom;
+        this.availableTo = availableTo;
     }
 
     public static TransitTicketBuilder builder(int id, BigDecimal standardPrice) {
@@ -65,6 +72,8 @@ public class TransitTicket {
         private int validForMinutes = NO_LIMIT;
         private int validForFares = NO_LIMIT;
         private int validForDistance = NO_LIMIT;
+        private LocalDateTime availableFrom = null;
+        private LocalDateTime availableTo = null;
 
         private TransitTicketBuilder(int id, BigDecimal standardPrice) {
             this.id = id;
@@ -72,7 +81,8 @@ public class TransitTicket {
         }
 
         public TransitTicket build() {
-            return new TransitTicket(this.id, this.standardPrice, this.validForMinutes, this.validForFares, this.validForDistance);
+            return new TransitTicket(this.id, this.standardPrice, this.validForMinutes, this.validForFares,
+                    this.validForDistance, this.availableFrom, this.availableTo);
         }
 
         public TransitTicketBuilder setTimeLimit(int validForMinutes) {
@@ -94,6 +104,21 @@ public class TransitTicket {
             return evaluatedLimit > 0 ? evaluatedLimit : NO_LIMIT;
         }
 
+        public TransitTicketBuilder setAvailableFrom(LocalDateTime availableFrom) {
+            this.availableFrom = availableFrom;
+            return this;
+        }
+
+        public TransitTicketBuilder setAvailableTo(LocalDateTime availableTo) {
+            this.availableTo = availableTo;
+            return this;
+        }
+
+    }
+
+    public boolean isAvailable(LocalDateTime currentTimestamp) {
+        return (Objects.isNull(this.availableTo) || this.availableTo.isAfter(currentTimestamp)) &&
+                (Objects.isNull(this.availableFrom) || !this.availableFrom.isAfter(currentTimestamp));
     }
 
     public int getTotalMinutesWhenValid(int finishesAtMinute, List<TransitTripStage> tripStages) {

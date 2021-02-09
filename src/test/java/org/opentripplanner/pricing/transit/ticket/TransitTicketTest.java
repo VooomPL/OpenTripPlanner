@@ -11,10 +11,11 @@ import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class TransitTicketTest {
 
@@ -885,6 +886,22 @@ public class TransitTicketTest {
         TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(70).build();
 
         assertEquals(45, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
+    }
+
+    @Test
+    public void shouldReturnProperTicketAvailabilityInformation() {
+        LocalDateTime availableFrom = LocalDateTime.of(2020, 3, 15, 4, 5);
+        LocalDateTime availableTo = LocalDateTime.of(2020, 3, 20, 4, 5);
+
+        TransitTicket ticket = TransitTicket.builder(4, BigDecimal.valueOf(15))
+                .setAvailableFrom(availableFrom).setAvailableTo(availableTo)
+                .build();
+
+        assertTrue(ticket.isAvailable(LocalDateTime.of(2020, 3, 15, 4, 5)));
+        assertTrue(ticket.isAvailable(LocalDateTime.of(2020, 3, 17, 18, 0)));
+        assertTrue(ticket.isAvailable(LocalDateTime.of(2020, 3, 20, 4, 4)));
+        assertFalse(ticket.isAvailable(LocalDateTime.of(2020, 3, 15, 4, 4)));
+        assertFalse(ticket.isAvailable(LocalDateTime.of(2020, 3, 20, 4, 5)));
     }
 
 }

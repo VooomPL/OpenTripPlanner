@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class TransitPriceCalculator {
@@ -33,7 +34,8 @@ public class TransitPriceCalculator {
         }
         if (tripDescription.isTravelingAtMinute(minute)) {
             List<BigDecimal> results = new ArrayList<>();
-            availableTickets.forEach(ticketType -> {
+            LocalDateTime currentTimestamp = LocalDateTime.now();
+            availableTickets.stream().filter(transitTicket -> transitTicket.isAvailable(currentTimestamp)).forEach(ticketType -> {
                 //TODO: allow discounts!!!
                 results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute,
                         tripDescription.getTripStages()),
