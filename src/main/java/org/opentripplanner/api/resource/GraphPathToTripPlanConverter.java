@@ -195,6 +195,7 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.price = lastState.getTraversalPrice();
         itinerary.getTripStages().addAll(generateTransitTripStages(states));
         TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
+        transitPriceCalculator.getAvailableTickets().putAll(graph.getAvailableTransitTickets());
         itinerary.transitPrice = transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages()));
 
         itinerary.transfers = lastState.getNumBoardings();
