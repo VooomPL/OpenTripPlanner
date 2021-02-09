@@ -304,7 +304,7 @@ public class Graph implements Serializable {
     private final Map<Provider, LocalTime> lastProviderVehiclesUpdateTimestamps = new HashMap<>();
 
     @Getter
-    private final Set<TransitTicket> availableTransitTickets = new HashSet<>();
+    private final Set<TransitTicket> availableTransitTickets = Collections.synchronizedSet(new HashSet<>());
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once
