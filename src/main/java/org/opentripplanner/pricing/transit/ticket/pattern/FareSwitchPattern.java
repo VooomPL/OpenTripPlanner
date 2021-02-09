@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opentripplanner.pricing.transit.trip.model.FareSwitch;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 @RequiredArgsConstructor
 public class FareSwitchPattern extends Pattern<FareSwitch> {
@@ -28,16 +28,16 @@ public class FareSwitchPattern extends Pattern<FareSwitch> {
     public boolean matches(FareSwitch validatedObject) {
         boolean matches, matchesReversed = false;
 
-        matches = (nonNull(previousRoutePattern) ? previousRoutePattern.matches(validatedObject.getPreviousRoute()) : true) &&
-                (nonNull(previousStopPattern) ? previousStopPattern.matches(validatedObject.getPreviousStop()) : true) &&
-                (nonNull(futureRoutePattern) ? futureRoutePattern.matches(validatedObject.getFutureRoute()) : true) &&
-                (nonNull(futureStopPattern) ? futureStopPattern.matches(validatedObject.getFutureStop()) : true);
+        matches = (isNull(previousRoutePattern) || previousRoutePattern.matches(validatedObject.getPreviousRoute())) &&
+                (isNull(previousStopPattern) || previousStopPattern.matches(validatedObject.getPreviousStop())) &&
+                (isNull(futureRoutePattern) || futureRoutePattern.matches(validatedObject.getFutureRoute())) &&
+                (isNull(futureStopPattern) || futureStopPattern.matches(validatedObject.getFutureStop()));
 
         if (!matches && isReverseAllowed) {
-            matchesReversed = (nonNull(previousRoutePattern) ? previousRoutePattern.matches(validatedObject.getFutureRoute()) : true) &&
-                    (nonNull(previousStopPattern) ? previousStopPattern.matches(validatedObject.getFutureStop()) : true) &&
-                    (nonNull(futureRoutePattern) ? futureRoutePattern.matches(validatedObject.getPreviousRoute()) : true) &&
-                    (nonNull(futureStopPattern) ? futureStopPattern.matches(validatedObject.getPreviousStop()) : true);
+            matchesReversed = (isNull(previousRoutePattern) || previousRoutePattern.matches(validatedObject.getFutureRoute())) &&
+                    (isNull(previousStopPattern) || previousStopPattern.matches(validatedObject.getFutureStop())) &&
+                    (isNull(futureRoutePattern) || futureRoutePattern.matches(validatedObject.getPreviousRoute())) &&
+                    (isNull(futureStopPattern) || futureStopPattern.matches(validatedObject.getPreviousStop()));
         }
 
         return matches || matchesReversed;
