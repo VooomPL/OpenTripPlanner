@@ -7,17 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class TransitPriceCalculator {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransitPriceCalculator.class);
 
     @Getter
-    private final HashMap<Integer, TransitTicket> availableTickets = new HashMap<>();
+    private final Set<TransitTicket> availableTickets = new HashSet<>();
 
     public BigDecimal computePrice(TransitTripDescription tripDescription) {
         if (tripDescription.isEmpty() || this.availableTickets.isEmpty()) return BigDecimal.ZERO;
@@ -36,13 +33,13 @@ public class TransitPriceCalculator {
         }
         if (tripDescription.isTravelingAtMinute(minute)) {
             List<BigDecimal> results = new ArrayList<>();
-            for (TransitTicket ticketType : availableTickets.values()) {
+            availableTickets.forEach(ticketType -> {
                 //TODO: allow discounts!!!
                 results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute,
                         tripDescription.getTripStages()),
                         tripDescription, memoizedCostsPerMinute)
                         .add(ticketType.getStandardPrice()));
-            }
+            });
 
             Collections.sort(results);
             memoizedCostsPerMinute.put(minute - 1, results.get(0));

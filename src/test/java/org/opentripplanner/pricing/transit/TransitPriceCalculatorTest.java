@@ -27,9 +27,9 @@ public class TransitPriceCalculatorTest {
 
     @Test
     public void shouldReturn75minuteTicketPrice() {
-        priceCalculator.getAvailableTickets().put(timeLimitedTicket20.getId(), timeLimitedTicket20);
-        priceCalculator.getAvailableTickets().put(timeLimitedTicket75.getId(), timeLimitedTicket75);
-        priceCalculator.getAvailableTickets().put(timeLimitedTicket90.getId(), timeLimitedTicket90);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket75);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket90);
 
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
@@ -90,8 +90,8 @@ public class TransitPriceCalculatorTest {
 
     @Test
     public void shouldReturn3x20minuteTicketPrice() {
-        priceCalculator.getAvailableTickets().put(timeLimitedTicket20.getId(), timeLimitedTicket20);
-        priceCalculator.getAvailableTickets().put(timeLimitedTicketDaily.getId(), timeLimitedTicketDaily);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicketDaily);
 
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
@@ -153,9 +153,9 @@ public class TransitPriceCalculatorTest {
 
     @Test
     public void shouldReturn2xSingleFareTicketPrice() {
-        priceCalculator.getAvailableTickets().put(timeLimitedTicket20.getId(), timeLimitedTicket20);
-        priceCalculator.getAvailableTickets().put(singleFareTicket.getId(), singleFareTicket);
-        priceCalculator.getAvailableTickets().put(timeLimitedTicketDaily.getId(), timeLimitedTicketDaily);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().add(singleFareTicket);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicketDaily);
 
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
