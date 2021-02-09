@@ -198,7 +198,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             // during reverse optimization, board costs should be applied to PatternBoards
             // so that comparable trip plans result (comparable to non-optimized plans)
             if (options.reverseOptimizing)
-                s1.incrementWeight(options.getBoardCost(s0.getNonTransitMode()));
+                s1.incrementWeight(options.routingPenalties.getBoardCost(s0.getNonTransitMode()));
 
             if (options.reverseOptimizeOnTheFly) {
                 TripPattern pattern = getPattern();
@@ -236,7 +236,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             }
 
             /* Check if route and/or agency are banned or whitelisted for this pattern */
-            if (options.routeIsBanned(this.getPattern().route)) return null;
+            if (options.bannedTransit.routeIsBanned(this.getPattern().route)) return null;
             
             /*
              * Find the next boarding/alighting time relative to the current State. Check lists of
@@ -302,7 +302,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
                 wait_cost *= options.routingReluctances.getWaitReluctance();
             }
 
-            long preferences_penalty = options.preferencesPenaltyForRoute(getPattern().route);
+            long preferences_penalty = options.preferredTransit.preferencesPenaltyForRoute(getPattern().route);
 
             /* Compute penalty for non-preferred transfers. */
             int transferPenalty = 0;
@@ -311,8 +311,8 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
                 TransferTable transferTable = options.getRoutingContext().transferTable;
                 int transferTime = transferTable.getTransferTime(s0.getPreviousStop(),
                         getStop(), s0.getPreviousTrip(), trip, boarding);
-                transferPenalty  = transferTable.determineTransferPenalty(transferTime,
-                        options.nonpreferredTransferPenalty);
+                transferPenalty = transferTable.determineTransferPenalty(transferTime,
+                        options.preferredTransit.getNonpreferredTransferPenalty());
             }
 
             s1.incrementWeight(preferences_penalty + transferPenalty);
@@ -322,7 +322,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             if (options.reverseOptimizing) {
                 s1.incrementWeight(wait_cost);
             } else {
-                s1.incrementWeight(wait_cost + options.getBoardCost(s0.getNonTransitMode()));
+                s1.incrementWeight(wait_cost + options.routingPenalties.getBoardCost(s0.getNonTransitMode()));
             }
 
             s1.incrementWeight(getExtraWeight(options));
@@ -405,7 +405,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
         if ((options.arriveBy && boarding) || (!options.arriveBy && !boarding))
             return timeLowerBound(options);
         else
-            return options.getBoardCostLowerBound();
+            return options.routingPenalties.getBoardCostLowerBound();
     }
 
     @Override

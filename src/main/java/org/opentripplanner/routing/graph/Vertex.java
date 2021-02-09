@@ -1,24 +1,24 @@
 package org.opentripplanner.routing.graph;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.opentripplanner.common.MavenVersion;
+import org.opentripplanner.common.geometry.DirectionUtils;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.util.I18NString;
+import org.opentripplanner.util.NonLocalizedString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.opentripplanner.common.MavenVersion;
-import org.opentripplanner.common.geometry.DirectionUtils;
-import org.opentripplanner.routing.edgetype.StreetEdge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.locationtech.jts.geom.Coordinate;
-import java.util.Locale;
-import org.opentripplanner.util.I18NString;
-import org.opentripplanner.util.NonLocalizedString;
 
 /**
  * A vertex in the graph. Each vertex has a longitude/latitude location, as well as a set of
@@ -32,22 +32,22 @@ public abstract class Vertex implements Serializable, Cloneable {
     private static int maxIndex = 0;
 
     private int index;
-    
+
     /* short debugging name */
     private final String label;
-    
+
     /* Longer human-readable name for the client */
     private I18NString name;
 
     private final double x;
 
     private final double y;
-    
+
     private transient Edge[] incoming = new Edge[0];
 
     private transient Edge[] outgoing = new Edge[0];
 
-    
+
     /* CONSTRUCTORS */
 
     protected Vertex(Graph g, String label, double x, double y) {
@@ -195,7 +195,7 @@ public abstract class Vertex implements Serializable, Cloneable {
     public int getDegreeIn() {
         return incoming.length;
     }
-    
+
     /** Get the longitude of the vertex */
     public double getX() {
         return x;
@@ -293,5 +293,10 @@ public abstract class Vertex implements Serializable, Cloneable {
             result.add((StreetEdge) out);
         }
         return result;
+    }
+
+    public Point toPoint() {
+        CoordinateXY coord = new CoordinateXY(getLon(), getLat());
+        return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
     }
 }

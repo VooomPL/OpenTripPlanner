@@ -1,9 +1,9 @@
 package org.opentripplanner.routing.edgetype;
 
+import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
 
@@ -29,19 +29,19 @@ public class PreBoardEdge extends FreeEdge implements StationEdge {
     @Override
     public State traverse(State s0) {
         RoutingRequest options = s0.getOptions();
-        
+
         // Ignore this edge if its stop is banned
-        if (!options.bannedStops.isEmpty()) {
-            if (options.bannedStops.matches(((TransitStop) fromv).getStop())) {
+        if (!options.bannedTransit.getBannedStops().isEmpty()) {
+            if (options.bannedTransit.getBannedStops().matches(((TransitStop) fromv).getStop())) {
                 return null;
             }
         }
-        if (!options.bannedStopsHard.isEmpty()) {
-            if (options.bannedStopsHard.matches(((TransitStop) fromv).getStop())) {
+        if (!options.bannedTransit.getBannedStopsHard().isEmpty()) {
+            if (options.bannedTransit.getBannedStopsHard().matches(((TransitStop) fromv).getStop())) {
                 return null;
             }
         }
-        
+
         if (options.arriveBy) {
             /* Traverse backward: not much to do */
             StateEditor s1 = s0.edit(this);
@@ -78,19 +78,19 @@ public class PreBoardEdge extends FreeEdge implements StationEdge {
                 slack = options.boardSlack;
             }
             long board_after = t0 + slack;
-            long transfer_penalty = 0;
+            long transit_penalty = options.routingPenalties.getTransitBoardPenalty();
 
             // penalize transfers more heavily if requested by the user
             if (s0.isEverBoarded()) {
                 // this is not the first boarding, therefore we must have "transferred" -- whether
                 // via a formal transfer or by walking.
-                transfer_penalty += options.transferPenalty;
+                transit_penalty += options.routingPenalties.getTransferPenalty();
             }
 
             StateEditor s1 = s0.edit(this);
             s1.setTimeSeconds(board_after);
             long wait_cost = board_after - t0;
-            s1.incrementWeight(wait_cost + transfer_penalty);
+            s1.incrementWeight(wait_cost + transit_penalty);
             s1.setBackMode(getMode());
             return s1.makeState();
         }

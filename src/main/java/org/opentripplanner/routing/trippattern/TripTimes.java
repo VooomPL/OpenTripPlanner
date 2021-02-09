@@ -1,14 +1,12 @@
 package org.opentripplanner.routing.trippattern;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-
-import org.opentripplanner.model.StopTime;
-import org.opentripplanner.model.Trip;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.gtfs.BikeAccess;
+import org.opentripplanner.model.StopTime;
+import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.ServiceDay;
 import org.opentripplanner.routing.core.State;
@@ -17,9 +15,10 @@ import org.opentripplanner.routing.request.BannedStopSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
 
 /**
  * A TripTimes represents the arrival and departure times for a single trip in an Timetable. It is carried
@@ -459,7 +458,7 @@ public class TripTimes implements Serializable, Comparable<TripTimes>, Cloneable
      */
     public boolean tripAcceptable(final State state0, final int stopIndex) {
         final RoutingRequest options = state0.getOptions();
-        final BannedStopSet banned = options.bannedTrips.get(trip.getId());
+        final BannedStopSet banned = options.bannedTransit.getBannedTrips().get(trip.getId());
         if (banned != null && banned.contains(stopIndex)) {
             return false;
         }

@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class VehiclePositionsGetter extends HasuraGetter<VehicleDescription, Vehicle> {
+
     private static final Logger LOG = LoggerFactory.getLogger(VehiclePositionsGetter.class);
 
     private VehiclePositionsMapper mapper;

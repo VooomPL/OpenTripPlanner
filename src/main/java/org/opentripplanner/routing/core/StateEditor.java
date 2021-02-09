@@ -470,7 +470,8 @@ public class StateEditor {
         child.stateData.currentVehicle = vehicleDescription;
         child.distanceTraversedInCurrentVehicle = 0;
         int rentingTime = child.getOptions().routingDelays.getRentingTime(vehicleDescription);
-        incrementWeight(rentingTime * child.getOptions().routingReluctances.getRentingReluctance());
+        incrementWeight(rentingTime * child.getOptions().routingReluctances.getRentingReluctance()
+                + child.getOptions().routingPenalties.getRentingVehiclePenalty());
         incrementTimeInSeconds(rentingTime, true);
 
         int proposedActivePackageIndex = 0;
@@ -478,7 +479,7 @@ public class StateEditor {
         child.setStartPriceForCurrentVehicle(vehiclePricingPackage.computeStartPrice(), proposedActivePackageIndex);
         BigDecimal newLowestTotalPrice = child.getTotalPriceForCurrentVehicle(proposedActivePackageIndex);
         BigDecimal totalPriceForProposedPackage;
-        for(int i=1; i<vehicleDescription.getVehiclePricingPackages().size(); i++){
+        for (int i = 1; i < vehicleDescription.getVehiclePricingPackages().size(); i++) {
             vehiclePricingPackage = vehicleDescription.getVehiclePricingPackage(i);
             child.setStartPriceForCurrentVehicle(vehiclePricingPackage.computeStartPrice(), i);
             totalPriceForProposedPackage = child.getTotalPriceForCurrentVehicle(i);
