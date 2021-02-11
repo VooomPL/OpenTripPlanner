@@ -25,6 +25,14 @@ public class TransitPriceCalculatorTest {
     private final TransitTicket timeLimitedTicketDaily = TransitTicket.builder(4, BigDecimal.valueOf(15)).setTimeLimit(1440).build();
     //TODO: add tickets with limitations (eg. zone-associated, stop/line-associated distance ticket types)
 
+    {
+        timeLimitedTicket20.addAllowedAgency("ZTM");
+        timeLimitedTicket75.addAllowedAgency("ZTM");
+        singleFareTicket.addAllowedAgency("ZTM");
+        timeLimitedTicket90.addAllowedAgency("ZTM");
+        timeLimitedTicketDaily.addAllowedAgency("ZTM");
+    }
+
     @Test
     public void shouldReturn75minuteTicketPrice() {
         priceCalculator.getAvailableTickets().add(timeLimitedTicket20);

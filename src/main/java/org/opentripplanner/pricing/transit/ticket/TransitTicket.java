@@ -29,11 +29,9 @@ public class TransitTicket {
     @Getter
     private final BigDecimal standardPrice;
 
-    @Getter
-    private final RoutePattern routePattern = new RoutePattern();
+    private final Map<String, RoutePattern> routePatterns = new HashMap<>(); //TODO: rework this to support set of agency associated constraints and run tests
 
-    @Getter
-    private final StopPattern stopPattern = new StopPattern();
+    private final Map<String, StopPattern> stopPatterns = new HashMap<>(); //TODO: rework this to support set of agency associated constraints and run tests
 
     @Getter
     private final int maxFares;
@@ -116,6 +114,19 @@ public class TransitTicket {
 
     }
 
+    public void addAllowedAgency(String agencyId) {
+        routePatterns.put(agencyId, new RoutePattern());
+        stopPatterns.put(agencyId, new StopPattern());
+    }
+
+    public RoutePattern getRoutePattern(String agencyId) {
+        return routePatterns.get(agencyId);
+    }
+
+    public StopPattern getStopPattern(String agencyId) {
+        return stopPatterns.get(agencyId);
+    }
+
     public boolean isAvailable(LocalDateTime currentTimestamp) {
         return (Objects.isNull(this.availableTo) || this.availableTo.isAfter(currentTimestamp)) &&
                 (Objects.isNull(this.availableFrom) || !this.availableFrom.isAfter(currentTimestamp));
@@ -140,23 +151,20 @@ public class TransitTicket {
 
         TransitTripStage evaluatedTripStage;
         TransitTripStage laterTripStage = null;
-        boolean isEvaluatedRouteValid, isEvaluatedStopValid;
         boolean isFirstApplicableTripStage = true;
 
         for (int stageIndex = tripStages.size() - 1; stageIndex >= 0; stageIndex--) {
             evaluatedTripStage = tripStages.get(stageIndex);
 
-            isEvaluatedRouteValid = routePattern.matches(evaluatedTripStage.getCurrentRoute());
-            isEvaluatedStopValid = stopPattern.matches(evaluatedTripStage.getCurrentStop());
+            boolean isEvaluatedTicketValid = isTicketValid(evaluatedTripStage);
 
             if (evaluatedTripStage.getTime() < ticketShouldBeValidUntil) {
 
-                if (isEvaluatedRouteValid && isEvaluatedStopValid) {
+                if (isEvaluatedTicketValid) {
 
                     if (isFirstApplicableTripStage && !(stageIndex == tripStages.size() - 1)) {
                         //For cases like in TransitTicketTest::shouldReturn0MinutesValid
-                        if (routePattern.matches(laterTripStage.getCurrentRoute()) &&
-                                stopPattern.matches(laterTripStage.getCurrentStop())) {
+                        if (isTicketValid(laterTripStage)) {
                             totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
                         } else {
                             break;
@@ -174,6 +182,26 @@ public class TransitTicket {
 
         }
         return totalMinutesWhenValid;
+    }
+
+    private boolean isTicketValid(TransitTripStage tripStage) {
+        String agencyId = tripStage.getCurrentRoute().getId().getAgencyId();
+        RoutePattern agencyAssociatedRoutePattern = routePatterns.get(agencyId);
+        StopPattern agencyAssociatedStopPattern = stopPatterns.get(agencyId);
+
+        if (Objects.isNull(agencyAssociatedRoutePattern) && Objects.isNull(agencyAssociatedStopPattern)) {
+            return false;
+        }
+
+        boolean isTicketValid = true;
+        if (Objects.nonNull(agencyAssociatedRoutePattern)) {
+            isTicketValid &= agencyAssociatedRoutePattern.matches(tripStage.getCurrentRoute());
+        }
+        if (isTicketValid && Objects.nonNull(agencyAssociatedStopPattern)) {
+            isTicketValid &= agencyAssociatedStopPattern.matches(tripStage.getCurrentStop());
+        }
+
+        return isTicketValid;
     }
 
     private int getMaxFaresConstraintCompliantTime(int ticketShouldBeValidUntil, List<TransitTripStage> tripStages) {

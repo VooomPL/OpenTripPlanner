@@ -48,7 +48,8 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
-        ticketWithRouteConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithRouteConstraints.addAllowedAgency("ZTM");
+        ticketWithRouteConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.NOT_STARTS_WITH, "N");
 
         assertEquals(45, ticketWithRouteConstraints.getTotalMinutesWhenValid(45, tripStages));
@@ -83,7 +84,8 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
-        ticketWithRouteConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithRouteConstraints.addAllowedAgency("ZTM");
+        ticketWithRouteConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.NOT_STARTS_WITH, "N");
 
         assertEquals(30, ticketWithRouteConstraints.getTotalMinutesWhenValid(45, tripStages));
@@ -123,7 +125,8 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(thirdRoute, genericStop, 66, 0));
 
         TransitTicket ticketWithRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
-        ticketWithRouteConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithRouteConstraints.addAllowedAgency("ZTM");
+        ticketWithRouteConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.NOT_STARTS_WITH, "N");
 
         assertEquals(30, ticketWithRouteConstraints.getTotalMinutesWhenValid(60, tripStages));
@@ -158,6 +161,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithNullRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
+        ticketWithNullRouteConstraints.addAllowedAgency("ZTM");
 
         assertEquals(45, ticketWithNullRouteConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -191,6 +195,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithTimeConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setTimeLimit(15).build();
+        ticketWithTimeConstraints.addAllowedAgency("ZTM");
 
         assertEquals(15, ticketWithTimeConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -224,7 +229,8 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithTimeAndRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setTimeLimit(15).build();
-        ticketWithTimeAndRouteConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithTimeAndRouteConstraints.addAllowedAgency("ZTM");
+        ticketWithTimeAndRouteConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.NOT_STARTS_WITH, "N");
 
         assertEquals(15, ticketWithTimeAndRouteConstraints.getTotalMinutesWhenValid(45, tripStages));
@@ -259,6 +265,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(2).build();
+        ticketWithMaxFaresConstraints.addAllowedAgency("ZTM");
 
         assertEquals(45, ticketWithMaxFaresConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -292,6 +299,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(1).build();
+        ticketWithMaxFaresConstraints.addAllowedAgency("ZTM");
 
         assertEquals(30, ticketWithMaxFaresConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -325,7 +333,8 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithRouteAndMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(1).build();
-        ticketWithRouteAndMaxFaresConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithRouteAndMaxFaresConstraints.addAllowedAgency("ZTM");
+        ticketWithRouteAndMaxFaresConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.NOT_STARTS_WITH, "N");
 
         assertEquals(30, ticketWithRouteAndMaxFaresConstraints.getTotalMinutesWhenValid(45, tripStages));
@@ -360,6 +369,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithRouteAndMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(2).build();
+        ticketWithRouteAndMaxFaresConstraints.addAllowedAgency("ZTM");
         RoutePattern previousRoutePattern = new RoutePattern();
         previousRoutePattern.addConstraint(RoutePattern.RouteAttribute.SHORT_NAME, Pattern.TextOperator.IN, "13");
         RoutePattern futureRoutePattern = new RoutePattern();
@@ -399,6 +409,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
 
         TransitTicket ticketWithRouteAndMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(2).build();
+        ticketWithRouteAndMaxFaresConstraints.addAllowedAgency("ZTM");
         RoutePattern previousRoutePattern = new RoutePattern();
         previousRoutePattern.addConstraint(RoutePattern.RouteAttribute.SHORT_NAME, Pattern.TextOperator.IN, "105");
         RoutePattern futureRoutePattern = new RoutePattern();
@@ -438,7 +449,8 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, genericStop, 50, 0));
 
         TransitTicket ticketWithRouteAndMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(2).build();
-        ticketWithRouteAndMaxFaresConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithRouteAndMaxFaresConstraints.addAllowedAgency("ZTM");
+        ticketWithRouteAndMaxFaresConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.NOT_STARTS_WITH, "N");
         assertEquals(30, ticketWithRouteAndMaxFaresConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -496,11 +508,14 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 0));
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 0));
 
-        TransitTicket ticketWithRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
-        ticketWithRouteConstraints.getStopPattern().addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
-        ticketWithRouteConstraints.getStopPattern().addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
+        TransitTicket ticketWithStopConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
+        ticketWithStopConstraints.addAllowedAgency("ZTM");
+        ticketWithStopConstraints.getStopPattern("ZTM")
+                .addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
+        ticketWithStopConstraints.getStopPattern("ZTM")
+                .addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
 
-        assertEquals(5, ticketWithRouteConstraints.getTotalMinutesWhenValid(45, tripStages));
+        assertEquals(5, ticketWithStopConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
 
     @Test
@@ -557,11 +572,12 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 0));
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 0));
 
-        TransitTicket ticketWithRouteConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
-        ticketWithRouteConstraints.getStopPattern().addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "2");
-        ticketWithRouteConstraints.getStopPattern().addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
+        TransitTicket ticketWithStopConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
+        ticketWithStopConstraints.addAllowedAgency("ZTM");
+        ticketWithStopConstraints.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "2");
+        ticketWithStopConstraints.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
 
-        assertEquals(0, ticketWithRouteConstraints.getTotalMinutesWhenValid(45, tripStages));
+        assertEquals(0, ticketWithStopConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
 
     @Test
@@ -618,9 +634,10 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 0));
 
         TransitTicket ticketWithRouteAndStopConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
-        ticketWithRouteAndStopConstraints.getStopPattern().addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
-        ticketWithRouteAndStopConstraints.getStopPattern().addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
-        ticketWithRouteAndStopConstraints.getRoutePattern().addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
+        ticketWithRouteAndStopConstraints.addAllowedAgency("ZTM");
+        ticketWithRouteAndStopConstraints.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
+        ticketWithRouteAndStopConstraints.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
+        ticketWithRouteAndStopConstraints.getRoutePattern("ZTM").addConstraint(RoutePattern.RouteAttribute.SHORT_NAME,
                 Pattern.TextOperator.STARTS_WITH, "N");
 
         assertEquals(0, ticketWithRouteAndStopConstraints.getTotalMinutesWhenValid(45, tripStages));
@@ -680,6 +697,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
 
         TransitTicket ticketWithNoConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).build();
+        ticketWithNoConstraints.addAllowedAgency("ZTM");
 
         assertEquals(45, ticketWithNoConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -731,6 +749,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
 
         TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(10).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
 
         assertEquals(5, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -782,6 +801,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
 
         TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(50).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
 
         assertEquals(30, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -833,6 +853,7 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
 
         TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(55).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
 
         assertEquals(38, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
@@ -884,8 +905,60 @@ public class TransitTicketTest {
         tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
 
         TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(70).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
 
         assertEquals(45, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
+    }
+
+    @Test
+    public void shouldReturn0MinutesValidDueToEmptyAllowedAgencies() {
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
+
+        TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(70).build();
+
+        assertEquals(0, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
 
     @Test
@@ -896,6 +969,7 @@ public class TransitTicketTest {
         TransitTicket ticket = TransitTicket.builder(4, BigDecimal.valueOf(15))
                 .setAvailableFrom(availableFrom).setAvailableTo(availableTo)
                 .build();
+        ticket.addAllowedAgency("ZTM");
 
         assertTrue(ticket.isAvailable(LocalDateTime.of(2020, 3, 15, 4, 5)));
         assertTrue(ticket.isAvailable(LocalDateTime.of(2020, 3, 17, 18, 0)));
