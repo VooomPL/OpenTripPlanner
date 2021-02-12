@@ -9,7 +9,14 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelTypeFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.GearboxFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.ProviderFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleTypeFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.request.BannedStopSet;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
@@ -25,7 +32,16 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * This class defines all the JAX-RS query parameters for a path search as fields, allowing them to
@@ -799,6 +815,9 @@ public abstract class RoutingResource {
         }
 
         if (rentingAllowed != null && rentingAllowed) {
+            if (arriveBy != null && arriveBy) {
+                throw new RuntimeException("Cannot combine rentingAllowed=true with arriveBy=true");
+            }
             request.rentingAllowed = true;
             buildVehicleValidator(request);
         }
@@ -901,7 +920,7 @@ public abstract class RoutingResource {
         request.setCostCategoryWeights(costCategoryWeights);
         request.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfileName, request));
 
-        if(Objects.nonNull(walkPrice))
+        if (Objects.nonNull(walkPrice))
             request.setWalkPrice(BigDecimal.valueOf(walkPrice));
 
         return request;
