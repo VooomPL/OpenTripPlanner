@@ -29,9 +29,9 @@ public class TransitTicket {
     @Getter
     private final BigDecimal standardPrice;
 
-    private final Map<String, RoutePattern> routePatterns = new HashMap<>(); //TODO: rework this to support set of agency associated constraints and run tests
+    private final Map<String, RoutePattern> routePatterns = new HashMap<>();
 
-    private final Map<String, StopPattern> stopPatterns = new HashMap<>(); //TODO: rework this to support set of agency associated constraints and run tests
+    private final Map<String, StopPattern> stopPatterns = new HashMap<>();
 
     @Getter
     private final int maxFares;
