@@ -67,4 +67,16 @@ public class TransitTripDescription {
         }
         return result;
     }
+
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+
+        result.append("[");
+        for (TransitTripStage tripStage : tripStages) {
+            result.append(tripStage);
+        }
+        result.append("]");
+
+        return result.toString();
+    }
 }
