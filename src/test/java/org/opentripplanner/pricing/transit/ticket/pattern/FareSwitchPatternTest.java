@@ -176,6 +176,4 @@ public class FareSwitchPatternTest {
         assertFalse(pattern.matches(validatedSwitch));
     }
 
-    //TODO: check rules with stop rules as well!!!
-
 }
