@@ -22,7 +22,8 @@ public class TransitPriceCalculator {
 
         HashMap<Integer, BigDecimal> memoizedCostsPerMinute = new HashMap<>();
 
-        return getMinPrice(tripDescription.getLastMinute(), tripDescription, memoizedCostsPerMinute);
+        BigDecimal transitTripPrice = getMinPrice(tripDescription.getLastMinute(), tripDescription, memoizedCostsPerMinute);
+        return (transitTripPrice.compareTo(BigDecimal.ZERO) >= 0 ? transitTripPrice : BigDecimal.valueOf(-1));
     }
 
     private BigDecimal getMinPrice(int minute, TransitTripDescription tripDescription, HashMap<Integer, BigDecimal> memoizedCostsPerMinute) {
@@ -51,7 +52,7 @@ public class TransitPriceCalculator {
                 return results.get(0);
             } else {
                 LOG.warn("No ticket valid for {}. minute of trip {} available", minute, tripDescription);
-                return BigDecimal.ZERO;
+                return BigDecimal.valueOf(-Double.MAX_VALUE);
             }
         } else {
             //Walking from one transit trip to another
