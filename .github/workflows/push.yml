@@ -41,3 +41,8 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Copy otp jar artifact to S3 bucket
+        env:
+          JAR_FILE: otp_${{ github.sha }}.jar
+          BUCKET_NAME: s3://${{ secrets.S3_BUCKET_NAME }}
+        run: aws s3 cp ./target/otp-1.5.0-SNAPSHOT-shaded.jar $BUCKET_NAME/$JAR_FILE
