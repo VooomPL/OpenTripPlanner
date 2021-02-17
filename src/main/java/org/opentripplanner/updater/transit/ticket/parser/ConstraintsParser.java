@@ -1,5 +1,7 @@
 package org.opentripplanner.updater.transit.ticket.parser;
 
+import org.opentripplanner.model.Route;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.opentripplanner.pricing.transit.ticket.pattern.RoutePattern;
 import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
@@ -35,9 +37,9 @@ public class ConstraintsParser {
                     patternAsText = constraintAsText.substring(constraintAsText.indexOf(" ",
                             objectAsText.length() + objectPropertyAsText.length() + operatorAsText.length() + 1)).trim();
 
-                    if (objectAsText.equals("Route")) {
+                    if (objectAsText.equals(Route.class.getSimpleName())) {
                         RouteConstraintsParser.parseConstraints(routePattern, objectPropertyAsText, operatorAsText, patternAsText);
-                    } else if (objectAsText.equals("Stop")) {
+                    } else if (objectAsText.equals(Stop.class.getSimpleName())) {
                         StopConstraintsParser.parseConstraints(stopPattern, objectPropertyAsText, operatorAsText, patternAsText);
                     } else {
                         LOG.warn("Unrecognized rule object name '{}' in ticket definition", objectAsText);
