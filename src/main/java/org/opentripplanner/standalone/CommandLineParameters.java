@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This is a JCommander-annotated class that holds parameters for OTP stand-alone mode.
@@ -140,25 +141,30 @@ public class CommandLineParameters implements Cloneable {
             description = "Allow unauthenticated access to sensitive API resources, e.g. /routers")
     public boolean insecure = false;
 
-    @Parameter(names = { "--script" }, description = "run the specified OTP script (groovy, python)")
+    @Parameter(names = {"--script"}, description = "run the specified OTP script (groovy, python)")
     public File scriptFile = null;
 
-    @Parameter(names = { "--enableScriptingWebService" }, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
+    @Parameter(names = {"--enableScriptingWebService"}, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
     boolean enableScriptingWebService = false;
 
-    @Parameter(names = { "--sharedVehiclesApi" }, description = "API for fetching info about renable vehicles")
+    @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
 
-    @Parameter(names ={"--trafficAppi"},description = "API for trafic udate")
-    public  String traffic = null;
+    @Parameter(names = {"--ticketsDefinitionsFile"}, description = "File for fetching info about available transit tickets")
+    public String ticketsDefinitionsFile = null;
 
-    @Parameter(names ={"--trafficApiPass"},description = "API for trafic password")
-    public  String trafficAPIPass =null;
+    @Parameter(names = {"--trafficAppi"}, description = "API for trafic udate")
+    public String traffic = null;
+
+    @Parameter(names = {"--trafficApiPass"}, description = "API for trafic password")
+    public String trafficAPIPass = null;
 
     @Parameter(names = {"--predictionApiUrl"}, description = "API for fetching vehicle presence heatmaps")
     public String predictionApiUrl = null;
 
-    /** Set some convenience parameters based on other parameters' values. */
+    /**
+     * Set some convenience parameters based on other parameters' values.
+     */
     public void infer() {
         server |= (inMemory || preFlight || port != null);
         if (basePath == null) basePath = DEFAULT_BASE_PATH;
@@ -176,6 +182,9 @@ public class CommandLineParameters implements Cloneable {
         }
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
+        }
+        if (Objects.nonNull(ticketsDefinitionsFile)) {
+            System.setProperty("ticketsDefinitionsFile", ticketsDefinitionsFile);
         }
         if (traffic != null) {
             System.setProperty("trfficApi", traffic);
