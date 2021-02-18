@@ -42,13 +42,13 @@ public class ConstraintsParser {
                     } else if (objectAsText.equals(Stop.class.getSimpleName())) {
                         StopConstraintsParser.parseConstraints(stopPattern, objectPropertyAsText, operatorAsText, patternAsText);
                     } else {
-                        LOG.warn("Unrecognized rule object name '{}' in ticket definition", objectAsText);
+                        LOG.error("Unrecognized rule object name '{}' in ticket definition", objectAsText);
                     }
                 } else {
-                    LOG.warn("Invalid rule object structure for constraint '{}' in ticket definition", constraintAsText);
+                    LOG.error("Invalid rule object structure for constraint '{}' in ticket definition", constraintAsText);
                 }
             } else {
-                LOG.warn("Invalid rule structure for constraint '{}' in ticket definition", constraintAsText);
+                LOG.error("Invalid rule structure for constraint '{}' in ticket definition", constraintAsText);
             }
         }
     }

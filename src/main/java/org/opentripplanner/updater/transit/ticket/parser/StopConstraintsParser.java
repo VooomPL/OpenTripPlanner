@@ -16,7 +16,7 @@ public class StopConstraintsParser {
                     Pattern.TextOperator operator = Pattern.TextOperator.valueOf(operatorAsText);
                     addConstraint(stopPattern, StopPattern.StopAttribute.ID, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "stop_name":
@@ -24,7 +24,7 @@ public class StopConstraintsParser {
                     Pattern.TextOperator operator = Pattern.TextOperator.valueOf(operatorAsText);
                     addConstraint(stopPattern, StopPattern.StopAttribute.NAME, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "stop_lat":
@@ -32,7 +32,7 @@ public class StopConstraintsParser {
                     Pattern.NumericalOperator operator = Pattern.NumericalOperator.valueOf(operatorAsText);
                     addConstraint(stopPattern, StopPattern.StopAttribute.LATITUDE, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "stop_lon":
@@ -40,7 +40,7 @@ public class StopConstraintsParser {
                     Pattern.NumericalOperator operator = Pattern.NumericalOperator.valueOf(operatorAsText);
                     addConstraint(stopPattern, StopPattern.StopAttribute.LONGITUDE, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "zone_id":
@@ -48,11 +48,11 @@ public class StopConstraintsParser {
                     Pattern.TextOperator operator = Pattern.TextOperator.valueOf(operatorAsText);
                     addConstraint(stopPattern, StopPattern.StopAttribute.ZONE, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             default:
-                LOG.warn("Unrecognized Stop property name '{}' in ticket definition", objectPropertyAsText);
+                LOG.error("Unrecognized Stop property name '{}' in ticket definition", objectPropertyAsText);
         }
     }
 
@@ -64,7 +64,7 @@ public class StopConstraintsParser {
                     stopPattern.addConstraint(attribute, operator, pattern.trim());
                 }
             } else {
-                LOG.warn("No opening brace in pattern '{}' for IN or NOT_IN operator in ticket definition", patternAsText);
+                LOG.error("No opening brace in pattern '{}' for IN or NOT_IN operator in ticket definition", patternAsText);
             }
         } else {
             stopPattern.addConstraint(attribute, operator, patternAsText);

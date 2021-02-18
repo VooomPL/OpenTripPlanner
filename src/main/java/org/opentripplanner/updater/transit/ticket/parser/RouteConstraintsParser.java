@@ -16,7 +16,7 @@ public class RouteConstraintsParser {
                     Pattern.TextOperator operator = Pattern.TextOperator.valueOf(operatorAsText);
                     addConstraint(routePattern, RoutePattern.RouteAttribute.ID, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "route_short_name":
@@ -24,7 +24,7 @@ public class RouteConstraintsParser {
                     Pattern.TextOperator operator = Pattern.TextOperator.valueOf(operatorAsText);
                     addConstraint(routePattern, RoutePattern.RouteAttribute.SHORT_NAME, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "route_long_name":
@@ -32,7 +32,7 @@ public class RouteConstraintsParser {
                     Pattern.TextOperator operator = Pattern.TextOperator.valueOf(operatorAsText);
                     addConstraint(routePattern, RoutePattern.RouteAttribute.LONG_NAME, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             case "route_type":
@@ -40,11 +40,11 @@ public class RouteConstraintsParser {
                     Pattern.NumericalOperator operator = Pattern.NumericalOperator.valueOf(operatorAsText);
                     addConstraint(routePattern, RoutePattern.RouteAttribute.TYPE, operator, patternAsText);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unrecognized operator '{}' in ticket definition", operatorAsText);
+                    LOG.error("Unrecognized operator '{}' in ticket definition", operatorAsText);
                 }
                 break;
             default:
-                LOG.warn("Unrecognized Stop property name '{}' in ticket definition", objectPropertyAsText);
+                LOG.error("Unrecognized Stop property name '{}' in ticket definition", objectPropertyAsText);
         }
     }
 
@@ -56,7 +56,7 @@ public class RouteConstraintsParser {
                     routePattern.addConstraint(attribute, operator, pattern.trim());
                 }
             } else {
-                LOG.warn("No opening brace in pattern '{}' for IN or NOT_IN operator in ticket definition", patternAsText);
+                LOG.error("No opening brace in pattern '{}' for IN or NOT_IN operator in ticket definition", patternAsText);
             }
         } else {
             routePattern.addConstraint(attribute, operator, patternAsText);

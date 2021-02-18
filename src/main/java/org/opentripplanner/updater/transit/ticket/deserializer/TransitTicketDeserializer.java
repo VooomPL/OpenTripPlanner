@@ -69,7 +69,7 @@ public class TransitTicketDeserializer extends StdDeserializer<TransitTicket> {
                 LocalDateTime availableFrom = LocalDateTime.parse(availableFromNode.asText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 transitTicketBuilder.setAvailableFrom(availableFrom);
             } catch (DateTimeParseException e) {
-                LOG.warn("Unrecognized available from date format '{}' in ticket definition", availableFromNode.asText());
+                LOG.error("Unrecognized available from date format '{}' in ticket definition", availableFromNode.asText());
             }
         }
 
@@ -79,7 +79,7 @@ public class TransitTicketDeserializer extends StdDeserializer<TransitTicket> {
                 LocalDateTime availableTo = LocalDateTime.parse(availableToNode.asText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 transitTicketBuilder.setAvailableTo(availableTo);
             } catch (DateTimeParseException e) {
-                LOG.warn("Unrecognized available to date format '{}' in ticket definition", availableToNode.asText());
+                LOG.error("Unrecognized available to date format '{}' in ticket definition", availableToNode.asText());
             }
         }
 
