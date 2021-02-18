@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class RoutePattern extends Pattern<Route> {
 
-    public enum RouteAttribute {ID, SHORT_NAME, LONG_NAME, TYPE, AGENCY_NAME}
+    public enum RouteAttribute {ID, SHORT_NAME, LONG_NAME, TYPE}
 
     private final HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
     private final HashMap<Pattern.TextOperator, ArrayList<String>> shortNameConstraints = new HashMap<>();
