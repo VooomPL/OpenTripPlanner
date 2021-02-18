@@ -1,0 +1,10 @@
+[
+  {
+    "id": 7,
+    "max_time": 1440,
+    "allowed_agencies": {
+      "0": []
+    },
+    "standard_price": 26
+  }
+]

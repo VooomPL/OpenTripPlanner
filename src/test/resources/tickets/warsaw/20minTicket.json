@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "max_time": 20,
+    "allowed_agencies": {
+      "0": [
+        "Route.route_id NOT_STARTS_WITH L"
+      ]
+    },
+    "standard_price": 3.4
+  }
+]

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.opentripplanner.updater.transit.ticket.deserializer.TransitTicketDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +17,8 @@ import java.util.Objects;
 import java.util.Set;
 
 public class AvailableTransitTicketsGetter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AvailableTransitTicketsGetter.class);
 
     public Set<TransitTicket> getFromFile(String filename) {
         Set<TransitTicket> transitTickets = null;
@@ -29,7 +33,7 @@ public class AvailableTransitTicketsGetter {
             transitTickets = objectMapper.readValue(json, new TypeReference<HashSet<TransitTicket>>() {
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.warn("File {} containing transit tickets definitions not found or malformed", filename);
         }
         if (Objects.isNull(transitTickets)) return new HashSet<>();
 
