@@ -34,6 +34,8 @@ public class AvailableTransitTicketsGetter {
             });
         } catch (IOException e) {
             LOG.warn("File {} containing transit tickets definitions not found or malformed", filename);
+        } catch (NullPointerException e) {
+            LOG.warn("Tickets definitions file name is null");
         }
         if (Objects.isNull(transitTickets)) return new HashSet<>();
 

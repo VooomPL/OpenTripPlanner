@@ -140,6 +140,13 @@ public class AvailableTransitTicketsGetterTest {
         assertTrue(tickets.isEmpty());
     }
 
+    @Test
+    public void shouldReturnEmptyTicketSetDueToNullFileNameProperty() {
+        AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(null);
+        assertTrue(tickets.isEmpty());
+    }
+
     //----------------------------------------------------------------------------------------------------
     //Tests for Warsaw below
     //----------------------------------------------------------------------------------------------------
