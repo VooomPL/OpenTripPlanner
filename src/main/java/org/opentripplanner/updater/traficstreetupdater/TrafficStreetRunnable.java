@@ -5,12 +5,13 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.updater.GraphWriterRunnable;
 
-import java.util.HashMap;
+import java.util.Map;
 
-class TrafficStreetrrRunable implements GraphWriterRunnable {
-    private final HashMap<EdgeLine, Integer> map;
+class TrafficStreetRunnable implements GraphWriterRunnable {
 
-    public TrafficStreetrrRunable(HashMap<EdgeLine, Integer> map) {
+    private final Map<EdgeLine, Integer> map;
+
+    public TrafficStreetRunnable(Map<EdgeLine, Integer> map) {
         this.map = map;
     }
 
