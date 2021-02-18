@@ -23,7 +23,11 @@ public class TransitPriceCalculator {
         HashMap<Integer, BigDecimal> memoizedCostsPerMinute = new HashMap<>();
 
         BigDecimal transitTripPrice = getMinPrice(tripDescription.getLastMinute(), tripDescription, memoizedCostsPerMinute);
-        return (transitTripPrice.compareTo(BigDecimal.ZERO) >= 0 ? transitTripPrice : BigDecimal.valueOf(-1));
+        BigDecimal returnedPrice = (transitTripPrice.compareTo(BigDecimal.ZERO) >= 0 ? transitTripPrice : BigDecimal.valueOf(-1));
+
+        LOG.info("Computed {} transit trip price for trip {}", returnedPrice, tripDescription);
+
+        return returnedPrice;
     }
 
     private BigDecimal getMinPrice(int minute, TransitTripDescription tripDescription, HashMap<Integer, BigDecimal> memoizedCostsPerMinute) {
