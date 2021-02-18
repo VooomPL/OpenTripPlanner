@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This is a JCommander-annotated class that holds parameters for OTP stand-alone mode.
@@ -149,11 +150,14 @@ public class CommandLineParameters implements Cloneable {
     @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
 
-    @Parameter(names = {"--trafficAppi"}, description = "API for traffic update")
-    public String trafficApi = null;
+    @Parameter(names = {"--ticketsDefinitionsFile"}, description = "File for fetching info about available transit tickets")
+    public String ticketsDefinitionsFile = null;
 
-    @Parameter(names = {"--trafficApiPass"}, description = "Password for API for traffic update")
-    public String trafficApiPass = null;
+    @Parameter(names = {"--trafficAppi"}, description = "API for trafic udate")
+    public String traffic = null;
+
+    @Parameter(names = {"--trafficApiPass"}, description = "API for trafic password")
+    public String trafficAPIPass = null;
 
     @Parameter(names = {"--predictionApiUrl"}, description = "API for fetching vehicle presence heatmaps")
     public String predictionApiUrl = null;
@@ -179,12 +183,14 @@ public class CommandLineParameters implements Cloneable {
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
         }
-        if (trafficApi != null) {
-            System.setProperty("trafficPredictionApi", trafficApi);
+        if (Objects.nonNull(ticketsDefinitionsFile)) {
+            System.setProperty("ticketsDefinitionsFile", ticketsDefinitionsFile);
         }
-        // TODO AdamWiktor remove after VMP-182
-        if (trafficApiPass != null) {
-            System.setProperty("trafficPredictionApiPass", trafficApiPass);
+        if (traffic != null) {
+            System.setProperty("trfficApi", traffic);
+        }
+        if (trafficAPIPass != null) {
+            System.setProperty("trfficApiPass", trafficAPIPass);
         }
         if (predictionApiUrl != null) {
             System.setProperty("predictionApiUrl", predictionApiUrl);
