@@ -6,6 +6,7 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.routing.edgetype.FreeEdge;
 import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 
 import java.util.Optional;
@@ -20,12 +21,16 @@ import static org.opentripplanner.common.geometry.SphericalDistanceLibrary.fastD
  */
 public class SimpleEuclideanRWH implements RemainingWeightHeuristic {
 
-    private double lat;
-    private double lon;
-    private double bestMultiplier;
+    protected double lat;
+    protected double lon;
+    protected double bestMultiplier;
+    protected Vertex destination;
+    protected Graph graph;
 
     @Override
     public void initialize(RoutingRequest options, long abortTime) {
+        destination = options.getRoutingContext().target;
+        graph = options.getRoutingContext().graph;
         calculateDestination(options.rctx.target);
         calculateBestMultiplier(options);
     }

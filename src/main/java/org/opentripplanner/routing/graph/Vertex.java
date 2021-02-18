@@ -163,13 +163,28 @@ public abstract class Vertex implements Serializable, Cloneable {
         }
     }
 
-    /** @return whether the edge was found and removed. */
+    /**
+     * @return whether the edge was found and removed.
+     */
     public boolean removeIncoming(Edge edge) {
         synchronized (this) {
             int n = incoming.length;
             incoming = removeEdge(incoming, edge);
             return (incoming.length < n);
         }
+    }
+
+    public List<Edge> getAllIncidentEdges() {
+        List<Edge> result = new LinkedList<>(Arrays.asList(outgoing));
+        result.addAll(getIncoming());
+        return result;
+    }
+
+    public List<Vertex> getAllIncidentVertices() {
+        List<Vertex> result = new LinkedList<>();
+        getIncoming().stream().map(Edge::getFromVertex).forEach(result::add);
+        getOutgoing().stream().map(Edge::getToVertex).forEach(result::add);
+        return result;
     }
 
     /**
@@ -181,7 +196,9 @@ public abstract class Vertex implements Serializable, Cloneable {
         return Arrays.asList(outgoing);
     }
 
-    /** Get a collection containing all the edges leading from other vertices to this vertex. */
+    /**
+     * Get a collection containing all the edges leading from other vertices to this vertex.
+     */
     public Collection<Edge> getIncoming() {
         return Arrays.asList(incoming);
     }
@@ -298,5 +315,17 @@ public abstract class Vertex implements Serializable, Cloneable {
     public Point toPoint() {
         CoordinateXY coord = new CoordinateXY(getLon(), getLat());
         return new Point(new CoordinateArraySequence(new Coordinate[]{coord}), new GeometryFactory());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Vertex)) return false;
+        Vertex vertex = (Vertex) o;
+        return getIndex() == vertex.getIndex() &&
+                Double.compare(vertex.getX(), getX()) == 0 &&
+                Double.compare(vertex.getY(), getY()) == 0 &&
+                Objects.equals(getLabel(), vertex.getLabel()) &&
+                Objects.equals(getName(), vertex.getName());
     }
 }

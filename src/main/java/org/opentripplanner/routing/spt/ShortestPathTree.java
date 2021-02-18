@@ -14,17 +14,17 @@ import java.util.*;
  * This class keeps track which graph vertices have been visited and their associated states,
  * so that decisions can be made about whether new states should be enqueued for later exploration.
  * It also allows states to be retrieved for a given target vertex.
- * 
+ * <p>
  * We no longer have different implementations of ShortestPathTree because the label-setting (multi-state) approach
- * used in public transit routing, turn restrictions, bike rental, etc. is a generalization of the basic Dijkstra 
+ * used in public transit routing, turn restrictions, bike rental, etc. is a generalization of the basic Dijkstra
  * (single-state) approach. It is much more straightforward to use the more general SPT implementation in all cases.
- *
+ * <p>
  * Note that turn restrictions make all searches multi-state; however turn restrictions do not apply when walking.
  * The turn restriction handling is done in the base dominance function implementation, and applies to all subclasses.
  * It essentially splits each vertex into N vertices depending on the incoming edge being taken.
  */
 public class ShortestPathTree {
-
+    private int numberOfGeneratedStates = 0;
     private static final Logger LOG = LoggerFactory.getLogger(ShortestPathTree.class);
 
     public final RoutingRequest options;
@@ -33,13 +33,15 @@ public class ShortestPathTree {
 
     private Map<Vertex, List<State>> stateSets;
 
-    public ShortestPathTree (RoutingRequest options, DominanceFunction dominanceFunction) {
+    public ShortestPathTree(RoutingRequest options, DominanceFunction dominanceFunction) {
         this.options = options;
         this.dominanceFunction = dominanceFunction;
         stateSets = new IdentityHashMap<Vertex, List<State>>();
     }
 
-    /** @return a list of GraphPaths, sometimes empty but never null. */
+    /**
+     * @return a list of GraphPaths, sometimes empty but never null.
+     */
     public List<GraphPath> getPaths(Vertex dest, boolean optimize) {
         List<? extends State> stateList = getStates(dest);
         if (stateList == null)
@@ -53,10 +55,16 @@ public class ShortestPathTree {
         return ret;
     }
 
-    /** @return a default set of back-optimized paths to the target vertex. */
-    public List<GraphPath> getPaths() { return getPaths(options.getRoutingContext().target, true); }
+    /**
+     * @return a default set of back-optimized paths to the target vertex.
+     */
+    public List<GraphPath> getPaths() {
+        return getPaths(options.getRoutingContext().target, true);
+    }
 
-    /** @return a single optimal, optionally back-optimized path to the given vertex. */
+    /**
+     * @return a single optimal, optionally back-optimized path to the given vertex.
+     */
     public GraphPath getPath(Vertex dest, boolean optimize) {
         State s = getState(dest);
         if (s == null) {
@@ -66,12 +74,16 @@ public class ShortestPathTree {
         }
     }
 
-    /** @return the routing context for the search that produced this tree */
+    /**
+     * @return the routing context for the search that produced this tree
+     */
     public RoutingRequest getOptions() {
         return options;
     }
-    
-    /** Print out a summary of the number of states and vertices. */
+
+    /**
+     * Print out a summary of the number of states and vertices.
+     */
     public void dump() {
         Multiset<Integer> histogram = HashMultiset.create();
         int statesCount = 0;
@@ -107,9 +119,10 @@ public class ShortestPathTree {
      *
      * @param newState the State to add to the SPT, if it is deemed non-dominated
      * @return a boolean value indicating whether the state was added to the tree and should
-     *          therefore be enqueued
+     * therefore be enqueued
      */
     public boolean add(State newState) {
+        numberOfGeneratedStates += 1;
         Vertex vertex = newState.getVertex();
         List<State> states = stateSets.get(vertex);
 
@@ -172,7 +185,9 @@ public class ShortestPathTree {
         return stateSets.get(dest);
     }
 
-    /** @return number of vertices referenced in this SPT */
+    /**
+     * @return number of vertices referenced in this SPT
+     */
     public int getVertexCount() {
         return stateSets.keySet().size();
     }
@@ -181,20 +196,20 @@ public class ShortestPathTree {
      * The visit method should be called upon extracting a State from a priority queue. It
      * checks whether the State is still worth visiting (i.e. whether it has been dominated since it
      * was enqueued) and informs the ShortestPathTree that this State's outgoing edges have been
-     * relaxed. A state may remain in the priority queue after being dominated, and such sub-optimal 
+     * relaxed. A state may remain in the priority queue after being dominated, and such sub-optimal
      * states must be caught as they come out of the queue to avoid unnecessary branching.
-     * 
-     * So this function checks that a state coming out of the queue is still in the Pareto-optimal set for this vertex, 
-     * which indicates that it has not been ruled out as a state on an optimal path. Many shortest 
+     * <p>
+     * So this function checks that a state coming out of the queue is still in the Pareto-optimal set for this vertex,
+     * which indicates that it has not been ruled out as a state on an optimal path. Many shortest
      * path algorithms will decrease the key of a vertex in the priority queue when it is updated, but we store states
      * in the queue rather than vertices, and states do not get updated or change their weight.
      * TODO consider just removing states from the priority queue.
-     *
-     * When the Fibonacci heap was replaced with a binary heap, the decrease-key operation was 
-     * removed for the same reason: both improve theoretical run time complexity, at the cost of 
+     * <p>
+     * When the Fibonacci heap was replaced with a binary heap, the decrease-key operation was
+     * removed for the same reason: both improve theoretical run time complexity, at the cost of
      * high constant factors and more complex code.
-     *
-     * So there can be dominated (useless) states in the queue. When they come out we want to 
+     * <p>
+     * So there can be dominated (useless) states in the queue. When they come out we want to
      * ignore them rather than spend time branching out from them.
      *
      * @param state - the state about to be visited
@@ -211,7 +226,9 @@ public class ShortestPathTree {
         return ret;
     }
 
-    /** @return every state in this tree */
+    /**
+     * @return every state in this tree
+     */
     public Collection<State> getAllStates() {
         ArrayList<State> allStates = new ArrayList<State>();
         for (List<State> stateSet : stateSets.values()) {
@@ -224,4 +241,7 @@ public class ShortestPathTree {
         return "ShortestPathTree(" + this.stateSets.size() + " vertices)";
     }
 
+    public int getNumberOfGeneratedStates() {
+        return numberOfGeneratedStates;
+    }
 }

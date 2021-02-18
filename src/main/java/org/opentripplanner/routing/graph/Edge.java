@@ -2,8 +2,7 @@ package org.opentripplanner.routing.graph;
 
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.MavenVersion;
-import org.opentripplanner.graph_builder.module.time.QueryData;
-import org.opentripplanner.graph_builder.module.time.TimeTable;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -15,8 +14,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -220,7 +217,7 @@ public abstract class Edge implements Serializable {
     }
 
     public double getDistanceInMeters() {
-        return 0;
+        return SphericalDistanceLibrary.distance(fromv.getLat(), fromv.getLon(), tov.getLat(), tov.getLon());
     }
 
     /* SERIALIZATION */

@@ -10,6 +10,8 @@ import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Estimators.Landmark;
+import org.opentripplanner.routing.graph.Estimators.LandmarkEstimator;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
@@ -546,6 +548,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
                     drawEdge(e);
                 }
             }
+
         }
         // mark key vertices
         lastLabelY = -999;
@@ -598,7 +601,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         ellipse(toScreenX(c.x), toScreenY(c.y), r, r);
     }
 
-    private void drawVertex(Vertex v, double r) {
+    public void drawVertex(Vertex v, double r) {
         drawCoordinate(v.getCoordinate(), r);
     }
 
@@ -730,24 +733,27 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
 		for (Vertex v : visibleVertices) {
             if (drawTransitStopVertices && closeEnough && v instanceof TransitStationStop) {
                 fill(60, 60, 200); // Make transit stops blue dots
-		        drawVertex(v, 7);
-			}
-			if (drawStreetVertices && v instanceof IntersectionVertex) {
-		        IntersectionVertex iv = (IntersectionVertex) v;
-		        if (iv.trafficLight) {
+                drawVertex(v, 7);
+            }
+            if (drawStreetVertices && v instanceof IntersectionVertex) {
+                IntersectionVertex iv = (IntersectionVertex) v;
+                if (iv.trafficLight) {
                     fill(120, 60, 60); // Make traffic lights red dots
                     drawVertex(v, 5);
                 }
-		    }
-			if (drawMultistateVertices && spt!=null){
-				List<? extends State> states = spt.getStates(v);
-				if(states != null){
+            }
+            if (drawMultistateVertices && spt != null) {
+                List<? extends State> states = spt.getStates(v);
+                if (states != null) {
                     fill(100, 60, 100);
-					drawVertex( v, states.size()*2 );
-				}
-			}
-		}
-	}
+                    drawVertex(v, states.size() * 2);
+                }
+            }
+        }
+        for (Landmark landmark : ((LandmarkEstimator) graph.getDistanceEstimator()).getLandmarks()) {
+            drawVertex(landmark.getChosenVertex(), 15);
+        }
+    }
 
 	private void drawHighlighted() {
 		/* Draw highlighted edges in another color */

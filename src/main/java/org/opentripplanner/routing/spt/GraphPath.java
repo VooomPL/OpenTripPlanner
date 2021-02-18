@@ -22,6 +22,7 @@ import static org.opentripplanner.api.resource.GraphPathToTripPlanConverter.make
  * A shortest path on the graph.
  */
 public class GraphPath {
+    private int numberOfGeneratedNodes;
     private static final Logger LOG = LoggerFactory.getLogger(GraphPath.class);
 
     public LinkedList<State> states;
@@ -249,5 +250,13 @@ public class GraphPath {
 
     public Map<TraverseMode, Integer> getTimeTraversedInMode() {
         return timeTraversedInMode;
+    }
+
+    public int getNumberOfGeneratedNodes() {
+        return numberOfGeneratedNodes;
+    }
+
+    public void setNumberOfGeneratedNodes(int numberOfGeneratedNodes) {
+        this.numberOfGeneratedNodes = numberOfGeneratedNodes;
     }
 }

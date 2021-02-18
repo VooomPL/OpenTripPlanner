@@ -214,7 +214,7 @@ public class GraphBuilderParameters {
         maxHtmlAnnotationsPerFile = config.path("maxHtmlAnnotationsPerFile").asInt(1000);
         maxInterlineDistance = config.path("maxInterlineDistance").asInt(200);
         pruningThresholdIslandWithoutStops = config.path("islandWithoutStopsMaxSize").asInt(300);
-        pruningThresholdIslandWithStops = config.path("islandWithStopsMaxSize").asInt(5);
+        pruningThresholdIslandWithStops = config.path("islandWithStopsMaxSize").asInt(150);
         banDiscouragedWalking = config.path("banDiscouragedWalking").asBoolean(false);
         banDiscouragedBiking = config.path("banDiscouragedBiking").asBoolean(false);
         maxTransferDistance = config.path("maxTransferDistance").asDouble(2000);
