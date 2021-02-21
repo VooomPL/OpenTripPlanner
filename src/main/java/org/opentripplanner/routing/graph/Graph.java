@@ -304,7 +304,8 @@ public class Graph implements Serializable {
     private final Map<Provider, LocalTime> lastProviderVehiclesUpdateTimestamps = new HashMap<>();
 
     @Getter
-    private final Set<TransitTicket> availableTransitTickets = Collections.synchronizedSet(new HashSet<>());
+    private Set<TransitTicket> availableTransitTickets = Collections.synchronizedSet(new HashSet<>());
+    ;
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once
@@ -795,6 +796,8 @@ public class Graph implements Serializable {
             fromVertex.addOutgoing(e);
             toVertex.addIncoming(e);
         }
+
+        graph.availableTransitTickets = Collections.synchronizedSet(new HashSet<>());
 
         LOG.info("Main graph read. |V|={} |E|={}", graph.countVertices(), graph.countEdges());
         graph.index(new DefaultStreetVertexIndexFactory());

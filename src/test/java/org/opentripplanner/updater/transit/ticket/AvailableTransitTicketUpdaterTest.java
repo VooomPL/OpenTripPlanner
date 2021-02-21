@@ -22,8 +22,8 @@ public class AvailableTransitTicketUpdaterTest {
 
     @Test
     public void shouldNotAddAnyTicketToGraph() {
-        Graph graph = new Graph();
         System.clearProperty("ticketsDefinitionsFile");
+        Graph graph = new Graph();
 
         AvailableTransitTicketsUpdater updater = new AvailableTransitTicketsUpdater();
         updater.setup(graph);
