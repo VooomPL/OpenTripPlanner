@@ -5,6 +5,8 @@ import org.opentripplanner.model.Route;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+// Class for representing constraints regarding route attributes (associated with transit tickets definitions)
+
 public class RoutePattern extends Pattern<Route> {
 
     public enum RouteAttribute {ID, SHORT_NAME, LONG_NAME, TYPE}

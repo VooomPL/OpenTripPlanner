@@ -5,18 +5,16 @@ import org.opentripplanner.model.Stop;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+// Class for representing constraints regarding stop attributes (associated with transit tickets definitions)
+
 public class StopPattern extends Pattern<Stop> {
 
     public enum StopAttribute {ID, NAME, ZONE, LATITUDE, LONGITUDE}
 
     private final HashMap<Pattern.TextOperator, ArrayList<String>> idConstraints = new HashMap<>();
-
     private final HashMap<Pattern.TextOperator, ArrayList<String>> nameConstraints = new HashMap<>();
-
     private final HashMap<Pattern.TextOperator, ArrayList<String>> zoneConstraints = new HashMap<>();
-
     private final HashMap<Pattern.NumericalOperator, Double> latitudeConstraints = new HashMap<>();
-
     private final HashMap<Pattern.NumericalOperator, Double> longitudeConstraints = new HashMap<>();
 
     public void addConstraint(StopAttribute attribute, Pattern.TextOperator operator, String patternValue) {

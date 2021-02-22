@@ -2,6 +2,8 @@ package org.opentripplanner.pricing.transit.ticket.pattern;
 
 import java.util.*;
 
+// Generic class for representing constraints associated with transit tickets definitions
+
 public abstract class Pattern<T> {
 
     public enum TextOperator {STARTS_WITH, ENDS_WITH, IN, NOT_STARTS_WITH, NOT_ENDS_WITH, NOT_IN}
