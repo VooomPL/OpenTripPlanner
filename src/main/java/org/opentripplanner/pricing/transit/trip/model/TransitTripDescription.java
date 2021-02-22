@@ -19,7 +19,7 @@ public class TransitTripDescription {
     private final RangeSet<Integer> tripStagesTimeBounds = TreeRangeSet.create();
 
     public TransitTripDescription(List<TransitTripStage> tripStages) {
-        if (Objects.nonNull(tripStages)) {
+        if (Objects.nonNull(tripStages) && !tripStages.isEmpty()) {
 
             TransitTripStage currentTripStage;
             Route currentRoute = tripStages.get(0).getCurrentRoute();
