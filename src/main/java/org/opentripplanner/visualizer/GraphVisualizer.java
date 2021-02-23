@@ -6,6 +6,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.graph_builder.annotation.GraphBuilderAnnotation;
 import org.opentripplanner.graph_builder.annotation.StopUnlinked;
 import org.opentripplanner.routing.algorithm.TraverseVisitor;
+import org.opentripplanner.routing.algorithm.profile.OptimizationProfileFactory;
 import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleTypeFilter;
@@ -356,6 +357,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     private JTextField bikeSpeed;
 
     private JTextField heuristicWeight;
+    private JTextField optimizationProfile;
 
     private JCheckBox softWalkLimiting;
 
@@ -636,6 +638,13 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         pane.add(heuristicWeightLabel);
         heuristicWeight = new JTextField("1.0");
         pane.add(heuristicWeight);
+
+
+        JLabel optimizationProfileText = new JLabel("Optimization Profile");
+        pane.add(optimizationProfileText);
+        optimizationProfile = new JTextField("original");
+        pane.add(optimizationProfile);
+
 
         // row: soft walk?
         JLabel softWalkLimitLabel = new JLabel("Soft walk-limit?:");
@@ -1412,6 +1421,8 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         // there should be a ui element for walk distance and optimize type
         options.setOptimize(getSelectedOptimizeType());
         options.setMaxWalkDistance(Integer.parseInt(maxWalkField.getText()));
+
+        options.setOptimizationProfile(OptimizationProfileFactory.getOptimizationProfile(optimizationProfile.getText(), options));
 
         options.vehicleValidator.addFilter(new VehicleTypeFilter(
                 Arrays.stream(vehicleTypesAllowedField.getText().split(",")).map(VehicleType::fromDatabaseVehicleType).collect(Collectors.toSet())));

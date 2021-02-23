@@ -23,6 +23,7 @@ import org.opentripplanner.routing.flex.FlagStopGraphModifier;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
+import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +155,7 @@ public class GraphPathFinder {
                 break;
             }
             // Don't dig through the SPT object, just ask the A star algorithm for the states that reached the target.
-            aStar.getShortestPathTree(options, timeout);
+            ShortestPathTree spt = aStar.getShortestPathTree(options, timeout);
 
             if (options.rctx.aborted) {
                 break; // Search timed out or was gracefully aborted for some other reason.
@@ -172,6 +173,7 @@ public class GraphPathFinder {
             // Find all trips used in this path and ban them for the remaining searches
             for (GraphPath path : newPaths) {
                 // path.dump();
+                path.setNumberOfGeneratedNodes(spt.getNumberOfGeneratedStates());
                 List<FeedScopedId> tripIds = path.getTrips();
                 List<FeedScopedId> callAndRideTripIds = path.getCallAndRideTrips();
                 for (FeedScopedId tripId : tripIds) {

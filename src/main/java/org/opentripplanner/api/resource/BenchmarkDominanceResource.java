@@ -33,6 +33,7 @@ public class BenchmarkDominanceResource extends RoutingResource {
         List<Double> estimatedRW = new LinkedList<>();
         List<Double> realRW = new LinkedList<>();
         List<Long> time = new LinkedList<>();
+        List<Integer> generatedStates = new LinkedList<>();
         Router router = null;
         RoutingRequest request = null;
         List<GraphPath> paths = null;
@@ -66,14 +67,17 @@ public class BenchmarkDominanceResource extends RoutingResource {
                             request.getRoutingContext().remainingWeightHeuristic.estimateRemainingWeight(paths.get(0).states.get(0));
 
                     Long calculatedTime = paths.get(0).getEndTime() - paths.get(0).getStartTime();
-
+                    int numberOfGeneratedStates = paths.get(0).getNumberOfGeneratedNodes();
                     realRW.add(realW);
                     estimatedRW.add(estimated);
                     time.add(calculatedTime);
+                    generatedStates.add(numberOfGeneratedStates);
                 } catch (Exception e) {
                     realRW.add(-1.0);
                     estimatedRW.add(-1.0);
                     time.add(-1L);
+                    generatedStates.add(-1);
+
                 }
 
             }
@@ -81,7 +85,7 @@ public class BenchmarkDominanceResource extends RoutingResource {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new BenchmarkResult(realRW, estimatedRW, time);
+        return new BenchmarkResult(realRW, estimatedRW, time, generatedStates);
 
     }
 }
