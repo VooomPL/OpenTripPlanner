@@ -250,7 +250,7 @@ public class TransitTicket {
     private int getMaxDistanceConstraintCompliantTime(int ticketShouldBeValidUntil, List<TransitTripStage> tripStages) {
         int totalMinutesWhenValid = 0;
 
-        int totalDistance = 0;
+        double totalDistance = 0;
         TransitTripStage evaluatedTripStage;
         TransitTripStage earlierTripStage;
 
