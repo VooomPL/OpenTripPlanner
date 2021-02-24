@@ -792,31 +792,35 @@ public abstract class GraphPathToTripPlanConverter {
     private static List<TransitTripStage> generateTransitTripStages(List<State> states) {
         List<TransitTripStage> transitTripStages = new ArrayList<>();
 
-        Vertex firstVertex = states.get(0).getVertex();
-        int currentTripTime = 0;
+        int currentTripTime = 1;
+        long firstTransitFareStartsAt = -1;
+        Stop currentStop;
+        double distance = 0;
 
-        if (firstVertex instanceof TransitVertex) {
-            transitTripStages.add(new TransitTripStage(states.get(0).stateData.getLastPattern().route,
-                    ((TransitVertex) firstVertex).getStop(), currentTripTime, 0));
-        }
+        for (State currentState : states) {
+            Vertex vertex = currentState.getVertex();
 
-        for (int i = 1; i < states.size(); i++) {
-            Vertex vertex = states.get(i).getVertex();
+            if (vertex instanceof PatternArriveVertex || vertex instanceof PatternDepartVertex) {
+                currentStop = ((TransitVertex) vertex).getStop();
 
-            if (!(vertex instanceof TransitVertex)) continue;
-
-            /*
-            TODO:
-             Paulina Jaka to realna sytuacja:
-            if (currentStop == previousStop) {                  // Avoid duplication of stops
-                    leg.stop.get(leg.stop.size() - 1).departure = makeCalendar(states.get(i));
-                    continue;
+                if (vertex instanceof PatternDepartVertex) {
+                    if (currentState.getBackState().getVertex() instanceof TransitStopDepart) {
+                        //This is the first stop of a new fare
+                        transitTripStages.add(new TransitTripStage(((PatternDepartVertex) vertex).getTripPattern().route,
+                                currentStop, currentTripTime, distance));
+                        if (firstTransitFareStartsAt == -1) {
+                            //This is the first transit route in this trip
+                            firstTransitFareStartsAt = currentState.getTimeSeconds();
+                        }
+                    }
+                } else {
+                    //This is one of the intermediate stops or the last stop for this fare
+                    currentTripTime = (int) ((currentState.getTimeSeconds() - firstTransitFareStartsAt) / TimeUnit.MINUTES.toSeconds(1));
+                    distance = currentState.getBackEdge().getDistanceInMeters();
+                    transitTripStages.add(new TransitTripStage(((PatternArriveVertex) vertex).getTripPattern().route,
+                            currentStop, currentTripTime, distance));
                 }
-             */
-            currentTripTime += (states.get(states.size() - 1).getTimeDeltaSeconds() / TimeUnit.MINUTES.toSeconds(1));
-            transitTripStages.add(new TransitTripStage(states.get(states.size() - 1).getStateData().getLastPattern().route,
-                    ((TransitVertex) firstVertex).getStop(), currentTripTime,
-                    (int) states.get(states.size() - 1).getWalkDistanceDelta()));
+            }
         }
 
         return transitTripStages;
