@@ -14,6 +14,7 @@ import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.pricing.transit.TransitPriceCalculator;
+import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripDescription;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.profile.BikeRentalStationInfo;
@@ -193,10 +194,17 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.distanceTraversedInMode = lastState.createDistanceTraversedInModeMap();
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
         itinerary.price = lastState.getTraversalPrice();
+
         itinerary.getTripStages().addAll(generateTransitTripStages(states));
-        TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
-        transitPriceCalculator.getAvailableTickets().addAll(graph.getAvailableTransitTickets());
-        itinerary.transitPrice = transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages()));
+        Set<TransitTicket> availableTickets = graph.getAvailableTransitTickets();
+
+        if (Objects.nonNull(availableTickets) && !availableTickets.isEmpty()) {
+            TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
+            transitPriceCalculator.getAvailableTickets().addAll(availableTickets);
+            itinerary.transitPrice = transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages()));
+        } else {
+            LOG.warn("Skipping transit price calculation for trip {} due to the lack of available tickets", itinerary.getTripStages());
+        }
 
         itinerary.transfers = lastState.getNumBoardings();
         if (itinerary.transfers > 0 && !(states.get(0).getVertex() instanceof OnboardDepartVertex)) {
