@@ -20,7 +20,7 @@ public class TransitTripStage {
     private final int time;
 
     @Getter
-    private final int distance;
+    private final double distance;
 
     public String toString() {
         return Optional.of("{" + currentRoute.getShortName()).orElseGet(currentRoute::getLongName) + ", "
