@@ -749,7 +749,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
                 }
             }
         }
-        for (Landmark landmark : graph.getDistanceEstimator().getLandmarks()) {
+        for (Landmark landmark : graph.getLandmarkEstimator().getLandmarks()) {
             drawVertex(landmark.getChosenVertex(), 15);
         }
     }
