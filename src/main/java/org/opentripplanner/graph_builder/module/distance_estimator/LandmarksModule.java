@@ -43,7 +43,7 @@ public class LandmarksModule implements GraphBuilderModule {
                     break;
                 randomVertex2 = vertex;
             }
-            double landmarkDistance = graph.getDistanceEstimator().estimateDistanceInMeters(graph, randomVertex1, randomVertex2);
+            double landmarkDistance = graph.getLandmarkEstimator().estimateDistanceInMeters(graph, randomVertex1, randomVertex2);
             double euclideanDistance = new EuclideanEstimator().estimateDistanceInMeters(graph, randomVertex1, randomVertex2);
             double exactDistance = new ExactDijikstraEstimator(graph).estimateDistanceInMeters(graph, randomVertex1, randomVertex2);
             LOG.info("landmark " + landmarkDistance + " euclidean " + euclideanDistance + " exact " + exactDistance + "  " +

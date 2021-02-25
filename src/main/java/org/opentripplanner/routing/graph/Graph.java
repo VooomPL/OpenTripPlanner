@@ -50,8 +50,8 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
 import org.opentripplanner.routing.flex.FlexIndex;
-import org.opentripplanner.routing.graph.Estimators.EuclideanEstimator;
 import org.opentripplanner.routing.graph.Estimators.GraphComponent.GraphComponentInfo;
+import org.opentripplanner.routing.graph.Estimators.LandmarkEstimator;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.services.StreetVertexIndexFactory;
 import org.opentripplanner.routing.services.StreetVertexIndexService;
@@ -123,7 +123,7 @@ public class Graph implements Serializable {
 
     private GraphBundle bundle;
 
-    private DistanceEstimator distanceEstimator = new EuclideanEstimator();
+    private LandmarkEstimator landmarkEstimator;
 
     /* vertex index by name is reconstructed from edges */
     private transient Map<String, Vertex> vertices;
@@ -1289,11 +1289,11 @@ public class Graph implements Serializable {
         this.transitStops.get(newStopTime.getStop().getId()).addLine(Optional.ofNullable(newStopTime.getTrip().getRoute().getShortName()).orElseGet(newStopTime.getTrip().getRoute()::getLongName));
     }
 
-    public DistanceEstimator getDistanceEstimator() {
-        return distanceEstimator;
+    public LandmarkEstimator getLandmarkEstimator() {
+        return landmarkEstimator;
     }
 
-    public void setDistanceEstimator(DistanceEstimator distanceEstimator) {
-        this.distanceEstimator = distanceEstimator;
+    public void setDistanceEstimator(LandmarkEstimator landmarkEstimator) {
+        this.landmarkEstimator = landmarkEstimator;
     }
 }
