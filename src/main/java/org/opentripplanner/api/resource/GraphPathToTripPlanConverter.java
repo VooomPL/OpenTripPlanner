@@ -803,7 +803,7 @@ public abstract class GraphPathToTripPlanConverter {
         int currentTripTime = 1;
         long firstTransitFareStartsAt = -1;
         Stop currentStop;
-        double distance = 0;
+        double distance;
 
         for (State currentState : states) {
             Vertex vertex = currentState.getVertex();
@@ -814,6 +814,7 @@ public abstract class GraphPathToTripPlanConverter {
                 if (vertex instanceof PatternDepartVertex) {
                     if (currentState.getBackState().getVertex() instanceof TransitStopDepart) {
                         //This is the first stop of a new fare
+                        distance = 0;
                         transitTripStages.add(new TransitTripStage(((PatternDepartVertex) vertex).getTripPattern().route,
                                 currentStop, currentTripTime, distance));
                         if (firstTransitFareStartsAt == -1) {
