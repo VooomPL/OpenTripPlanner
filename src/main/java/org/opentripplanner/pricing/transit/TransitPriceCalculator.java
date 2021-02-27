@@ -41,7 +41,6 @@ public class TransitPriceCalculator {
             List<BigDecimal> results = new ArrayList<>();
             LocalDateTime currentTimestamp = LocalDateTime.now();
             availableTickets.stream().filter(transitTicket -> transitTicket.isAvailable(currentTimestamp)).forEach(ticketType -> {
-                //TODO: allow discounts!!!
                 int ticketValidForMinutes = ticketType.getTotalMinutesWhenValid(minute, tripDescription.getTripStages());
                 if (ticketValidForMinutes != 0) {
                     results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute,
@@ -59,7 +58,7 @@ public class TransitPriceCalculator {
                 return BigDecimal.valueOf(-Double.MAX_VALUE);
             }
         } else {
-            //Walking from one transit trip to another
+            //Walking from one transit trip to another - no need for ticket here
             return getMinPrice(tripDescription.getLastMinuteOfPreviousFare(minute), tripDescription, memoizedCostsPerMinute);
         }
     }
