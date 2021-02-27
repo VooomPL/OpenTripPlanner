@@ -140,25 +140,27 @@ public class CommandLineParameters implements Cloneable {
             description = "Allow unauthenticated access to sensitive API resources, e.g. /routers")
     public boolean insecure = false;
 
-    @Parameter(names = { "--script" }, description = "run the specified OTP script (groovy, python)")
+    @Parameter(names = {"--script"}, description = "run the specified OTP script (groovy, python)")
     public File scriptFile = null;
 
-    @Parameter(names = { "--enableScriptingWebService" }, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
+    @Parameter(names = {"--enableScriptingWebService"}, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
     boolean enableScriptingWebService = false;
 
-    @Parameter(names = { "--sharedVehiclesApi" }, description = "API for fetching info about renable vehicles")
+    @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
 
-    @Parameter(names ={"--trafficAppi"},description = "API for trafic udate")
-    public  String traffic = null;
+    @Parameter(names = {"--trafficAppi"}, description = "API for traffic update")
+    public String trafficApi = null;
 
-    @Parameter(names ={"--trafficApiPass"},description = "API for trafic password")
-    public  String trafficAPIPass =null;
+    @Parameter(names = {"--trafficApiPass"}, description = "Password for API for traffic update")
+    public String trafficApiPass = null;
 
     @Parameter(names = {"--predictionApiUrl"}, description = "API for fetching vehicle presence heatmaps")
     public String predictionApiUrl = null;
 
-    /** Set some convenience parameters based on other parameters' values. */
+    /**
+     * Set some convenience parameters based on other parameters' values.
+     */
     public void infer() {
         server |= (inMemory || preFlight || port != null);
         if (basePath == null) basePath = DEFAULT_BASE_PATH;
@@ -177,11 +179,12 @@ public class CommandLineParameters implements Cloneable {
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
         }
-        if (traffic != null) {
-            System.setProperty("trfficApi", traffic);
+        if (trafficApi != null) {
+            System.setProperty("trafficPredictionApi", trafficApi);
         }
-        if (trafficAPIPass != null) {
-            System.setProperty("trfficApiPass", trafficAPIPass);
+        // TODO AdamWiktor remove after VMP-182
+        if (trafficApiPass != null) {
+            System.setProperty("trafficPredictionApiPass", trafficApiPass);
         }
         if (predictionApiUrl != null) {
             System.setProperty("predictionApiUrl", predictionApiUrl);
