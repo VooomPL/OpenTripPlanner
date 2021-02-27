@@ -156,17 +156,23 @@ public class TransitTicket {
         for (int stageIndex = tripStages.size() - 1; stageIndex >= 0; stageIndex--) {
             evaluatedTripStage = tripStages.get(stageIndex);
 
-            boolean isEvaluatedTicketValid = isTicketValid(evaluatedTripStage);
-
             if (evaluatedTripStage.getTime() < ticketShouldBeValidUntil) {
+                if (isTicketValid(evaluatedTripStage)) {
 
-                if (isEvaluatedTicketValid) {
-
-                    if (isFirstApplicableTripStage && !(stageIndex == tripStages.size() - 1)) {
-                        //For cases like in TransitTicketTest::shouldReturn0MinutesValid
+                    if (isFirstApplicableTripStage) {
                         if (isTicketValid(laterTripStage)) {
+                            /*
+                             * At this point we have made sure, that we can depart from the stop at the beginning of
+                             * the evaluated trip stage and continue our trip to the next stop using this ticket
+                             * (eg. for cases like in TransitTicketTest::shouldReturn0MinutesValid())
+                             */
                             totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
                         } else {
+                            /*
+                             * We cannot use the evaluated ticket for this trip stage because the ticket is only
+                             * guaranteed to be valid for the first stop of the evaluated trip stage (departing from this
+                             * stop and travelling further to the next one is not possible)
+                             */
                             break;
                         }
                         isFirstApplicableTripStage = false;
@@ -185,6 +191,8 @@ public class TransitTicket {
     }
 
     private boolean isTicketValid(TransitTripStage tripStage) {
+        if (Objects.isNull(tripStage)) return false;
+
         String agencyId = tripStage.getCurrentRoute().getId().getAgencyId();
         RoutePattern agencyAssociatedRoutePattern = routePatterns.get(agencyId);
         StopPattern agencyAssociatedStopPattern = stopPatterns.get(agencyId);
@@ -211,30 +219,43 @@ public class TransitTicket {
         TransitTripStage evaluatedTripStage;
         TransitTripStage earlierTripStage = null;
         Route evaluatedRoute;
-        Route earlierRoute = null;
+        Route nextRoute = null;
 
         for (int stageIndex = tripStages.size() - 1; stageIndex >= 0; stageIndex--) {
 
             evaluatedTripStage = tripStages.get(stageIndex);
-            evaluatedRoute = tripStages.get(stageIndex).getCurrentRoute();
+            evaluatedRoute = evaluatedTripStage.getCurrentRoute();
 
             if (evaluatedTripStage.getTime() < ticketShouldBeValidUntil) {
 
                 if (isNull(earlierTripStage)) {
+                    /*
+                     * This is the first trip stage applicable to the part of the trip limited by
+                     * ticketShouldBeValidUntil, so we are not concerned, whether the route associated with the
+                     * next trip stage is different from the route associated with the evaluated stage or not - we
+                     * are only counting this as the first fare for this ticket.
+                     */
                     totalFareCount++;
-                } else if (!earlierRoute.getId().equals(evaluatedRoute.getId())) {
-                    FareSwitch fareSwitch = new FareSwitch(evaluatedRoute, earlierRoute, evaluatedTripStage.getCurrentStop(), earlierTripStage.getCurrentStop());
+                } else if (!nextRoute.getId().equals(evaluatedRoute.getId())) {
+                    FareSwitch fareSwitch = new FareSwitch(evaluatedRoute, nextRoute, evaluatedTripStage.getCurrentStop(), earlierTripStage.getCurrentStop());
                     if (isFareSwitchValid(fareSwitch)) {
+                        //We have made sure, that such fare switch is allowed for this ticket
                         totalFareCount++;
 
-                        if (totalFareCount > maxFares) break;
+                        if (totalFareCount > maxFares) {
+                            /*
+                             * We have reached the limit of fare switches - we cannot use this ticket for another
+                             * fare
+                             */
+                            break;
+                        }
                     } else {
                         break;
                     }
                 }
                 totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
 
-                earlierRoute = evaluatedRoute;
+                nextRoute = evaluatedRoute;
                 earlierTripStage = evaluatedTripStage;
             }
         }

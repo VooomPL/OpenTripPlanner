@@ -14,8 +14,10 @@ public class TransitTripStage {
     //Stop at which this stage begins
     Stop currentStop;
 
+    //Time of arriving at currentStop (in minutes)
     int time;
 
+    //Distance between previously visited stop of the same fare and the current stop (0 for the first stop of each fare)
     double distance;
 
     public String toString() {
