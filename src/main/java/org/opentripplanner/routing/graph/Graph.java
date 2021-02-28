@@ -796,7 +796,7 @@ public class Graph implements Serializable {
             toVertex.addIncoming(e);
         }
 
-        graph.availableTransitTickets = Collections.synchronizedSet(new HashSet<>());
+        graph.availableTransitTickets = new HashSet<>();
 
         LOG.info("Main graph read. |V|={} |E|={}", graph.countVertices(), graph.countEdges());
         graph.index(new DefaultStreetVertexIndexFactory());
