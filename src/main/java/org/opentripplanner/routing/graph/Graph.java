@@ -305,7 +305,6 @@ public class Graph implements Serializable {
 
     @Getter
     private Set<TransitTicket> availableTransitTickets = Collections.synchronizedSet(new HashSet<>());
-    ;
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once
