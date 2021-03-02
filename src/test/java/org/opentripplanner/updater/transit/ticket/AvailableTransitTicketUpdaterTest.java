@@ -32,4 +32,25 @@ public class AvailableTransitTicketUpdaterTest {
 
         assertEquals(0, graph.getAvailableTransitTickets().size());
     }
+
+    @Test
+    public void shouldReplace7TicketsWith0AfterUpdate() {
+        System.setProperty("ticketsDefinitionsFile", "src/test/resources/tickets/warsaw/availableTickets.json");
+        Graph graph = new Graph();
+
+        AvailableTransitTicketsUpdater updater = new AvailableTransitTicketsUpdater();
+        updater.setup(graph);
+        updater.configure(graph, null);
+        updater.runPolling();
+
+        assertEquals(7, graph.getAvailableTransitTickets().size());
+
+        System.clearProperty("ticketsDefinitionsFile");
+        updater = new AvailableTransitTicketsUpdater();
+        updater.setup(graph);
+        updater.configure(graph, null);
+        updater.runPolling();
+
+        assertEquals(0, graph.getAvailableTransitTickets().size());
+    }
 }

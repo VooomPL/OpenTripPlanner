@@ -26,11 +26,11 @@ public class AvailableTransitTicketsUpdater extends PollingGraphUpdater {
     protected void runPolling() {
         LOG.info("Polling available tickets from file");
         Set<TransitTicket> availableTickets = ticketsGetter.getFromFile(this.ticketDefinitionsFileName);
-        if (!availableTickets.isEmpty()) {
-            availableTickets.forEach(transitTicket -> graph.getAvailableTransitTickets().add(transitTicket));
-        } else {
-            LOG.warn("Couldn't read available tickets from file");
+        if (availableTickets.isEmpty()) {
+            LOG.warn("Couldn't read available tickets from file - file empty or not found");
         }
+        graph.getAvailableTransitTickets().clear();
+        availableTickets.forEach(transitTicket -> graph.getAvailableTransitTickets().add(transitTicket));
     }
 
     @Override
