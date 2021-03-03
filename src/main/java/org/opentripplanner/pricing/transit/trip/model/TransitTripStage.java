@@ -14,7 +14,7 @@ public class TransitTripStage {
     //Stop at which this stage begins
     Stop currentStop;
 
-    //Time of arriving at currentStop (in minutes)
+    //Next minute after arriving at currentStop (1 for the first stage of the first fare in a trip)
     int time;
 
     //Distance between previously visited stop of the same fare and the current stop (0 for the first stop of each fare)
