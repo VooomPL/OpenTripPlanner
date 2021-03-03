@@ -801,7 +801,7 @@ public abstract class GraphPathToTripPlanConverter {
         List<TransitTripStage> transitTripStages = new ArrayList<>();
 
         int currentTripTime = 1;
-        long firstTransitFareStartsAt = -1;
+        int firstTransitFareStartsAt = -1;
         Stop currentStop;
         double distance;
 
@@ -815,16 +815,20 @@ public abstract class GraphPathToTripPlanConverter {
                     if (currentState.getBackState().getVertex() instanceof TransitStopDepart) {
                         //This is the first stop of a new fare
                         distance = 0;
-                        transitTripStages.add(new TransitTripStage(((PatternDepartVertex) vertex).getTripPattern().route,
-                                currentStop, currentTripTime, distance));
                         if (firstTransitFareStartsAt == -1) {
                             //This is the first transit route in this trip
-                            firstTransitFareStartsAt = currentState.getTimeSeconds();
+                            firstTransitFareStartsAt = (int) (currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1));
+                        } else {
+                            currentTripTime = (int) ((currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1)
+                                    - firstTransitFareStartsAt)) + 1;
                         }
+                        transitTripStages.add(new TransitTripStage(((PatternDepartVertex) vertex).getTripPattern().route,
+                                currentStop, currentTripTime, distance));
                     }
                 } else {
                     //This is one of the intermediate stops or the last stop for this fare
-                    currentTripTime = (int) ((currentState.getTimeSeconds() - firstTransitFareStartsAt) / TimeUnit.MINUTES.toSeconds(1));
+                    currentTripTime = (int) ((currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1)
+                            - firstTransitFareStartsAt)) + 1; /* +1 as it is first minute after departing from stop */
                     distance = currentState.getBackEdge().getDistanceInMeters();
                     transitTripStages.add(new TransitTripStage(((PatternArriveVertex) vertex).getTripPattern().route,
                             currentStop, currentTripTime, distance));

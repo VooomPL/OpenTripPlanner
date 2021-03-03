@@ -18,6 +18,7 @@ import org.opentripplanner.gtfs.BikeAccess;
 import org.opentripplanner.model.*;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
 import org.opentripplanner.routing.alertpatch.TimePeriod;
@@ -28,6 +29,7 @@ import org.opentripplanner.routing.edgetype.*;
 import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.impl.GraphPathFinder;
 import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.services.FareService;
@@ -36,12 +38,18 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.*;
+import org.opentripplanner.standalone.Router;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.util.NonLocalizedString;
 import org.opentripplanner.util.PolylineEncoder;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -172,10 +180,93 @@ public class GraphPathToTripPlanConverterTest {
             List<Coordinate> coordinates = PolylineEncoder.decode(itinerary.legs.get(i).legGeometry);
             next = coordinates.get(0);
             if (prev != null) {
-                assertEquals(0, next.distance(prev),  0.01);
+                assertEquals(0, next.distance(prev), 0.01);
             }
             prev = coordinates.get(coordinates.size() - 1);
         }
+    }
+
+    @Test
+    public void shouldReturnProperTransitTripStagesForSingleFareItinerary() {
+        try {
+            Graph graph = Graph.load(new File("./src/test/resources/org/opentripplanner/api/resource/graphs/warszawa/Graph.obj"));
+            Router router = new Router("test", graph);
+
+            GraphPathFinder graphPathFinder = new GraphPathFinder(router);
+
+            //Single fare request
+            RoutingRequest request = createDefaultTransitRequest();
+            request.from.lat = 52.245571;
+            request.from.lng = 20.999749;
+            request.to.lat = 52.216185;
+            request.to.lng = 21.016057;
+
+            List<GraphPath> paths = graphPathFinder.graphPathFinderEntryPoint(request);
+            assertTrue(paths.size() > 0);
+            TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, request, router.graph.streetIndex);
+            Leg transitLeg = tripPlan.itinerary.get(0).legs.get(1);
+            assertTrue(transitLeg.isTransitLeg());
+            List<TransitTripStage> tripStages = tripPlan.itinerary.get(0).getTripStages();
+            //Assert that time of arrival at the last stop equals the duration in minutes for the transit leg
+            assertEquals((int) transitLeg.getDuration() / TimeUnit.MINUTES.toSeconds(1),
+                    tripStages.get(tripStages.size() - 1).getTime() - 1);
+            //Assert that sum of distances for all transit trip stages equals the distance computed for the entire leg
+            assertEquals(transitLeg.distance,
+                    tripStages.stream().map(TransitTripStage::getDistance).reduce(0.0, Double::sum));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void shouldReturnProperTransitTripStagesForMultipleFareItinerary() {
+        try {
+            Graph graph = Graph.load(new File("./src/test/resources/org/opentripplanner/api/resource/graphs/warszawa/Graph.obj"));
+            Router router = new Router("test", graph);
+
+            GraphPathFinder graphPathFinder = new GraphPathFinder(router);
+
+            //Single fare request
+            RoutingRequest request = createDefaultTransitRequest();
+            request.from.lat = 52.172133;
+            request.from.lng = 21.026330;
+            request.to.lat = 52.221597;
+            request.to.lng = 21.042055;
+
+            List<GraphPath> paths = graphPathFinder.graphPathFinderEntryPoint(request);
+            assertTrue(paths.size() > 0);
+            TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, request, router.graph.streetIndex);
+            Leg subwayTransitLeg = tripPlan.itinerary.get(0).legs.get(1);
+            assertTrue(subwayTransitLeg.isTransitLeg());
+            Leg busTransitLeg = tripPlan.itinerary.get(0).legs.get(3);
+            assertTrue(subwayTransitLeg.isTransitLeg());
+            List<TransitTripStage> tripStages = tripPlan.itinerary.get(0).getTripStages();
+            //Assert that time of arrival at the last stop equals the duration in minutes for the transit leg
+            assertEquals(8, tripStages.get(tripStages.size() - 5).getTime() - 1);
+            assertEquals(16, tripStages.get(tripStages.size() - 1).getTime() - 1);
+            //Assert that sum of distances for all transit trip stages equals the distance computed for the entire leg
+            assertEquals(subwayTransitLeg.distance,
+                    tripStages.stream().filter(stage -> stage.getCurrentRoute().getId().getId().equals("M1"))
+                            .map(TransitTripStage::getDistance).reduce(0.0, Double::sum));
+            assertEquals(busTransitLeg.distance,
+                    tripStages.stream().filter(stage -> stage.getCurrentRoute().getId().getId().equals("138"))
+                            .map(TransitTripStage::getDistance).reduce(0.0, Double::sum));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private RoutingRequest createDefaultTransitRequest() {
+        RoutingRequest request = new RoutingRequest();
+
+        request.startingMode = TraverseMode.WALK;
+        request.modes = new TraverseModeSet("WALK,TRANSIT");
+        request.rentingAllowed = false;
+        request.softWalkLimiting = false;
+        request.setNumItineraries(1);
+        request.dateTime = LocalDateTime.of(2021, 2, 24, 15, 30).toEpochSecond(ZoneOffset.UTC);
+
+        return request;
     }
 
     /**
