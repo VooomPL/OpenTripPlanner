@@ -39,17 +39,19 @@ import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.*;
 import org.opentripplanner.standalone.Router;
+import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
+import org.opentripplanner.updater.transit.ticket.AvailableTransitTicketsUpdater;
 import org.opentripplanner.util.NonLocalizedString;
 import org.opentripplanner.util.PolylineEncoder;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -192,6 +194,15 @@ public class GraphPathToTripPlanConverterTest {
             Graph graph = Graph.load(new File("./src/test/resources/org/opentripplanner/api/resource/graphs/warszawa/Graph.obj"));
             Router router = new Router("test", graph);
 
+            System.setProperty("ticketsDefinitionsFile", "./src/test/resources/tickets/warsaw/availableTickets.json");
+            graph.updaterManager = new GraphUpdaterManager(graph);
+            AvailableTransitTicketsUpdater updater = new AvailableTransitTicketsUpdater();
+            updater.setGraphUpdaterManager(graph.updaterManager);
+            updater.configure(graph, null);
+            updater.setup(graph);
+            graph.updaterManager.addUpdater(updater);
+            graph.updaterManager.startUpdaters();
+
             GraphPathFinder graphPathFinder = new GraphPathFinder(router);
 
             //Single fare request
@@ -204,15 +215,18 @@ public class GraphPathToTripPlanConverterTest {
             List<GraphPath> paths = graphPathFinder.graphPathFinderEntryPoint(request);
             assertTrue(paths.size() > 0);
             TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, request, router.graph.streetIndex);
-            Leg transitLeg = tripPlan.itinerary.get(0).legs.get(1);
+
+            Itinerary itinerary = tripPlan.itinerary.get(0);
+            Leg transitLeg = itinerary.legs.get(1);
             assertTrue(transitLeg.isTransitLeg());
-            List<TransitTripStage> tripStages = tripPlan.itinerary.get(0).getTripStages();
+            List<TransitTripStage> tripStages = itinerary.getTripStages();
             //Assert that time of arrival at the last stop equals the duration in minutes for the transit leg
-            assertEquals((int) transitLeg.getDuration() / TimeUnit.MINUTES.toSeconds(1),
-                    tripStages.get(tripStages.size() - 1).getTime() - 1);
+            assertEquals(6, tripStages.get(tripStages.size() - 1).getTime() - 1);
             //Assert that sum of distances for all transit trip stages equals the distance computed for the entire leg
             assertEquals(transitLeg.distance,
                     tripStages.stream().map(TransitTripStage::getDistance).reduce(0.0, Double::sum));
+
+            assertEquals(0, itinerary.price.compareTo(BigDecimal.valueOf(3.4)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,9 +238,18 @@ public class GraphPathToTripPlanConverterTest {
             Graph graph = Graph.load(new File("./src/test/resources/org/opentripplanner/api/resource/graphs/warszawa/Graph.obj"));
             Router router = new Router("test", graph);
 
+            System.setProperty("ticketsDefinitionsFile", "./src/test/resources/tickets/warsaw/availableTickets.json");
+            graph.updaterManager = new GraphUpdaterManager(graph);
+            AvailableTransitTicketsUpdater updater = new AvailableTransitTicketsUpdater();
+            updater.setGraphUpdaterManager(graph.updaterManager);
+            updater.configure(graph, null);
+            updater.setup(graph);
+            graph.updaterManager.addUpdater(updater);
+            graph.updaterManager.startUpdaters();
+
             GraphPathFinder graphPathFinder = new GraphPathFinder(router);
 
-            //Single fare request
+            //Multiple fare request
             RoutingRequest request = createDefaultTransitRequest();
             request.from.lat = 52.172133;
             request.from.lng = 21.026330;
@@ -236,11 +259,15 @@ public class GraphPathToTripPlanConverterTest {
             List<GraphPath> paths = graphPathFinder.graphPathFinderEntryPoint(request);
             assertTrue(paths.size() > 0);
             TripPlan tripPlan = GraphPathToTripPlanConverter.generatePlan(paths, request, router.graph.streetIndex);
-            Leg subwayTransitLeg = tripPlan.itinerary.get(0).legs.get(1);
+
+            Itinerary itinerary = tripPlan.itinerary.get(0);
+            Leg subwayTransitLeg = itinerary.legs.get(1);
             assertTrue(subwayTransitLeg.isTransitLeg());
-            Leg busTransitLeg = tripPlan.itinerary.get(0).legs.get(3);
+            Leg walkTransitLeg = itinerary.legs.get(2);
+            Leg busTransitLeg = itinerary.legs.get(3);
             assertTrue(subwayTransitLeg.isTransitLeg());
-            List<TransitTripStage> tripStages = tripPlan.itinerary.get(0).getTripStages();
+
+            List<TransitTripStage> tripStages = itinerary.getTripStages();
             //Assert that time of arrival at the last stop equals the duration in minutes for the transit leg
             assertEquals(8, tripStages.get(tripStages.size() - 5).getTime() - 1);
             assertEquals(16, tripStages.get(tripStages.size() - 1).getTime() - 1);
@@ -251,6 +278,8 @@ public class GraphPathToTripPlanConverterTest {
             assertEquals(busTransitLeg.distance,
                     tripStages.stream().filter(stage -> stage.getCurrentRoute().getId().getId().equals("138"))
                             .map(TransitTripStage::getDistance).reduce(0.0, Double::sum));
+
+            assertEquals(0, itinerary.price.compareTo(BigDecimal.valueOf(3.4)));
         } catch (IOException e) {
             e.printStackTrace();
         }

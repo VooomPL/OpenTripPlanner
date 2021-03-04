@@ -195,10 +195,10 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
         itinerary.price = lastState.getTraversalPrice();
 
-        itinerary.getTripStages().addAll(generateTransitTripStages(states));
         Set<TransitTicket> availableTickets = graph.getAvailableTransitTickets();
 
         if (Objects.nonNull(availableTickets) && !availableTickets.isEmpty()) {
+            itinerary.getTripStages().addAll(generateTransitTripStages(states));
             TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
             transitPriceCalculator.getAvailableTickets().addAll(availableTickets);
             itinerary.price = itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages())));
