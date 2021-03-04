@@ -201,7 +201,7 @@ public abstract class GraphPathToTripPlanConverter {
         if (Objects.nonNull(availableTickets) && !availableTickets.isEmpty()) {
             TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
             transitPriceCalculator.getAvailableTickets().addAll(availableTickets);
-            itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages())));
+            itinerary.price = itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages())));
         } else {
             LOG.warn("Skipping transit price calculation for trip {} due to the lack of available tickets", itinerary.getTripStages());
         }
