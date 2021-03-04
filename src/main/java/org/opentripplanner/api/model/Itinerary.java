@@ -64,8 +64,6 @@ public class Itinerary {
     @JsonIgnore
     private List<TransitTripStage> tripStages = new ArrayList<>();
 
-    public BigDecimal transitPrice;
-
     /**
      * Indicates that the walk limit distance has been exceeded for this itinerary when true.
      */
