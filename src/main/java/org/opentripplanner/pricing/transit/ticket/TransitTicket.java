@@ -159,7 +159,7 @@ public class TransitTicket {
             if (evaluatedTripStage.getTime() <= ticketShouldBeValidUntil) {
                 if (isTicketValid(evaluatedTripStage)) {
 
-                    if (isFirstApplicableTripStage) {
+                    if (isFirstApplicableTripStage && Objects.nonNull(laterTripStage)) {
                         if (isTicketValid(laterTripStage)) {
                             /*
                              * At this point we have made sure, that we can depart from the stop at the beginning of
@@ -192,7 +192,7 @@ public class TransitTicket {
     }
 
     private boolean isTicketValid(TransitTripStage tripStage) {
-        if (Objects.isNull(tripStage)) return true;
+        if (Objects.isNull(tripStage)) return false;
 
         String agencyId = tripStage.getCurrentRoute().getId().getAgencyId();
         RoutePattern agencyAssociatedRoutePattern = routePatterns.get(agencyId);
