@@ -156,7 +156,7 @@ public class TransitTicket {
         for (int stageIndex = tripStages.size() - 1; stageIndex >= 0; stageIndex--) {
             evaluatedTripStage = tripStages.get(stageIndex);
 
-            if (evaluatedTripStage.getTime() < ticketShouldBeValidUntil) {
+            if (evaluatedTripStage.getTime() <= ticketShouldBeValidUntil) {
                 if (isTicketValid(evaluatedTripStage)) {
 
                     if (isFirstApplicableTripStage) {
@@ -192,7 +192,7 @@ public class TransitTicket {
     }
 
     private boolean isTicketValid(TransitTripStage tripStage) {
-        if (Objects.isNull(tripStage)) return false;
+        if (Objects.isNull(tripStage)) return true;
 
         String agencyId = tripStage.getCurrentRoute().getId().getAgencyId();
         RoutePattern agencyAssociatedRoutePattern = routePatterns.get(agencyId);
@@ -227,7 +227,7 @@ public class TransitTicket {
             evaluatedTripStage = tripStages.get(stageIndex);
             evaluatedRoute = evaluatedTripStage.getCurrentRoute();
 
-            if (evaluatedTripStage.getTime() < ticketShouldBeValidUntil) {
+            if (evaluatedTripStage.getTime() <= ticketShouldBeValidUntil) {
 
                 if (isNull(earlierTripStage)) {
                     /*
@@ -281,7 +281,7 @@ public class TransitTicket {
             evaluatedTripStage = tripStages.get(stageIndex);
             earlierTripStage = tripStages.get(stageIndex - 1);
 
-            if (earlierTripStage.getTime() < ticketShouldBeValidUntil) {
+            if (earlierTripStage.getTime() <= ticketShouldBeValidUntil) {
                 /* I assume, that distance-limited tickets should be valid for the entire distance between stops
                  * (there is no ticket switching in the middle of the ride for means of transport that offer
                  * distance-limited tickets)

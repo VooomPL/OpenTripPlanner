@@ -355,4 +355,38 @@ public class TransitPriceCalculatorTest {
         assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(-1)));
     }
 
+    @Test
+    public void shouldReturn60minTicket() {
+        TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
+        TransitTicket timeLimitedTicket60 = TransitTicket.builder(1, BigDecimal.valueOf(4)).setTimeLimit(60).build();
+        timeLimitedTicket20.addAllowedAgency("ZTM");
+        timeLimitedTicket60.addAllowedAgency("ZTM");
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket60);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Stop stop1 = new Stop();
+        stop1.setZoneId("2");
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setZoneId("2");
+        stop8.setId(new FeedScopedId());
+        List<TransitTripStage> tripStages = new ArrayList<>();
+        /*
+        Routes used in the tested itinerary:
+        |             41 min                  |     Travel time
+        |<----------------------------------->|
+        0                                     41    Arrive at stop time (minutes)
+        |-------------------------------------|
+        |                                     |
+        |               13                    |     Mean of transport
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 41, 0));
+        TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
+        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+        assertEquals(BigDecimal.valueOf(4), transitPrice);
+    }
+
 }
