@@ -49,9 +49,9 @@ public class TransitPriceCalculator {
                 }
             });
             if (!results.isEmpty()) {
-                Collections.sort(results);
-                memoizedCostsPerMinute.put(tripMinute - 1, results.get(0));
-                return results.get(0);
+                BigDecimal lowestPrice = results.stream().min(Comparator.naturalOrder()).get();
+                memoizedCostsPerMinute.put(tripMinute - 1, lowestPrice);
+                return lowestPrice;
             } else {
                 LOG.warn("No ticket valid for {}. minute of trip {} available", tripMinute, tripDescription);
                 return BigDecimal.valueOf(-Double.MAX_VALUE);
