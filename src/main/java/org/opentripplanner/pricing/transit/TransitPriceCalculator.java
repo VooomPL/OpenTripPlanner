@@ -30,36 +30,35 @@ public class TransitPriceCalculator {
         return returnedPrice;
     }
 
-    private BigDecimal getMinPrice(int minute, TransitTripDescription tripDescription, HashMap<Integer, BigDecimal> memoizedCostsPerMinute) {
-        if (minute == 0) {
+    private BigDecimal getMinPrice(int tripMinute, TransitTripDescription tripDescription, HashMap<Integer, BigDecimal> memoizedCostsPerMinute) {
+        if (tripMinute == 0) {
             return BigDecimal.ZERO;
         }
-        if (memoizedCostsPerMinute.get(minute - 1) != null) {
-            return memoizedCostsPerMinute.get(minute - 1);
+        if (memoizedCostsPerMinute.get(tripMinute - 1) != null) {
+            return memoizedCostsPerMinute.get(tripMinute - 1);
         }
-        if (tripDescription.isTravelingAtMinute(minute)) {
+        if (tripDescription.isTravelingAtMinute(tripMinute)) {
             List<BigDecimal> results = new ArrayList<>();
             LocalDateTime currentTimestamp = LocalDateTime.now();
             availableTickets.stream().filter(transitTicket -> transitTicket.isAvailable(currentTimestamp)).forEach(ticketType -> {
-                int ticketValidForMinutes = ticketType.getTotalMinutesWhenValid(minute, tripDescription.getTripStages());
+                int ticketValidForMinutes = ticketType.getTotalMinutesWhenValid(tripMinute, tripDescription.getTripStages());
                 if (ticketValidForMinutes != 0) {
-                    results.add(getMinPrice(minute - ticketType.getTotalMinutesWhenValid(minute,
-                            tripDescription.getTripStages()),
+                    results.add(getMinPrice(tripMinute - ticketValidForMinutes,
                             tripDescription, memoizedCostsPerMinute)
                             .add(ticketType.getStandardPrice()));
                 }
             });
             if (!results.isEmpty()) {
                 Collections.sort(results);
-                memoizedCostsPerMinute.put(minute - 1, results.get(0));
+                memoizedCostsPerMinute.put(tripMinute - 1, results.get(0));
                 return results.get(0);
             } else {
-                LOG.warn("No ticket valid for {}. minute of trip {} available", minute, tripDescription);
+                LOG.warn("No ticket valid for {}. minute of trip {} available", tripMinute, tripDescription);
                 return BigDecimal.valueOf(-Double.MAX_VALUE);
             }
         } else {
             //Walking from one transit trip to another - no need for ticket here
-            return getMinPrice(tripDescription.getLastMinuteOfPreviousFare(minute), tripDescription, memoizedCostsPerMinute);
+            return getMinPrice(tripDescription.getLastMinuteOfPreviousFare(tripMinute), tripDescription, memoizedCostsPerMinute);
         }
     }
 
