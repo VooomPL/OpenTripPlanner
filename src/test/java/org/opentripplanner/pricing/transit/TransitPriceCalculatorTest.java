@@ -354,7 +354,70 @@ public class TransitPriceCalculatorTest {
 
         assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(-1)));
     }
+    @Test
+    public void shouldReturnZone1AndGlobalTicket() {
+        TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
+        TransitTicket timeLimitedTicket20B = TransitTicket.builder(1, BigDecimal.valueOf(2)).setTimeLimit(20).build();
 
+        TransitTicket timeLimitedTicket60 = TransitTicket.builder(2, BigDecimal.valueOf(2)).setTimeLimit(60).build();
+
+
+        timeLimitedTicket20.addAllowedAgency("ZTM");
+        timeLimitedTicket20B.addAllowedAgency("ZTM");
+        timeLimitedTicket60.addAllowedAgency("ZTM");
+        timeLimitedTicket20.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
+        timeLimitedTicket60.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
+
+
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket60);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20B);
+
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+
+        Stop stop1 = new Stop();
+        stop1.setZoneId("2");
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setZoneId("2");
+        stop8.setId(new FeedScopedId());
+
+        Stop stop11 = new Stop();
+        stop11.setZoneId("1/2");
+        stop11.setId(new FeedScopedId());
+
+
+        Stop stop17 = new Stop();
+        stop17.setZoneId("1");
+        stop17.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |             28 min                    |     Travel time
+        |<------------------------------------->|
+        0             11      19               28    Arrive at stop time (minutes)
+        |-------------|-------|-----------------|
+        |                                       |
+        |               13                      |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 11, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 19, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop17, 28, 0));
+
+        TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
+
+        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+
+        assertEquals(BigDecimal.valueOf(3.4), transitPrice);
+    }
     @Test
     public void shouldReturn60minTicket() {
         TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
