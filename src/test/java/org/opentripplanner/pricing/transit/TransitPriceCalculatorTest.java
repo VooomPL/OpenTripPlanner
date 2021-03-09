@@ -101,7 +101,7 @@ public class TransitPriceCalculatorTest {
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
-        assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(4.4)));
+        assertEquals(transitPrice, BigDecimal.valueOf(4.4));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class TransitPriceCalculatorTest {
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(10.2)));
+        assertEquals(transitPrice, BigDecimal.valueOf(10.2));
     }
 
     @Test
