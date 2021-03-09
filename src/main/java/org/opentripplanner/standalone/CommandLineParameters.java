@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This is a JCommander-annotated class that holds parameters for OTP stand-alone mode.
@@ -150,9 +149,6 @@ public class CommandLineParameters implements Cloneable {
     @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
 
-    @Parameter(names = {"--ticketsDefinitionsFile"}, description = "File for fetching info about available transit tickets")
-    public String ticketsDefinitionsFile = null;
-
     @Parameter(names = {"--trafficAppi"}, description = "API for trafic udate")
     public String traffic = null;
 
@@ -182,9 +178,6 @@ public class CommandLineParameters implements Cloneable {
         }
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
-        }
-        if (Objects.nonNull(ticketsDefinitionsFile)) {
-            System.setProperty("ticketsDefinitionsFile", ticketsDefinitionsFile);
         }
         if (traffic != null) {
             System.setProperty("trfficApi", traffic);
