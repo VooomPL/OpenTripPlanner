@@ -101,7 +101,7 @@ public class TransitPriceCalculatorTest {
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
-        assertEquals(transitPrice, BigDecimal.valueOf(4.4));
+        assertEquals(BigDecimal.valueOf(4.4), transitPrice);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class TransitPriceCalculatorTest {
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(transitPrice, BigDecimal.valueOf(10.2));
+        assertEquals(BigDecimal.valueOf(10.2), transitPrice);
     }
 
     @Test
@@ -228,7 +228,7 @@ public class TransitPriceCalculatorTest {
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(6.8)));
+        assertEquals(BigDecimal.valueOf(6.8), transitPrice);
     }
 
     @Test
@@ -290,7 +290,7 @@ public class TransitPriceCalculatorTest {
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(-1)));
+        assertEquals(BigDecimal.valueOf(-1), transitPrice);
     }
 
     @Test
@@ -352,7 +352,7 @@ public class TransitPriceCalculatorTest {
 
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(0, transitPrice.compareTo(BigDecimal.valueOf(-1)));
+        assertEquals(BigDecimal.valueOf(-1), transitPrice);
     }
     @Test
     public void shouldReturnZone1AndGlobalTicket() {
