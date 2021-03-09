@@ -1,11 +1,11 @@
-package org.opentripplanner.updater.transit.ticket;
+package org.opentripplanner.graph_builder.module.transit.tickets;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.opentripplanner.graph_builder.module.transit.tickets.deserializer.TransitTicketDeserializer;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
-import org.opentripplanner.updater.transit.ticket.deserializer.TransitTicketDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.opentripplanner.updater.transit.ticket;
+package org.opentripplanner.graph_builder.module.transit.tickets;
 
 import org.junit.Test;
 import org.opentripplanner.model.FeedScopedId;

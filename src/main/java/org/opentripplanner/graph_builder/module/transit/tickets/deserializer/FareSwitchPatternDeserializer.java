@@ -1,4 +1,4 @@
-package org.opentripplanner.updater.transit.ticket.deserializer;
+package org.opentripplanner.graph_builder.module.transit.tickets.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.opentripplanner.graph_builder.module.transit.tickets.parser.ConstraintsParser;
 import org.opentripplanner.pricing.transit.ticket.pattern.FareSwitchPattern;
 import org.opentripplanner.pricing.transit.ticket.pattern.RoutePattern;
 import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
-import org.opentripplanner.updater.transit.ticket.parser.ConstraintsParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.opentripplanner.updater.transit.ticket.parser;
+package org.opentripplanner.graph_builder.module.transit.tickets.parser;
 
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
