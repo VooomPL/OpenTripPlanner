@@ -30,6 +30,10 @@ public class TransitPriceCalculator {
         return returnedPrice;
     }
 
+    /*
+     * Compute the best price for arriving at minute of trip. It recursively calculates and memorises best prices for
+     * times before this minute and uses them to figure out the best ticket combination.
+     */
     private BigDecimal getMinPrice(int tripMinute, TransitTripDescription tripDescription, HashMap<Integer, BigDecimal> memoizedCostsPerMinute) {
         if (tripMinute == 0) {
             return BigDecimal.ZERO;
