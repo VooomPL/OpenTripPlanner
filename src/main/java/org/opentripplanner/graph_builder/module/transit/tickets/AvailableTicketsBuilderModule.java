@@ -16,7 +16,7 @@ public class AvailableTicketsBuilderModule implements GraphBuilderModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvailableTicketsBuilderModule.class);
 
-    private final AvailableTransitTicketsGetter ticketsGetter = new AvailableTransitTicketsGetter();
+    private final AvailableTransitTicketsReader ticketsGetter = new AvailableTransitTicketsReader();
 
     private final File availableTransitTicket;
 

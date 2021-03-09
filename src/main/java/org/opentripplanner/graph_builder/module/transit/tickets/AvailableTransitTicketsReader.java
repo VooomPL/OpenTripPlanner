@@ -16,9 +16,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class AvailableTransitTicketsGetter {
+public class AvailableTransitTicketsReader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AvailableTransitTicketsGetter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AvailableTransitTicketsReader.class);
 
     public Set<TransitTicket> getFromFile(File sourceFile) {
         Set<TransitTicket> transitTickets = null;
