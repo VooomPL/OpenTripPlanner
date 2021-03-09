@@ -270,6 +270,75 @@ public class TransitTicketTest {
         assertEquals(45, ticketWithMaxFaresConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
 
+
+    @Test
+    public void shouldReturn51MinutesValidDueToMaxFaresLimitOnly() {
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+
+        Stop genericStop = new Stop();
+        genericStop.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+           10 min   5 min           35 min
+        |----------|-----|---------------------------|
+           105      walk             13
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, genericStop, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, genericStop, 11, 0));
+        tripStages.add(new TransitTripStage(secondRoute, genericStop, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
+
+        TransitTicket ticketWithMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(2).build();
+        ticketWithMaxFaresConstraints.addAllowedAgency("ZTM");
+
+        assertEquals(51, ticketWithMaxFaresConstraints.getTotalMinutesWhenValid(51, tripStages));
+    }
+
+    @Test
+    public void shouldReturn16MinutesValidDueToMaxFaresLimitOnly() {
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+
+        Stop genericStop = new Stop();
+        genericStop.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+           10 min   5 min           35 min
+        |----------|-----|---------------------------|
+           105      walk             13
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, genericStop, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, genericStop, 11, 0));
+        tripStages.add(new TransitTripStage(secondRoute, genericStop, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, genericStop, 51, 0));
+
+        TransitTicket ticketWithMaxFaresConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setFaresNumberLimit(2).build();
+        ticketWithMaxFaresConstraints.addAllowedAgency("ZTM");
+
+        assertEquals(16, ticketWithMaxFaresConstraints.getTotalMinutesWhenValid(16, tripStages));
+    }
+
     @Test
     public void shouldReturn30MinutesValidDueToMaxFaresLimitOnly() {
         Route firstRoute = new Route();
@@ -752,6 +821,162 @@ public class TransitTicketTest {
         ticketWithDistanceConstraints.addAllowedAgency("ZTM");
 
         assertEquals(5, ticketWithDistanceConstraints.getTotalMinutesWhenValid(45, tripStages));
+    }
+
+    @Test
+    public void shouldReturn5MinutesValidDueToDistanceConstraintsFromTripEnding() {
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
+
+        TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(10).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
+
+        assertEquals(5, ticketWithDistanceConstraints.getTotalMinutesWhenValid(51, tripStages));
+    }
+
+    @Test
+    public void shouldReturn7MinutesValidDueToDistanceConstraints() {
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
+
+        TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(10).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
+
+        assertEquals(7, ticketWithDistanceConstraints.getTotalMinutesWhenValid(47, tripStages));
+    }
+
+    @Test
+    public void shouldReturn0MinutesValidDueToDistanceConstraints() {
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
+
+        TransitTicket ticketWithDistanceConstraints = TransitTicket.builder(4, BigDecimal.valueOf(15)).setDistanceLimit(10).build();
+        ticketWithDistanceConstraints.addAllowedAgency("ZTM");
+
+        assertEquals(0, ticketWithDistanceConstraints.getTotalMinutesWhenValid(41, tripStages));
     }
 
     @Test

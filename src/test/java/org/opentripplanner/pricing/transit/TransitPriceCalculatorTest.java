@@ -366,6 +366,7 @@ public class TransitPriceCalculatorTest {
         timeLimitedTicket20B.addAllowedAgency("ZTM");
         timeLimitedTicket60.addAllowedAgency("ZTM");
         timeLimitedTicket20.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
+        timeLimitedTicket20.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1/2");
         timeLimitedTicket60.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
 
 
@@ -380,37 +381,35 @@ public class TransitPriceCalculatorTest {
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
         stop1.setId(new FeedScopedId());
-        Stop stop8 = new Stop();
-        stop8.setZoneId("2");
-        stop8.setId(new FeedScopedId());
-
         Stop stop11 = new Stop();
-        stop11.setZoneId("1/2");
+        stop11.setZoneId("2");
         stop11.setId(new FeedScopedId());
 
+        Stop stop19 = new Stop();
+        stop19.setZoneId("1/2");
+        stop19.setId(new FeedScopedId());
 
-        Stop stop17 = new Stop();
-        stop17.setZoneId("1");
-        stop17.setId(new FeedScopedId());
+        Stop stop28 = new Stop();
+        stop28.setZoneId("1");
+        stop28.setId(new FeedScopedId());
 
         List<TransitTripStage> tripStages = new ArrayList<>();
 
         /*
-
         Routes used in the tested itinerary:
 
         |             28 min                    |     Travel time
         |<------------------------------------->|
-        0             11      19               28    Arrive at stop time (minutes)
+        0             10      18                27    Arrive at stop time (minutes)
         |-------------|-------|-----------------|
         |                                       |
-        |               13                      |     Mean of transport
+        |               105                     |     Mean of transport
 
          */
         tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
-        tripStages.add(new TransitTripStage(firstRoute, stop8, 11, 0));
-        tripStages.add(new TransitTripStage(firstRoute, stop11, 19, 0));
-        tripStages.add(new TransitTripStage(firstRoute, stop17, 28, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop19, 19, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop28, 28, 0));
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
@@ -432,21 +431,21 @@ public class TransitPriceCalculatorTest {
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
         stop1.setId(new FeedScopedId());
-        Stop stop8 = new Stop();
-        stop8.setZoneId("2");
-        stop8.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setZoneId("2");
+        stop41.setId(new FeedScopedId());
         List<TransitTripStage> tripStages = new ArrayList<>();
         /*
         Routes used in the tested itinerary:
         |             41 min                  |     Travel time
         |<----------------------------------->|
-        0                                     41    Arrive at stop time (minutes)
+        0                                     40    Arrive at stop time (minutes)
         |-------------------------------------|
         |                                     |
         |               13                    |     Mean of transport
          */
         tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
-        tripStages.add(new TransitTripStage(firstRoute, stop8, 41, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop41, 41, 0));
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
         BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
         assertEquals(BigDecimal.valueOf(4), transitPrice);
