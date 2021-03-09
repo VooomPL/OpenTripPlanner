@@ -10,6 +10,7 @@ import org.opentripplanner.pricing.transit.ticket.pattern.RoutePattern;
 import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.Month;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleTicketWithFareSwitchRule() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/ticketWithFareSwitchRule.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithFareSwitchRule.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -70,7 +71,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleTicketWithTimeLimit() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/ticketWithTimeLimit.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithTimeLimit.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -122,21 +123,21 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnTicketWithNullAvailableFromDate() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/ticketWithInvalidDateFormat.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithInvalidDateFormat.json"));
         assertNull(tickets.iterator().next().getAvailableFrom());
     }
 
     @Test
     public void shouldReturnEmptyTicketSet() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/nonExistingFile.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/nonExistingFile.json"));
         assertTrue(tickets.isEmpty());
     }
 
     @Test
     public void shouldReturnEmptyTicketSetDueToInvalidTicketStructure() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/ticketWithInvalidStructure.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithInvalidStructure.json"));
         assertTrue(tickets.isEmpty());
     }
 
@@ -154,7 +155,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturn7WarsawTickets() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/availableTickets.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/availableTickets.json"));
 
         assertEquals(7, tickets.size());
     }
@@ -162,7 +163,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleWarsaw20MinutesTicket() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/20minTicket.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/20minTicket.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -219,7 +220,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleWarsaw75MinutesTicket() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/75minTicket.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/75minTicket.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -283,7 +284,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleWarsaw75MinutesTicketSingleFareVersion() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/75minTicket_singleFare.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/75minTicket_singleFare.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -353,7 +354,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleWarsaw90MinutesTicket() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/90minTicket.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/90minTicket.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -412,7 +413,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleWarsaw90MinutesTicketSingleFareVersion() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/90minTicket_singleFare.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/90minTicket_singleFare.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -482,7 +483,7 @@ public class AvailableTransitTicketsGetterTest {
     @Test
     public void shouldReturnSingleWarsawDailyTicket() {
         AvailableTransitTicketsGetter transitTicketGetter = new AvailableTransitTicketsGetter();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile("src/test/resources/tickets/warsaw/24hTicketZone1.json");
+        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/24hTicketZone1.json"));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
