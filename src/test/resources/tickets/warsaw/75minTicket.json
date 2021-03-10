@@ -1,0 +1,13 @@
+[
+  {
+    "id": 2,
+    "max_time": 75,
+    "allowed_agencies": {
+      "0": [
+        "Stop.zone_id IN {1, 1/2}",
+        "Route.route_id NOT_STARTS_WITH L"
+      ]
+    },
+    "standard_price": 4.4
+  }
+]

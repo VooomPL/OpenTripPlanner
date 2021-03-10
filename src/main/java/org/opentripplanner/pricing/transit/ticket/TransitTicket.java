@@ -8,13 +8,15 @@ import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
 import org.opentripplanner.pricing.transit.trip.model.FareSwitch;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.util.Objects.isNull;
 
-public class TransitTicket {
+
+public class TransitTicket implements Serializable {
 
     private enum ConstraintCategory {TIME, ROUTE_STOP_PATTERN, MAX_FARES, MAX_DISTANCE}
 
@@ -164,7 +166,8 @@ public class TransitTicket {
                             /*
                              * At this point we have made sure, that we can depart from the stop at the beginning of
                              * the evaluated trip stage and continue our trip to the next stop using this ticket
-                             * (eg. for cases like in TransitTicketTest::shouldReturn0MinutesValid())
+                             * (eg. for cases like in TransitTicketTest::shouldReturn0MinutesValid(), where:
+                             * currentTripStage.getTime() < ticketShouldBeValidUntil < laterTripStage.getTime())
                              */
                             totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
                         } else {
