@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "max_fares": 2,
+    "fare_switch_rules": [
+      {
+        "previous_fare": [
+          "Route.route_short_name IN {81}"
+        ],
+        "future_fare": [
+          "Route.route_short_name IN {3, 5}"
+        ],
+        "reverse_allowed": true
+      }
+    ],
+    "allowed_agencies": {
+      "ZDMiKP": [
+        "Route.route_short_name IN {81, 3, 5}",
+        "Stop.stop_name IN {Łoskoń, Garbary}"
+      ]
+    },
+    "standard_price": 3.0,
+    "available_from": "2020-12-20T17:35:45"
+  }
+]

@@ -149,11 +149,11 @@ public class CommandLineParameters implements Cloneable {
     @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
 
-    @Parameter(names = {"--trafficAppi"}, description = "API for traffic update")
-    public String trafficApi = null;
+    @Parameter(names = {"--trafficAppi"}, description = "API for trafic udate")
+    public String traffic = null;
 
-    @Parameter(names = {"--trafficApiPass"}, description = "Password for API for traffic update")
-    public String trafficApiPass = null;
+    @Parameter(names = {"--trafficApiPass"}, description = "API for trafic password")
+    public String trafficAPIPass = null;
 
     @Parameter(names = {"--predictionApiUrl"}, description = "API for fetching vehicle presence heatmaps")
     public String predictionApiUrl = null;
@@ -179,12 +179,11 @@ public class CommandLineParameters implements Cloneable {
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
         }
-        if (trafficApi != null) {
-            System.setProperty("trafficPredictionApi", trafficApi);
+        if (traffic != null) {
+            System.setProperty("trfficApi", traffic);
         }
-        // TODO AdamWiktor remove after VMP-182
-        if (trafficApiPass != null) {
-            System.setProperty("trafficPredictionApiPass", trafficApiPass);
+        if (trafficAPIPass != null) {
+            System.setProperty("trfficApiPass", trafficAPIPass);
         }
         if (predictionApiUrl != null) {
             System.setProperty("predictionApiUrl", predictionApiUrl);
