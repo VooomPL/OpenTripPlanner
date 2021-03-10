@@ -8,13 +8,15 @@ import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
 import org.opentripplanner.pricing.transit.trip.model.FareSwitch;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.util.Objects.isNull;
 
-public class TransitTicket {
+
+public class TransitTicket implements Serializable {
 
     private enum ConstraintCategory {TIME, ROUTE_STOP_PATTERN, MAX_FARES, MAX_DISTANCE}
 
