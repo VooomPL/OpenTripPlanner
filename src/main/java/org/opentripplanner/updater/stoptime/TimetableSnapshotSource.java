@@ -92,6 +92,8 @@ public class TimetableSnapshotSource {
 
     protected long lastSnapshotTime = -1;
 
+    protected String tripIdPrefix = "";
+
     private final TimeZone timeZone;
 
     private final GraphIndex graphIndex;
@@ -313,7 +315,6 @@ public class TimetableSnapshotSource {
         // This does not include Agency ID or feed ID, trips are feed-unique and we currently assume a single static feed.
         final String tripId = tripDescriptor.getTripId();
         final TripPattern pattern = getPatternForTripId(feedId, tripId);
-
         if (pattern == null) {
             LOG.warn("No pattern found for tripId {}, skipping TripUpdate.", tripId);
             return false;
@@ -955,8 +956,7 @@ public class TimetableSnapshotSource {
      * @return trip or null if trip can't be found in graph index
      */
     private Trip getTripForTripId(String feedId, String tripId) {
-        Trip trip = graphIndex.tripForId.get(new FeedScopedId(feedId, tripId));
-        return trip;
+        return graphIndex.tripForId.get(new FeedScopedId(feedId, tripId));
     }
 
     /**

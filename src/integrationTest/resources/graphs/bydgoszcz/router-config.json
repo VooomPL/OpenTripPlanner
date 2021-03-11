@@ -1,3 +1,13 @@
 {
-  "timeouts" : [10, 10, 5]
+  "timeouts" : [10, 10, 5],
+  "updaters": [
+    {
+      "type": "stop-time-updater",
+      "logFrequency": 60,
+      "sourceType": "gtfs-file",
+      "file": "src/integrationTest/resources/graphs/bydgoszcz/bydgoszcz.gtfsrt.pb",
+      "feedId": "1",
+      "purgeExpiredData": false
+    }
+  ]
 }

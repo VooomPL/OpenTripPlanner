@@ -1,19 +1,22 @@
 package org.opentripplanner.updater.stoptime;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.updater.*;
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.updater.GraphUpdaterManager;
+import org.opentripplanner.updater.GtfsRealtimeFuzzyTripMatcher;
+import org.opentripplanner.updater.JsonConfigurable;
+import org.opentripplanner.updater.PollingGraphUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Update OTP stop time tables from some (realtime) source
- *
+ * <p>
  * Usage example ('rt' name is an example) in file 'Graph.properties':
  *
  * <pre>
@@ -23,7 +26,6 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate;
  * rt.url = http://host.tld/path
  * rt.feedId = TA
  * </pre>
- *
  */
 public class PollingStoptimeUpdater extends PollingGraphUpdater {
     private static final Logger LOG = LoggerFactory.getLogger(PollingStoptimeUpdater.class);
@@ -57,6 +59,11 @@ public class PollingStoptimeUpdater extends PollingGraphUpdater {
      * Feed id that is used for the trip ids in the TripUpdates
      */
     private String feedId;
+
+    /**
+     * Prefix that is used for the trip ids to match TripUpdates with GTFS
+     */
+    private String tripIdPrefix;
 
     /**
      * Set only if we should attempt to match the trip_id from other data in TripDescriptor
@@ -102,6 +109,7 @@ public class PollingStoptimeUpdater extends PollingGraphUpdater {
         if (config.path("fuzzyTripMatching").asBoolean(false)) {
             this.fuzzyTripMatcher = new GtfsRealtimeFuzzyTripMatcher(graph.index);
         }
+        this.tripIdPrefix = config.path("tripIdPrefix").asText();
         LOG.info("Creating stop time updater running every {} seconds : {}", pollingPeriodSeconds, updateSource);
     }
 
@@ -127,6 +135,9 @@ public class PollingStoptimeUpdater extends PollingGraphUpdater {
         if (fuzzyTripMatcher != null) {
             snapshotSource.fuzzyTripMatcher = fuzzyTripMatcher;
         }
+        if (tripIdPrefix != null) {
+            snapshotSource.tripIdPrefix = tripIdPrefix;
+        }
     }
 
     /**
@@ -136,7 +147,11 @@ public class PollingStoptimeUpdater extends PollingGraphUpdater {
     @Override
     public void runPolling() {
         // Get update lists from update source
-        List<TripUpdate> updates = updateSource.getUpdates();
+        List<TripUpdate> updates = updateSource.getUpdates().stream()
+                .map(it -> TripUpdate.newBuilder(it).setTrip(TripDescriptor
+                        .newBuilder(it.getTrip()).setTripId(tripIdPrefix + it.getTrip().getTripId()).build())
+                        .build())
+                .collect(Collectors.toList());
         boolean fullDataset = updateSource.getFullDatasetValueOfLastUpdates();
 
         if (updates != null) {
