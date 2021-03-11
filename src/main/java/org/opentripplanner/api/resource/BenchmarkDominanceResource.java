@@ -38,7 +38,7 @@ public class BenchmarkDominanceResource extends RoutingResource {
         List<GraphPath> paths = null;
         Random generator = new Random(1);
         try {
-            for (int i = 0; i < 200; i++) {
+            for (int i = 0; i < 100; i++) {
                 request = super.buildRequest();
 
                 router = otpServer.getRouter(request.routerId);
