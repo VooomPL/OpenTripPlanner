@@ -198,12 +198,12 @@ public abstract class GraphPathToTripPlanConverter {
         Set<TransitTicket> availableTickets = graph.getAvailableTransitTickets();
 
         if (Objects.nonNull(availableTickets) && !availableTickets.isEmpty()) {
-            itinerary.getTripStages().addAll(generateTransitTripStages(states));
+            List<TransitTripStage> tripStages = generateTransitTripStages(states);
             TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
             transitPriceCalculator.getAvailableTickets().addAll(availableTickets);
-            itinerary.price = itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages())));
+            itinerary.price = itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(tripStages)));
         } else {
-            LOG.warn("Skipping transit price calculation for trip {} due to the lack of available tickets", itinerary.getTripStages());
+            LOG.warn("Skipping transit price calculation for trip from to due to the lack of available tickets");
         }
 
         itinerary.transfers = lastState.getNumBoardings();
