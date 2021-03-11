@@ -1,6 +1,7 @@
 package org.opentripplanner.graph_builder.module.transit.tickets;
 
 import org.junit.Test;
+import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
@@ -179,7 +180,10 @@ public class AvailableTransitTicketsReaderTest {
         RoutePattern ztmRoutePattern = generatedTicket.getRoutePattern("0");
         assertNotNull(ztmRoutePattern);
 
+        Agency agency = new Agency();
+        agency.setId("0");
         Route route = new Route();
+        route.setAgency(agency);
         route.setId(new FeedScopedId("0", "105"));
         route.setShortName("105");
         Stop stop1 = new Stop();
@@ -212,7 +216,7 @@ public class AvailableTransitTicketsReaderTest {
 
         //Setting invalid id for route - ticket is not applicable
         route.getId().setId("105");
-        route.getId().setAgencyId("ZTM");
+        route.getAgency().setId("ZTM");
         assertEquals(0, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
 
     }
@@ -236,8 +240,11 @@ public class AvailableTransitTicketsReaderTest {
         RoutePattern ztmRoutePattern = generatedTicket.getRoutePattern("0");
         assertNotNull(ztmRoutePattern);
 
+        Agency agency = new Agency();
+        agency.setId("0");
         Route route = new Route();
         route.setId(new FeedScopedId("0", "105"));
+        route.setAgency(agency);
         route.setShortName("105");
         Stop stop1 = new Stop();
         stop1.setZoneId("1");
@@ -277,7 +284,7 @@ public class AvailableTransitTicketsReaderTest {
         assertEquals(4, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
 
         //Setting invalid id for route - ticket is not applicable
-        route.getId().setAgencyId("ZTM");
+        route.getAgency().setId("ZTM");
         assertEquals(0, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
     }
 
@@ -300,14 +307,18 @@ public class AvailableTransitTicketsReaderTest {
         RoutePattern ztmRoutePattern = generatedTicket.getRoutePattern("0");
         assertNotNull(ztmRoutePattern);
 
+        Agency agency = new Agency();
+        agency.setId("0");
         Route route = new Route();
         route.setId(new FeedScopedId("0", "105"));
+        route.setAgency(agency);
         route.setShortName("105");
         Stop stop1 = new Stop();
         stop1.setZoneId("1");
         stop1.setId(new FeedScopedId());
         Route route2 = new Route();
         route2.setId(new FeedScopedId("0", "4"));
+        route2.setAgency(agency);
         route2.setShortName("4");
         Stop stop8 = new Stop();
         stop8.setZoneId("1");
@@ -347,7 +358,7 @@ public class AvailableTransitTicketsReaderTest {
         assertEquals(4, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
 
         //Setting invalid id for route - ticket is not applicable
-        route2.getId().setAgencyId("ZTM");
+        route2.getAgency().setId("ZTM");
         assertEquals(0, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
     }
 
@@ -370,8 +381,11 @@ public class AvailableTransitTicketsReaderTest {
         RoutePattern ztmRoutePattern = generatedTicket.getRoutePattern("0");
         assertNotNull(ztmRoutePattern);
 
+        Agency agency = new Agency();
+        agency.setId("0");
         Route route = new Route();
         route.setId(new FeedScopedId("0", "105"));
+        route.setAgency(agency);
         route.setShortName("105");
         Stop stop1 = new Stop();
         stop1.setZoneId("1");
@@ -406,7 +420,7 @@ public class AvailableTransitTicketsReaderTest {
 
         route.getId().setId("105");
         //Setting invalid id for route - ticket is not applicable
-        route.getId().setAgencyId("ZTM");
+        route.getAgency().setId("ZTM");
         assertEquals(0, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
     }
 
@@ -429,14 +443,18 @@ public class AvailableTransitTicketsReaderTest {
         RoutePattern ztmRoutePattern = generatedTicket.getRoutePattern("0");
         assertNotNull(ztmRoutePattern);
 
+        Agency agency = new Agency();
+        agency.setId("0");
         Route route = new Route();
         route.setId(new FeedScopedId("0", "105"));
+        route.setAgency(agency);
         route.setShortName("105");
         Stop stop1 = new Stop();
         stop1.setZoneId("1");
         stop1.setId(new FeedScopedId());
         Route route2 = new Route();
         route2.setId(new FeedScopedId("0", "4"));
+        route2.setAgency(agency);
         route2.setShortName("4");
         Stop stop8 = new Stop();
         stop8.setZoneId("1");
@@ -476,7 +494,7 @@ public class AvailableTransitTicketsReaderTest {
         assertEquals(4, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
 
         //Setting invalid id for route - ticket is not applicable
-        route2.getId().setAgencyId("ZTM");
+        route2.getAgency().setId("ZTM");
         assertEquals(0, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
     }
 
@@ -499,8 +517,11 @@ public class AvailableTransitTicketsReaderTest {
         RoutePattern ztmRoutePattern = generatedTicket.getRoutePattern("0");
         assertNotNull(ztmRoutePattern);
 
+        Agency agency = new Agency();
+        agency.setId("0");
         Route route = new Route();
         route.setId(new FeedScopedId("0", "105"));
+        route.setAgency(agency);
         route.setShortName("105");
         Stop stop1 = new Stop();
         stop1.setZoneId("1");
@@ -536,7 +557,7 @@ public class AvailableTransitTicketsReaderTest {
         assertEquals(4, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
 
         //Setting invalid id for route - ticket is not applicable
-        route.getId().setAgencyId("ZTM");
+        route.getAgency().setId("ZTM");
         assertEquals(0, generatedTicket.getTotalMinutesWhenValid(11, tripStages));
     }
 

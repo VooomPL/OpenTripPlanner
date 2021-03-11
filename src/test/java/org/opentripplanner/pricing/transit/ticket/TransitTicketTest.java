@@ -1,6 +1,7 @@
 package org.opentripplanner.pricing.transit.ticket;
 
 import org.junit.Test;
+import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
@@ -21,11 +22,15 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn45MinutesValid() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setAgency(ztmAgency);
         firstRoute.setShortName("105");
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setAgency(ztmAgency);
         secondRoute.setShortName("13");
 
         Stop genericStop = new Stop();
@@ -57,12 +62,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValid() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "N30"));
         firstRoute.setShortName("N30");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -93,15 +102,20 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValidThoughFirstRouteIsConstraintCompliant() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "512"));
         firstRoute.setShortName("512");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "N30"));
         secondRoute.setShortName("N30");
+        secondRoute.setAgency(ztmAgency);
         Route thirdRoute = new Route();
         thirdRoute.setId(new FeedScopedId("ZTM", "13"));
         thirdRoute.setShortName("13");
+        thirdRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -134,12 +148,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturnTotalRemainingTripTimeWhenRoutePatternIsNullDueToNoRouteConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -168,12 +186,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn15MinutesValidDueToTimeRestrictions() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "N30"));
         firstRoute.setShortName("N30");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -202,12 +224,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn15MinutesValidRegardlessRouteConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "N30"));
         firstRoute.setShortName("N30");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -238,12 +264,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn45MinutesValidDueToMaxFaresLimitOnly() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -273,12 +303,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn51MinutesValidDueToMaxFaresLimitOnly() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -307,12 +341,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn16MinutesValidDueToMaxFaresLimitOnly() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -341,12 +379,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValidDueToMaxFaresLimitOnly() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -375,12 +417,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValidDueToMaxFaresLimit() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -411,12 +457,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValidDueToFareSwitchingRules() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -451,12 +501,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn45MinutesValidRegardlessFareSwitchingRules() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -491,12 +545,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValidDueToRouteConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "N30"));
         firstRoute.setShortName("N30");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop genericStop = new Stop();
         genericStop.setId(new FeedScopedId());
@@ -526,12 +584,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn5MinutesValid() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -589,12 +651,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn0MinutesValid() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -651,12 +717,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn0MinutesValidDueToRouteConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -714,12 +784,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn45MinutesValidDueToNoConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -773,12 +847,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn5MinutesValidDueToDistanceConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -825,12 +903,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn5MinutesValidDueToDistanceConstraintsFromTripEnding() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -877,12 +959,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn7MinutesValidDueToDistanceConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -929,12 +1015,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn0MinutesValidDueToDistanceConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -981,12 +1071,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn30MinutesValidDueToDistanceConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -1033,12 +1127,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn38MinutesValidDueToDistanceConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -1085,12 +1183,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn45MinutesValidDueToDistanceConstraints() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());
@@ -1137,12 +1239,16 @@ public class TransitTicketTest {
 
     @Test
     public void shouldReturn0MinutesValidDueToEmptyAllowedAgencies() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
 
         Stop stop1 = new Stop();
         stop1.setId(new FeedScopedId());

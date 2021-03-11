@@ -1,6 +1,7 @@
 package org.opentripplanner.pricing.transit;
 
 import org.junit.Test;
+import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
@@ -47,11 +48,15 @@ public class TransitPriceCalculatorTest {
         priceCalculator.getAvailableTickets().add(timeLimitedTicket90);
         priceCalculator.getAvailableTickets().add(zoneAOnlyTicket);
 
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setAgency(agency);
         firstRoute.setShortName("105");
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setAgency(agency);
         secondRoute.setShortName("13");
 
         Stop stop1 = new Stop();
@@ -109,11 +114,15 @@ public class TransitPriceCalculatorTest {
         priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
         priceCalculator.getAvailableTickets().add(timeLimitedTicketDaily);
 
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(agency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setAgency(agency);
         secondRoute.setShortName("13");
 
         Stop stop1 = new Stop();
@@ -173,12 +182,16 @@ public class TransitPriceCalculatorTest {
         priceCalculator.getAvailableTickets().add(singleFareTicket);
         priceCalculator.getAvailableTickets().add(timeLimitedTicketDaily);
 
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(agency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(agency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -235,12 +248,16 @@ public class TransitPriceCalculatorTest {
     public void shouldReturn0PriceWhenNoTicketMatchesNoFare() {
         priceCalculator.getAvailableTickets().add(zoneAOnlyTicket);
 
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(agency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(agency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -297,12 +314,16 @@ public class TransitPriceCalculatorTest {
     public void shouldReturn6PriceWhenNoTicketMatchesSomeFare() {
         priceCalculator.getAvailableTickets().add(zone1OnlyTicket);
 
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(agency);
         Route secondRoute = new Route();
         secondRoute.setId(new FeedScopedId("ZTM", "13"));
         secondRoute.setShortName("13");
+        secondRoute.setAgency(agency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -361,7 +382,6 @@ public class TransitPriceCalculatorTest {
 
         TransitTicket timeLimitedTicket60 = TransitTicket.builder(2, BigDecimal.valueOf(2)).setTimeLimit(60).build();
 
-
         timeLimitedTicket20.addAllowedAgency("ZTM");
         timeLimitedTicket20B.addAllowedAgency("ZTM");
         timeLimitedTicket60.addAllowedAgency("ZTM");
@@ -374,9 +394,12 @@ public class TransitPriceCalculatorTest {
         priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
         priceCalculator.getAvailableTickets().add(timeLimitedTicket20B);
 
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(agency);
 
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
@@ -425,9 +448,13 @@ public class TransitPriceCalculatorTest {
         timeLimitedTicket60.addAllowedAgency("ZTM");
         priceCalculator.getAvailableTickets().add(timeLimitedTicket60);
         priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+
+        Agency agency = new Agency();
+        agency.setId("ZTM");
         Route firstRoute = new Route();
         firstRoute.setId(new FeedScopedId("ZTM", "105"));
         firstRoute.setShortName("105");
+        firstRoute.setAgency(agency);
         Stop stop1 = new Stop();
         stop1.setZoneId("2");
         stop1.setId(new FeedScopedId());
