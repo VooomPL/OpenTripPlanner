@@ -200,7 +200,7 @@ public class TransitTicket implements Serializable {
     private boolean isTicketValid(TransitTripStage tripStage) {
         if (Objects.isNull(tripStage)) return false;
 
-        String agencyId = tripStage.getCurrentRoute().getId().getAgencyId();
+        String agencyId = tripStage.getCurrentRoute().getAgency().getId();
         RoutePattern agencyAssociatedRoutePattern = routePatterns.get(agencyId);
         StopPattern agencyAssociatedStopPattern = stopPatterns.get(agencyId);
 

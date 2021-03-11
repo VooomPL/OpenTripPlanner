@@ -1020,7 +1020,6 @@ public class Graph implements Serializable {
         LOG.debug("Writing edges...");
         kryo.writeClassAndObject(output, this);
         kryo.writeClassAndObject(output, edges);
-        //kryo.writeClassAndObject(output, this.availableTransitTickets);
         output.close();
         LOG.info("Graph written.");
         // Summarize serialized classes and associated serializers:

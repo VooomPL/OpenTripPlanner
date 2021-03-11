@@ -13,6 +13,10 @@ import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
+import org.opentripplanner.pricing.transit.TransitPriceCalculator;
+import org.opentripplanner.pricing.transit.ticket.TransitTicket;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripDescription;
+import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.profile.BikeRentalStationInfo;
 import org.opentripplanner.routing.alertpatch.Alert;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
@@ -36,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -189,6 +194,17 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.distanceTraversedInMode = lastState.createDistanceTraversedInModeMap();
         itinerary.timeTraversedInMode = lastState.createTimeTraversedInModeMap();
         itinerary.price = lastState.getTraversalPrice();
+
+        Set<TransitTicket> availableTickets = graph.getAvailableTransitTickets();
+
+        if (Objects.nonNull(availableTickets) && !availableTickets.isEmpty()) {
+            itinerary.getTripStages().addAll(generateTransitTripStages(states));
+            TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
+            transitPriceCalculator.getAvailableTickets().addAll(availableTickets);
+            itinerary.price = itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(itinerary.getTripStages())));
+        } else {
+            LOG.warn("Skipping transit price calculation for trip {} due to the lack of available tickets", itinerary.getTripStages());
+        }
 
         itinerary.transfers = lastState.getNumBoardings();
         if (itinerary.transfers > 0 && !(states.get(0).getVertex() instanceof OnboardDepartVertex)) {
@@ -779,6 +795,48 @@ public abstract class GraphPathToTripPlanConverter {
                 leg.stop.add(makePlace(states.get(i), vertex, edges.get(i), currentStop, tripTimes, requestedLocale, streetIndex));
             }
         }
+    }
+
+    private static List<TransitTripStage> generateTransitTripStages(List<State> states) {
+        List<TransitTripStage> transitTripStages = new ArrayList<>();
+
+        int currentTripTime = 1;
+        int firstTransitFareStartsAt = -1;
+        Stop currentStop;
+        double distance;
+
+        for (State currentState : states) {
+            Vertex vertex = currentState.getVertex();
+
+            if (vertex instanceof PatternArriveVertex || vertex instanceof PatternDepartVertex) {
+                currentStop = ((TransitVertex) vertex).getStop();
+
+                if (vertex instanceof PatternDepartVertex) {
+                    if (currentState.getBackState().getVertex() instanceof TransitStopDepart) {
+                        //This is the first stop of a new fare
+                        distance = 0;
+                        if (firstTransitFareStartsAt == -1) {
+                            //This is the first transit route in this trip
+                            firstTransitFareStartsAt = (int) (currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1));
+                        } else {
+                            currentTripTime = (int) ((currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1)
+                                    - firstTransitFareStartsAt)) + 1;
+                        }
+                        transitTripStages.add(new TransitTripStage(((PatternDepartVertex) vertex).getTripPattern().route,
+                                currentStop, currentTripTime, distance));
+                    }
+                } else {
+                    //This is one of the intermediate stops or the last stop for this fare
+                    currentTripTime = (int) ((currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1)
+                            - firstTransitFareStartsAt)) + 1; /* +1 as it is first minute after departing from stop */
+                    distance = currentState.getBackEdge().getDistanceInMeters();
+                    transitTripStages.add(new TransitTripStage(((PatternArriveVertex) vertex).getTripPattern().route,
+                            currentStop, currentTripTime, distance));
+                }
+            }
+        }
+
+        return transitTripStages;
     }
 
     /**
