@@ -800,16 +800,18 @@ public abstract class GraphPathToTripPlanConverter {
     private static List<TransitTripStage> generateTransitTripStages(List<State> states) {
         List<TransitTripStage> transitTripStages = new ArrayList<>();
 
-        int currentTripTime = 1;
         int firstTransitFareStartsAt = -1;
         Stop currentStop;
-        double distance;
 
         for (State currentState : states) {
             Vertex vertex = currentState.getVertex();
+            int currentTripTime = 1;
+            double distance;
 
             if (vertex instanceof PatternArriveVertex || vertex instanceof PatternDepartVertex) {
-                currentStop = ((TransitVertex) vertex).getStop();
+                OnboardVertex currentVertex = (OnboardVertex) vertex;
+
+                currentStop = currentVertex.getStop();
 
                 if (vertex instanceof PatternDepartVertex) {
                     if (currentState.getBackState().getVertex() instanceof TransitStopDepart) {
@@ -822,7 +824,7 @@ public abstract class GraphPathToTripPlanConverter {
                             currentTripTime = (int) ((currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1)
                                     - firstTransitFareStartsAt)) + 1;
                         }
-                        transitTripStages.add(new TransitTripStage(((PatternDepartVertex) vertex).getTripPattern().route,
+                        transitTripStages.add(new TransitTripStage(currentVertex.getTripPattern().route,
                                 currentStop, currentTripTime, distance));
                     }
                 } else {
@@ -830,7 +832,7 @@ public abstract class GraphPathToTripPlanConverter {
                     currentTripTime = (int) ((currentState.getTimeSeconds() / TimeUnit.MINUTES.toSeconds(1)
                             - firstTransitFareStartsAt)) + 1; /* +1 as it is first minute after departing from stop */
                     distance = currentState.getBackEdge().getDistanceInMeters();
-                    transitTripStages.add(new TransitTripStage(((PatternArriveVertex) vertex).getTripPattern().route,
+                    transitTripStages.add(new TransitTripStage(currentVertex.getTripPattern().route,
                             currentStop, currentTripTime, distance));
                 }
             }
