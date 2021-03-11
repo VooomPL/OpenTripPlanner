@@ -1,0 +1,17 @@
+[
+  {
+    "id": 20,
+    "max_time": 20,
+    "allowed_agencies": {
+      "ZTM": [
+        "Route.route_short_name NOT_STARTS_WITH L"
+      ],
+      "KM": [
+        "Route.route_short_name STARTS_WITH RL",
+        "Stop.stop_name IN {Warszawa Płudy, Warszawa Toruńska, Lotnisko Chopina}"
+      ]
+    },
+    "standard_price": 3.4,
+    "available_from": "2020-12-20T17:35:45"
+  }
+]
