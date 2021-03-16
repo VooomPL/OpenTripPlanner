@@ -8,13 +8,15 @@ import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
 import org.opentripplanner.pricing.transit.trip.model.FareSwitch;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.util.Objects.isNull;
 
-public class TransitTicket {
+
+public class TransitTicket implements Serializable {
 
     private enum ConstraintCategory {TIME, ROUTE_STOP_PATTERN, MAX_FARES, MAX_DISTANCE}
 
@@ -156,24 +158,29 @@ public class TransitTicket {
         for (int stageIndex = tripStages.size() - 1; stageIndex >= 0; stageIndex--) {
             evaluatedTripStage = tripStages.get(stageIndex);
 
-            if (evaluatedTripStage.getTime() < ticketShouldBeValidUntil) {
+            if (evaluatedTripStage.getTime() <= ticketShouldBeValidUntil) {
                 if (isTicketValid(evaluatedTripStage)) {
-
                     if (isFirstApplicableTripStage) {
-                        if (isTicketValid(laterTripStage)) {
+                        if (Objects.nonNull(laterTripStage)) {
                             /*
-                             * At this point we have made sure, that we can depart from the stop at the beginning of
-                             * the evaluated trip stage and continue our trip to the next stop using this ticket
-                             * (eg. for cases like in TransitTicketTest::shouldReturn0MinutesValid())
+                             * This stop is not the last one on this trip
                              */
-                            totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
-                        } else {
-                            /*
-                             * We cannot use the evaluated ticket for this trip stage because the ticket is only
-                             * guaranteed to be valid for the first stop of the evaluated trip stage (departing from this
-                             * stop and travelling further to the next one is not possible)
-                             */
-                            break;
+                            if (isTicketValid(laterTripStage)) {
+                                /*
+                                 * At this point we have made sure, that we can depart from the stop at the beginning of
+                                 * the evaluated trip stage and continue our trip to the next stop using this ticket
+                                 * (eg. for cases like in TransitTicketTest::shouldReturn0MinutesValid(), where:
+                                 * currentTripStage.getTime() < ticketShouldBeValidUntil < laterTripStage.getTime())
+                                 */
+                                totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
+                            } else {
+                                /*
+                                 * We cannot use the evaluated ticket for this trip stage because the ticket is only
+                                 * guaranteed to be valid for the first stop of the evaluated trip stage (departing from this
+                                 * stop and travelling further to the next one is not possible)
+                                 */
+                                break;
+                            }
                         }
                         isFirstApplicableTripStage = false;
                     } else {
@@ -193,7 +200,7 @@ public class TransitTicket {
     private boolean isTicketValid(TransitTripStage tripStage) {
         if (Objects.isNull(tripStage)) return false;
 
-        String agencyId = tripStage.getCurrentRoute().getId().getAgencyId();
+        String agencyId = tripStage.getCurrentRoute().getAgency().getId();
         RoutePattern agencyAssociatedRoutePattern = routePatterns.get(agencyId);
         StopPattern agencyAssociatedStopPattern = stopPatterns.get(agencyId);
 
