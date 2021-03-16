@@ -62,7 +62,7 @@ public class BenchmarkDominanceResource extends RoutingResource {
 
 
                     Double realW = paths.get(0).getWeight();
-                    Double estimated = request.remainingWeightWeight *
+                    Double estimated = request.remainingWeighMultiplier *
                             request.getRoutingContext().remainingWeightHeuristic.estimateRemainingWeight(paths.get(0).states.get(0));
 
                     Long calculatedTime = paths.get(0).getEndTime() - paths.get(0).getStartTime();

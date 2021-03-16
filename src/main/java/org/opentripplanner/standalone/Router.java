@@ -122,7 +122,7 @@ public class Router {
                 if (remainingWeightMultiplier.asDouble() < 0) {
                     LOG.error("The 'remainingWeightMultiplier' constant cannot be smaller than 0");
                 } else {
-                    defaultRoutingRequest.remainingWeightWeight = remainingWeightMultiplier.asDouble();
+                    defaultRoutingRequest.remainingWeighMultiplier = remainingWeightMultiplier.asDouble();
                 }
             } else {
                 LOG.error("The 'remainingWeightMultiplier' constant must be of ty 'double'");
