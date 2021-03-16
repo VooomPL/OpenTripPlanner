@@ -1,0 +1,12 @@
+[
+  {
+    "id": 6,
+    "max_time": 1440,
+    "allowed_agencies": {
+      "0": [
+        "Stop.zone_id IN {1, 1/2}"
+      ]
+    },
+    "standard_price": 15
+  }
+]

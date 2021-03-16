@@ -1,0 +1,12 @@
+[
+  {
+    "id": 5,
+    "max_fares": 1,
+    "allowed_agencies": {
+      "0": [
+        "Route.route_id NOT_STARTS_WITH L"
+      ]
+    },
+    "standard_price": 7
+  }
+]
