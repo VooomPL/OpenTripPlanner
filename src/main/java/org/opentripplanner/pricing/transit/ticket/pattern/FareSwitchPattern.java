@@ -1,8 +1,14 @@
 package org.opentripplanner.pricing.transit.ticket.pattern;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.opentripplanner.graph_builder.module.transit.tickets.parser.ConstraintsParser;
 import org.opentripplanner.pricing.transit.trip.model.FareSwitch;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 import static java.util.Objects.isNull;
 
@@ -12,6 +18,7 @@ import static java.util.Objects.isNull;
  * 1. http://www.zdmikp.bydgoszcz.pl/pl/transport/bilety-i-oplaty/system-przesiadkowy-at),
  */
 
+@JsonDeserialize(builder = FareSwitchPattern.FareSwitchPatternBuilder.class)
 @RequiredArgsConstructor
 public class FareSwitchPattern extends Pattern<FareSwitch> {
 
@@ -54,6 +61,38 @@ public class FareSwitchPattern extends Pattern<FareSwitch> {
         }
 
         return matches || matchesReversed;
+    }
+
+    public static final class FareSwitchPatternBuilder {
+
+        @JsonProperty("previous_fare")
+        private ArrayList<String> previousFareConstraints = null;
+
+        @JsonProperty("future_fare")
+        private ArrayList<String> futureFareConstraints = null;
+
+        @JsonProperty("reverse_allowed")
+        private boolean isReverseAllowed = false;
+
+        public FareSwitchPattern build() {
+            FareSwitchPattern builtPattern = new FareSwitchPattern(new RoutePattern(), new RoutePattern(),
+                    new StopPattern(), new StopPattern(), isReverseAllowed);
+
+            if (Objects.nonNull(previousFareConstraints)) {
+                ConstraintsParser.parseConstraints(builtPattern.getPreviousRoutePattern(),
+                        builtPattern.getPreviousStopPattern(),
+                        previousFareConstraints);
+            }
+
+            if (Objects.nonNull(futureFareConstraints)) {
+                ConstraintsParser.parseConstraints(builtPattern.getFutureRoutePattern(),
+                        builtPattern.getFutureStopPattern(),
+                        futureFareConstraints);
+            }
+
+            return builtPattern;
+        }
+
     }
 
 }

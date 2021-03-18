@@ -122,14 +122,14 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnTicketWithNullAvailableFromDate() {
+    public void shouldReturnEmptyTicketSetDueToMalformedFile() {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
         Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithInvalidDateFormat.json"));
-        assertNull(tickets.iterator().next().getAvailableFrom());
+        assertTrue(tickets.isEmpty());
     }
 
     @Test
-    public void shouldReturnEmptyTicketSet() {
+    public void shouldReturnEmptyTicketSetDueToNoDefinitionFile() {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
         Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/nonExistingFile.json"));
         assertTrue(tickets.isEmpty());

@@ -1,6 +1,9 @@
 package org.opentripplanner.pricing.transit.ticket;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
+import org.opentripplanner.graph_builder.module.transit.tickets.parser.ConstraintsParser;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.pricing.transit.ticket.pattern.FareSwitchPattern;
 import org.opentripplanner.pricing.transit.ticket.pattern.RoutePattern;
@@ -15,7 +18,7 @@ import java.util.*;
 
 import static java.util.Objects.isNull;
 
-
+@JsonDeserialize(builder = TransitTicket.TransitTicketBuilder.class)
 public class TransitTicket implements Serializable {
 
     private enum ConstraintCategory {TIME, ROUTE_STOP_PATTERN, MAX_FARES, MAX_DISTANCE}
@@ -68,21 +71,53 @@ public class TransitTicket implements Serializable {
     public static final class TransitTicketBuilder {
 
         private final int id;
+
         private final BigDecimal standardPrice;
+
+        @JsonProperty("max_time")
         private int validForMinutes = NO_LIMIT;
+
+        @JsonProperty("max_fares")
         private int validForFares = NO_LIMIT;
+
+        @JsonProperty("max_distance")
         private int validForDistance = NO_LIMIT;
+
+        @JsonProperty("available_from")
         private LocalDateTime availableFrom = null;
+
+        @JsonProperty("available_to")
         private LocalDateTime availableTo = null;
 
-        private TransitTicketBuilder(int id, BigDecimal standardPrice) {
+        @JsonProperty("allowed_agencies")
+        private HashMap<String, ArrayList<String>> allowedAgencies = null;
+
+        @JsonProperty("fare_switch_rules")
+        private List<FareSwitchPattern> fareSwitchPatterns = null;
+
+        private TransitTicketBuilder(@JsonProperty("id") int id,
+                                     @JsonProperty("standard_price") BigDecimal standardPrice) {
             this.id = id;
             this.standardPrice = standardPrice;
         }
 
         public TransitTicket build() {
-            return new TransitTicket(this.id, this.standardPrice, this.validForMinutes, this.validForFares,
+            TransitTicket builtTicket = new TransitTicket(this.id, this.standardPrice, this.validForMinutes, this.validForFares,
                     this.validForDistance, this.availableFrom, this.availableTo);
+
+            if (Objects.nonNull(allowedAgencies)) {
+                for (String agencyId : allowedAgencies.keySet()) {
+                    ConstraintsParser.parseConstraints(builtTicket, agencyId, allowedAgencies.get(agencyId));
+                }
+            }
+
+            if (Objects.nonNull(fareSwitchPatterns)) {
+                for (FareSwitchPattern fareSwitchPattern : fareSwitchPatterns) {
+                    builtTicket.getFareSwitchPatterns().add(fareSwitchPattern);
+                }
+            }
+
+            return builtTicket;
         }
 
         public TransitTicketBuilder setTimeLimit(int validForMinutes) {
