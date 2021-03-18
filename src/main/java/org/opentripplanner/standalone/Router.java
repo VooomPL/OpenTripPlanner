@@ -125,7 +125,7 @@ public class Router {
                     defaultRoutingRequest.remainingWeighMultiplier = remainingWeightMultiplier.asDouble();
                 }
             } else {
-                LOG.error("The 'remainingWeightMultiplier' constant must be of ty 'double'");
+                LOG.error("The 'remainingWeightMultiplier' constant must be of type 'double'");
             }
         }
         /* Apply multiple timeouts. */
