@@ -1,11 +1,10 @@
 package org.opentripplanner.graph_builder.module.transit.tickets;
 
-import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Value;
-import org.opentripplanner.graph_builder.module.transit.tickets.deserializer.TransitTicketDeserializer;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -26,10 +26,7 @@ public class AvailableTransitTicketsReader {
 
     public AvailableTransitTicketsReader() {
         objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule("TransitTicketDeserializer",
-                new Version(1, 0, 0, null, null, null));
-        module.addDeserializer(TransitTicket.class, new TransitTicketDeserializer());
-        objectMapper.registerModule(module);
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     public Set<TransitTicket> getFromFile(File sourceFile) {
@@ -39,8 +36,12 @@ public class AvailableTransitTicketsReader {
             String json = new String(Files.readAllBytes(sourceFile.toPath()));
             transitTickets = objectMapper.readValue(json, new TypeReference<HashSet<TransitTicket>>() {
             });
+        } catch (JsonProcessingException e) {
+            LOG.error("File {} containing transit tickets definitions malformed", sourceFile.getName());
+        } catch (NoSuchFileException e) {
+            LOG.warn("File {} containing transit tickets definitions not found", sourceFile.getName());
         } catch (IOException e) {
-            LOG.warn("File {} containing transit tickets definitions not found or malformed", sourceFile.getName());
+            LOG.error("Problems occurred when trying to read ticket definitions {} file", sourceFile.getName());
         } catch (NullPointerException e) {
             LOG.warn("Tickets definitions file name is null");
         }
