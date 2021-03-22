@@ -57,8 +57,9 @@ public class GTFSToOtpTransitServiceMapper {
         builder.getAgencies().addAll(agencyMapper.map(data.getAllAgencies()));
         builder.getCalendarDates().addAll(serviceCalendarDateMapper.map(data.getAllCalendarDates()));
         builder.getCalendars().addAll(serviceCalendarMapper.map(data.getAllCalendars()));
-        builder.getFareAttributes().addAll(fareAttributeMapper.map(data.getAllFareAttributes()));
-        builder.getFareRules().addAll(fareRuleMapper.map(data.getAllFareRules()));
+        //The lines below are commented out due to using an alternative approach to computing transit trip cost
+        //builder.getFareAttributes().addAll(fareAttributeMapper.map(data.getAllFareAttributes()));
+        //builder.getFareRules().addAll(fareRuleMapper.map(data.getAllFareRules()));
         builder.getFeedInfos().addAll(feedInfoMapper.map(data.getAllFeedInfos()));
         builder.getFrequencies().addAll(frequencyMapper.map(data.getAllFrequencies()));
         builder.getPathways().addAll(pathwayMapper.map(data.getAllPathways()));
