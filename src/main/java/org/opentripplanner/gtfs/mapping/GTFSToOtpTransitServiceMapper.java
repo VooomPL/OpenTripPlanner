@@ -3,6 +3,8 @@ package org.opentripplanner.gtfs.mapping;
 import org.opentripplanner.model.impl.OtpTransitServiceBuilder;
 import org.opentripplanner.model.OtpTransitService;
 
+import java.util.Objects;
+
 
 /**
  * This class is responsible for mapping between GTFS DAO objects and into OTP Transit model.
@@ -57,9 +59,13 @@ public class GTFSToOtpTransitServiceMapper {
         builder.getAgencies().addAll(agencyMapper.map(data.getAllAgencies()));
         builder.getCalendarDates().addAll(serviceCalendarDateMapper.map(data.getAllCalendarDates()));
         builder.getCalendars().addAll(serviceCalendarMapper.map(data.getAllCalendars()));
-        //The lines below are commented out due to using an alternative approach to computing transit trip cost
-        //builder.getFareAttributes().addAll(fareAttributeMapper.map(data.getAllFareAttributes()));
-        //builder.getFareRules().addAll(fareRuleMapper.map(data.getAllFareRules()));
+        String gtfsTransitPricesEnabled = System.getProperty("gtfsTransitPricesEnabled");
+        if (/*for legacy tests*/ Objects.isNull(gtfsTransitPricesEnabled) ||
+                /*for standard OTP server startup*/ gtfsTransitPricesEnabled.equals("true")) {
+            //Turned off by default for the OTP server, due to using a customized approach to computing transit trip cost
+            builder.getFareAttributes().addAll(fareAttributeMapper.map(data.getAllFareAttributes()));
+            builder.getFareRules().addAll(fareRuleMapper.map(data.getAllFareRules()));
+        }
         builder.getFeedInfos().addAll(feedInfoMapper.map(data.getAllFeedInfos()));
         builder.getFrequencies().addAll(frequencyMapper.map(data.getAllFrequencies()));
         builder.getPathways().addAll(pathwayMapper.map(data.getAllPathways()));
