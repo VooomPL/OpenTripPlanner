@@ -18,7 +18,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -103,7 +113,7 @@ public class Routers {
      * @returns status code 200 if the routerId is registered, otherwise a 404.
      */
     @GET @Path("{routerId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q})
     public RouterInfo getGraphId(@PathParam("routerId") String routerId) {
         // factor out build one entry
         RouterInfo routerInfo = getRouterInfo(routerId);
@@ -113,7 +123,31 @@ public class Routers {
                     .build());
         return routerInfo;
     }
-    
+
+    /**
+     * Checks if a given router is healthy.
+     *
+     * @returns status code 200 if the routerId is registered and healthy, otherwise a 404.
+     */
+    @GET
+    @Path("{routerId}/health")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q})
+    public RouterInfo getGraphHealth(@PathParam("routerId") String routerId) {
+        // factor out build one entry
+        RouterInfo routerInfo = getRouterInfo(routerId);
+        if (routerInfo == null) {
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND)
+                    .entity("Graph id '" + routerId + "' not registered.\n").type("text/plain")
+                    .build());
+        }
+        if (!routerInfo.health) {
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND)
+                    .entity("Graph with id '" + routerId + "' isn't healthy.\n").type("text/plain")
+                    .build());
+        }
+        return routerInfo;
+    }
+
     private RouterInfo getRouterInfo(String routerId) {
         try {
             Router router = otpServer.getRouter(routerId);
