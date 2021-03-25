@@ -4,6 +4,7 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import lombok.Getter;
 import org.geotools.measure.Latitude;
 import org.geotools.measure.Longitude;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
+@Getter
 public class EstimatorCommandLineParameters {
 
     @Parameter(names = {"--routerName"}, required = true, description = "City name (lower case)")
@@ -54,62 +56,6 @@ public class EstimatorCommandLineParameters {
 
     @Parameter(names = {"--snapshotDatabasePass"}, required = true, description = "URL from which we want to download snapshots")
     private String databasePassword;
-
-    public String getRouterName() {
-        return routerName;
-    }
-
-    public Double getOfficeLat() {
-        return officeLat;
-    }
-
-    public Double getOfficeLon() {
-        return officeLon;
-    }
-
-    public Double getRadius() {
-        return radius;
-    }
-
-    public Integer getRequestsPerSnapshot() {
-        return requestsPerSnapshot;
-    }
-
-    public LocalDate getEvaluationStartDate() {
-        return evaluationStartDate;
-    }
-
-    public int getEvaluationDaysTotal() {
-        return evaluationDaysTotal;
-    }
-
-    public LocalTime getMorningHoursMin() {
-        return morningHoursMin;
-    }
-
-    public LocalTime getEveningHoursMin() {
-        return eveningHoursMin;
-    }
-
-    public LocalTime getMorningHoursMax() {
-        return morningHoursMax;
-    }
-
-    public LocalTime getEveningHoursMax() {
-        return eveningHoursMax;
-    }
-
-    public int getSnapshotIntervalInMinutes() {
-        return snapshotIntervalInMinutes;
-    }
-
-    public String getDatabaseURL() {
-        return databaseURL;
-    }
-
-    public String getDatabasePassword() {
-        return databasePassword;
-    }
 
     public static class CorrectLatitude implements IParameterValidator {
         @Override

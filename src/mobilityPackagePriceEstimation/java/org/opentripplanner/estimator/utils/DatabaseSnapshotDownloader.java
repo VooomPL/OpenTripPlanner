@@ -21,11 +21,11 @@ public class DatabaseSnapshotDownloader {
 
     private static final String DEFAULT_SNAPSHOT_FILE_NAME = "current_snapshot.json";
 
-    private Graph graph;
-    private String databaseURL;
-    private String databasePassword;
-    private String snapshotDirectory;
-    private Map<Integer, Provider> vehicleProviders;
+    private final Graph graph;
+    private final String databaseURL;
+    private final String databasePassword;
+    private final String snapshotDirectory;
+    private final Map<Integer, Provider> vehicleProviders;
 
     public DatabaseSnapshotDownloader(Graph graph, String databaseURL, String databasePassword, String snapshotDirectory) {
         this.graph = graph;
@@ -37,8 +37,9 @@ public class DatabaseSnapshotDownloader {
 
     public void initializeProviders() {
         ProvidersGetter providersGetter = new ProvidersGetter();
-        this.vehicleProviders = providersGetter.postFromHasura(this.graph, this.databaseURL).stream()
-                .collect(Collectors.toMap(Provider::getProviderId, provider -> provider));
+        this.vehicleProviders.clear();
+        this.vehicleProviders.putAll(providersGetter.postFromHasura(this.graph, this.databaseURL).stream()
+                .collect(Collectors.toMap(Provider::getProviderId, provider -> provider)));
     }
 
     public int downloadSnapshot(LocalDateTime timestamp) {

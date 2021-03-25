@@ -25,7 +25,7 @@ public class VehicleStateSnapshotMapper extends HasuraToOTPMapper<VehicleStateSn
             /*This is a little bit ugly workaround to automatically incorporate all future modifications of the original
             vehicle mapping method code here, without changing the existing vehicle mapper interface*/
             Vehicle stateSnapshotAsVehicle = vehicleStateSnapshotHasuraObject.toVehicle(vehicleProvider);
-            List<VehicleDescription> mappedVehicles = originalVehicleMapper.map(Arrays.asList(stateSnapshotAsVehicle));
+            List<VehicleDescription> mappedVehicles = originalVehicleMapper.map(Collections.singletonList(stateSnapshotAsVehicle));
             return mappedVehicles.get(0);
         } else {
             return null;
