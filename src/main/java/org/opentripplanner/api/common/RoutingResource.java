@@ -9,7 +9,14 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelTypeFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.GearboxFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.ProviderFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleTypeFilter;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.request.BannedStopSet;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
@@ -25,7 +32,16 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * This class defines all the JAX-RS query parameters for a path search as fields, allowing them to
@@ -75,15 +91,27 @@ public abstract class RoutingResource {
 
     /**
      * The date that the trip should depart (or arrive, for requests where arriveBy is true).
+     *
+     * @deprecated use newer `timestampMillis` parameter, which is timezone independent
      */
+    @Deprecated
     @QueryParam("date")
     protected String date;
 
     /**
      * The time that the trip should depart (or arrive, for requests where arriveBy is true).
+     *
+     * @deprecated use newer `timestampMillis` parameter, which is timezone independent
      */
+    @Deprecated
     @QueryParam("time")
     protected String time;
+
+    /**
+     * The time that the trip should depart (or arrive, for requests where arriveBy is true) in milliseconds.
+     */
+    @QueryParam("timestampMillis")
+    protected Long timestampMillis;
 
     /**
      * Whether the trip should depart or arrive at the specified date and time.
@@ -618,31 +646,7 @@ public abstract class RoutingResource {
         if (toPlace != null)
             request.setToString(toPlace);
 
-        {
-            //FIXME: move into setter method on routing request
-            TimeZone tz;
-            tz = router.graph.getTimeZone();
-            if (date == null && time != null) { // Time was provided but not date
-                LOG.debug("parsing ISO datetime {}", time);
-                try {
-                    // If the time query param doesn't specify a timezone, use the graph's default. See issue #1373.
-                    DatatypeFactory df = javax.xml.datatype.DatatypeFactory.newInstance();
-                    XMLGregorianCalendar xmlGregCal = df.newXMLGregorianCalendar(time);
-                    GregorianCalendar gregCal = xmlGregCal.toGregorianCalendar();
-                    if (xmlGregCal.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
-                        gregCal.setTimeZone(tz);
-                    }
-                    Date d2 = gregCal.getTime();
-                    request.setDateTime(d2);
-                } catch (DatatypeConfigurationException e) {
-                    request.setDateTime(date, time, tz);
-                }
-            } else {
-                request.setDateTime(date, time, tz);
-            }
-
-            request.flex.resetClockTime();
-        }
+        setDateTime(router, request);
 
         if (wheelchair != null)
             request.setWheelchairAccessible(wheelchair);
@@ -908,6 +912,34 @@ public abstract class RoutingResource {
             request.setWalkPrice(BigDecimal.valueOf(walkPrice));
 
         return request;
+    }
+
+    private void setDateTime(Router router, RoutingRequest request) {
+        if (timestampMillis != null) {
+            request.setDateTime(timestampMillis);
+        } else {
+            TimeZone tz;
+            tz = router.graph.getTimeZone();
+            if (date == null && time != null) { // Time was provided but not date
+                LOG.debug("parsing ISO datetime {}", time);
+                try {
+                    // If the time query param doesn't specify a timezone, use the graph's default. See issue #1373.
+                    DatatypeFactory df = javax.xml.datatype.DatatypeFactory.newInstance();
+                    XMLGregorianCalendar xmlGregCal = df.newXMLGregorianCalendar(time);
+                    GregorianCalendar gregCal = xmlGregCal.toGregorianCalendar();
+                    if (xmlGregCal.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
+                        gregCal.setTimeZone(tz);
+                    }
+                    Date d2 = gregCal.getTime();
+                    request.setDateTime(d2);
+                } catch (DatatypeConfigurationException e) {
+                    request.setDateTime(date, time, tz);
+                }
+            } else {
+                request.setDateTime(date, time, tz);
+            }
+            request.flex.resetClockTime();
+        }
     }
 
     private void buildVehicleValidator(RoutingRequest request) {
