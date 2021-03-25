@@ -149,6 +149,9 @@ public class CommandLineParameters implements Cloneable {
     @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
     public String sharedVehiclesApi = null;
 
+    @Parameter(names = {"--gtfsTransitPricesEnabled"}, description = "Include transit ticket prices information from GTFS if available")
+    public String gtfsTransitPricesEnabled = null;
+
     @Parameter(names = {"--trafficAppi"}, description = "API for trafic udate")
     public String traffic = null;
 
@@ -179,6 +182,10 @@ public class CommandLineParameters implements Cloneable {
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
         }
+
+        Boolean gtfsPricesEnabled = Boolean.parseBoolean(gtfsTransitPricesEnabled);
+        System.setProperty("gtfsTransitPricesEnabled", gtfsPricesEnabled.toString());
+
         if (traffic != null) {
             System.setProperty("trfficApi", traffic);
         }
