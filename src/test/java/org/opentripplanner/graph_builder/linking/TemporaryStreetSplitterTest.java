@@ -185,7 +185,7 @@ public class TemporaryStreetSplitterTest {
         when(toStreetEdgeLinker.linkTemporarily(any(), any(), eq(routingRequest))).thenReturn(true);
 
         graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
-        when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList()));
+        when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList(), emptyList()));
 
         // when
         TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, true);
@@ -257,7 +257,7 @@ public class TemporaryStreetSplitterTest {
     public void shouldAddParkingZonesForVehicleVertex() {
         // given
         graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
-        when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList()));
+        when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList(), emptyList()));
         when(toStreetEdgeLinker.linkTemporarilyBothWays(any(), any())).thenReturn(true);
 
         // when

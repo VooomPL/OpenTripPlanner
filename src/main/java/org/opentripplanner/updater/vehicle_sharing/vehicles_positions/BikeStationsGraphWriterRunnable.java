@@ -2,7 +2,7 @@ package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
-import org.opentripplanner.routing.edgetype.rentedgetype.DropBikeEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.DropoffBikeEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
@@ -41,7 +41,7 @@ public class BikeStationsGraphWriterRunnable implements GraphWriterRunnable {
         if (!vertex.isPresent()) {
             return false;
         }
-        new DropBikeEdge(vertex.get(), station);
+        new DropoffBikeEdge(vertex.get(), station);
         RentBikeEdge edge = vertex.get().getOutgoing().stream()
                 .filter(RentBikeEdge.class::isInstance)
                 .map(RentBikeEdge.class::cast)

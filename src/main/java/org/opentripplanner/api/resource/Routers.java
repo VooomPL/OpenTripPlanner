@@ -1,13 +1,20 @@
 package org.opentripplanner.api.resource;
 
-import static org.opentripplanner.api.resource.ServerInfo.Q;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+import org.opentripplanner.api.model.RouterInfo;
+import org.opentripplanner.api.model.RouterList;
+import org.opentripplanner.graph_builder.GraphBuilder;
+import org.opentripplanner.routing.error.GraphNotFoundException;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
+import org.opentripplanner.routing.impl.MemoryGraphSource;
+import org.opentripplanner.routing.services.GraphService;
+import org.opentripplanner.standalone.CommandLineParameters;
+import org.opentripplanner.standalone.OTPServer;
+import org.opentripplanner.standalone.Router;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -26,23 +33,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
-import org.opentripplanner.api.model.RouterInfo;
-import org.opentripplanner.api.model.RouterList;
-import org.opentripplanner.graph_builder.GraphBuilder;
-import org.opentripplanner.routing.error.GraphNotFoundException;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
-import org.opentripplanner.routing.impl.MemoryGraphSource;
-import org.opentripplanner.routing.services.GraphService;
-import org.opentripplanner.standalone.CommandLineParameters;
-import org.opentripplanner.standalone.OTPServer;
-import org.opentripplanner.standalone.Router;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
+import static org.opentripplanner.api.resource.ServerInfo.Q;
 
 /**
  * This REST API endpoint allows remotely loading, reloading, and evicting graphs on a running server.
@@ -115,7 +113,7 @@ public class Routers {
      * @returns status code 200 if the routerId is registered, otherwise a 404.
      */
     @GET @Path("{routerId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q})
     public RouterInfo getGraphId(@PathParam("routerId") String routerId) {
         // factor out build one entry
         RouterInfo routerInfo = getRouterInfo(routerId);
@@ -125,7 +123,31 @@ public class Routers {
                     .build());
         return routerInfo;
     }
-    
+
+    /**
+     * Checks if a given router is healthy.
+     *
+     * @returns status code 200 if the routerId is registered and healthy, otherwise a 404.
+     */
+    @GET
+    @Path("{routerId}/health")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + Q, MediaType.TEXT_XML + Q})
+    public RouterInfo getGraphHealth(@PathParam("routerId") String routerId) {
+        // factor out build one entry
+        RouterInfo routerInfo = getRouterInfo(routerId);
+        if (routerInfo == null) {
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND)
+                    .entity("Graph id '" + routerId + "' not registered.\n").type("text/plain")
+                    .build());
+        }
+        if (!routerInfo.health) {
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND)
+                    .entity("Graph with id '" + routerId + "' isn't healthy.\n").type("text/plain")
+                    .build());
+        }
+        return routerInfo;
+    }
+
     private RouterInfo getRouterInfo(String routerId) {
         try {
             Router router = otpServer.getRouter(routerId);

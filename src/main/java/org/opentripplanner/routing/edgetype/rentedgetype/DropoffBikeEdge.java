@@ -8,10 +8,11 @@ import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
  * Edge allows dropping a bike on station. This edge is a loop on {@link TemporaryRentVehicleVertex} which, when traversed,
  * changes our current traverse mode, but leaves us in the same location. Dropping a bike on full station is impossible.
  */
-public class DropBikeEdge extends DropoffVehicleEdge {
-    private BikeRentalStation station;
+public class DropoffBikeEdge extends DropoffVehicleEdge {
 
-    public DropBikeEdge(TemporaryRentVehicleVertex v, BikeRentalStation station) {
+    private final BikeRentalStation station;
+
+    public DropoffBikeEdge(TemporaryRentVehicleVertex v, BikeRentalStation station) {
         super(v);
         this.station = station;
     }

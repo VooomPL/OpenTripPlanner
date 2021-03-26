@@ -1,7 +1,12 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+@EqualsAndHashCode
 public class GtfsFlexParameters implements Cloneable {
 
     /**
@@ -150,131 +155,8 @@ public class GtfsFlexParameters implements Cloneable {
      */
     private long clockTimeSec;
 
-    public int getFlagStopExtraPenalty() {
-        return flagStopExtraPenalty;
-    }
-
-    public void setFlagStopExtraPenalty(int flagStopExtraPenalty) {
-        this.flagStopExtraPenalty = flagStopExtraPenalty;
-    }
-
-    public int getDeviatedRouteExtraPenalty() {
-        return deviatedRouteExtraPenalty;
-    }
-
-    public void setDeviatedRouteExtraPenalty(int deviatedRouteExtraPenalty) {
-        this.deviatedRouteExtraPenalty = deviatedRouteExtraPenalty;
-    }
-
-    public double getCallAndRideReluctance() {
-        return callAndRideReluctance;
-    }
-
-    public void setCallAndRideReluctance(double callAndRideReluctance) {
-        this.callAndRideReluctance = callAndRideReluctance;
-    }
-
-    public int getMaxCallAndRideSeconds() {
-        return maxCallAndRideSeconds;
-    }
-
-    public void setMaxCallAndRideSeconds(int maxCallAndRideSeconds) {
-        this.maxCallAndRideSeconds = maxCallAndRideSeconds;
-    }
-
-    public int getReduceCallAndRideSeconds() {
-        return reduceCallAndRideSeconds;
-    }
-
-    public void setReduceCallAndRideSeconds(int reduceCallAndRideSeconds) {
-        this.reduceCallAndRideSeconds = reduceCallAndRideSeconds;
-    }
-
-    public double getReduceCallAndRideRatio() {
-        return reduceCallAndRideRatio;
-    }
-
-    public void setReduceCallAndRideRatio(double reduceCallAndRideRatio) {
-        this.reduceCallAndRideRatio = reduceCallAndRideRatio;
-    }
-
-    public double getFlagStopBufferSize() {
-        return flagStopBufferSize;
-    }
-
-    public void setFlagStopBufferSize(double flagStopBufferSize) {
-        this.flagStopBufferSize = flagStopBufferSize;
-    }
-
-    public boolean isUseReservationServices() {
-        return useReservationServices;
-    }
-
-    public void setUseReservationServices(boolean useReservationServices) {
-        this.useReservationServices = useReservationServices;
-    }
-
-    public boolean isUseEligibilityServices() {
-        return useEligibilityServices;
-    }
-
-    public void setUseEligibilityServices(boolean useEligibilityServices) {
-        this.useEligibilityServices = useEligibilityServices;
-    }
-
-    public boolean isIgnoreDrtAdvanceBookMin() {
-        return ignoreDrtAdvanceBookMin;
-    }
-
-    public void setIgnoreDrtAdvanceBookMin(boolean ignoreDrtAdvanceBookMin) {
-        this.ignoreDrtAdvanceBookMin = ignoreDrtAdvanceBookMin;
-    }
-
-    public int getMinPartialHopLength() {
-        return minPartialHopLength;
-    }
-
-    public void setMinPartialHopLength(int minPartialHopLength) {
-        this.minPartialHopLength = minPartialHopLength;
-    }
-
-    public long getClockTimeSec() {
-        return clockTimeSec;
-    }
-
-    public void setClockTimeSec(long clockTimeSec) {
-        this.clockTimeSec = clockTimeSec;
-    }
-
     public void resetClockTime() {
         clockTimeSec = System.currentTimeMillis() / 1000;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GtfsFlexParameters that = (GtfsFlexParameters) o;
-        return flagStopExtraPenalty == that.flagStopExtraPenalty &&
-                deviatedRouteExtraPenalty == that.deviatedRouteExtraPenalty &&
-                Double.compare(that.callAndRideReluctance, callAndRideReluctance) == 0 &&
-                maxCallAndRideSeconds == that.maxCallAndRideSeconds &&
-                reduceCallAndRideSeconds == that.reduceCallAndRideSeconds &&
-                Double.compare(that.reduceCallAndRideRatio, reduceCallAndRideRatio) == 0 &&
-                Double.compare(that.flagStopBufferSize, flagStopBufferSize) == 0 &&
-                useReservationServices == that.useReservationServices &&
-                useEligibilityServices == that.useEligibilityServices &&
-                ignoreDrtAdvanceBookMin == that.ignoreDrtAdvanceBookMin &&
-                minPartialHopLength == that.minPartialHopLength &&
-                clockTimeSec == that.clockTimeSec;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(flagStopExtraPenalty, deviatedRouteExtraPenalty, callAndRideReluctance,
-                maxCallAndRideSeconds, reduceCallAndRideSeconds, reduceCallAndRideRatio, flagStopBufferSize,
-                useReservationServices, useEligibilityServices, ignoreDrtAdvanceBookMin, minPartialHopLength,
-                clockTimeSec);
     }
 
     public GtfsFlexParameters clone() {

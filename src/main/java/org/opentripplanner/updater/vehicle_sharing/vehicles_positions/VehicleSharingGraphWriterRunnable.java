@@ -54,6 +54,7 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
         removeDisappearedRentableVehicles(graph);
         addAppearedRentableVehicles(graph);
         graph.getLastProviderVehiclesUpdateTimestamps().entrySet().removeIf(entry -> graph.isUnresponsiveGracePeriodExceeded(entry.getKey(), updateTimestamp));
+        graph.routerHealth.setVehiclePosition(true);
     }
 
     private void removeDisappearedRentableVehicles(Graph graph) {

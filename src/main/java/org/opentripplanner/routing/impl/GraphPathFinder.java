@@ -176,7 +176,7 @@ public class GraphPathFinder {
                 List<FeedScopedId> callAndRideTripIds = path.getCallAndRideTrips();
                 for (FeedScopedId tripId : tripIds) {
                     if (!callAndRideTripIds.contains(tripId)) {
-                        options.banTrip(tripId);
+                        options.bannedTransit.banTrip(tripId);
                     }
                 }
                 if (tripIds.isEmpty() && !options.rentingAllowed) {
@@ -238,7 +238,7 @@ public class GraphPathFinder {
         List<GraphPath> reversedPaths = new ArrayList<>();
         for(GraphPath newPath : newPaths){
             State targetAcceptedState = options.arriveBy ? newPath.states.getLast().reverse() : newPath.states.getLast();
-            if(targetAcceptedState.stateData.getNumBooardings() < 2) {
+            if(targetAcceptedState.stateData.getNumBoardings() < 2) {
                 reversedPaths.add(newPath);
                 continue;
             }
@@ -300,7 +300,7 @@ public class GraphPathFinder {
                         joinedPaths.add(joinedPath);
                         if(newPaths.size() > 1){
                             for (FeedScopedId tripId : joinedPath.getTrips()) {
-                                options.banTrip(tripId);
+                                options.bannedTransit.banTrip(tripId);
                             }
                         }
                     }
@@ -348,7 +348,7 @@ public class GraphPathFinder {
         reversedOptions.rctx.remainingWeightHeuristic = remainingWeightHeuristic;
         reversedOptions.maxTransfers = 4;
         reversedOptions.longDistance = true;
-        reversedOptions.bannedTrips = options.bannedTrips;
+        reversedOptions.bannedTransit = options.bannedTransit;
         return reversedOptions;
     }
 

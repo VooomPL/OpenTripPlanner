@@ -1,14 +1,18 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
-
-import java.util.Objects;
 
 /**
  * Describes how bad time spend on specified actions is.
  */
-public class RoutingReluctances {
+@Getter
+@Setter
+@EqualsAndHashCode
+public class RoutingReluctances implements Cloneable {
     /**
      * How much worse is waiting for a transit vehicle than being on a transit vehicle, as a multiplier. The default value treats wait and on-vehicle
      * time as the same.
@@ -63,88 +67,12 @@ public class RoutingReluctances {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RoutingReluctances that = (RoutingReluctances) o;
-        return Double.compare(that.waitReluctance, waitReluctance) == 0 &&
-                Double.compare(that.waitAtBeginningFactor, waitAtBeginningFactor) == 0 &&
-                Double.compare(that.walkReluctance, walkReluctance) == 0 &&
-                Double.compare(that.carReluctance, carReluctance) == 0 &&
-                Double.compare(that.motorbikeReluctance, motorbikeReluctance) == 0 &&
-                Double.compare(that.kickScooterReluctance, kickScooterReluctance) == 0 &&
-                Double.compare(that.bicycleReluctance, bicycleReluctance) == 0 &&
-                Double.compare(that.rentingReluctance, rentingReluctance) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(waitReluctance, waitAtBeginningFactor, walkReluctance, carReluctance, motorbikeReluctance,
-                kickScooterReluctance, bicycleReluctance, rentingReluctance);
-    }
-
-    public double getWaitReluctance() {
-        return waitReluctance;
-    }
-
-    public void setWaitReluctance(double waitReluctance) {
-        this.waitReluctance = waitReluctance;
-    }
-
-    public double getWaitAtBeginningFactor() {
-        return waitAtBeginningFactor;
-    }
-
-    public void setWaitAtBeginningFactor(double waitAtBeginningFactor) {
-        this.waitAtBeginningFactor = waitAtBeginningFactor;
-    }
-
-    public double getWalkReluctance() {
-        return walkReluctance;
-    }
-
-    public void setWalkReluctance(double walkReluctance) {
-        this.walkReluctance = walkReluctance;
-    }
-
-    public double getCarReluctance() {
-        return carReluctance;
-    }
-
-    public void setCarReluctance(double carReluctance) {
-        this.carReluctance = carReluctance;
-    }
-
-    public double getMotorbikeReluctance() {
-        return motorbikeReluctance;
-    }
-
-    public void setMotorbikeReluctance(double motorbikeReluctance) {
-        this.motorbikeReluctance = motorbikeReluctance;
-    }
-
-    public double getKickScooterReluctance() {
-        return kickScooterReluctance;
-    }
-
-    public void setKickScooterReluctance(double kickScooterReluctance) {
-        this.kickScooterReluctance = kickScooterReluctance;
-    }
-
-    public double getBicycleReluctance() {
-        return bicycleReluctance;
-    }
-
-    public void setBicycleReluctance(double bicycleReluctance) {
-        this.bicycleReluctance = bicycleReluctance;
-    }
-
-    public double getRentingReluctance() {
-        return rentingReluctance;
-    }
-
-    public void setRentingReluctance(double rentingReluctance) {
-        this.rentingReluctance = rentingReluctance;
+    public RoutingReluctances clone() {
+        try {
+            return (RoutingReluctances) super.clone();
+        } catch (CloneNotSupportedException e) {
+            /* this will never happen since our super is the cloneable object */
+            throw new RuntimeException(e);
+        }
     }
 }

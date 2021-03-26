@@ -3,6 +3,7 @@ package org.opentripplanner.hasura_client.hasura_objects;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 public class BikeStationHasura extends HasuraObject {
+
     private int bikesAvailable;
     private int spacesAvailable;
     private Provider provider;

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, ParkingZone> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HasuraGetter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParkingZonesGetter.class);
 
     @Override
     protected String query() {

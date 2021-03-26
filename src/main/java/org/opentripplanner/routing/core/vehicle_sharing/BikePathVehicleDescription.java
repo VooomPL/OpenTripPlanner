@@ -2,8 +2,10 @@ package org.opentripplanner.routing.core.vehicle_sharing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
 
+@EqualsAndHashCode(callSuper = true)
 public abstract class BikePathVehicleDescription extends VehicleDescription {
 
     private static final TraverseMode TRAVERSE_MODE = TraverseMode.BICYCLE;

@@ -11,6 +11,7 @@ import org.opentripplanner.graph_builder.module.ned.GeotiffGridCoverageFactoryIm
 import org.opentripplanner.graph_builder.module.ned.NEDGridCoverageFactoryImpl;
 import org.opentripplanner.graph_builder.module.osm.OpenStreetMapModule;
 import org.opentripplanner.graph_builder.module.time.TrafficPredictionBuilderModule;
+import org.opentripplanner.graph_builder.module.transit.tickets.AvailableTicketsBuilderModule;
 import org.opentripplanner.graph_builder.module.vehicle_sharing.VehicleSharingBuilderModule;
 import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -196,6 +198,7 @@ public class GraphBuilder implements Runnable {
         JsonNode routerConfig = null;
         File demFile = null;
         File jsonFile = null;
+        File transitTicketsFile = null;
         LOG.info("Searching for graph builder input files in {}", dir);
         if (!dir.isDirectory() && dir.canRead()) {
             LOG.error("'{}' is not a readable directory.", dir);
@@ -234,6 +237,10 @@ public class GraphBuilder implements Runnable {
                 case JSON:
                     LOG.info("Found JSON file {}", file);
                     jsonFile = file;
+                    break;
+                case TRANSIT_TICKETS:
+                    LOG.info("Found transit ticket definitions {}", file);
+                    transitTicketsFile = file;
                     break;
                 case OTHER:
                     LOG.warn("Skipping unrecognized file '{}'", file);
@@ -344,12 +351,18 @@ public class GraphBuilder implements Runnable {
             graphBuilder.addModule(new TrafficPredictionBuilderModule(jsonFile));
         }
 
+        if (transitTicketsFile != null) {
+            graphBuilder.addModule(new AvailableTicketsBuilderModule(transitTicketsFile));
+        }
+
         return graphBuilder;
     }
 
     private static void tryAddVehicleSharingBuilderModule(GraphBuilder graphBuilder) {
-        if (System.getProperties().containsKey("sharedVehiclesApi")) {
-            graphBuilder.addModule(new VehicleSharingBuilderModule(System.getProperty("sharedVehiclesApi")));
+        Properties properties = System.getProperties();
+        if (properties.containsKey("sharedVehiclesApi")) {
+            graphBuilder.addModule(VehicleSharingBuilderModule
+                    .justParkingZones(properties.getProperty("sharedVehiclesApi")));
         } else {
             graphBuilder.addModule(VehicleSharingBuilderModule.withoutParkingZones());
             LOG.warn("Building graph without rentable vehicles parking zones. If you want to add parking zones, " +
@@ -363,7 +376,7 @@ public class GraphBuilder implements Runnable {
      * types are present. This helps point out when config files have been misnamed (builder-config vs. build-config).
      */
     private static enum InputFileType {
-        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, OTHER;
+        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, TRANSIT_TICKETS, OTHER;
 
         public static InputFileType forFile(File file) {
             String name = file.getName();
@@ -382,6 +395,7 @@ public class GraphBuilder implements Runnable {
                 return DEM; // Digital elevation model (elevation raster)
             if (name.equals("Graph.obj")) return GRAPH;
             if (name.endsWith("db.json")) return JSON;
+            if (name.equals("availableTickets.json")) return TRANSIT_TICKETS;
             if (name.equals(GraphBuilder.BUILDER_CONFIG_FILENAME) || name.equals(Router.ROUTER_CONFIG_FILENAME)) {
                 return CONFIG;
             }

@@ -1,0 +1,13 @@
+[
+  {
+    "id": 20,
+    "max_time": 20,
+    "allowed_agencies": {
+      "ZTM": {}
+    },
+    "standard_price": [
+      3.4
+    ],
+    "available_from": "2020-12-2017:35:45"
+  }
+]
