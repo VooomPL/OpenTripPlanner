@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class DatabaseSnapshotDownloader {
 
     private static final String DEFAULT_SNAPSHOT_FILE_NAME = "current_snapshot.json";
+    private static final int DEFAULT_RETRY_NUMBER = 3;
 
     private final Graph graph;
     private final String databaseURL;
@@ -42,11 +43,20 @@ public class DatabaseSnapshotDownloader {
     }
 
     public int downloadSnapshot(LocalDateTime timestamp) {
+        int retries = 0;
         VehicleStateSnapshotGetter vehicleSnapshotGetter = new VehicleStateSnapshotGetter(this.vehicleProviders, timestamp);
-        List<Vehicle> vehicles = vehicleSnapshotGetter.postFromHasuraWithPassword(this.graph, this.databaseURL, this.databasePassword);
-        if (Objects.nonNull(vehicles)) {
-            saveSnapshotData(vehicles);
-            return vehicles.size();
+        while (retries < DEFAULT_RETRY_NUMBER) {
+            List<Vehicle> vehicles = vehicleSnapshotGetter.postFromHasuraWithPassword(this.graph, this.databaseURL, this.databasePassword);
+            if (Objects.nonNull(vehicles)) {
+                saveSnapshotData(vehicles);
+                return vehicles.size();
+            }
+            try {
+                Thread.sleep(2000);
+                retries++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         return 0;
     }
