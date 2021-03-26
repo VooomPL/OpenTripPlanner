@@ -1,14 +1,13 @@
 package org.opentripplanner.estimator.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.opentripplanner.estimator.hasura_client.ProvidersGetter;
 import org.opentripplanner.estimator.hasura_client.VehicleStateSnapshotGetter;
+import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.routing.graph.Graph;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -44,7 +43,7 @@ public class DatabaseSnapshotDownloader {
 
     public int downloadSnapshot(LocalDateTime timestamp) {
         VehicleStateSnapshotGetter vehicleSnapshotGetter = new VehicleStateSnapshotGetter(this.vehicleProviders, timestamp);
-        List<VehicleDescription> vehicles = vehicleSnapshotGetter.postFromHasuraWithPassword(this.graph, this.databaseURL, this.databasePassword);
+        List<Vehicle> vehicles = vehicleSnapshotGetter.postFromHasuraWithPassword(this.graph, this.databaseURL, this.databasePassword);
         if (Objects.nonNull(vehicles)) {
             saveSnapshotData(vehicles);
             return vehicles.size();
@@ -52,32 +51,16 @@ public class DatabaseSnapshotDownloader {
         return 0;
     }
 
-    private void saveSnapshotData(List<VehicleDescription> vehicles) {
-        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(snapshotDirectory + DEFAULT_SNAPSHOT_FILE_NAME))) {
-            fileWriter.write("{\"data\":{\"items\":[");
+    private void saveSnapshotData(List<Vehicle> vehicles) {
+        SnapshotData data = new SnapshotData();
+        data.addAll(vehicles);
 
-            VehicleDescription vehicle;
-            for (int i = 0; i < vehicles.size(); i++) {
-                vehicle = vehicles.get(i);
-                fileWriter.write("{\"providerVehicleId\":\"" + vehicle.getProviderVehicleId() +
-                        "\",\"latitude\":" + vehicle.getLatitude() +
-                        ",\"longitude\":" + vehicle.getLongitude() +
-                        ",\"fuelType\":\"" + vehicle.getFuelType() +
-                        "\",\"gearbox\":\"" + vehicle.getGearbox() +
-                        "\",\"type\":\"" + VehicleType.getDatabaseVehicleType(vehicle.getVehicleType()) +
-                        "\",\"range\":" + vehicle.getRangeInMeters() +
-                        ",\"provider\":{\"providerId\":" + vehicle.getProvider().getProviderId() +
-                        ",\"providerName\":\"" + vehicle.getProvider().getProviderName() + "\"}," +
-                        "\"kmPrice\":" + vehicle.getVehiclePricingPackage(0).getKilometerPrice() +
-                        ",\"drivingPrice\":" + vehicle.getVehiclePricingPackage(0).getDrivingPricePerTimeTickInPackageExceeded() +
-                        ",\"startPrice\":" + vehicle.getVehiclePricingPackage(0).getStartPrice() +
-                        ",\"stopPrice\":" + vehicle.getVehiclePricingPackage(0).getParkingPricePerTimeTickInPackageExceeded() +
-                        ",\"maxDailyPrice\":" + vehicle.getVehiclePricingPackage(0).getMaxRentingPrice() +
-                        "}" + (i < vehicles.size() - 1 ? "," : ""));
-            }
-            fileWriter.write("]}}");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File(snapshotDirectory + DEFAULT_SNAPSHOT_FILE_NAME), data);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }

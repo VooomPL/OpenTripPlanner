@@ -5,9 +5,9 @@ import org.opentripplanner.estimator.hasura_client.hasura_objects.VehicleStateSn
 import org.opentripplanner.estimator.hasura_client.mappers.VehicleStateSnapshotMapper;
 import org.opentripplanner.hasura_client.ApiResponse;
 import org.opentripplanner.hasura_client.HasuraGetter;
+import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-public class VehicleStateSnapshotGetter extends HasuraGetter<VehicleDescription, VehicleStateSnapshotHasuraObject> {
+public class VehicleStateSnapshotGetter extends HasuraGetter<Vehicle, VehicleStateSnapshotHasuraObject> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehicleStateSnapshotGetter.class);
 
@@ -79,13 +79,13 @@ public class VehicleStateSnapshotGetter extends HasuraGetter<VehicleDescription,
     }
 
     @Override
-    protected HasuraToOTPMapper<VehicleStateSnapshotHasuraObject, VehicleDescription> mapper() {
+    protected HasuraToOTPMapper<VehicleStateSnapshotHasuraObject, Vehicle> mapper() {
         return new VehicleStateSnapshotMapper(vehicleProviders);
     }
 
     @Override
     protected TypeReference<ApiResponse<VehicleStateSnapshotHasuraObject>> hasuraType() {
-        return new TypeReference<ApiResponse<VehicleStateSnapshotHasuraObject>>() {
+        return new TypeReference<>() {
         };
     }
 

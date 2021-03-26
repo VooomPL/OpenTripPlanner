@@ -1,5 +1,6 @@
 package org.opentripplanner.hasura_client.hasura_objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ public class Vehicle extends HasuraObject {
     private BigDecimal stopPrice;
     private BigDecimal maxDailyPrice;
 
+    @JsonIgnore
     public Double getRangeInMeters() {
         if (range != null)
             return range * 1000;

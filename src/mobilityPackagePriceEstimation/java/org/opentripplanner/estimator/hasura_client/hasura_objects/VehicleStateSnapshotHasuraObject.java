@@ -26,13 +26,6 @@ public class VehicleStateSnapshotHasuraObject extends HasuraObject {
     private BigDecimal stopPrice;
     private BigDecimal maxDailyPrice;
 
-    public Double getRangeInMeters() {
-        if (range != null)
-            return range * 1000;
-        else
-            return null;
-    }
-
     public Vehicle toVehicle(Provider provider) {
         Vehicle stateSnapshotAsVehicle = new Vehicle();
         stateSnapshotAsVehicle.setDrivingPrice(this.getDrivingPrice());
