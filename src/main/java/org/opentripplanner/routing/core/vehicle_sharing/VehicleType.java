@@ -51,4 +51,20 @@ public enum VehicleType {
                 return null;
         }
     }
+
+    public static String getDatabaseVehicleType(VehicleType vehicleType) {
+        switch (vehicleType) {
+            case CAR:
+                return _CAR;
+            case BIKE:
+                return _BIKE;
+            case MOTORBIKE:
+                return _MOTORBIKE;
+            case KICKSCOOTER:
+                return _KICKSCOOTER;
+            default:
+                LOG.warn("Cannot create vehicle type string - unknown vehicle type {}", vehicleType);
+                return null;
+        }
+    }
 }

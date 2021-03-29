@@ -49,7 +49,7 @@ public class ParkingZonesGetter extends HasuraGetter<GeometryParkingZone, Parkin
     }
 
     @Override
-    protected boolean addGeolocationArguments() {
+    protected boolean addAdditionalArguments() {
         return true;
     }
 
