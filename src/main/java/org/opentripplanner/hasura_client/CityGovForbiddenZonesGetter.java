@@ -29,7 +29,7 @@ public class CityGovForbiddenZonesGetter extends HasuraGetter<GeometriesDisallow
     }
 
     @Override
-    protected boolean addGeolocationArguments() {
+    protected boolean addAdditionalArguments() {
         return false;
     }
 

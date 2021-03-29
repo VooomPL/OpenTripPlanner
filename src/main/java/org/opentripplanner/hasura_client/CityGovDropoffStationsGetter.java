@@ -34,7 +34,7 @@ public class CityGovDropoffStationsGetter extends HasuraGetter<CityGovDropoffSta
     }
 
     @Override
-    protected boolean addGeolocationArguments() {
+    protected boolean addAdditionalArguments() {
         return true;
     }
 
