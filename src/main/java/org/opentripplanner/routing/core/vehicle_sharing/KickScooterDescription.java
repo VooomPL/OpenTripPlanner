@@ -7,11 +7,20 @@ import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
-import java.util.Objects;
-
 @EqualsAndHashCode(callSuper = true)
 public class KickScooterDescription extends BikePathVehicleDescription {
-    protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 15. * (10. / 36.);
+
+    /*
+     Kickscooters are not allowed on streets with speed limit >30km/h
+     */
+    public static final double MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND = 30. * (10. / 36.);
+
+    /*
+     We want to route kickscooters on bikepaths rather than on streets (if it is possible),
+     so we assume kickscooters are a bit faster on bikepaths than on streets.
+     */
+    protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH = 20. * (10. / 36.);
+    protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_ROAD = 19. * (10. / 36.);
     protected static final double MAX_SPEED_IN_METERS_PER_SECOND_ON_PEDESTRIAN_PATH = 10. * (10. / 36.);
 
     private static final TraverseMode TRAVERSE_MODE = TraverseMode.BICYCLE;
@@ -46,7 +55,9 @@ public class KickScooterDescription extends BikePathVehicleDescription {
 
     @Override
     public double getMaxSpeedInMetersPerSecond(StreetEdge streetEdge) {
-        if (streetEdge.canTraverseIncludingBarrier(TraverseMode.BICYCLE))
+        if (streetEdge.canTraverseIncludingBarrier(TraverseMode.CAR))
+            return MAX_SPEED_IN_METERS_PER_SECOND_ON_ROAD;
+        else if (streetEdge.canTraverseIncludingBarrier(TraverseMode.BICYCLE))
             return MAX_SPEED_IN_METERS_PER_SECOND_ON_BIKEPATH;
         else
             return MAX_SPEED_IN_METERS_PER_SECOND_ON_PEDESTRIAN_PATH;

@@ -8,20 +8,34 @@ import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.geometry.GeometryUtils;
-import org.opentripplanner.routing.core.*;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateEditor;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.KickScooterDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.MotorbikeDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PlainStreetEdgeTest {
 
     private static final CarDescription CAR = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(2, "PANEK"));
     private static final MotorbikeDescription MOTORBIKE = new MotorbikeDescription("2", 0, 0, FuelType.FOSSIL, Gearbox.MANUAL, new Provider(1, "HopCity"));
+    private static final KickScooterDescription KICKSCOOTER = new KickScooterDescription("2", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(1, "HopCity"));
 
     private Graph graph;
     private IntersectionVertex v0, v1, v2;
@@ -335,6 +349,26 @@ public class PlainStreetEdgeTest {
         e1.getTurnRestrictions().add(new TurnRestriction(e1, e0, null, TraverseModeSet.allModes()));
 
         assertNotNull(e0.traverse(e1.traverse(state)));
+    }
+
+    @Test
+    public void shouldLetKickscooterTraverseIfMaxSpeedIsLow() {
+        // given
+        StreetEdge edge = edge(v0, v1, 100, StreetTraversalPermission.BICYCLE_AND_CAR);
+        edge.setMaxStreetTraverseSpeed(8.33f); // 30 km/h
+
+        // then
+        assertTrue(edge.canTraverse(KICKSCOOTER));
+    }
+
+    @Test
+    public void shouldNotLetKickscooterTraverseIfMaxSpeedIsHigh() {
+        // given
+        StreetEdge edge = edge(v0, v1, 100, StreetTraversalPermission.BICYCLE_AND_CAR);
+        edge.setMaxStreetTraverseSpeed(13.88f); // 50 km/h
+
+        // then
+        assertFalse(edge.canTraverse(KICKSCOOTER));
     }
 
     /****
