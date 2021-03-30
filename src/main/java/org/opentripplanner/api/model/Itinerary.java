@@ -60,6 +60,8 @@ public class Itinerary {
 
     public BigDecimal price;
 
+    public ArrayList<String> transitTickets;
+
     /**
      * Indicates that the walk limit distance has been exceeded for this itinerary when true.
      */

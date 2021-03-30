@@ -14,6 +14,7 @@ import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
 import org.opentripplanner.pricing.transit.TransitPriceCalculator;
+import org.opentripplanner.pricing.transit.TransitTripCost;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripDescription;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
@@ -201,7 +202,9 @@ public abstract class GraphPathToTripPlanConverter {
             List<TransitTripStage> tripStages = generateTransitTripStages(states);
             TransitPriceCalculator transitPriceCalculator = new TransitPriceCalculator();
             transitPriceCalculator.getAvailableTickets().addAll(availableTickets);
-            itinerary.price = itinerary.price.add(transitPriceCalculator.computePrice(new TransitTripDescription(tripStages)));
+            TransitTripCost transitCost = transitPriceCalculator.computePrice(new TransitTripDescription(tripStages));
+            itinerary.price = itinerary.price.add(transitCost.getPrice());
+            itinerary.transitTickets = transitCost.getTicketNames();
         } else {
             LOG.warn("Skipping transit price calculation for trip from to due to the lack of available tickets");
         }
