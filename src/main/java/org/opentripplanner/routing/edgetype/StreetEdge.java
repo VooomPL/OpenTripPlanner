@@ -244,13 +244,14 @@ public class StreetEdge extends Edge implements Cloneable {
         if (Objects.nonNull(vehicle)) {
             switch (vehicle.getVehicleType()) {
                 case MOTORBIKE:
-                    if (this.getMaxStreetTraverseSpeed() > MotorbikeDescription.MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
+                    if (getMaxStreetTraverseSpeed() > MotorbikeDescription.MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
                         //If maximum traverse speed > 80 km/h, motorbikes are not allowed
                         return false;
                     }
                     break;
                 case KICKSCOOTER:
-                    if (getMaxStreetTraverseSpeed() > KickScooterDescription.MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
+                    if (canTraverse(new TraverseModeSet(TraverseMode.CAR)) &&
+                            getMaxStreetTraverseSpeed() > KickScooterDescription.MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
                         //If maximum traverse speed > 30 km/h, kickscooters are not allowed
                         return false;
                     }
