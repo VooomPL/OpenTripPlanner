@@ -29,6 +29,9 @@ public class TransitTicket implements Serializable {
     private final int id;
 
     @Getter
+    private final String name;
+
+    @Getter
     private final int maxMinutes;
 
     @Getter
@@ -53,9 +56,10 @@ public class TransitTicket implements Serializable {
     @Getter
     private final LocalDateTime availableTo;
 
-    private TransitTicket(int id, BigDecimal standardPrice, int validForMinutes, int validForFares, int validForDistance,
+    private TransitTicket(int id, String name, BigDecimal standardPrice, int validForMinutes, int validForFares, int validForDistance,
                           LocalDateTime availableFrom, LocalDateTime availableTo) {
         this.id = id;
+        this.name = name;
         this.standardPrice = standardPrice;
         this.maxMinutes = validForMinutes;
         this.maxFares = validForFares;
@@ -65,12 +69,18 @@ public class TransitTicket implements Serializable {
     }
 
     public static TransitTicketBuilder builder(int id, BigDecimal standardPrice) {
-        return new TransitTicketBuilder(id, standardPrice);
+        return builder(id, "", standardPrice);
+    }
+
+    public static TransitTicketBuilder builder(int id, String name, BigDecimal standardPrice) {
+        return new TransitTicketBuilder(id, name, standardPrice);
     }
 
     public static final class TransitTicketBuilder {
 
         private final int id;
+
+        private final String name;
 
         private final BigDecimal standardPrice;
 
@@ -96,14 +106,16 @@ public class TransitTicket implements Serializable {
         private List<FareSwitchPattern> fareSwitchPatterns = null;
 
         private TransitTicketBuilder(@JsonProperty("id") int id,
+                                     @JsonProperty("name") String name,
                                      @JsonProperty("standard_price") BigDecimal standardPrice) {
             this.id = id;
+            this.name = name;
             this.standardPrice = standardPrice;
         }
 
         public TransitTicket build() {
-            TransitTicket builtTicket = new TransitTicket(this.id, this.standardPrice, this.validForMinutes, this.validForFares,
-                    this.validForDistance, this.availableFrom, this.availableTo);
+            TransitTicket builtTicket = new TransitTicket(this.id, this.name, this.standardPrice, this.validForMinutes,
+                    this.validForFares, this.validForDistance, this.availableFrom, this.availableTo);
 
             if (Objects.nonNull(allowedAgencies)) {
                 for (String agencyId : allowedAgencies.keySet()) {

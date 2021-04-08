@@ -21,13 +21,13 @@ public class TransitPriceCalculatorTest {
 
     private final TransitPriceCalculator priceCalculator = new TransitPriceCalculator();
 
-    private final TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(3.4)).setTimeLimit(20).build();
-    private final TransitTicket timeLimitedTicket75 = TransitTicket.builder(1, BigDecimal.valueOf(4.4)).setTimeLimit(75).build();
-    private final TransitTicket singleFareTicket = TransitTicket.builder(2, BigDecimal.valueOf(3.4)).setFaresNumberLimit(1).build();
-    private final TransitTicket timeLimitedTicket90 = TransitTicket.builder(3, BigDecimal.valueOf(7)).setTimeLimit(90).build();
-    private final TransitTicket timeLimitedTicketDaily = TransitTicket.builder(4, BigDecimal.valueOf(15)).setTimeLimit(1440).build();
-    private final TransitTicket zoneAOnlyTicket = TransitTicket.builder(5, BigDecimal.valueOf(6)).build();
-    private final TransitTicket zone1OnlyTicket = TransitTicket.builder(6, BigDecimal.valueOf(6)).build();
+    private final TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, "20-minute", BigDecimal.valueOf(3.4)).setTimeLimit(20).build();
+    private final TransitTicket timeLimitedTicket75 = TransitTicket.builder(1, "75-minute", BigDecimal.valueOf(4.4)).setTimeLimit(75).build();
+    private final TransitTicket singleFareTicket = TransitTicket.builder(2, "single-fare", BigDecimal.valueOf(3.4)).setFaresNumberLimit(1).build();
+    private final TransitTicket timeLimitedTicket90 = TransitTicket.builder(3, "90-minute", BigDecimal.valueOf(7)).setTimeLimit(90).build();
+    private final TransitTicket timeLimitedTicketDaily = TransitTicket.builder(4, "daily", BigDecimal.valueOf(15)).setTimeLimit(1440).build();
+    private final TransitTicket zoneAOnlyTicket = TransitTicket.builder(5, "zone A only", BigDecimal.valueOf(6)).build();
+    private final TransitTicket zone1OnlyTicket = TransitTicket.builder(6, "zone 1 only", BigDecimal.valueOf(6)).build();
 
     {
         timeLimitedTicket20.addAllowedAgency("ZTM");
@@ -105,8 +105,8 @@ public class TransitPriceCalculatorTest {
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
-        assertEquals(BigDecimal.valueOf(4.4), transitPrice);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
+        assertEquals(BigDecimal.valueOf(4.4), transitCost.getPrice());
     }
 
     @Test
@@ -171,9 +171,9 @@ public class TransitPriceCalculatorTest {
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(BigDecimal.valueOf(10.2), transitPrice);
+        assertEquals(BigDecimal.valueOf(10.2), transitCost.getPrice());
     }
 
     @Test
@@ -239,9 +239,9 @@ public class TransitPriceCalculatorTest {
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(BigDecimal.valueOf(6.8), transitPrice);
+        assertEquals(BigDecimal.valueOf(6.8), transitCost.getPrice());
     }
 
     @Test
@@ -305,9 +305,9 @@ public class TransitPriceCalculatorTest {
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(BigDecimal.valueOf(-1), transitPrice);
+        assertEquals(BigDecimal.valueOf(-1), transitCost.getPrice());
     }
 
     @Test
@@ -371,16 +371,16 @@ public class TransitPriceCalculatorTest {
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(BigDecimal.valueOf(-1), transitPrice);
+        assertEquals(BigDecimal.valueOf(-1), transitCost.getPrice());
     }
     @Test
     public void shouldReturnZone1AndGlobalTicket() {
-        TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
-        TransitTicket timeLimitedTicket20B = TransitTicket.builder(1, BigDecimal.valueOf(2)).setTimeLimit(20).build();
+        TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, "20-minute zone 1", BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
+        TransitTicket timeLimitedTicket20B = TransitTicket.builder(1, "20-minute global", BigDecimal.valueOf(2)).setTimeLimit(20).build();
 
-        TransitTicket timeLimitedTicket60 = TransitTicket.builder(2, BigDecimal.valueOf(2)).setTimeLimit(60).build();
+        TransitTicket timeLimitedTicket60 = TransitTicket.builder(2, "60-minute", BigDecimal.valueOf(2)).setTimeLimit(60).build();
 
         timeLimitedTicket20.addAllowedAgency("ZTM");
         timeLimitedTicket20B.addAllowedAgency("ZTM");
@@ -436,14 +436,14 @@ public class TransitPriceCalculatorTest {
 
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
 
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
 
-        assertEquals(BigDecimal.valueOf(3.4), transitPrice);
+        assertEquals(BigDecimal.valueOf(3.4), transitCost.getPrice());
     }
     @Test
     public void shouldReturn60minTicket() {
-        TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
-        TransitTicket timeLimitedTicket60 = TransitTicket.builder(1, BigDecimal.valueOf(4)).setTimeLimit(60).build();
+        TransitTicket timeLimitedTicket20 = TransitTicket.builder(0, "20-minute", BigDecimal.valueOf(1.4)).setTimeLimit(20).build();
+        TransitTicket timeLimitedTicket60 = TransitTicket.builder(1, "60-minute", BigDecimal.valueOf(4)).setTimeLimit(60).build();
         timeLimitedTicket20.addAllowedAgency("ZTM");
         timeLimitedTicket60.addAllowedAgency("ZTM");
         priceCalculator.getAvailableTickets().add(timeLimitedTicket60);
@@ -474,8 +474,8 @@ public class TransitPriceCalculatorTest {
         tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
         tripStages.add(new TransitTripStage(firstRoute, stop41, 41, 0));
         TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
-        BigDecimal transitPrice = priceCalculator.computePrice(tripDescription);
-        assertEquals(BigDecimal.valueOf(4), transitPrice);
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
+        assertEquals(BigDecimal.valueOf(4), transitCost.getPrice());
     }
 
 }
