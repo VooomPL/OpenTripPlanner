@@ -7,10 +7,13 @@ import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
-import java.util.Objects;
-
 @EqualsAndHashCode(callSuper = true)
 public class MotorbikeDescription extends VehicleDescription {
+
+    /*
+     Motorbikes are not allowed on streets with speed limit >80km/h
+     */
+    public static final double MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND = 80. * (10. / 36.);
 
     private static final double DEFAULT_RANGE_IN_METERS = 50 * 1000;
     private static final double MAX_SPEED_IN_METERS_PER_SECOND = 12;

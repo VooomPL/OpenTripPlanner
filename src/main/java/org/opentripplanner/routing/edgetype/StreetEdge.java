@@ -5,14 +5,30 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.TurnRestrictionType;
-import org.opentripplanner.common.geometry.*;
+import org.opentripplanner.common.geometry.CompactLineString;
+import org.opentripplanner.common.geometry.DirectionUtils;
+import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.common.geometry.PackedCoordinateSequence;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.module.time.QueryData;
 import org.opentripplanner.graph_builder.module.time.TimeTable;
-import org.opentripplanner.routing.core.*;
+import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateEditor;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.KickScooterDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.MotorbikeDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.vertextype.*;
+import org.opentripplanner.routing.vertextype.BarrierVertex;
+import org.opentripplanner.routing.vertextype.IntersectionVertex;
+import org.opentripplanner.routing.vertextype.OsmVertex;
+import org.opentripplanner.routing.vertextype.SplitterVertex;
+import org.opentripplanner.routing.vertextype.StreetVertex;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleSplitterVertex;
+import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
 import org.opentripplanner.util.BitSetUtils;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
@@ -21,7 +37,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.lang.Double.min;
 
@@ -51,7 +73,6 @@ public class StreetEdge extends Edge implements Cloneable {
 
     // TODO(flamholz): do something smarter with the car speed here.
     public static final float DEFAULT_CAR_SPEED = 11.2f;
-    public static final float MOTORBIKE_MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND = 22.2f;
 
     /** If you have more than 8 flags, increase flags to short or int */
     private static final int BACK_FLAG_INDEX = 0;
@@ -223,16 +244,21 @@ public class StreetEdge extends Edge implements Cloneable {
         if (Objects.nonNull(vehicle)) {
             switch (vehicle.getVehicleType()) {
                 case MOTORBIKE:
-                    if (this.getMaxStreetTraverseSpeed() > MOTORBIKE_MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
+                    if (getMaxStreetTraverseSpeed() > MotorbikeDescription.MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
                         //If maximum traverse speed > 80 km/h, motorbikes are not allowed
                         return false;
                     }
                     break;
+                case KICKSCOOTER:
+                    if (canTraverse(new TraverseModeSet(TraverseMode.CAR)) &&
+                            getMaxStreetTraverseSpeed() > KickScooterDescription.MAX_EDGE_TRAVERSE_SPEED_LOWER_BOUND) {
+                        //If maximum traverse speed > 30 km/h, kickscooters are not allowed
+                        return false;
+                    }
                 default:
                     break;
             }
         }
-
         return true;
     }
 
