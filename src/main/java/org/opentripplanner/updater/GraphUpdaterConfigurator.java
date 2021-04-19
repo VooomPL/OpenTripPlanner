@@ -96,8 +96,8 @@ public abstract class GraphUpdaterConfigurator {
             }
         }
 
-        addUpdater(graph, updaterManager, new SharedVehiclesUpdater(), null);
-        addUpdater(graph, updaterManager, new BikesUpdater(), null);
+        addUpdater(graph, updaterManager, new SharedVehiclesUpdater(), config.path("sharedVehiclesUpdater"));
+        addUpdater(graph, updaterManager, new BikesUpdater(), config.path("bikesUpdater"));
         addUpdater(graph, updaterManager, new TrafficUpdater(), null);
         addUpdater(graph, updaterManager, new VehiclePresencePredictionUpdater(), null);
 
