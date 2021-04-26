@@ -15,7 +15,6 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import org.opentripplanner.model.Stop;
 import org.opentripplanner.analyst.SampleSet;
 import org.opentripplanner.analyst.cluster.TaskStatistics;
 import org.opentripplanner.analyst.scenario.AddTripPattern;
@@ -24,6 +23,7 @@ import org.opentripplanner.analyst.scenario.Scenario;
 import org.opentripplanner.analyst.scenario.TransferRule;
 import org.opentripplanner.analyst.scenario.TripPatternFilter;
 import org.opentripplanner.common.model.GenericLocation;
+import org.opentripplanner.model.Stop;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -319,7 +319,6 @@ public class RaptorWorkerData implements Serializable {
             rr.maxWalkDistance = 2000;
             rr.softWalkLimiting = false;
             rr.dominanceFunction = new DominanceFunction.LeastWalk();
-            rr.longDistance = true;
             rr.setNumItineraries(1);
 
             ShortestPathTree spt = astar.getShortestPathTree(rr, 5);

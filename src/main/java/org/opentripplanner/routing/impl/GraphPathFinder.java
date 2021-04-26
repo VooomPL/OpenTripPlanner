@@ -27,7 +27,15 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -108,9 +116,6 @@ public class GraphPathFinder {
          * to systematically eliminate).
          */
         options.maxTransfers = 4; // should probably be Integer.MAX_VALUE;
-
-        // OTP now always uses what used to be called longDistance mode. Non-longDistance mode is no longer supported.
-        options.longDistance = true;
 
         /* maxWalk has a different meaning than it used to. It's the radius around the origin or destination within
          * which you can walk on the streets. An unlimited value would cause the bidi heuristic to do unbounded street
@@ -347,7 +352,6 @@ public class GraphPathFinder {
         reversedOptions.dominanceFunction = reversedOptions.getOptimizationProfile().getDominanceFunction();
         reversedOptions.rctx.remainingWeightHeuristic = remainingWeightHeuristic;
         reversedOptions.maxTransfers = 4;
-        reversedOptions.longDistance = true;
         reversedOptions.bannedTransit = options.bannedTransit;
         return reversedOptions;
     }

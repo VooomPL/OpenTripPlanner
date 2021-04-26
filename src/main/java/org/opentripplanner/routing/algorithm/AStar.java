@@ -18,7 +18,11 @@ import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Find the shortest path between graph vertices using A*.
@@ -270,19 +274,8 @@ public class AStar {
                 runState.foundPathWeight = runState.u.getWeight();
                 runState.options.rctx.debugOutput.foundPath();
                 // new GraphPath(runState.u, false).dump();
-                /* Only find one path at a time in long distance mode. */
-                if (runState.options.longDistance) {
-                    break;
-                }
-                /* Break out of the search if we've found the requested number of paths. */
-                if (runState.targetAcceptedStates.size() >= runState.options.getNumItineraries()) {
-                    LOG.debug("total vertices visited {}", runState.nVisited);
-                    break;
-                }
-                // For next itineraries we want to disallow vehicle providers used in this itinerary
-                if (runState.options.rentingAllowed) {
-                    break;
-                }
+                /* Only find one path at a time. */
+                break;
             }
 
         }
