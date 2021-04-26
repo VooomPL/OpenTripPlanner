@@ -24,11 +24,14 @@ public class SimpleTransfer extends Edge {
     private LineString geometry;
     private List<Edge> edges;
 
+    private boolean isWheelchairAccessible;
+
     public SimpleTransfer(TransitStop from, TransitStop to, double distance, LineString geometry, List<Edge> edges) {
         super(from, to);
         this.distance = distance;
         this.geometry = geometry;
         this.edges = edges;
+        this.isWheelchairAccessible = edges.stream().noneMatch(edge -> edge instanceof StreetEdge && !((StreetEdge) edge).isWheelchairAccessible());
     }
 
     public SimpleTransfer(TransitStop from, TransitStop to, double distance, LineString geometry) {
@@ -45,6 +48,9 @@ public class SimpleTransfer extends Edge {
             return null;
         }
         if (distance > s0.getOptions().maxTransferWalkDistance) {
+            return null;
+        }
+        if (s0.getOptions().wheelchairAccessible && !isWheelchairAccessible) {
             return null;
         }
         // Don't allow SimpleTransfer right after a call-and-ride or deviated-route dropoff - in that case we need to transfer at the same stop
