@@ -1,7 +1,6 @@
 package org.opentripplanner.profile;
 
 import com.beust.jcommander.internal.Maps;
-
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -37,7 +36,6 @@ public class StopTreeCache {
             rr.batch = (true);
             rr.setRoutingContext(graph, tstop, tstop);
             AStar astar = new AStar();
-            rr.longDistance = true;
             rr.setNumItineraries(1);
 
             // since we're storing distances and later using them to optimize
