@@ -10,6 +10,7 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Represents a transfer between stops that does not take the street network into account.
@@ -31,8 +32,9 @@ public class SimpleTransfer extends Edge {
         this.distance = distance;
         this.geometry = geometry;
         this.edges = edges;
-        this.isWheelchairAccessible = edges.stream().noneMatch(edge -> edge instanceof WheelchairAccessiblityAwareEdge
-                && !((WheelchairAccessiblityAwareEdge) edge).isWheelchairAccessible());
+        this.isWheelchairAccessible = Objects.isNull(this.edges) ||
+                edges.stream().noneMatch(edge -> edge instanceof WheelchairAccessiblityAwareEdge
+                        && !((WheelchairAccessiblityAwareEdge) edge).isWheelchairAccessible());
     }
 
     public SimpleTransfer(TransitStop from, TransitStop to, double distance, LineString geometry) {
