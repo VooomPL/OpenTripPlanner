@@ -15,12 +15,12 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 
 import java.util.Locale;
 
-/** 
+/**
  * This represents the connection between a street vertex and a transit vertex
- * where going from the street to the vehicle is immediate -- such as at a 
+ * where going from the street to the vehicle is immediate -- such as at a
  * curbside bus stop.
  */
-public class StreetTransitLink extends Edge {
+public class StreetTransitLink extends Edge implements WheelchairAccessiblityAwareEdge {
 
     private static final long serialVersionUID = -3311099256178798981L;
     static final int STL_TRAVERSE_COST = 1;
@@ -30,8 +30,8 @@ public class StreetTransitLink extends Edge {
     private TransitStop transitStop;
 
     public StreetTransitLink(StreetVertex fromv, TransitStop tov, boolean wheelchairAccessible) {
-    	super(fromv, tov);
-    	transitStop = tov;
+        super(fromv, tov);
+        transitStop = tov;
         this.wheelchairAccessible = wheelchairAccessible;
     }
 
@@ -76,8 +76,8 @@ public class StreetTransitLink extends Edge {
         // legitimate StreetTransitLink > StreetTransitLink sequence, so only forbid two StreetTransitLinks to be taken
         // if they are for the same stop.
         if (
-            s0.backEdge instanceof StreetTransitLink &&
-                ((StreetTransitLink) s0.backEdge).transitStop == this.transitStop
+                s0.backEdge instanceof StreetTransitLink &&
+                        ((StreetTransitLink) s0.backEdge).transitStop == this.transitStop
         ) {
             return null;
         }
@@ -127,7 +127,7 @@ public class StreetTransitLink extends Edge {
         s1.setBackMode(TraverseMode.LEG_SWITCH);
         return s1.makeState();
     }
-    
+
     // anecdotally, the lower bound search is about 2x faster when you don't reach stops
     // and therefore don't even consider boarding
     @Override
@@ -155,4 +155,8 @@ public class StreetTransitLink extends Edge {
         return "StreetTransitLink(" + fromv + " -> " + tov + ")";
     }
 
+    @Override
+    public boolean isWheelchairAccessible() {
+        return wheelchairAccessible;
+    }
 }

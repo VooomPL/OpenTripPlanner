@@ -51,9 +51,8 @@ import static java.lang.Double.min;
  * This represents a street segment.
  *
  * @author novalis
- *
  */
-public class StreetEdge extends Edge implements Cloneable {
+public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblityAwareEdge {
 
     private static Logger LOG = LoggerFactory.getLogger(StreetEdge.class);
 
