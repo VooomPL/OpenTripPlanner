@@ -16,7 +16,11 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.util.TestUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 public class TestBanning extends TestCase {
 
@@ -68,7 +72,7 @@ public class TestBanning extends TestCase {
         }
     }
 
-    public void testWhiteListedRoutes() {
+    public void testAllowedRoutes() {
 
         Graph graph = ConstantsForTests.getInstance().getPortlandGraph();
 
@@ -82,7 +86,7 @@ public class TestBanning extends TestCase {
         ShortestPathTree spt = null;
 
         /*
-         * Same as testBannedRoutes, only for whitelisted routes. The last three entries in maxLines are removed, because
+         * Same as testBannedRoutes, only for allowed routes. The last three entries in maxLines are removed, because
          * it only matches against lineName, not lineId.
          */
         String[][] maxLines = {{"MAX Red Line", null}, {"MAX Blue Line", null},
@@ -92,14 +96,14 @@ public class TestBanning extends TestCase {
             String lineId = maxLines[i][1];
             String routeSpecStr = feedId + "_" + (lineName != null ? lineName : "")
                     + (lineId != null ? "_" + lineId : "");
-            options.bannedTransit.setWhiteListedRoutes(routeSpecStr);
+            options.bannedTransit.setAllowedRoutes(routeSpecStr);
             spt = aStar.getShortestPathTree(options);
             GraphPath path = spt.getPath(end, true);
             for (State s : path.states) {
                 if (s.getBackEdge() instanceof PatternHop) {
                     PatternHop e = (PatternHop) s.getBackEdge();
                     Route route = e.getPattern().route;
-                    assertTrue(options.bannedTransit.getWhiteListedRoutes().matches(route));
+                    assertTrue(options.bannedTransit.getAllowedRoutes().matches(route));
                     boolean notFoundMaxLine = true;
                     boolean foundMaxLine = false;
                     for (int j = 0; j < maxLines.length; ++j) {
