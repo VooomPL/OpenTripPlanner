@@ -281,24 +281,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public boolean compactLegsByReversedSearch = false;
 
     /**
-     * If true, cost turns as they would be in a country where driving occurs on the right; otherwise, cost them as they would be in a country where
-     * driving occurs on the left.
-     */
-    public boolean driveOnRight = true;
-
-    /**
-     * The deceleration speed of an automobile, in meters per second per second.
-     */
-    // 2.9 m/s/s: 65 mph - 0 mph in 10 seconds
-    public double carDecelerationSpeed = 2.9;
-
-    /**
-     * The acceleration speed of an automobile, in meters per second per second.
-     */
-    // 2.9 m/s/s: 0 mph to 65 mph in 10 seconds
-    public double carAccelerationSpeed = 2.9;
-
-    /**
      * When true, realtime updates are ignored during this search.
      */
     public boolean ignoreRealtimeUpdates = false;
@@ -346,15 +328,6 @@ public class RoutingRequest implements Cloneable, Serializable {
     public double preTransitOverageRate = 10.0; // a jump in cost for every second over the pre-transit time limit
 
     public boolean parkAndRide = false;
-
-    /* Whether we are in "long-distance mode". This is currently a server-wide setting, but it could be made per-request. */
-    // TODO remove
-    public boolean longDistance = false;
-
-    /**
-     * Should traffic congestion be considered when driving?
-     */
-    public boolean useTraffic = false;
 
     /**
      * The function that compares paths converging on the same vertex to decide which ones continue to be explored.
@@ -892,10 +865,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + new Boolean(reverseOptimizeOnTheFly).hashCode() * 95112799
                 + new Boolean(ignoreRealtimeUpdates).hashCode() * 154329
                 + new Boolean(disableRemainingWeightHeuristic).hashCode() * 193939
-                + new Boolean(useTraffic).hashCode() * 10169
                 + flex.hashCode()
                 + new Boolean(disableRemainingWeightHeuristic).hashCode() * 193939
-                + new Boolean(useTraffic).hashCode() * 10169
                 + Integer.hashCode(serviceDayLookout) * 31558519;
 
         if (batch) {

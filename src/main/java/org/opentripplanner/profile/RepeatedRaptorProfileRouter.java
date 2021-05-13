@@ -265,7 +265,6 @@ public class RepeatedRaptorProfileRouter {
         }
 
         rr.setNumItineraries(1);
-        rr.longDistance = true;
 
         AStar aStar = new AStar();
         preTransitSpt = aStar.getShortestPathTree(rr, 5);

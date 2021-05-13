@@ -51,9 +51,8 @@ import static java.lang.Double.min;
  * This represents a street segment.
  *
  * @author novalis
- *
  */
-public class StreetEdge extends Edge implements Cloneable {
+public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblityAwareEdge {
 
     private static Logger LOG = LoggerFactory.getLogger(StreetEdge.class);
 
@@ -718,9 +717,10 @@ public class StreetEdge extends Edge implements Cloneable {
         }
     }
 
-	public boolean isWheelchairAccessible() {
-		return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
-	}
+    @Override
+    public boolean isWheelchairAccessible() {
+        return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
+    }
 
     public void setWheelchairAccessible(boolean wheelchairAccessible) {
         flags = BitSetUtils.set(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX, wheelchairAccessible);

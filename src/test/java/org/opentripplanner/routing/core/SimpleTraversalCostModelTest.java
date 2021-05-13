@@ -1,9 +1,9 @@
 package org.opentripplanner.routing.core;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
@@ -11,7 +11,9 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for SimpleIntersectionTraversalCostModel.
@@ -37,8 +39,6 @@ public class SimpleTraversalCostModelTest {
         options = new RoutingRequest();
         options.carSpeed = 1.0;
         options.walkSpeed = 1.0;
-        options.carDecelerationSpeed = (2.0);
-        options.carAccelerationSpeed  = (2.0);
         options.setModes(TraverseModeSet.allModes());
     }
     
@@ -66,8 +66,8 @@ public class SimpleTraversalCostModelTest {
         // Difference should be about 90.
         int diff = (e1.getOutAngle() - e2.getInAngle());
         assertEquals(90, diff);
-        
-        int turnAngle = costModel.calculateTurnAngle(e1, e2, options);
+
+        int turnAngle = costModel.calculateTurnAngle(e1, e2);
         assertEquals(270, turnAngle);
     }
     
@@ -86,8 +86,8 @@ public class SimpleTraversalCostModelTest {
         // Two edges.
         StreetEdge fromEdge = edge(u, v, 1.0, false);
         StreetEdge toEdge = edge(v, w, 1.0, false);
-        
-        int turnAngle = costModel.calculateTurnAngle(fromEdge, toEdge, options);
+
+        int turnAngle = costModel.calculateTurnAngle(fromEdge, toEdge);
         assertFalse(costModel.isRightTurn(turnAngle));
         assertFalse(costModel.isLeftTurn(turnAngle));
         
@@ -194,8 +194,8 @@ public class SimpleTraversalCostModelTest {
         
         // 3rd edge prevents inferral of free-flowingness
         StreetEdge extraEdge = edge(v, u, 1.0, false);
-                
-        int turnAngle = costModel.calculateTurnAngle(fromEdge, toEdge, options);
+
+        int turnAngle = costModel.calculateTurnAngle(fromEdge, toEdge);
         assertTrue(costModel.isRightTurn(turnAngle));
         assertFalse(costModel.isLeftTurn(turnAngle));
         
@@ -227,8 +227,8 @@ public class SimpleTraversalCostModelTest {
         
         // 3rd edge prevents inferral of free-flowingness
         StreetEdge extraEdge = edge(v, u, 1.0, false);
-                
-        int turnAngle = costModel.calculateTurnAngle(fromEdge, toEdge, options);
+
+        int turnAngle = costModel.calculateTurnAngle(fromEdge, toEdge);
         assertFalse(costModel.isRightTurn(turnAngle));
         assertTrue(costModel.isLeftTurn(turnAngle));
         

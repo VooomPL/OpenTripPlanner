@@ -10,6 +10,7 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Represents a transfer between stops that does not take the street network into account.
@@ -24,11 +25,16 @@ public class SimpleTransfer extends Edge {
     private LineString geometry;
     private List<Edge> edges;
 
+    private boolean isWheelchairAccessible;
+
     public SimpleTransfer(TransitStop from, TransitStop to, double distance, LineString geometry, List<Edge> edges) {
         super(from, to);
         this.distance = distance;
         this.geometry = geometry;
         this.edges = edges;
+        this.isWheelchairAccessible = Objects.isNull(this.edges) ||
+                edges.stream().noneMatch(edge -> edge instanceof WheelchairAccessiblityAwareEdge
+                        && !((WheelchairAccessiblityAwareEdge) edge).isWheelchairAccessible());
     }
 
     public SimpleTransfer(TransitStop from, TransitStop to, double distance, LineString geometry) {
@@ -45,6 +51,9 @@ public class SimpleTransfer extends Edge {
             return null;
         }
         if (distance > s0.getOptions().maxTransferWalkDistance) {
+            return null;
+        }
+        if (s0.getOptions().wheelchairAccessible && !isWheelchairAccessible) {
             return null;
         }
         // Don't allow SimpleTransfer right after a call-and-ride or deviated-route dropoff - in that case we need to transfer at the same stop

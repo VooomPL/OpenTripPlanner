@@ -1,22 +1,14 @@
 package org.opentripplanner.profile;
 
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import jersey.repackaged.com.google.common.collect.Maps;
-import jersey.repackaged.com.google.common.collect.Sets;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import jersey.repackaged.com.google.common.collect.Maps;
+import jersey.repackaged.com.google.common.collect.Sets;
 import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.analyst.TimeSurface.RangeSet;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
@@ -39,9 +31,13 @@ import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Profile routing using a round-based approach, more or less like RAPTOR (http://research.microsoft.com/pubs/156567/raptor_alenex.pdf)
@@ -362,7 +358,6 @@ public class RoundBasedProfileRouter {
         // If elapsed time is not capped, searches are very slow.
         rr.worstTime = (rr.dateTime + request.maxWalkTime * 60);
         AStar astar = new AStar();
-        rr.longDistance = true;
         rr.setNumItineraries(1);
         ShortestPathTree spt = astar.getShortestPathTree(rr, 5); // timeout in seconds
         for (TransitStop tstop : graph.index.stopVertexForStop.values()) {
@@ -418,7 +413,6 @@ public class RoundBasedProfileRouter {
         rr.batch = (true);
         rr.from = new GenericLocation(request.fromLat, request.fromLon);
         rr.setRoutingContext(graph);
-        rr.longDistance = true;
         rr.dominanceFunction = new DominanceFunction.EarliestArrival();
         rr.setNumItineraries(1);
         rr.worstTime = rr.dateTime + CUTOFF_SECONDS;
