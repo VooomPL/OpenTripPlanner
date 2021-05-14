@@ -4,7 +4,14 @@ import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
-import org.opentripplanner.routing.core.*;
+import org.opentripplanner.routing.core.RoutingContext;
+import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.ServiceDay;
+import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateEditor;
+import org.opentripplanner.routing.core.TransferTable;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
@@ -235,7 +242,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
                 return null;
             }
 
-            /* Check if route and/or agency are banned or whitelisted for this pattern */
+            /* Check if route and/or agency are banned or allowed for this pattern */
             if (options.bannedTransit.routeIsBanned(this.getPattern().route)) return null;
             
             /*

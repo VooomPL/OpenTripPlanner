@@ -29,7 +29,7 @@ public class BannedTransit implements Cloneable {
     /**
      * Only use certain named routes
      */
-    private RouteMatcher whiteListedRoutes = RouteMatcher.emptyMatcher();
+    private RouteMatcher allowedRoutes = RouteMatcher.emptyMatcher();
 
     /**
      * Do not use certain named agencies
@@ -39,7 +39,7 @@ public class BannedTransit implements Cloneable {
     /**
      * Only use certain named agencies
      */
-    private HashSet<String> whiteListedAgencies = new HashSet<>();
+    private HashSet<String> allowedAgencies = new HashSet<>();
 
     /**
      * Do not use certain trips
@@ -64,11 +64,11 @@ public class BannedTransit implements Cloneable {
         }
     }
 
-    public void setWhiteListedRoutes(String s) {
+    public void setAllowedRoutes(String s) {
         if (!s.isEmpty()) {
-            whiteListedRoutes = RouteMatcher.parse(s);
+            allowedRoutes = RouteMatcher.parse(s);
         } else {
-            whiteListedRoutes = RouteMatcher.emptyMatcher();
+            allowedRoutes = RouteMatcher.emptyMatcher();
         }
     }
 
@@ -99,10 +99,10 @@ public class BannedTransit implements Cloneable {
         bannedTrips.put(trip, BannedStopSet.ALL);
     }
 
-    public void setWhiteListedAgencies(String s) {
+    public void setAllowedAgencies(String s) {
         if (!s.isEmpty()) {
-            whiteListedAgencies = new HashSet<>();
-            Collections.addAll(whiteListedAgencies, s.split(","));
+            allowedAgencies = new HashSet<>();
+            Collections.addAll(allowedAgencies, s.split(","));
         }
     }
 
@@ -121,35 +121,35 @@ public class BannedTransit implements Cloneable {
             }
         }
 
-        boolean whiteListed = false;
-        boolean whiteListInUse = false;
+        boolean allowed = false;
+        boolean allowanceInUse = false;
 
-        /* check if agency is whitelisted for this plan */
-        if (whiteListedAgencies != null && whiteListedAgencies.size() > 0) {
-            whiteListInUse = true;
-            if (whiteListedAgencies.contains(route.getAgency().getId())) {
-                whiteListed = true;
+        /* check if agency is allowed for this plan */
+        if (allowedAgencies != null && allowedAgencies.size() > 0) {
+            allowanceInUse = true;
+            if (allowedAgencies.contains(route.getAgency().getId())) {
+                allowed = true;
             }
         }
 
-        /* check if route is whitelisted for this plan */
-        if (whiteListedRoutes != null && !whiteListedRoutes.isEmpty()) {
-            whiteListInUse = true;
-            if (whiteListedRoutes.matches(route)) {
-                whiteListed = true;
+        /* check if route is allowed for this plan */
+        if (allowedRoutes != null && !allowedRoutes.isEmpty()) {
+            allowanceInUse = true;
+            if (allowedRoutes.matches(route)) {
+                allowed = true;
             }
         }
 
-        return whiteListInUse && !whiteListed;
+        return allowanceInUse && !allowed;
     }
 
     public BannedTransit clone() {
         try {
             BannedTransit clone = (BannedTransit) super.clone();
             clone.bannedRoutes = bannedRoutes.clone();
-            clone.whiteListedRoutes = whiteListedRoutes.clone();
+            clone.allowedRoutes = allowedRoutes.clone();
             clone.bannedAgencies = (HashSet<String>) bannedAgencies.clone();
-            clone.whiteListedAgencies = (HashSet<String>) whiteListedAgencies.clone();
+            clone.allowedAgencies = (HashSet<String>) allowedAgencies.clone();
             clone.bannedTrips = (HashMap<FeedScopedId, BannedStopSet>) bannedTrips.clone();
             clone.bannedStops = bannedStops.clone();
             clone.bannedStopsHard = bannedStopsHard.clone();
