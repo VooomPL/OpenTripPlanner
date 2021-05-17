@@ -114,11 +114,15 @@ public class StateEditor {
         if (spawned)
             throw new IllegalStateException("A StateEditor can only be used once.");
 
+
         // if something was flagged incorrect, do not make a new state
         if (defectiveTraversal) {
             LOG.error("Defective traversal flagged on edge " + child.backEdge);
             return null;
         }
+        // If too many boardings occured, terminate the search.
+        if (child.getNumBoardings() > child.getOptions().maxTransfers)
+            return null;
 
         // Check TemporaryVertex on a different request
         if (isTemporaryVertexFromDifferentRequest()) {
@@ -297,7 +301,7 @@ public class StateEditor {
                         child.getDistancePriceForCurrentVehicle(i), child.getTimeTraversedInCurrentVehicleInSeconds()),
                         i);
                 totalPriceForProposedPackage = child.getTotalPriceForCurrentVehicle(i);
-                if(totalPriceForProposedPackage.compareTo(newLowestTotalPrice)<0){
+                if (totalPriceForProposedPackage.compareTo(newLowestTotalPrice) < 0) {
                     newLowestTotalPrice = totalPriceForProposedPackage;
                     proposedActivePackageIndex = i;
                 }
@@ -466,9 +470,14 @@ public class StateEditor {
 
     public void beginVehicleRenting(VehicleDescription vehicleDescription) {
         cloneStateDataAsNeeded();
+//       State::incrementNumBoardings clones state data, that's why ii is not used it here.
+        child.stateData.numBoardings++;
+        child.stateData.everBoarded = true;
+
         child.stateData.currentTraverseMode = vehicleDescription.getTraverseMode();
         child.stateData.currentVehicle = vehicleDescription;
         child.distanceTraversedInCurrentVehicle = 0;
+
         int rentingTime = child.getOptions().routingDelays.getRentingTime(vehicleDescription);
         incrementWeight(rentingTime * child.getOptions().routingReluctances.getRentingReluctance()
                 + child.getOptions().routingPenalties.getRentingVehiclePenalty());
@@ -483,7 +492,7 @@ public class StateEditor {
             vehiclePricingPackage = vehicleDescription.getVehiclePricingPackage(i);
             child.setStartPriceForCurrentVehicle(vehiclePricingPackage.computeStartPrice(), i);
             totalPriceForProposedPackage = child.getTotalPriceForCurrentVehicle(i);
-            if(totalPriceForProposedPackage.compareTo(newLowestTotalPrice)<0){
+            if (totalPriceForProposedPackage.compareTo(newLowestTotalPrice) < 0) {
                 newLowestTotalPrice = totalPriceForProposedPackage;
                 proposedActivePackageIndex = i;
             }
@@ -770,7 +779,7 @@ public class StateEditor {
                             child.getDistancePriceForCurrentVehicle(i), child.distanceTraversedInCurrentVehicle),
                             i);
                     totalPriceForProposedPackage = child.getTotalPriceForCurrentVehicle(i);
-                    if(totalPriceForProposedPackage.compareTo(newLowestTotalPrice)<0){
+                    if (totalPriceForProposedPackage.compareTo(newLowestTotalPrice) < 0) {
                         newLowestTotalPrice = totalPriceForProposedPackage;
                         proposedActivePackageIndex = i;
                     }

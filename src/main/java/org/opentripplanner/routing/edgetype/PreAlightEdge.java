@@ -56,8 +56,9 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
             TransitStop toVertex = (TransitStop) getToVertex();
 
             // If we've hit our transfer limit, don't go any further
-            if (s0.getNumBoardings() > options.maxTransfers)
-                return null;
+//            TODO delete this
+//            if (s0.getNumBoardings() > options.maxTransfers)
+//                return null;
 
             /* apply transfer rules */
             /*
