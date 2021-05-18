@@ -472,7 +472,6 @@ public class StateEditor {
         cloneStateDataAsNeeded();
 //       State::incrementNumBoardings clones state data, that's why ii is not used it here.
         child.stateData.numBoardings++;
-        child.stateData.everBoarded = true;
 
         child.stateData.currentTraverseMode = vehicleDescription.getTraverseMode();
         child.stateData.currentVehicle = vehicleDescription;
