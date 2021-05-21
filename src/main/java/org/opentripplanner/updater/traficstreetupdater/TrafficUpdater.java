@@ -36,13 +36,11 @@ public class TrafficUpdater extends PollingGraphUpdater {
 
     @Override
     protected void configurePolling(Graph graph, JsonNode config) throws IllegalStateException {
-        this.pollingPeriodSeconds = 10;
-        this.url = System.getProperty("trafficPredictionApi");
-        // TODO Adam Wiktor use only `getenv` after VMP-182
-        this.pass = Optional.ofNullable(System.getenv("TRAFFIC_PREDICTION_API_PASS"))
-                .orElseGet(() -> System.getProperty("trafficPredictionApiPass"));
-        if (this.url == null) {
-            throw new IllegalStateException("Traffic prediction api is not set, traffic updater will not work");
+        pollingPeriodSeconds = 600;
+        url = Optional.ofNullable(System.getenv("TRAFFIC_UPDATER_API")).orElse("");
+        pass = Optional.ofNullable(System.getenv("TRAFFIC_UPDATER_API_PASS")).orElse("");
+        if (url.isEmpty() || pass.isEmpty()) {
+            throw new IllegalStateException("Traffic updater api is not set, traffic updater will not work");
         }
     }
 
