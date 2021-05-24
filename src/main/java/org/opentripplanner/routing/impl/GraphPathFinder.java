@@ -27,15 +27,7 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -115,7 +107,7 @@ public class GraphPathFinder {
          * not optimizing on arrival time in a time-dependent network (both of which we have done / do but need
          * to systematically eliminate).
          */
-        options.maxTransfers = 4; // should probably be Integer.MAX_VALUE;
+//        options.maxTransfers = 4; // should probably be Integer.MAX_VALUE;
 
         /* maxWalk has a different meaning than it used to. It's the radius around the origin or destination within
          * which you can walk on the streets. An unlimited value would cause the bidi heuristic to do unbounded street

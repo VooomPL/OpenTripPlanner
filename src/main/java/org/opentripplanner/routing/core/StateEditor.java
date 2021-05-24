@@ -114,14 +114,13 @@ public class StateEditor {
         if (spawned)
             throw new IllegalStateException("A StateEditor can only be used once.");
 
-
         // if something was flagged incorrect, do not make a new state
         if (defectiveTraversal) {
             LOG.error("Defective traversal flagged on edge " + child.backEdge);
             return null;
         }
         // If too many boardings occured, terminate the search.
-        if (child.getNumBoardings() > child.getOptions().maxTransfers)
+        if (child.getNumBoardings() > child.getOptions().maxTransfers + 1)
             return null;
 
         // Check TemporaryVertex on a different request

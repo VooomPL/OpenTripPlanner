@@ -63,7 +63,6 @@ public class TestFares extends TestCase {
         options.dateTime = startTime;
         options.setRoutingContext(gg, feedId + ":10579", feedId + ":8371");
         // from zone 3 to zone 2
-        options.maxTransfers = 3;
         spt = aStar.getShortestPathTree(options);
 
         path = spt.getPath(gg.getVertex(feedId + ":8371"), true);
@@ -235,7 +234,6 @@ public class TestFares extends TestCase {
 
         // D -> G, missing fare before
         options.setRoutingContext(gg, feedId + ":D", feedId + ":G");
-        options.maxTransfers = 3;
         spt = aStar.getShortestPathTree(options);
         path = spt.getPath(gg.getVertex(feedId + ":G"), true);
         fare = fareService.getCost(path);

@@ -18,11 +18,7 @@ import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Find the shortest path between graph vertices using A*.
