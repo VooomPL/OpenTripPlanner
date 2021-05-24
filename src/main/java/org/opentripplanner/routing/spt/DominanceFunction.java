@@ -39,7 +39,6 @@ public abstract class DominanceFunction implements Serializable {
      * they exist on separate planes. The core state dominance logic is wrapped in this public function and only
      * applied when the two states have all these variables in common (are on the same plane).
      */
-//    Czyli to jest zapytanie, czy stan a dominuje stan b. To jest zdecydowanym fałszem jeśli b użyło mniej przesiadek.
     public boolean betterOrEqualAndComparable(State a, State b) {
 
         // States before boarding transit and after riding transit are incomparable.
@@ -56,7 +55,7 @@ public abstract class DominanceFunction implements Serializable {
             return false;
 
         // If B used fewer transfers than A then A is not better than B.
-        if (a.getOptions().compareNumberOfTransfers && b.getNumBoardings() != a.getNumBoardings())
+        if (a.getOptions().compareNumberOfTransfers && b.getNumBoardings() < a.getNumBoardings())
             return false;
 
         // The result of a SimpleTransfer must not block alighting normally from transit. States that are results of
