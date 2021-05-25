@@ -48,7 +48,8 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
             return null;
         }
 
-        if (!willVehicleBePresent(state)) {
+        //Do not use vehicle presence prediction when using historical vehicle positions
+        if (vehicle.getSnapshotLabel().isEmpty() && !willVehicleBePresent(state)) {
             return null;
         }
 
