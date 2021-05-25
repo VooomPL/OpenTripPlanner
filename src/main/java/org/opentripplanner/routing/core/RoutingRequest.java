@@ -1,6 +1,8 @@
 package org.opentripplanner.routing.core;
 
 import com.google.common.base.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.common.model.GenericLocation;
@@ -27,6 +29,7 @@ import org.opentripplanner.routing.impl.PathComparator;
 import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -374,6 +377,10 @@ public class RoutingRequest implements Cloneable, Serializable {
      * This is used so that TrivialPathException is thrown if origin and destination search would split the same edge
      */
     private StreetEdge splitEdge = null;
+
+    @Setter
+    @Getter
+    private SharedVehiclesSnapshotLabel acceptedSharedVehiclesSnapshotLabel = new SharedVehiclesSnapshotLabel();
 
     /* CONSTRUCTORS */
 

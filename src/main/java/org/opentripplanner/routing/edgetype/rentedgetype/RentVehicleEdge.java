@@ -40,14 +40,18 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
 
     @Override
     public State traverse(State state) {
+        if (!state.getOptions().rentingAllowed) {
+            return null;
+        }
+
+        if (!state.getOptions().getAcceptedSharedVehiclesSnapshotLabel().equals(vehicle.getSnapshotLabel())) {
+            return null;
+        }
 
         if (!willVehicleBePresent(state)) {
             return null;
         }
 
-        if (!state.getOptions().rentingAllowed) {
-            return null;
-        }
         if (state.getOptions().vehicleValidator.isValid(vehicle)) {
             if (state.isCurrentlyRentingVehicle()) {
                 return trySwitchVehicles(state);
