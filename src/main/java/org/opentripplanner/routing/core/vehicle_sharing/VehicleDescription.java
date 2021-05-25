@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +23,16 @@ import static java.lang.Double.min;
         @JsonSubTypes.Type(value = BikeDescription.class, name = "BIKE"),
 })
 @Getter
-@EqualsAndHashCode(of = {"provider", "providerVehicleId"})
+@EqualsAndHashCode(of = {"provider", "providerVehicleId", "snapshotLabel"})
 public abstract class VehicleDescription {
 
     private final String providerVehicleId;
     private final double longitude;
     private final double latitude;
     private final double rangeInMeters;
+
+    @Setter
+    private SharedVehiclesSnapshotLabel snapshotLabel = new SharedVehiclesSnapshotLabel();
 
     @JsonSerialize
     private final List<VehiclePricingPackage> vehiclePricingPackages;

@@ -246,6 +246,7 @@ public class TemporaryStreetSplitterTest {
         assertEquals(CAR.getLongitude(), vertex.getLon(), 0.1);
         Edge edge = vertex.getOutgoing().stream().findFirst().get();
         assertTrue(edge instanceof RentVehicleEdge);
+        assertTrue(((RentVehicleEdge) edge).getVehicle().getSnapshotLabel().isEmpty());
         RentVehicleEdge rentVehicleEdge = (RentVehicleEdge) edge;
         assertEquals(CAR, rentVehicleEdge.getVehicle());
         verify(toStreetEdgeLinker, times(1)).linkTemporarilyBothWays(vertex, CAR);
