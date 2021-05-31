@@ -218,8 +218,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     public int boardSlack = 0;
 
     public int alightSlack = 0;
-
-    public int maxTransfers = 4;
+    /**
+     * On default transfers are unlimited
+     */
+    public int maxTransfers = Integer.MAX_VALUE - 100;
 
     public boolean compareNumberOfTransfers = false;
 
