@@ -75,12 +75,14 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
         if (Objects.nonNull(config) && config.get("retryWaitTimeSeconds") != null)
             this.retryWaitTimeSeconds = config.get("retryWaitTimeSeconds").asInt(this.retryWaitTimeSeconds);
 
-        this.url = System.getProperty("sharedVehiclesHistoryApi");
+        this.url = Optional.ofNullable(System.getenv("SHARED_VEHICLES_HISTORY_UPDATER_API"))
+                .orElseGet(() -> System.getProperty("sharedVehiclesHistoryApi"));
         if (Objects.isNull(this.url)) {
             throw new IllegalStateException("Please provide program parameter `--sharedVehiclesHistoryApi <URL>`");
         }
 
-        this.password = System.getProperty("sharedVehiclesHistoryApiPass");
+        this.password = Optional.ofNullable(System.getenv("SHARED_VEHICLES_HISTORY_UPDATER_API_PASS"))
+                .orElseGet(() -> System.getProperty("sharedVehiclesHistoryApiPass"));
         if (Objects.isNull(this.password)) {
             throw new IllegalStateException("Please provide program parameter `--sharedVehiclesHistoryApiPass <password>`");
         }
