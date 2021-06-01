@@ -32,6 +32,7 @@ public abstract class VehicleDescription {
     private final double rangeInMeters;
 
     @Setter
+    @JsonIgnore
     private SharedVehiclesSnapshotLabel snapshotLabel = new SharedVehiclesSnapshotLabel();
 
     @JsonSerialize
