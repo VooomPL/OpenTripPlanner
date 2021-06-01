@@ -13,6 +13,7 @@ import org.opentripplanner.updater.street_notes.WinkkiPollingGraphUpdater;
 import org.opentripplanner.updater.traficstreetupdater.TrafficUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.VehiclePresencePredictionUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.BikesUpdater;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedHistoricalVehiclesUpdater;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +101,7 @@ public abstract class GraphUpdaterConfigurator {
         addUpdater(graph, updaterManager, new BikesUpdater(), config.path("bikesUpdater"));
         addUpdater(graph, updaterManager, new TrafficUpdater(), null);
         addUpdater(graph, updaterManager, new VehiclePresencePredictionUpdater(), null);
+        addUpdater(graph, updaterManager, new SharedHistoricalVehiclesUpdater(), config.path("sharedHistoricalVehiclesUpdater"));
 
         // Now that all the updaters are configured, kick them all off in their own threads.
         updaterManager.startUpdaters();
