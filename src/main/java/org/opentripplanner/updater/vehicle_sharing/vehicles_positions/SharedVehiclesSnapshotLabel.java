@@ -23,4 +23,12 @@ public class SharedVehiclesSnapshotLabel {
         return timestamp.equals(EMPTY_TIMESTAMP);
     }
 
+    public String toString() {
+        if (this.isEmpty()) {
+            return "'current'";
+        } else {
+            return timestamp.toString();
+        }
+    }
+
 }
