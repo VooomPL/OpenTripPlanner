@@ -221,7 +221,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * On default transfers are unlimited
      */
-    public int maxTransfers = Integer.MAX_VALUE - 100;
+    public int maxTransfers = 100;
 
     public boolean compareNumberOfTransfers = false;
 
