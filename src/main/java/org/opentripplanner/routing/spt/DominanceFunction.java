@@ -54,6 +54,10 @@ public abstract class DominanceFunction implements Serializable {
         if (a.getNonTransitMode() != b.getNonTransitMode())
             return false;
 
+        // If B used fewer transfers than A then A is not better than B.
+        if (a.getOptions().compareNumberOfTransfers && b.getNumBoardings() < a.getNumBoardings())
+            return false;
+
         // The result of a SimpleTransfer must not block alighting normally from transit. States that are results of
         // SimpleTransfers are incomparable with states that are not the result of SimpleTransfers.
         if ((a.backEdge instanceof SimpleTransfer) != (b.backEdge instanceof SimpleTransfer)) {
