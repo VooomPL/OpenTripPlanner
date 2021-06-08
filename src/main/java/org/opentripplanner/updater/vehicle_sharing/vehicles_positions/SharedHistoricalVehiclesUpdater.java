@@ -77,12 +77,12 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
 
         this.url = Optional.ofNullable(System.getenv("SHARED_VEHICLES_HISTORY_UPDATER_API"))
                 .orElseGet(() -> System.getProperty("sharedVehiclesHistoryApi"));
-        if (Objects.isNull(this.url)) {
+        if (Objects.isNull(this.url) || this.url.equals("")) {
             throw new IllegalStateException("Please provide program parameter `--sharedVehiclesHistoryApi <URL>`");
         }
 
         this.password = System.getenv("SHARED_VEHICLES_HISTORY_UPDATER_API_PASS");
-        if (Objects.isNull(this.password)) {
+        if (Objects.isNull(this.password) || this.password.equals("")) {
             throw new IllegalStateException("Please provide program parameter `--sharedVehiclesHistoryApiPass <password>`");
         }
 
