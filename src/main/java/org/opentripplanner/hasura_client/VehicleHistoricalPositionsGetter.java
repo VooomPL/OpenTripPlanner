@@ -22,6 +22,7 @@ public class VehicleHistoricalPositionsGetter extends HasuraGetter<VehicleDescri
     private final SharedVehiclesSnapshotLabel snapshotLabel;
 
     public VehicleHistoricalPositionsGetter(SharedVehiclesSnapshotLabel snapshotLabel, Map<Integer, Provider> vehicleProviders) {
+        super(true);
         this.vehicleProviders = vehicleProviders;
         this.snapshotLabel = snapshotLabel;
     }

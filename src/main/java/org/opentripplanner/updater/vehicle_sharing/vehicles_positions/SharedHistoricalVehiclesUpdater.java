@@ -48,7 +48,6 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
             for (SharedVehiclesSnapshotLabel snapshotLabel : monitoredSnapshots) {
                 LOG.info("Polling vehicles from API for snapshot " + snapshotLabel.getTimestamp());
                 vehiclePositionsGetter = new VehicleHistoricalPositionsGetter(snapshotLabel, vehicleProviders);
-                vehiclePositionsGetter.setReturnNullOnNoResponse(true);
                 List<VehicleDescription> vehicles = null;
                 while (Objects.isNull(vehicles)) {
                     vehicles = vehiclePositionsGetter.postFromHasuraWithPassword(this.graph, this.url, this.password);

@@ -1,7 +1,6 @@
 package org.opentripplanner.hasura_client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.Setter;
 import org.opentripplanner.hasura_client.hasura_objects.HasuraObject;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.routing.graph.Graph;
@@ -15,8 +14,7 @@ import static java.util.Collections.emptyList;
 
 public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObject> {
 
-    @Setter
-    private boolean returnNullOnNoResponse = false;
+    private final boolean returnNullOnNoResponse;
 
     protected abstract String query();
 
@@ -41,6 +39,14 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
                 "  \"latMax\": " + latMax + "," +
                 "  \"lonMax\": " + lonMax +
                 "}}";
+    }
+
+    public HasuraGetter() {
+        this(false);
+    }
+
+    public HasuraGetter(boolean returnNullOnNoResponse) {
+        this.returnNullOnNoResponse = returnNullOnNoResponse;
     }
 
     protected String getAdditionalArguments(Graph graph) {
