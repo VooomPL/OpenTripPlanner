@@ -10,7 +10,7 @@ import org.opentripplanner.routing.vertextype.TransitStopArrive;
 /**
  * PreBoard edges connect a TransitStop to its agency_stop_depart vertices; PreAlight edges connect
  * agency_stop_arrive vertices to a TransitStop.
- *
+ * <p>
  * Applies the local stop rules (see TransitStop.java and LocalStopFinder.java) as well as transfer
  * limits, timed and preferred transfer rules, transfer penalties, and boarding costs. This avoids
  * applying these costs/rules repeatedly in (Pattern)Board edges. These are single station or
@@ -54,10 +54,6 @@ public class PreAlightEdge extends FreeEdge implements StationEdge {
                 return null;
 
             TransitStop toVertex = (TransitStop) getToVertex();
-
-            // If we've hit our transfer limit, don't go any further
-            if (s0.getNumBoardings() > options.maxTransfers)
-                return null;
 
             /* apply transfer rules */
             /*

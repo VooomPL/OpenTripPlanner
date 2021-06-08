@@ -1,17 +1,13 @@
 package org.opentripplanner.routing.algorithm;
 
 import junit.framework.TestCase;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
-import org.opentripplanner.routing.core.Fare;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.calendar.CalendarServiceData;
+import org.opentripplanner.routing.core.*;
 import org.opentripplanner.routing.core.Fare.FareType;
-import org.opentripplanner.routing.core.FareComponent;
-import org.opentripplanner.routing.core.Money;
-import org.opentripplanner.routing.core.RoutingRequest;
-import org.opentripplanner.routing.core.WrappedCurrency;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.SeattleFareServiceFactory;
@@ -28,7 +24,7 @@ import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.c
 public class TestFares extends TestCase {
 
     private AStar aStar = new AStar();
-    
+
     public void testBasic() throws Exception {
 
         Graph gg = new Graph();
@@ -51,7 +47,7 @@ public class TestFares extends TestCase {
         path = spt.getPath(gg.getVertex(feedId + ":Mountain View Caltrain"), true);
 
         FareService fareService = gg.getService(FareService.class);
-        
+
         Fare cost = fareService.getCost(path);
         assertEquals(cost.getFare(FareType.regular), new Money(new WrappedCurrency("USD"), 425));
     }
@@ -86,9 +82,9 @@ public class TestFares extends TestCase {
         path = spt.getPath(gg.getVertex(feedId + ":1252"), true);
         assertNotNull(path);
         cost = fareService.getCost(path);
-        
+
         //assertEquals(cost.getFare(FareType.regular), new Money(new WrappedCurrency("USD"), 460));
-        
+
         // complex trip
         options.maxTransfers = 5;
         startTime = TestUtils.dateInSeconds("America/Los_Angeles", 2009, 11, 1, 14, 0, 0);
@@ -104,16 +100,16 @@ public class TestFares extends TestCase {
         // thread on gtfs-changes.
         // assertEquals(cost.getFare(FareType.regular), new Money(new WrappedCurrency("USD"), 430));
     }
-    
-    
+
+
     public void testKCM() throws Exception {
-    	
-    	Graph gg = new Graph();
+
+        Graph gg = new Graph();
         GtfsContext context = GtfsLibrary.readGtfs(new File(ConstantsForTests.KCM_GTFS));
-        
+
         PatternHopFactory factory = new PatternHopFactory(context);
         factory.setFareServiceFactory(new SeattleFareServiceFactory());
-        
+
         factory.run(gg);
         gg.putService(
                 CalendarServiceData.class,
@@ -121,14 +117,14 @@ public class TestFares extends TestCase {
         );
         RoutingRequest options = new RoutingRequest();
         String feedId = gg.getFeedIds().iterator().next();
-       
+
         String vertex0 = feedId + ":2010";
         String vertex1 = feedId + ":2140";
         ShortestPathTree spt;
         GraphPath path = null;
-        
-        FareService fareService = gg.getService(FareService.class);        
-        
+
+        FareService fareService = gg.getService(FareService.class);
+
         long offPeakStartTime = TestUtils.dateInSeconds("America/Los_Angeles", 2016, 5, 24, 5, 0, 0);
         options.dateTime = offPeakStartTime;
         options.setRoutingContext(gg, vertex0, vertex1);
@@ -137,7 +133,7 @@ public class TestFares extends TestCase {
 
         Fare costOffPeak = fareService.getCost(path);
         assertEquals(costOffPeak.getFare(FareType.regular), new Money(new WrappedCurrency("USD"), 250));
-        
+
         long onPeakStartTime = TestUtils.dateInSeconds("America/Los_Angeles", 2016, 5, 24, 8, 0, 0);
         options.dateTime = onPeakStartTime;
         options.setRoutingContext(gg, vertex0, vertex1);
@@ -146,7 +142,7 @@ public class TestFares extends TestCase {
 
         Fare costOnPeak = fareService.getCost(path);
         assertEquals(costOnPeak.getFare(FareType.regular), new Money(new WrappedCurrency("USD"), 275));
-        
+
     }
 
     public void testFareComponent() throws Exception {
@@ -170,9 +166,9 @@ public class TestFares extends TestCase {
         Money tenUSD = new Money(new WrappedCurrency("USD"), 1000);
 
         // A -> B, base case
-        options.setRoutingContext(gg, feedId+":A", feedId+":B");
+        options.setRoutingContext(gg, feedId + ":A", feedId + ":B");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":B"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":B"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 1);
@@ -181,16 +177,16 @@ public class TestFares extends TestCase {
         assertEquals(fareComponents.get(0).routes.get(0), new FeedScopedId("agency", "1"));
 
         // D -> E, null case
-        options.setRoutingContext(gg, feedId+":D", feedId+":E");
+        options.setRoutingContext(gg, feedId + ":D", feedId + ":E");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":E"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":E"), true);
         fare = fareService.getCost(path);
         assertNull(fare);
 
         // A -> C, 2 components in a path
-        options.setRoutingContext(gg, feedId+":A", feedId+":C");
+        options.setRoutingContext(gg, feedId + ":A", feedId + ":C");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":C"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":C"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 2);
@@ -202,9 +198,9 @@ public class TestFares extends TestCase {
         assertEquals(fareComponents.get(1).routes.get(0), new FeedScopedId("agency", "2"));
 
         // B -> D, 2 fully connected components
-        options.setRoutingContext(gg, feedId+":B", feedId+":D");
+        options.setRoutingContext(gg, feedId + ":B", feedId + ":D");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":D"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":D"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 1);
@@ -214,9 +210,9 @@ public class TestFares extends TestCase {
         assertEquals(fareComponents.get(0).routes.get(1), new FeedScopedId("agency", "3"));
 
         // E -> G, missing in between fare
-        options.setRoutingContext(gg, feedId+":E", feedId+":G");
+        options.setRoutingContext(gg, feedId + ":E", feedId + ":G");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":G"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":G"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 1);
@@ -226,9 +222,9 @@ public class TestFares extends TestCase {
         assertEquals(fareComponents.get(0).routes.get(1), new FeedScopedId("agency", "6"));
 
         // C -> E, missing fare after
-        options.setRoutingContext(gg, feedId+":C", feedId+":E");
+        options.setRoutingContext(gg, feedId + ":C", feedId + ":E");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":E"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":E"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 1);
@@ -237,9 +233,9 @@ public class TestFares extends TestCase {
         assertEquals(fareComponents.get(0).routes.get(0), new FeedScopedId("agency", "3"));
 
         // D -> G, missing fare before
-        options.setRoutingContext(gg, feedId+":D", feedId+":G");
+        options.setRoutingContext(gg, feedId + ":D", feedId + ":G");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":G"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":G"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 1);
@@ -249,9 +245,9 @@ public class TestFares extends TestCase {
         assertEquals(fareComponents.get(0).routes.get(1), new FeedScopedId("agency", "6"));
 
         // A -> D, use individual component parts
-        options.setRoutingContext(gg, feedId+":A", feedId+":D");
+        options.setRoutingContext(gg, feedId + ":A", feedId + ":D");
         spt = aStar.getShortestPathTree(options);
-        path = spt.getPath(gg.getVertex(feedId+":D"), true);
+        path = spt.getPath(gg.getVertex(feedId + ":D"), true);
         fare = fareService.getCost(path);
         fareComponents = fare.getDetails(FareType.regular);
         assertEquals(fareComponents.size(), 2);

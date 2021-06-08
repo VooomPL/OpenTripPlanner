@@ -155,12 +155,6 @@ public class CommandLineParameters implements Cloneable {
     @Parameter(names = {"--gtfsTransitPricesEnabled"}, description = "Include transit ticket prices information from GTFS if available")
     public String gtfsTransitPricesEnabled = null;
 
-    @Parameter(names = {"--trafficAppi"}, description = "API for trafic udate")
-    public String traffic = null;
-
-    @Parameter(names = {"--trafficApiPass"}, description = "API for trafic password")
-    public String trafficAPIPass = null;
-
     @Parameter(names = {"--predictionApiUrl"}, description = "API for fetching vehicle presence heatmaps")
     public String predictionApiUrl = null;
 
@@ -192,12 +186,6 @@ public class CommandLineParameters implements Cloneable {
         Boolean gtfsPricesEnabled = Boolean.parseBoolean(gtfsTransitPricesEnabled);
         System.setProperty("gtfsTransitPricesEnabled", gtfsPricesEnabled.toString());
 
-        if (traffic != null) {
-            System.setProperty("trfficApi", traffic);
-        }
-        if (trafficAPIPass != null) {
-            System.setProperty("trfficApiPass", trafficAPIPass);
-        }
         if (predictionApiUrl != null) {
             System.setProperty("predictionApiUrl", predictionApiUrl);
         }

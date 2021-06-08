@@ -9,14 +9,7 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
 import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
-import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
-import org.opentripplanner.routing.core.vehicle_sharing.FuelTypeFilter;
-import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
-import org.opentripplanner.routing.core.vehicle_sharing.GearboxFilter;
-import org.opentripplanner.routing.core.vehicle_sharing.ProviderFilter;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleTypeFilter;
-import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
+import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.routing.request.BannedStopSet;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
@@ -35,16 +28,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * This class defines all the JAX-RS query parameters for a path search as fields, allowing them to
@@ -475,6 +459,9 @@ public abstract class RoutingResource {
     @QueryParam("maxTransfers")
     protected Integer maxTransfers;
 
+
+    @QueryParam("compareNumberOfTransfers")
+    protected Boolean compareNumberOfTransfers;
     /**
      * If true, goal direction is turned off and a full path tree is built (specify only once)
      */
@@ -840,6 +827,9 @@ public abstract class RoutingResource {
 
         if (maxTransfers != null)
             request.maxTransfers = maxTransfers;
+
+        if (compareNumberOfTransfers != null)
+            request.compareNumberOfTransfers = compareNumberOfTransfers;
 
         final long NOW_THRESHOLD_MILLIS = 15 * 60 * 60 * 1000;
         boolean tripPlannedForNow = Math.abs(request.getDateTime().getTime() - new Date().getTime()) < NOW_THRESHOLD_MILLIS;

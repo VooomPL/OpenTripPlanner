@@ -61,9 +61,7 @@ public class PreBoardEdge extends FreeEdge implements StationEdge {
             if (!options.modes.isTransit())
                 return null;
 
-            // If we've hit our transfer limit, don't go any further
-            if (s0.getNumBoardings() > options.maxTransfers)
-                return null;
+
 
             /* apply transfer rules */
             /*
