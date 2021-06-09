@@ -109,9 +109,12 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
                 graph.vehiclesTriedToLink.entrySet().stream().collect(
                         filtering(e -> e.getKey().getSnapshotLabel().equals(this.snapshotLabel),
                                 groupingBy(e -> e.getValue().isPresent(), counting())));
+        long properlyLinkedVehicles = Optional.ofNullable(vehiclesForSnapshot.get(true)).orElse(0L);
         LOG.info("Currently there are {} properly linked rentable vehicles from snapshot {} in graph",
-                Optional.ofNullable(vehiclesForSnapshot.get(true)).orElse(0L),
-                this.snapshotLabel);
+                properlyLinkedVehicles, this.snapshotLabel);
+        if (properlyLinkedVehicles > 0) {
+            graph.getSupportedSnapshotLabels().add(this.snapshotLabel);
+        }
         LOG.info("There are {} rentable vehicles from snapshot {} which we failed to link to graph",
                 Optional.ofNullable(vehiclesForSnapshot.get(false)).orElse(0L),
                 this.snapshotLabel);

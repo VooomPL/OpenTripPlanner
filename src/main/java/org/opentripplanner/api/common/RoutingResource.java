@@ -898,7 +898,12 @@ public abstract class RoutingResource {
         if (snapshotTimestamp != null) {
             try {
                 LocalDateTime timestamp = LocalDateTime.parse(snapshotTimestamp);
-                request.setAcceptedSharedVehiclesSnapshotLabel(new SharedVehiclesSnapshotLabel(timestamp));
+                SharedVehiclesSnapshotLabel requestedSnapshotLabel = new SharedVehiclesSnapshotLabel(timestamp);
+                if (router.graph.getSupportedSnapshotLabels().contains(requestedSnapshotLabel)) {
+                    request.setAcceptedSharedVehiclesSnapshotLabel(requestedSnapshotLabel);
+                } else {
+                    throw new RuntimeException("Requested snapshot timestamp is currently not supported");
+                }
             } catch (DateTimeParseException e) {
                 throw new RuntimeException("Malformed parameter value for 'snapshotTimestamp'");
             }
