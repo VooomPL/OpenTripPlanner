@@ -12,6 +12,7 @@ import org.opentripplanner.updater.PollingGraphUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -30,38 +31,62 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
     private String url;
     private String password;
     private int retryWaitTimeSeconds;
+    private int maxRetries;
     private final Map<Integer, Provider> vehicleProviders = new HashMap<>();
     private final List<SharedVehiclesSnapshotLabel> monitoredSnapshots = new ArrayList<>();
 
     @Override
     protected void runPolling() {
         try {
+            int retryCounter = 0;
             ProvidersGetter providersGetter = new ProvidersGetter();
             while (vehicleProviders.isEmpty()) {
                 vehicleProviders.putAll(providersGetter.postFromHasura(this.graph, url).stream()
                         .collect(Collectors.toMap(Provider::getProviderId, provider -> provider)));
                 if (vehicleProviders.isEmpty()) {
                     LOG.error("Received empty provider list - waiting to try again");
+                    if (maxRetries != -1) {
+                        retryCounter++;
+                        if (isRetryLimitExceeded(retryCounter))
+                            break;
+                    }
                     Thread.sleep(TimeUnit.SECONDS.toMillis(retryWaitTimeSeconds));
                 }
             }
-            for (SharedVehiclesSnapshotLabel snapshotLabel : monitoredSnapshots) {
-                LOG.info("Polling vehicles from API for snapshot " + snapshotLabel.getTimestamp());
-                vehiclePositionsGetter = new VehicleHistoricalPositionsGetter(snapshotLabel, vehicleProviders);
-                List<VehicleDescription> vehicles = null;
-                while (Objects.isNull(vehicles)) {
-                    vehicles = vehiclePositionsGetter.postFromHasuraWithPassword(this.graph, this.url, this.password);
-                    if (Objects.isNull(vehicles)) {
-                        LOG.error("Error occurred when connecting to the shared vehicles history API - waiting to try again");
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(retryWaitTimeSeconds));
+            if (!vehicleProviders.isEmpty()) {
+                for (SharedVehiclesSnapshotLabel snapshotLabel : monitoredSnapshots) {
+                    LOG.info("Polling vehicles from API for snapshot " + snapshotLabel.getTimestamp());
+                    retryCounter = 0;
+                    vehiclePositionsGetter = new VehicleHistoricalPositionsGetter(snapshotLabel, vehicleProviders);
+                    List<VehicleDescription> vehicles = null;
+                    while (Objects.isNull(vehicles)) {
+                        vehicles = vehiclePositionsGetter.postFromHasuraWithPassword(this.graph, this.url, this.password);
+                        if (Objects.isNull(vehicles)) {
+                            LOG.error("Error occurred when connecting to the shared vehicles history API to download " +
+                                    "snapshot {} - waiting to try again", snapshotLabel);
+                            if (maxRetries != -1) {
+                                retryCounter++;
+                                if (isRetryLimitExceeded(retryCounter))
+                                    break;
+                            }
+                            Thread.sleep(TimeUnit.SECONDS.toMillis(retryWaitTimeSeconds));
+                        }
+                    }
+                    if (Objects.nonNull(vehicles)) {
+                        LOG.info("Got {} vehicles from snapshot {} possible to place on a map", vehicles.size(), snapshotLabel);
+                        graphUpdaterManager.execute(new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles, null, snapshotLabel));
+                    } else {
+                        LOG.error("Could not download vehicle positions snapshot for timestamp: {}", snapshotLabel);
                     }
                 }
-                LOG.info("Got {} vehicles from snapshot {} possible to place on a map", vehicles.size(), snapshotLabel);
-                graphUpdaterManager.execute(new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles, null, snapshotLabel));
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isRetryLimitExceeded(int retryCounter) {
+        return maxRetries != -1 && retryCounter > maxRetries;
     }
 
     @Override
@@ -73,6 +98,10 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
         this.retryWaitTimeSeconds = 60;
         if (Objects.nonNull(config) && config.get("retryWaitTimeSeconds") != null)
             this.retryWaitTimeSeconds = config.get("retryWaitTimeSeconds").asInt(this.retryWaitTimeSeconds);
+
+        this.maxRetries = -1;
+        if (Objects.nonNull(config) && config.get("maxRetries") != null)
+            this.maxRetries = config.get("maxRetries").asInt(this.maxRetries);
 
         this.url = Optional.ofNullable(System.getenv("SHARED_VEHICLES_HISTORY_UPDATER_API"))
                 .orElseGet(() -> System.getProperty("sharedVehiclesHistoryApi"));
