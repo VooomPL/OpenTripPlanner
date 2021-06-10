@@ -21,7 +21,7 @@ public class LinkingGeoTools {
 
     private static final double EPSILON = 1e-8;
 
-    protected static final double RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(1000);
+    protected static final double RADIUS_DEG = SphericalDistanceLibrary.metersToDegrees(50);
 
     private static final GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
 

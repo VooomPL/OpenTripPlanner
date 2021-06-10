@@ -76,6 +76,9 @@ public class State implements Cloneable {
     private static final Logger LOG = LoggerFactory.getLogger(State.class);
 
     public boolean usedNotRecommendedRoute = false;
+
+    public int heuristic;
+
     /* CONSTRUCTORS */
 
     /**

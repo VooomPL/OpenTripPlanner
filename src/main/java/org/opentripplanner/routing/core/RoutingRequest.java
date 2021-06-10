@@ -10,7 +10,14 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
-import org.opentripplanner.routing.core.routing_parametrizations.*;
+import org.opentripplanner.routing.core.routing_parametrizations.BannedTransit;
+import org.opentripplanner.routing.core.routing_parametrizations.BikeParameters;
+import org.opentripplanner.routing.core.routing_parametrizations.GtfsFlexParameters;
+import org.opentripplanner.routing.core.routing_parametrizations.PreferredTransit;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingPenalties;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -29,7 +36,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * A trip planning request. Some parameters may not be honored by the trip planner for some or all itineraries.
@@ -885,9 +901,9 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Tear down any routing context (remove temporary edges from edge lists)
      */
     public void cleanup() {
-        if (this.rctx == null)
-            LOG.warn("routing context was not set, cannot destroy it.");
-        else {
+        if (this.rctx == null) {
+//            LOG.warn("routing context was not set, cannot destroy it.");
+        } else {
             rctx.destroy();
             LOG.debug("routing context destroyed");
         }

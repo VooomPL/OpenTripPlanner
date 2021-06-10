@@ -18,7 +18,11 @@ import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Find the shortest path between graph vertices using A*.
@@ -130,6 +134,7 @@ public class AStar {
 
         if (addToQueue) {
             State initialState = new State(options);
+            initialState.heuristic = (int) (runState.heuristic.estimateRemainingWeight(initialState) * runState.options.remainingWeighMultiplier);
             runState.spt.add(initialState);
             runState.pq.insert(initialState, 0);
         }

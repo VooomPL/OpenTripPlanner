@@ -1,14 +1,17 @@
 package org.opentripplanner.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
 import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.TraverseMode;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * An Itinerary is one complete way of getting from the start location to the end location.
@@ -101,6 +104,12 @@ public class Itinerary {
      * itineraries with a good slope).
      */
     public boolean tooSloped = false;
+
+    public int finalWeight = 0;
+
+    public int initialHeuristic = 0;
+
+    public double beginLat, beginLon, endLat, endLon;
 
     /**
      * adds leg to array list
