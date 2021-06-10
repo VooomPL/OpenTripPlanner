@@ -9,7 +9,7 @@ import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+//TODO: Paulina Adamska VMP-239 Move this from simulator-associated to the main OTP hasura_client package
 public class ProvidersGetter extends HasuraGetter<Provider, ProviderHasuraObject> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvidersGetter.class);

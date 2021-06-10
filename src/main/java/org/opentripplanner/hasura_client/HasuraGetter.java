@@ -8,10 +8,14 @@ import org.opentripplanner.util.HttpUtils;
 import org.slf4j.Logger;
 
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Collections.emptyList;
 
 public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObject> {
+
+    private final boolean returnNullOnNoResponse;
+
     protected abstract String query();
 
     protected abstract Logger getLogger();
@@ -37,6 +41,14 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
                 "}}";
     }
 
+    public HasuraGetter() {
+        this(false);
+    }
+
+    public HasuraGetter(boolean returnNullOnNoResponse) {
+        this.returnNullOnNoResponse = returnNullOnNoResponse;
+    }
+
     protected String getAdditionalArguments(Graph graph) {
         return getGeolocationArguments(graph);
     }
@@ -46,7 +58,8 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
         String body = addAdditionalArguments() ? query() + arguments : query();
         ApiResponse<HASURA_OBJECT> response = HttpUtils.postData(url, body, hasuraType());
         getLogger().info("Got {} objects from API", response != null ? response.getData().getItems().size() : "null");
-        return mapper().map(response != null ? response.getData().getItems() : emptyList());
+        return Objects.isNull(response) && returnNullOnNoResponse ? null :
+                mapper().map(response != null ? response.getData().getItems() : emptyList());
     }
 
     public List<GRAPH_OBJECT> postFromHasuraWithPassword(Graph graph, String url, String password) {
@@ -54,7 +67,8 @@ public abstract class HasuraGetter<GRAPH_OBJECT, HASURA_OBJECT extends HasuraObj
         String body = addAdditionalArguments() ? query() + arguments : query();
         ApiResponse<HASURA_OBJECT> response = HttpUtils.postDataWithPassword(url, body, hasuraType(), password);
         getLogger().info("Got {} objects from API", response != null ? response.getData().getItems().size() : "null");
-        return mapper().map(response != null ? response.getData().getItems() : emptyList());
+        return Objects.isNull(response) && returnNullOnNoResponse ? null :
+                mapper().map(response != null ? response.getData().getItems() : emptyList());
     }
 
 }

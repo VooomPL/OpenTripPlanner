@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalTime;
 import java.util.*;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 
 class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
@@ -27,18 +26,29 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     private final Set<Provider> responsiveProvidersFetchedFromApi;
 
-    private boolean removalGracePeriodDisabled;
+    private final boolean removalGracePeriodDisabled;
 
     private final LocalTime updateTimestamp;
+
+    private final SharedVehiclesSnapshotLabel snapshotLabel;
 
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
                                       List<VehicleDescription> vehiclesFetchedFromApi,
                                       Set<Provider> responsiveProvidersFetchedFromApi) {
+        this(temporaryStreetSplitter, vehiclesFetchedFromApi, responsiveProvidersFetchedFromApi, new SharedVehiclesSnapshotLabel());
+    }
+
+    VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
+                                      List<VehicleDescription> vehiclesFetchedFromApi,
+                                      Set<Provider> responsiveProvidersFetchedFromApi,
+                                      SharedVehiclesSnapshotLabel sharedVehiclesSnapshotLabel) {
         this.temporaryStreetSplitter = temporaryStreetSplitter;
         this.vehiclesFetchedFromApi = vehiclesFetchedFromApi;
+        this.snapshotLabel = sharedVehiclesSnapshotLabel;
         this.updateTimestamp = LocalTime.now();
         if (Objects.nonNull(responsiveProvidersFetchedFromApi)) {
-            this.removalGracePeriodDisabled = false;
+            //We don't want to enable grace period for historical data even if the list of responsive providers was set
+            this.removalGracePeriodDisabled = !sharedVehiclesSnapshotLabel.isEmpty();
             this.responsiveProvidersFetchedFromApi = responsiveProvidersFetchedFromApi;
         } else {
             this.removalGracePeriodDisabled = true;
@@ -48,12 +58,18 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
     @Override
     public void run(Graph graph) {
-        for (Provider responsiveProvider : responsiveProvidersFetchedFromApi) {
-            graph.getLastProviderVehiclesUpdateTimestamps().put(responsiveProvider, updateTimestamp);
+        if (!removalGracePeriodDisabled) {
+            //We don't want to modify last update timestamp based on historical data from snapshots
+            for (Provider responsiveProvider : responsiveProvidersFetchedFromApi) {
+                graph.getLastProviderVehiclesUpdateTimestamps().put(responsiveProvider, updateTimestamp);
+            }
         }
         removeDisappearedRentableVehicles(graph);
         addAppearedRentableVehicles(graph);
-        graph.getLastProviderVehiclesUpdateTimestamps().entrySet().removeIf(entry -> graph.isUnresponsiveGracePeriodExceeded(entry.getKey(), updateTimestamp));
+        //We don't want to modify last update timestamp based on historical data from snapshots
+        if (!removalGracePeriodDisabled) {
+            graph.getLastProviderVehiclesUpdateTimestamps().entrySet().removeIf(entry -> graph.isUnresponsiveGracePeriodExceeded(entry.getKey(), updateTimestamp));
+        }
         graph.routerHealth.setVehiclePosition(true);
     }
 
@@ -62,14 +78,15 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
         List<Vertex> properlyLinkedVertices = getProperlyLinkedVertices(disappearedVehicles.values());
         TemporaryVertex.disposeAll(properlyLinkedVertices);
         disappearedVehicles.forEach(graph.vehiclesTriedToLink::remove);
-        LOG.info("Removed {} rentable vehicles from graph", disappearedVehicles.size());
-        LOG.debug("Removed {} properly linked rentable vehicles from graph", properlyLinkedVertices.size());
+        LOG.info("Removed {} rentable vehicles from snapshot {} from graph", disappearedVehicles.size(), this.snapshotLabel);
+        LOG.debug("Removed {} properly linked rentable vehicles from snapshot {} from graph", properlyLinkedVertices.size(), this.snapshotLabel);
     }
 
     private Map<VehicleDescription, Optional<TemporaryRentVehicleVertex>> getDisappearedVehicles(Graph graph) {
         return graph.vehiclesTriedToLink.entrySet().stream()
                 .filter(entry ->
-                        !vehiclesFetchedFromApi.contains(entry.getKey()) &&
+                        entry.getKey().getSnapshotLabel().equals(this.snapshotLabel) &&
+                                !vehiclesFetchedFromApi.contains(entry.getKey()) &&
                                 (removalGracePeriodDisabled ||
                                         responsiveProvidersFetchedFromApi.contains(entry.getKey().getProvider()) ||
                                         graph.isUnresponsiveGracePeriodExceeded(entry.getKey().getProvider(), updateTimestamp))
@@ -86,16 +103,26 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
     }
 
     private void addAppearedRentableVehicles(Graph graph) {
-        getAppearedVehicles(graph)
-                .forEach(v -> graph.vehiclesTriedToLink.put(v, temporaryStreetSplitter.linkRentableVehicleToGraph(v)));
-        long properlyLinked = graph.vehiclesTriedToLink.values().stream().filter(Optional::isPresent).count();
-        LOG.info("Currently there are {} properly linked rentable vehicles in graph", properlyLinked);
-        LOG.info("There are {} rentable vehicles which we failed to link to graph", graph.vehiclesTriedToLink.size() - properlyLinked);
+        getAppearedVehicles(graph).forEach(v -> graph.vehiclesTriedToLink.put(v, temporaryStreetSplitter.linkRentableVehicleToGraph(v)));
+
+        Map<Boolean, Long> vehiclesForSnapshot =
+                graph.vehiclesTriedToLink.entrySet().stream().collect(
+                        filtering(e -> e.getKey().getSnapshotLabel().equals(this.snapshotLabel),
+                                groupingBy(e -> e.getValue().isPresent(), counting())));
+        long properlyLinkedVehicles = Optional.ofNullable(vehiclesForSnapshot.get(true)).orElse(0L);
+        LOG.info("Currently there are {} properly linked rentable vehicles from snapshot {} in graph",
+                properlyLinkedVehicles, this.snapshotLabel);
+        if (properlyLinkedVehicles > 0) {
+            graph.getSupportedSnapshotLabels().add(this.snapshotLabel);
+        }
+        LOG.info("There are {} rentable vehicles from snapshot {} which we failed to link to graph",
+                Optional.ofNullable(vehiclesForSnapshot.get(false)).orElse(0L),
+                this.snapshotLabel);
     }
 
     private List<VehicleDescription> getAppearedVehicles(Graph graph) {
         return vehiclesFetchedFromApi.stream()
-                .filter(v -> !graph.vehiclesTriedToLink.containsKey(v))
+                .filter(v -> v.getSnapshotLabel().equals(this.snapshotLabel) && !graph.vehiclesTriedToLink.containsKey(v))
                 .collect(toList());
     }
 }

@@ -3,6 +3,7 @@ package org.opentripplanner.hasura_client.mappers;
 import org.opentripplanner.hasura_client.HasuraGetter;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,16 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
     private Set<Provider> responsiveProviders = new HashSet<>();
 
     private static final VehiclePricingPackage DEFAULT_PRICING_PACKAGE = new VehiclePricingPackage();
+
+    private final SharedVehiclesSnapshotLabel snapshotLabel;
+
+    public VehiclePositionsMapper() {
+        this.snapshotLabel = new SharedVehiclesSnapshotLabel();
+    }
+
+    public VehiclePositionsMapper(SharedVehiclesSnapshotLabel snapshotLabel) {
+        this.snapshotLabel = snapshotLabel;
+    }
 
     @Override
     protected VehicleDescription mapSingleHasuraObject(Vehicle vehicle) {
@@ -65,18 +76,25 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
             return null;
         }
         responsiveProviders.add(provider);
+        VehicleDescription mappedVehicle;
         switch (vehicleType) {
             case CAR:
-                return new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                mappedVehicle = new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                break;
             case MOTORBIKE:
-                return new MotorbikeDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                mappedVehicle = new MotorbikeDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                break;
             case KICKSCOOTER:
-                return new KickScooterDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                mappedVehicle = new KickScooterDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                break;
             default:
                 // this should never happen
                 LOG.warn("Omitting vehicle {} because of unsupported type {}", providerVehicleId, vehicleType);
                 return null;
         }
+        mappedVehicle.setSnapshotLabel(snapshotLabel);
+
+        return mappedVehicle;
     }
 
     public Set<Provider> getResponsiveProviders() {

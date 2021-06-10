@@ -30,7 +30,7 @@ public class SharedVehiclesUpdater extends PollingGraphUpdater {
         graphUpdaterManager.execute(new VehicleSharingGraphWriterRunnable(temporaryStreetSplitter, vehicles,
                 vehiclePositionsGetter.getResponsiveProviders()));
     }
-
+    //TODO Paulina Adamska VMP-239 Remove the notion of snapshots from this updater and modify the simulator to use methods from SharedHistoricalVehiclesUpdater
     public void readFromSnapshot() {
         LOG.info("Reading vehicles from API (vehicle removal grace period disabled)");
         List<VehicleDescription> vehicles = vehiclePositionsGetter.postFromHasura(graph, url);

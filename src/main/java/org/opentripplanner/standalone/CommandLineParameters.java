@@ -146,8 +146,11 @@ public class CommandLineParameters implements Cloneable {
     @Parameter(names = {"--enableScriptingWebService"}, description = "enable scripting through a web-service (Warning! Very unsafe for public facing servers)")
     boolean enableScriptingWebService = false;
 
-    @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about renable vehicles")
+    @Parameter(names = {"--sharedVehiclesApi"}, description = "API for fetching info about rentable vehicles")
     public String sharedVehiclesApi = null;
+
+    @Parameter(names = {"--sharedVehiclesHistoryApi"}, description = "API for fetching historical data about rentable vehicles")
+    public String sharedVehiclesHistoryApi = null;
 
     @Parameter(names = {"--gtfsTransitPricesEnabled"}, description = "Include transit ticket prices information from GTFS if available")
     public String gtfsTransitPricesEnabled = null;
@@ -175,6 +178,9 @@ public class CommandLineParameters implements Cloneable {
         }
         if (sharedVehiclesApi != null) {
             System.setProperty("sharedVehiclesApi", sharedVehiclesApi);
+        }
+        if (sharedVehiclesHistoryApi != null) {
+            System.setProperty("sharedVehiclesHistoryApi", sharedVehiclesHistoryApi);
         }
 
         Boolean gtfsPricesEnabled = Boolean.parseBoolean(gtfsTransitPricesEnabled);

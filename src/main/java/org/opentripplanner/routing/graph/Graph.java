@@ -65,6 +65,7 @@ import org.opentripplanner.updater.GraphUpdaterManager;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.CarPresencePredictor;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -305,6 +306,9 @@ public class Graph implements Serializable {
 
     @Getter
     private Set<TransitTicket> availableTransitTickets = new HashSet<>();
+
+    @Getter
+    private final Set<SharedVehiclesSnapshotLabel> supportedSnapshotLabels = new HashSet<>();
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once
