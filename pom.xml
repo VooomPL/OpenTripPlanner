@@ -500,7 +500,8 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>org/opentripplanner/estimator/**/*</exclude>
+                                        <!-- TODO: Paulina Adamska VMP-239 Uncomment the line below
+                                        <exclude>org/opentripplanner/estimator/**/*</exclude>-->
                                         <exclude>com/github/tomakehurst/**/*</exclude>
                                     </excludes>
                                 </filter>
