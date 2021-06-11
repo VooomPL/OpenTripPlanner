@@ -11,7 +11,6 @@ import org.opentripplanner.graph_builder.GraphBuilder;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.impl.GraphScanner;
-import org.opentripplanner.routing.impl.InputStreamGraphSource;
 import org.opentripplanner.routing.impl.MemoryGraphSource;
 import org.opentripplanner.routing.services.GraphService;
 import org.opentripplanner.scripting.impl.BSFOTPScript;
@@ -145,7 +144,7 @@ public class OTPMain {
         Router defaultRouter = graphService.getRouter();
         defaultRouter.graphVisualizer = new GraphVisualizer(defaultRouter);
         defaultRouter.graphVisualizer.run();
-        defaultRouter.timeouts = new double[] {60}; // avoid timeouts due to search animation
+        defaultRouter.routerDefaultTimeouts = new double[]{60}; // avoid timeouts due to search animation
     }
 
     /** Start script */
