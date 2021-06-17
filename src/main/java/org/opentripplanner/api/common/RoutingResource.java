@@ -504,6 +504,9 @@ public abstract class RoutingResource {
     @QueryParam("reverseOptimizeOnTheFly")
     protected Boolean reverseOptimizeOnTheFly;
 
+    @QueryParam("reverseOptimizationEnabled")
+    protected Boolean reverseOptimizationEnabled;
+
     @QueryParam("boardSlack")
     private Integer boardSlack;
 
@@ -846,6 +849,13 @@ public abstract class RoutingResource {
 
         if (reverseOptimizeOnTheFly != null)
             request.reverseOptimizeOnTheFly = reverseOptimizeOnTheFly;
+
+        if (reverseOptimizationEnabled != null) {
+            if (!reverseOptimizationEnabled && reverseOptimizeOnTheFly != null && reverseOptimizeOnTheFly) {
+                throw new RuntimeException("Cannot combine reverseOptimizationEnabled=false with reverseOptimizeOnTheFly=true");
+            }
+            request.reverseOptimizationEnabled = reverseOptimizationEnabled;
+        }
 
         if (ignoreRealtimeUpdates != null)
             request.ignoreRealtimeUpdates = ignoreRealtimeUpdates;
