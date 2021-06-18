@@ -1,18 +1,14 @@
 package org.opentripplanner.analyst.request;
 
-import static org.apache.commons.math3.util.FastMath.toRadians;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.math3.util.FastMath;
+import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.common.geometry.AccumulativeGridSampler;
 import org.opentripplanner.common.geometry.AccumulativeGridSampler.AccumulativeMetric;
-import org.opentripplanner.common.geometry.ZSampleGrid.ZSamplePoint;
 import org.opentripplanner.common.geometry.IsolineBuilder;
 import org.opentripplanner.common.geometry.SparseMatrixZSampleGrid;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.geometry.ZSampleGrid;
+import org.opentripplanner.common.geometry.ZSampleGrid.ZSamplePoint;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
@@ -25,7 +21,10 @@ import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.commons.math3.util.FastMath.toRadians;
 
 /**
  * Compute a sample grid from a SPT request.
@@ -82,7 +81,7 @@ public class SampleGridRenderer {
         SparseMatrixZSampleGrid<WTWD> sampleGrid = new SparseMatrixZSampleGrid<WTWD>(16,
                 spt.getVertexCount(), dX, dY, coordinateOrigin);
         sampleSPT(spt, sampleGrid, gridSizeMeters, offRoadDistanceMeters, offRoadWalkSpeedMps,
-                sptRequest.getMaxWalkDistance(), spgRequest.maxTimeSec, cosLat);
+                spgRequest.maxDistanceMeters, spgRequest.maxTimeSec, cosLat);
         sptRequest.cleanup();
 
         long t2 = System.currentTimeMillis();
@@ -96,8 +95,8 @@ public class SampleGridRenderer {
      * Sample a SPT using a SPTWalker and an AccumulativeGridSampler.
      */
     public static void sampleSPT(final ShortestPathTree spt, ZSampleGrid<WTWD> sampleGrid,
-            final double gridSizeMeters, final double offRoadDistanceMeters, final double offRoadWalkSpeedMps,
-            final double maxWalkDistance, final int maxTimeSec, final double cosLat) {
+                                 final double gridSizeMeters, final double offRoadDistanceMeters, final double offRoadWalkSpeedMps,
+                                 final double maxDistanceMeters, final int maxTimeSec, final double cosLat) {
 
         AccumulativeMetric<WTWD> accMetric = new WTWDAccumulativeMetric(cosLat, offRoadDistanceMeters, offRoadWalkSpeedMps, gridSizeMeters);
         final AccumulativeGridSampler<WTWD> gridSampler = new AccumulativeGridSampler<WTWD>(sampleGrid, accMetric);
@@ -115,11 +114,13 @@ public class SampleGridRenderer {
 
             @Override
             public final void visit(Edge e, Coordinate c, State s0, State s1, double d0, double d1, double speedAlongEdge) {
+                if (s0.isCurrentlyRentingVehicle())
+                    return;
                 double wd0 = s0.getTraverseDistanceInMeters() + d0;
                 double wd1 = s0.getTraverseDistanceInMeters() + d1;
-                double t0 = wd0 > maxWalkDistance ? Double.POSITIVE_INFINITY : s0.getActiveTime()
+                double t0 = wd0 > maxDistanceMeters ? Double.POSITIVE_INFINITY : s0.getActiveTime()
                         + d0 / speedAlongEdge;
-                double t1 = wd1 > maxWalkDistance ? Double.POSITIVE_INFINITY : s1.getActiveTime()
+                double t1 = wd1 > maxDistanceMeters ? Double.POSITIVE_INFINITY : s1.getActiveTime()
                         + d1 / speedAlongEdge;
                 if (t0 < maxTimeSec || t1 < maxTimeSec) {
                     if (!Double.isInfinite(t0) || !Double.isInfinite(t1)) {
