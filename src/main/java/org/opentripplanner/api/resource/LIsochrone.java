@@ -1,24 +1,6 @@
 package org.opentripplanner.api.resource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
+import com.google.common.io.Files;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -29,6 +11,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.IsoChroneRequest;
@@ -39,8 +22,24 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
-import org.locationtech.jts.geom.MultiPolygon;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Return isochrone geometry as a set of GeoJSON or zipped-shapefile multi-polygons.
@@ -74,6 +73,10 @@ public class LIsochrone extends RoutingResource {
     @QueryParam("offRoadDistanceMeters")
     @DefaultValue("150")
     private Integer offRoadDistanceMeters;
+
+    @QueryParam("maxDistanceMeters")
+    @DefaultValue("20000")
+    private Integer maxDistanceMeters;
 
     @QueryParam("coordinateOrigin")
     private String coordinateOrigin = null;
@@ -168,16 +171,13 @@ public class LIsochrone extends RoutingResource {
         isoChroneRequest.includeDebugGeometry = debug;
         isoChroneRequest.precisionMeters = precisionMeters;
         isoChroneRequest.offRoadDistanceMeters = offRoadDistanceMeters;
+        isoChroneRequest.maxDistanceMeters = maxDistanceMeters;
         if (coordinateOrigin != null)
             isoChroneRequest.coordinateOrigin = new GenericLocation(null, coordinateOrigin)
                     .getCoordinate();
         RoutingRequest sptRequest = buildRequest();
 
-        if (maxTimeSec != null) {
-            isoChroneRequest.maxTimeSec = maxTimeSec;
-        } else {
-            isoChroneRequest.maxTimeSec = isoChroneRequest.maxCutoffSec;
-        }
+        isoChroneRequest.maxTimeSec = Objects.requireNonNullElseGet(maxTimeSec, () -> isoChroneRequest.maxCutoffSec);
 
         Router router = otpServer.getRouter(routerId);
         return router.isoChroneSPTRenderer.getIsochrones(isoChroneRequest, sptRequest);
