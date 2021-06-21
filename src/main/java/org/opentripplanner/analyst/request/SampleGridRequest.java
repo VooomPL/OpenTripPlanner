@@ -17,6 +17,8 @@ public class SampleGridRequest {
 
     public Coordinate coordinateOrigin;
 
+    public int maxDistanceMeters;
+
     public SampleGridRequest() {
     }
 
