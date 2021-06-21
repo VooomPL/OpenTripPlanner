@@ -13,6 +13,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.*;
 import org.opentripplanner.routing.request.BannedStopSet;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 import org.opentripplanner.util.ResourceBundleSingleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,8 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -604,6 +607,9 @@ public abstract class RoutingResource {
     @QueryParam("vehiclePresenceThreshold")
     private Float vehiclePresenceThreshold;
 
+    @QueryParam("snapshotTimestamp")
+    private String snapshotTimestamp;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -897,6 +903,20 @@ public abstract class RoutingResource {
 
         if (vehiclePresenceThreshold != null)
             request.vehiclePredictionThreshold = vehiclePresenceThreshold;
+
+        if (snapshotTimestamp != null) {
+            try {
+                LocalDateTime timestamp = LocalDateTime.parse(snapshotTimestamp);
+                SharedVehiclesSnapshotLabel requestedSnapshotLabel = new SharedVehiclesSnapshotLabel(timestamp);
+                if (router.graph.getSupportedSnapshotLabels().contains(requestedSnapshotLabel)) {
+                    request.setAcceptedSharedVehiclesSnapshotLabel(requestedSnapshotLabel);
+                } else {
+                    throw new RuntimeException("Requested snapshot timestamp is currently not supported");
+                }
+            } catch (DateTimeParseException e) {
+                throw new RuntimeException("Malformed parameter value for 'snapshotTimestamp'");
+            }
+        }
 
         //getLocale function returns defaultLocale if locale is null
         request.locale = ResourceBundleSingleton.INSTANCE.getLocale(locale);
