@@ -49,7 +49,7 @@ public class RouterInfo {
     public boolean health;
 
     @Getter
-    private final Set<SharedVehiclesSnapshotLabel> acceptedSharedVehiclesSnapshotLabels;
+    private final Map<SharedVehiclesSnapshotLabel, Long> acceptedSharedVehiclesSnapshotLabels;
 
     public RouterInfo(String routerId, Graph graph) {
         this.acceptedSharedVehiclesSnapshotLabels = graph.getSupportedSnapshotLabels();

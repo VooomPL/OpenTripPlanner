@@ -307,8 +307,13 @@ public class Graph implements Serializable {
     @Getter
     private Set<TransitTicket> availableTransitTickets = new HashSet<>();
 
+    /*
+     * Value indicates the number of mapped vehicles for each snapshot. This allows to detect situation
+     * when there is no point in using a snapshot when planning itineraries due to the fact that it was
+     * not available in the historical dataset.
+     */
     @Getter
-    private final Set<SharedVehiclesSnapshotLabel> supportedSnapshotLabels = new HashSet<>();
+    private final Map<SharedVehiclesSnapshotLabel, Long> supportedSnapshotLabels = new HashMap<>();
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once

@@ -112,8 +112,8 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
         long properlyLinkedVehicles = Optional.ofNullable(vehiclesForSnapshot.get(true)).orElse(0L);
         LOG.info("Currently there are {} properly linked rentable vehicles from snapshot {} in graph",
                 properlyLinkedVehicles, this.snapshotLabel);
-        if (properlyLinkedVehicles > 0 && !this.snapshotLabel.isEmpty()) {
-            graph.getSupportedSnapshotLabels().add(this.snapshotLabel);
+        if (!this.snapshotLabel.isEmpty()) {
+            graph.getSupportedSnapshotLabels().replace(this.snapshotLabel, properlyLinkedVehicles);
         }
         LOG.info("There are {} rentable vehicles from snapshot {} which we failed to link to graph",
                 Optional.ofNullable(vehiclesForSnapshot.get(false)).orElse(0L),
