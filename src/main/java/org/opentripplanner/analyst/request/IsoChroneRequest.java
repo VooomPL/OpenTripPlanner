@@ -1,9 +1,9 @@
 package org.opentripplanner.analyst.request;
 
+import org.locationtech.jts.geom.Coordinate;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * A request for an isochrone vector.
@@ -24,18 +24,16 @@ public class IsoChroneRequest {
 
     public Coordinate coordinateOrigin;
 
-    public int minCutoffSec = Integer.MAX_VALUE;
+    public final int minCutoffSec;
 
-    public int maxCutoffSec = 0;
+    public final int maxCutoffSec;
+
+    public int maxDistanceMeters;
 
     public IsoChroneRequest(List<Integer> cutoffSecList) {
         this.cutoffSecList = cutoffSecList;
-        for (Integer cutoffSec : cutoffSecList) {
-            if (cutoffSec > maxCutoffSec)
-                maxCutoffSec = cutoffSec;
-            if (cutoffSec < minCutoffSec)
-                minCutoffSec = cutoffSec;
-        }
+        minCutoffSec = cutoffSecList.stream().min(Integer::compareTo).orElse(Integer.MAX_VALUE);
+        maxCutoffSec = cutoffSecList.stream().max(Integer::compareTo).orElse(0);
     }
 
     @Override
