@@ -113,7 +113,14 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
         LOG.info("Currently there are {} properly linked rentable vehicles from snapshot {} in graph",
                 properlyLinkedVehicles, this.snapshotLabel);
         if (!this.snapshotLabel.isEmpty()) {
-            graph.getSupportedSnapshotLabels().replace(this.snapshotLabel, properlyLinkedVehicles);
+            Integer properlyLinkedVehiclesAsInt;
+            try {
+                properlyLinkedVehiclesAsInt = Math.toIntExact(properlyLinkedVehicles);
+            } catch (ArithmeticException e) {
+                LOG.warn("The number of vehicles in the {} snapshot does not fit into Integer", snapshotLabel);
+                properlyLinkedVehiclesAsInt = Integer.MAX_VALUE;
+            }
+            graph.getSupportedSnapshotLabels().replace(this.snapshotLabel, properlyLinkedVehiclesAsInt);
         }
         LOG.info("There are {} rentable vehicles from snapshot {} which we failed to link to graph",
                 Optional.ofNullable(vehiclesForSnapshot.get(false)).orElse(0L),

@@ -313,7 +313,7 @@ public class Graph implements Serializable {
      * not available in the historical dataset.
      */
     @Getter
-    private final Map<SharedVehiclesSnapshotLabel, Long> supportedSnapshotLabels = new HashMap<>();
+    private final Map<SharedVehiclesSnapshotLabel, Integer> supportedSnapshotLabels = new HashMap<>();
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once

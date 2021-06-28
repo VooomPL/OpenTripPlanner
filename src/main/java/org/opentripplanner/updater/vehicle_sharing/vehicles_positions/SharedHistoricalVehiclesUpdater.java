@@ -133,7 +133,7 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
                                                     .withHour(timeOfDay.getHour())
                                                     .withMinute(timeOfDay.getMinute())
                                                     .withSecond(0).withNano(0)),
-                                    -1L));
+                                    -1));
                 } catch (NumberFormatException e) {
                     LOG.error("Could not parse snapshot offset: {}", offset.asText());
                 }

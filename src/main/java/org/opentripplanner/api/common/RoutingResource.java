@@ -909,7 +909,7 @@ public abstract class RoutingResource {
             try {
                 LocalDateTime timestamp = LocalDateTime.parse(snapshotTimestamp);
                 SharedVehiclesSnapshotLabel requestedSnapshotLabel = new SharedVehiclesSnapshotLabel(timestamp);
-                Long numberOfVehiclesInSnapshot = router.graph.getSupportedSnapshotLabels().get(requestedSnapshotLabel);
+                Integer numberOfVehiclesInSnapshot = router.graph.getSupportedSnapshotLabels().get(requestedSnapshotLabel);
                 if (Objects.nonNull(numberOfVehiclesInSnapshot) && numberOfVehiclesInSnapshot > 0) {
                     request.setAcceptedSharedVehiclesSnapshotLabel(requestedSnapshotLabel);
                 } else {
