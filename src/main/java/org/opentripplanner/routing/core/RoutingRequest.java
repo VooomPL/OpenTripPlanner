@@ -287,6 +287,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public boolean compactLegsByReversedSearch = false;
 
+    public boolean reverseOptimizationEnabled = true;
+
     /**
      * When true, realtime updates are ignored during this search.
      */

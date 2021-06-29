@@ -1,12 +1,10 @@
 package org.opentripplanner.api.model;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
 import org.locationtech.jts.geom.Geometry;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -15,6 +13,7 @@ import org.opentripplanner.common.geometry.GeometrySerializer;
 import org.opentripplanner.routing.bike_rental.BikeRentalStationService;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 import org.opentripplanner.util.TravelOption;
 import org.opentripplanner.util.TravelOptionsMaker;
 import org.opentripplanner.util.WorldEnvelope;
@@ -49,7 +48,11 @@ public class RouterInfo {
 
     public boolean health;
 
+    @Getter
+    private final Set<SharedVehiclesSnapshotLabel> acceptedSharedVehiclesSnapshotLabels;
+
     public RouterInfo(String routerId, Graph graph) {
+        this.acceptedSharedVehiclesSnapshotLabels = graph.getSupportedSnapshotLabels();
         this.routerId = routerId;
         this.polygon = graph.getConvexHull();
         this.buildTime = graph.buildTime;
