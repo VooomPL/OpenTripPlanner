@@ -33,7 +33,6 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
     private int retryWaitTimeSeconds;
     private int maxRetries;
     private final Map<Integer, Provider> vehicleProviders = new HashMap<>();
-    private final List<SharedVehiclesSnapshotLabel> monitoredSnapshots = new ArrayList<>();
 
     @Override
     protected void runPolling() {
@@ -54,7 +53,7 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
                 }
             }
             if (!vehicleProviders.isEmpty()) {
-                for (SharedVehiclesSnapshotLabel snapshotLabel : monitoredSnapshots) {
+                for (SharedVehiclesSnapshotLabel snapshotLabel : graph.getSupportedSnapshotLabels().keySet()) {
                     LOG.info("Polling vehicles from API for snapshot " + snapshotLabel.getTimestamp());
                     retryCounter = 0;
                     vehiclePositionsGetter = new VehicleHistoricalPositionsGetter(snapshotLabel, vehicleProviders);
@@ -115,10 +114,10 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
         }
 
         if (Objects.nonNull(config))
-            configureMonitoredSnapshots(config);
+            configureMonitoredSnapshots(config, graph);
     }
 
-    private void configureMonitoredSnapshots(JsonNode config) {
+    private void configureMonitoredSnapshots(JsonNode config, Graph graph) {
         JsonNode snapshotOffsetsNode = config.get("snapshotOffsetsInDays");
 
         if (Objects.nonNull(snapshotOffsetsNode) && snapshotOffsetsNode.isArray()) {
@@ -128,12 +127,13 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
             snapshotOffsetsNode.iterator().forEachRemaining(offset -> {
                 try {
                     int offsetAsInt = Integer.parseInt(offset.asText());
-                    timesOfDay.forEach(timeOfDay -> monitoredSnapshots.add(
-                            new SharedVehiclesSnapshotLabel(
-                                    currentDate.minusDays(offsetAsInt)
-                                            .withHour(timeOfDay.getHour())
-                                            .withMinute(timeOfDay.getMinute())
-                                            .withSecond(0).withNano(0))));
+                    timesOfDay.forEach(timeOfDay ->
+                            graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(
+                                            currentDate.minusDays(offsetAsInt)
+                                                    .withHour(timeOfDay.getHour())
+                                                    .withMinute(timeOfDay.getMinute())
+                                                    .withSecond(0).withNano(0)),
+                                    -1));
                 } catch (NumberFormatException e) {
                     LOG.error("Could not parse snapshot offset: {}", offset.asText());
                 }
