@@ -240,6 +240,7 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public RoutingRequest bikeWalkingOptions;
 
+    public double[] timeouts = {5D, 2D, 1D};
     /**
      * This is true when a GraphPath is being traversed in reverse for optimization purposes.
      */
