@@ -184,7 +184,7 @@ public class TestTransfers extends TestCase {
         TimetableSnapshot snapshot = graph.timetableSnapshotSource.getTimetableSnapshot();
         Timetable timetable = snapshot.resolve(pattern, serviceDate);
         TimeZone timeZone = new SimpleTimeZone(-7, "PST");
-        long today = serviceDate.getAsDate(timeZone).getTime() / 1000;
+        long today = serviceDate.getAsInstant(timeZone).getEpochSecond();
         TripDescriptor.Builder tripDescriptorBuilder = TripDescriptor.newBuilder();
 
         tripDescriptorBuilder.setTripId(tripId);

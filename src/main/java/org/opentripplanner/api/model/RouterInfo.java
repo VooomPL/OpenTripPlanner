@@ -1,5 +1,6 @@
 package org.opentripplanner.api.model;
 
+import java.time.Instant;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -28,7 +29,7 @@ public class RouterInfo {
     @JsonDeserialize(using = GeometryDeserializer.class)
     public Geometry polygon;
 
-    public Date buildTime;
+    public Instant buildTime;
 
     public long transitServiceStarts;
 

@@ -35,8 +35,8 @@ public class ServiceCalendarType {
         this.friday = arg.getFriday();
         this.saturday = arg.getSaturday();
         this.sunday = arg.getSunday();
-        this.startDate = arg.getStartDate().getAsDate().getTime();
-        this.endDate = arg.getEndDate().getAsDate().getTime();
+        this.startDate = arg.getStartDate().getAsInstant().toEpochMilli();
+        this.endDate = arg.getEndDate().getAsInstant().toEpochMilli();
     }
 
     public ServiceCalendarType() {

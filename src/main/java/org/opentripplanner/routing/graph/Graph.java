@@ -66,6 +66,7 @@ import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.CarPresencePredictor;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
+import org.opentripplanner.util.DateUtils;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -215,7 +217,7 @@ public class Graph implements Serializable {
      */
     public transient GraphUpdaterManager updaterManager = null;
 
-    public final Date buildTime = new Date();
+    public final Instant buildTime = DateUtils.getInstant();
 
     /**
      * True if OSM data was loaded into this Graph.
@@ -606,7 +608,7 @@ public class Graph implements Serializable {
 
     // Infer the time period covered by the transit feed
     public void updateTransitFeedValidity(CalendarServiceData data) {
-        long now = new Date().getTime() / 1000;
+        long now = DateUtils.getInstant().getEpochSecond();
         final long SEC_IN_DAY = 24 * 60 * 60;
         HashSet<String> agenciesWithFutureDates = new HashSet<String>();
         HashSet<String> agencies = new HashSet<String>();
@@ -614,7 +616,7 @@ public class Graph implements Serializable {
             agencies.add(sid.getAgencyId());
             for (ServiceDate sd : data.getServiceDatesForServiceId(sid)) {
                 // Adjust for timezone, assuming there is only one per graph.
-                long t = sd.getAsDate(getTimeZone()).getTime() / 1000;
+                long t = sd.getAsInstant(getTimeZone()).getEpochSecond();
                 if (t > now) {
                     agenciesWithFutureDates.add(sid.getAgencyId());
                 }

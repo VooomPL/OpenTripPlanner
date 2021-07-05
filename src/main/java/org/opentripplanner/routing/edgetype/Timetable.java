@@ -533,7 +533,7 @@ public class Timetable implements Serializable {
                         newTimes.updateDepartureDelay(i, 0);
                         delay = 0;
                     } else {
-                        long today = updateServiceDate.getAsDate(timeZone).getTime() / 1000;
+                        long today = updateServiceDate.getAsInstant(timeZone).getEpochSecond();
 
                         if (update.hasArrival()) {
                             StopTimeEvent arrival = update.getArrival();

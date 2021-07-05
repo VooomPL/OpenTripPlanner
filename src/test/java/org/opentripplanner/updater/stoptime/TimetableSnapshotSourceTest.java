@@ -10,6 +10,7 @@ import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.c
 
 import java.io.File;
 import java.text.ParseException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -230,8 +231,8 @@ public class TimetableSnapshotSourceTest {
             tripDescriptorBuilder.setScheduleRelationship(TripDescriptor.ScheduleRelationship.ADDED);
             tripDescriptorBuilder.setStartDate(serviceDate.getAsString());
 
-            final Calendar calendar = serviceDate.getAsCalendar(graph.getTimeZone());
-            final long midnightSecondsSinceEpoch = calendar.getTimeInMillis() / 1000;
+            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getTimeZone());
+            final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
             final TripUpdate.Builder tripUpdateBuilder = TripUpdate.newBuilder();
 
@@ -338,8 +339,8 @@ public class TimetableSnapshotSourceTest {
             tripDescriptorBuilder.setScheduleRelationship(TripDescriptor.ScheduleRelationship.MODIFIED);
             tripDescriptorBuilder.setStartDate(serviceDate.getAsString());
 
-            final Calendar calendar = serviceDate.getAsCalendar(graph.getTimeZone());
-            final long midnightSecondsSinceEpoch = calendar.getTimeInMillis() / 1000;
+            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getTimeZone());
+            final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
             final TripUpdate.Builder tripUpdateBuilder = TripUpdate.newBuilder();
 

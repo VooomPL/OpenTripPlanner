@@ -1,6 +1,8 @@
 package org.opentripplanner.routing.core;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
@@ -11,6 +13,7 @@ import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.util.DateUtils;
 
 /**
  * Represents a day of transit services. 
@@ -32,9 +35,7 @@ public class ServiceDay implements Serializable {
      */
     public ServiceDay(Graph graph, long time, CalendarService cs, String agencyId) {
         TimeZone timeZone = cs.getTimeZoneForAgencyId(agencyId);
-        GregorianCalendar calendar = new GregorianCalendar(timeZone);
-        calendar.setTime(new Date(time * 1000));
-        serviceDate = new ServiceDate(calendar);
+        serviceDate = new ServiceDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), timeZone.toZoneId()));
 
         init(graph, cs, timeZone);
     }
@@ -52,8 +53,8 @@ public class ServiceDay implements Serializable {
     }
 
     private void init(Graph graph, CalendarService cs, TimeZone timeZone) {
-        Date d = serviceDate.getAsDate(timeZone);
-        this.midnight = d.getTime() / 1000;
+        Instant d = serviceDate.getAsInstant(timeZone);
+        this.midnight = d.getEpochSecond();
         serviceIdsRunning = new BitSet(cs.getServiceIds().size());
         
         for (FeedScopedId serviceId : cs.getServiceIdsOnDate(serviceDate)) {

@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -64,6 +66,10 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
                 calendar.get(Calendar.DAY_OF_MONTH));
     }
 
+    public ServiceDate(ZonedDateTime zonedDateTime) {
+        this(zonedDateTime.getYear(), zonedDateTime.getMonthValue(), zonedDateTime.getDayOfMonth());
+    }
+
     /**
      * Construct a ServiceDate from the specified {@link Date} object, using the
      * default {@link TimeZone} object for the current VM to localize the date
@@ -111,15 +117,15 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     }
 
     /**
-     * @return calls {@link #getAsDate(TimeZone)} with the default timezone for
+     * @return calls {@link #getAsInstant(TimeZone)} with the default timezone for
      *         this VM
      */
-    public Date getAsDate() {
-        return getAsDate(TimeZone.getDefault());
+    public Instant getAsInstant() {
+        return getAsInstant(TimeZone.getDefault());
     }
 
     /**
-     * Constructs a {@link Calendar} object such that the Calendar will be at
+     * Constructs a {@link ZonedDateTime} object such that the Calendar will be at
      * "midnight" (12:00am) at the start of the day specified by this service date
      * and the target timezone. Note that we take the GTFS convention of
      * calculating midnight by setting the target date to noon (12:00pm) for the
@@ -133,28 +139,21 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      * @return a localized date at "midnight" at the start of this service date in
      *         the specified timezone
      */
-    public Calendar getAsCalendar(TimeZone timeZone) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeZone(timeZone);
-        c.set(Calendar.YEAR, year);
-        c.set(Calendar.MONTH, month - 1);
-        c.set(Calendar.DAY_OF_MONTH, day);
-
-        moveCalendarToServiceDate(c);
-
-        return c;
+    public ZonedDateTime getAsZonedDateTime(TimeZone timeZone) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, timeZone.toZoneId());
+        return moveCalendarToServiceDate(zonedDateTime);
     }
 
     /**
-     * See {@link #getAsCalendar(TimeZone)} for more details.
+     * See {@link #getAsZonedDateTime(TimeZone)} for more details.
      *
      * @param timeZone the target timezone to localize the service date to
      * @return a localized date at "midnight" at the start of this service date in
      *         the specified timezone
      */
-    public Date getAsDate(TimeZone timeZone) {
-        Calendar c = getAsCalendar(timeZone);
-        return c.getTime();
+    public Instant getAsInstant(TimeZone timeZone) {
+        ZonedDateTime c = getAsZonedDateTime(timeZone);
+        return c.toInstant();
     }
 
     /**
@@ -191,9 +190,8 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      *         is specified
      */
     public ServiceDate shift(int numberOfDays) {
-        Calendar c = getAsCalendar(UTC_TIME_ZONE);
-        c.add(Calendar.DAY_OF_YEAR, numberOfDays);
-        return new ServiceDate(c);
+        ZonedDateTime c = getAsZonedDateTime(UTC_TIME_ZONE);
+        return new ServiceDate(c.plusDays(numberOfDays));
     }
 
     /**
@@ -202,7 +200,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      *         argument service date
      */
     public long difference(ServiceDate serviceDate) {
-        return (serviceDate.getAsDate(UTC_TIME_ZONE).getTime() - getAsDate(UTC_TIME_ZONE).getTime())
+        return (serviceDate.getAsInstant(UTC_TIME_ZONE).getEpochSecond() - getAsInstant(UTC_TIME_ZONE).getEpochSecond())
                 / (24 * 60 * 60 * 1000);
     }
 
@@ -250,7 +248,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     }
 
     /**
-     * Adjust the supplied {@link Calendar} object such that the calendar will be
+     * Adjust the supplied {@link ZonedDateTime} object such that the calendar will be
      * at "midnight" (12:00am) at the start of the day specified by the current
      * calendar date and locale. Note that we take the GTFS convention of
      * calculating midnight by setting the target date to noon (12:00pm) for the
@@ -262,15 +260,14 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      *
      * @param c the target calendar, already to some time on the target date
      */
-    public static void moveCalendarToServiceDate(Calendar c) {
+    public static ZonedDateTime moveCalendarToServiceDate(ZonedDateTime c) {
         // Initial set time to noon
-        c.set(Calendar.HOUR_OF_DAY, 12);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
+        c = c.withHour(12);
+        c = c.withMinute(0);
+        c = c.withSecond(0);
 
         // Subtract 12 hours. Usually takes you to midnight, except on DST days
-        c.add(Calendar.HOUR_OF_DAY, -12);
+        return c.minusHours(12);
     }
 
     /****

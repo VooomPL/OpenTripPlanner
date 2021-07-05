@@ -13,6 +13,9 @@ import org.opentripplanner.model.CalendarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -47,7 +50,8 @@ public class CalendarServiceDataFactoryImpl {
 
     public static CalendarServiceData createCalendarSrvDataWithoutDatesForLocalizedSrvId(OtpTransitService transitService) {
         return (new CalendarServiceDataFactoryImpl(transitService) {
-            @Override void addDatesForLocalizedServiceId(
+            @Override
+            void addDatesForLocalizedServiceId(
                     FeedScopedId serviceId, List<ServiceDate> serviceDates, CalendarServiceData data
             ) {
                 // Skip creation of datesForLocalizedServiceId
@@ -94,7 +98,7 @@ public class CalendarServiceDataFactoryImpl {
         return data;
     }
 
-    void addDatesForLocalizedServiceId (
+    void addDatesForLocalizedServiceId(
             FeedScopedId serviceId, List<ServiceDate> serviceDates, CalendarServiceData data) {
         List<String> tripAgencyIds = transitService.getTripAgencyIdsReferencingServiceId(serviceId);
         Set<TimeZone> timeZones = new HashSet<>();
@@ -105,9 +109,9 @@ public class CalendarServiceDataFactoryImpl {
 
         for (TimeZone timeZone : timeZones) {
 
-            List<Date> dates = new ArrayList<>(serviceDates.size());
+            List<Instant> dates = new ArrayList<>(serviceDates.size());
             for (ServiceDate serviceDate : serviceDates)
-                dates.add(serviceDate.getAsDate(timeZone));
+                dates.add(serviceDate.getAsInstant(timeZone));
 
             LocalizedServiceId id = new LocalizedServiceId(serviceId, timeZone);
             data.putDatesForLocalizedServiceId(id, dates);
@@ -115,7 +119,7 @@ public class CalendarServiceDataFactoryImpl {
     }
 
     private Set<ServiceDate> getServiceDatesForServiceId(FeedScopedId serviceId,
-            TimeZone serviceIdTimeZone) {
+                                                         TimeZone serviceIdTimeZone) {
         Set<ServiceDate> activeDates = new HashSet<>();
         ServiceCalendar c = transitService.getCalendarForServiceId(serviceId);
 
@@ -140,73 +144,68 @@ public class CalendarServiceDataFactoryImpl {
     }
 
     private void addDatesFromCalendar(ServiceCalendar calendar, TimeZone timeZone,
-            Set<ServiceDate> activeDates) {
+                                      Set<ServiceDate> activeDates) {
 
         // We calculate service dates relative to noon so as to avoid any weirdness
         // relative to DST.
-        Date startDate = getServiceDateAsNoon(calendar.getStartDate(), timeZone);
-        Date endDate = getServiceDateAsNoon(calendar.getEndDate(), timeZone);
+        Instant startDate = getServiceDateAsNoon(calendar.getStartDate(), timeZone);
+        Instant endDate = getServiceDateAsNoon(calendar.getEndDate(), timeZone);
 
-        java.util.Calendar c = java.util.Calendar.getInstance(timeZone);
-        c.setTime(startDate);
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(startDate, timeZone.toZoneId());
 
         while (true) {
-            Date date = c.getTime();
-            if (date.after(endDate))
+            Instant date = zonedDateTime.toInstant();
+            if (date.isAfter(endDate))
                 break;
 
-            int day = c.get(java.util.Calendar.DAY_OF_WEEK);
+            DayOfWeek day = zonedDateTime.getDayOfWeek();
             boolean active = false;
 
             switch (day) {
-            case java.util.Calendar.MONDAY:
-                active = calendar.getMonday() == 1;
-                break;
-            case java.util.Calendar.TUESDAY:
-                active = calendar.getTuesday() == 1;
-                break;
-            case java.util.Calendar.WEDNESDAY:
-                active = calendar.getWednesday() == 1;
-                break;
-            case java.util.Calendar.THURSDAY:
-                active = calendar.getThursday() == 1;
-                break;
-            case java.util.Calendar.FRIDAY:
-                active = calendar.getFriday() == 1;
-                break;
-            case java.util.Calendar.SATURDAY:
-                active = calendar.getSaturday() == 1;
-                break;
-            case java.util.Calendar.SUNDAY:
-                active = calendar.getSunday() == 1;
-                break;
+                case MONDAY:
+                    active = calendar.getMonday() == 1;
+                    break;
+                case TUESDAY:
+                    active = calendar.getTuesday() == 1;
+                    break;
+                case WEDNESDAY:
+                    active = calendar.getWednesday() == 1;
+                    break;
+                case THURSDAY:
+                    active = calendar.getThursday() == 1;
+                    break;
+                case FRIDAY:
+                    active = calendar.getFriday() == 1;
+                    break;
+                case SATURDAY:
+                    active = calendar.getSaturday() == 1;
+                    break;
+                case SUNDAY:
+                    active = calendar.getSunday() == 1;
+                    break;
             }
 
             if (active) {
-                addServiceDate(activeDates, new ServiceDate(c));
+                addServiceDate(activeDates, new ServiceDate(zonedDateTime));
             }
 
-            c.add(java.util.Calendar.DAY_OF_YEAR, 1);
+            zonedDateTime = zonedDateTime.plusDays(1);
         }
     }
 
     private void addAndRemoveDatesFromCalendarDate(ServiceCalendarDate calendarDate,
-            Set<ServiceDate> activeDates) {
+                                                   Set<ServiceDate> activeDates) {
         ServiceDate serviceDate = calendarDate.getDate();
-        Date targetDate = calendarDate.getDate().getAsDate();
-        Calendar c = Calendar.getInstance();
-        c.setTime(targetDate);
-
         switch (calendarDate.getExceptionType()) {
-        case ServiceCalendarDate.EXCEPTION_TYPE_ADD:
-            addServiceDate(activeDates, serviceDate);
-            break;
-        case ServiceCalendarDate.EXCEPTION_TYPE_REMOVE:
-            activeDates.remove(serviceDate);
-            break;
-        default:
-            LOG.warn("unknown CalendarDate exception type: " + calendarDate.getExceptionType());
-            break;
+            case ServiceCalendarDate.EXCEPTION_TYPE_ADD:
+                addServiceDate(activeDates, serviceDate);
+                break;
+            case ServiceCalendarDate.EXCEPTION_TYPE_REMOVE:
+                activeDates.remove(serviceDate);
+                break;
+            default:
+                LOG.warn("unknown CalendarDate exception type: " + calendarDate.getExceptionType());
+                break;
         }
     }
 
@@ -214,9 +213,8 @@ public class CalendarServiceDataFactoryImpl {
         activeDates.add(new ServiceDate(serviceDate));
     }
 
-    private static Date getServiceDateAsNoon(ServiceDate serviceDate, TimeZone timeZone) {
-        Calendar c = serviceDate.getAsCalendar(timeZone);
-        c.add(Calendar.HOUR_OF_DAY, 12);
-        return c.getTime();
+    private static Instant getServiceDateAsNoon(ServiceDate serviceDate, TimeZone timeZone) {
+        ZonedDateTime c = serviceDate.getAsZonedDateTime(timeZone);
+        return c.plusHours(12).toInstant();
     }
 }

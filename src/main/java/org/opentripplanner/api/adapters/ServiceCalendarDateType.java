@@ -30,7 +30,7 @@ public class ServiceCalendarDateType {
 
     public ServiceCalendarDateType(ServiceCalendarDate arg) {
         this.serviceId = arg.getServiceId();
-        this.date = arg.getDate().getAsDate().getTime();
+        this.date = arg.getDate().getAsInstant().toEpochMilli();
         this.exceptionType = arg.getExceptionType();
         switch (this.exceptionType) {
         case 1:

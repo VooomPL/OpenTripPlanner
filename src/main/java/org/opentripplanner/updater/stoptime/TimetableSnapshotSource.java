@@ -1,6 +1,7 @@
 package org.opentripplanner.updater.stoptime;
 
 import java.text.ParseException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
@@ -618,8 +619,8 @@ public class TimetableSnapshotSource {
                 "number of stop should match the number of stop time updates");
 
         // Calculate seconds since epoch on GTFS midnight (noon minus 12h) of service date
-        final Calendar serviceCalendar = serviceDate.getAsCalendar(timeZone);
-        final long midnightSecondsSinceEpoch = serviceCalendar.getTimeInMillis() / MILLIS_PER_SECOND;
+        final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(timeZone);
+        final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
         // Create StopTimes
         final List<StopTime> stopTimes = new ArrayList<>(tripUpdate.getStopTimeUpdateCount());

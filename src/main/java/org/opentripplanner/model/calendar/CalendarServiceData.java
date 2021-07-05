@@ -4,6 +4,7 @@ package org.opentripplanner.model.calendar;
 import org.opentripplanner.model.FeedScopedId;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -18,13 +19,13 @@ public class CalendarServiceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<String, TimeZone> timeZonesByAgencyId = new HashMap<>();
+    private final Map<String, TimeZone> timeZonesByAgencyId = new HashMap<>();
 
-    private Map<FeedScopedId, List<ServiceDate>> serviceDatesByServiceId = new HashMap<>();
+    private final Map<FeedScopedId, List<ServiceDate>> serviceDatesByServiceId = new HashMap<>();
 
-    private Map<LocalizedServiceId, List<Date>> datesByLocalizedServiceId = new HashMap<>();
+    private final Map<LocalizedServiceId, List<Instant>> datesByLocalizedServiceId = new HashMap<>();
 
-    private Map<ServiceDate, Set<FeedScopedId>> serviceIdsByDate = new HashMap<>();
+    private final Map<ServiceDate, Set<FeedScopedId>> serviceIdsByDate = new HashMap<>();
 
     /**
      * @param agencyId
@@ -73,11 +74,11 @@ public class CalendarServiceData implements Serializable {
         }
     }
 
-    public List<Date> getDatesForLocalizedServiceId(LocalizedServiceId serviceId) {
+    public List<Instant> getDatesForLocalizedServiceId(LocalizedServiceId serviceId) {
         return datesByLocalizedServiceId.get(serviceId);
     }
 
-    public void putDatesForLocalizedServiceId(LocalizedServiceId serviceId, List<Date> dates) {
+    public void putDatesForLocalizedServiceId(LocalizedServiceId serviceId, List<Instant> dates) {
         dates = Collections.unmodifiableList(new ArrayList<>(dates));
         datesByLocalizedServiceId.put(serviceId, dates);
     }
