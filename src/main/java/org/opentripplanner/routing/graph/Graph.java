@@ -307,8 +307,13 @@ public class Graph implements Serializable {
     @Getter
     private Set<TransitTicket> availableTransitTickets = new HashSet<>();
 
+    /*
+     * Value indicates the number of mapped vehicles for each snapshot. This allows to detect situation
+     * when there is no point in using a snapshot when planning itineraries due to the fact that it was
+     * not available in the historical dataset.
+     */
     @Getter
-    private final Set<SharedVehiclesSnapshotLabel> supportedSnapshotLabels = new HashSet<>();
+    private final Map<SharedVehiclesSnapshotLabel, Integer> supportedSnapshotLabels = new HashMap<>();
 
     /**
      * Stores initialization status of graph. E. g. If router updaters have run successfully at least once
@@ -652,7 +657,7 @@ public class Graph implements Serializable {
 
     /**
      * Find the total number of edges in this Graph. There are assumed to be no Edges in an incoming edge list that are not in an outgoing edge list.
-     * 
+     *
      * @return number of outgoing edges in the graph
      */
     public int countEdges() {
@@ -672,13 +677,13 @@ public class Graph implements Serializable {
             this.edgeById.put(e.getId(), e);
         }
     }
-    
+
     /**
      * Rebuilds any indices on the basis of current vertex and edge IDs.
-     * 
+     *
      * If you want the index to be accurate, you must run this every time the 
      * vertex or edge set changes.
-     * 
+     *
      * TODO(flamholz): keep the indices up to date with changes to the graph.
      * This is not simple because the Vertex constructor may add itself to the graph
      * before the Vertex has any edges, so updating indices on addVertex is insufficient.
@@ -712,7 +717,7 @@ public class Graph implements Serializable {
      * Add a graph builder annotation to this graph's list of graph builder annotations. The return value of this method is the annotation's message,
      * which allows for a single-line idiom that creates, registers, and logs a new graph builder annotation:
      * log.warning(graph.addBuilderAnnotation(new SomeKindOfAnnotation(param1, param2)));
-     * 
+     *
      * If the graphBuilderAnnotations field of this graph is null, the annotation is not actually saved, but the message is still returned. This
      * allows annotation registration to be turned off, saving memory and disk space when the user is not interested in annotations.
      */
@@ -772,7 +777,7 @@ public class Graph implements Serializable {
             flexIndex.init(this);
         }
     }
-    
+
     public static Graph load(InputStream in) {
         // TODO store version information, halt load if versions mismatch
         Input input = new Input(in);
@@ -808,7 +813,7 @@ public class Graph implements Serializable {
     /**
      * Compares the OTP version number stored in the graph with that of the currently running instance. Logs warnings explaining that mismatched
      * versions can cause problems.
-     * 
+     *
      * @return false if Maven versions match (even if commit ids do not match), true if Maven version of graph does not match this version of OTP or
      *         graphs are otherwise obviously incompatible.
      */
@@ -1220,7 +1225,7 @@ public class Graph implements Serializable {
         if(this.sampleFactory == null)
             this.sampleFactory = new SampleFactory(this);
 
-        return this.sampleFactory;	
+        return this.sampleFactory;
     }
 
     /**
