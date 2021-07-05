@@ -1,5 +1,6 @@
 package org.opentripplanner.analyst.batch;
 
+import java.time.Instant;
 import java.util.TimeZone;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -45,9 +46,7 @@ public class BatchProcessor {
      */
     private int nThreads = Runtime.getRuntime().availableProcessors(); 
 
-    private String date = "2011-02-04";
-    private String time = "08:00 AM";
-    private TimeZone timeZone = TimeZone.getDefault();
+    private Instant timestamp = Instant.ofEpochSecond(1296802800);
     private String outputPath = "/tmp/analystOutput";
     private float checkpointIntervalMinutes = -1;
     
@@ -174,7 +173,7 @@ public class BatchProcessor {
     
     private RoutingRequest buildRequest(Individual i) {
         RoutingRequest req = prototypeRoutingRequest.clone();
-        req.setDateTime(date, time, timeZone);
+        req.setDateTime(timestamp);
         if (searchCutoffSeconds > 0) {
             req.worstTime = req.dateTime + (req.arriveBy ? -searchCutoffSeconds : searchCutoffSeconds);
         }

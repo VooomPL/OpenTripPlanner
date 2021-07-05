@@ -24,8 +24,7 @@ public class GtfsRealTimeIT extends IntegrationTest {
                 .queryParam("mode", "WALK,TRANSIT")
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("time", "4:30pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595428200000") // 2020-07-22 16:30:00
                 .queryParam("numItineraries", "1")
                 .queryParam("ignoreRealtimeUpdates", "true")
                 .request().get();
@@ -37,8 +36,7 @@ public class GtfsRealTimeIT extends IntegrationTest {
                 .queryParam("mode", "WALK,TRANSIT")
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("time", "4:30pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595428200000") // 2020-07-22 16:30:00
                 .queryParam("numItineraries", "1")
                 .queryParam("ignoreRealtimeUpdates", "false")
                 .request().get();

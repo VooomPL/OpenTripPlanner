@@ -22,6 +22,7 @@ public class MultipleItinerariesIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "true")
+                .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                 .request().get();
 
         Response body = response.readEntity(Response.class);

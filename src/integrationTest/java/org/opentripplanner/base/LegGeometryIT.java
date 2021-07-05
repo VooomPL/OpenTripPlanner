@@ -30,8 +30,7 @@ public class LegGeometryIT extends IntegrationTest {
                     .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
                     .queryParam("startingMode", "WALK")
                     .queryParam("rentingAllowed", "true")
-                    .queryParam("time", "15:00:00")
-                    .queryParam("date", "07-22-2020")
+                    .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                     .request().get();
 
             Response body = response.readEntity(Response.class);
@@ -56,8 +55,7 @@ public class LegGeometryIT extends IntegrationTest {
                     .queryParam("mode", "WALK,BUS")
                     .queryParam("startingMode", "WALK")
                     .queryParam("rentingAllowed", "false")
-                    .queryParam("time", "15:43:35")
-                    .queryParam("date", "07-27-2020")
+                    .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                     .request().get();
 
             Response body = response.readEntity(Response.class);

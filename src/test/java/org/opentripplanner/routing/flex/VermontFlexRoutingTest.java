@@ -11,13 +11,12 @@ import org.opentripplanner.routing.impl.GraphPathFinder;
 import org.opentripplanner.routing.services.FareService;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.Router;
-import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +39,7 @@ public class VermontFlexRoutingTest {
     @Test
     public void testFlagStop() {
         RoutingRequest options = buildRequest("44.4214596,-72.019371", "44.4277732,-72.01203514",
-                "2018-05-23", "1:37pm");
+                "2018-05-23T13:37:00");
         GraphPath path = getPathToDestination(options);
         List<Ride> rides = Ride.createRides(path);
         assertEquals(1, rides.size());
@@ -56,7 +55,7 @@ public class VermontFlexRoutingTest {
     @Test
     public void testCallAndRide() {
         RoutingRequest options = buildRequest("44.38485134435363,-72.05881118774415", "44.422379116722084,-72.0198440551758",
-                "2018-05-23", "1:37pm");
+                "2018-05-23T13:37:00");
         GraphPath path = getPathToDestination(options);
         List<Ride> rides = Ride.createRides(path);
         assertEquals(1, rides.size());
@@ -71,46 +70,46 @@ public class VermontFlexRoutingTest {
         // arriveBy=false Check start time respected. If request is for before 1pm, we should get a trip starting at 1pm.
         path = getPathToDestination(
                 buildRequest("44.38485134435363,-72.05881118774415", "44.422379116722084,-72.0198440551758",
-                        "2018-05-23", "12:50pm")
+                        "2018-05-23T12:50:00")
         );
         rides = Ride.createRides(path);
         assertEquals(1, rides.size());
         ride = rides.get(0);
         assertEquals("7415", ride.getRoute().getId());
-        assertDateEquals(ride.getStartTime(), "2018-05-23", "1:00pm", graph.getTimeZone());
+        assertDateEquals(ride.getStartTime(), "2018-05-23T13:00:00");
 
         // arriveBy=false Check end time respected.
         path = getPathToDestination(
                 buildRequest("44.38485134435363,-72.05881118774415", "44.422379116722084,-72.0198440551758",
-                        "2018-05-23", "2:56pm")
+                        "2018-05-23T14:56:00")
         );
         rides = Ride.createRides(path);
         assertEquals(1, rides.size());
         ride = rides.get(0);
         assertEquals("7415", ride.getRoute().getId());
-        assertDateEquals(ride.getStartTime(), "2018-05-24", "1:00pm", graph.getTimeZone());
+        assertDateEquals(ride.getStartTime(), "2018-05-24T13:00:00");
 
         // arriveBy=true Check start time respected.
         path = getPathToDestination(
                 buildRequest("44.38485134435363,-72.05881118774415", "44.422379116722084,-72.0198440551758",
-                        "2018-05-24", "1:05pm", true)
+                        "2018-05-24T13:05:00", true)
         );
         rides = Ride.createRides(path);
         assertEquals(1, rides.size());
         ride = rides.get(0);
         assertEquals("7415", ride.getRoute().getId());
-        assertDateEquals(ride.getEndTime(), "2018-05-23", "3:00pm", graph.getTimeZone());
+        assertDateEquals(ride.getEndTime(), "2018-05-23T15:00:00");
 
         // arriveBy=true Check end time respected
         path = getPathToDestination(
                 buildRequest("44.38485134435363,-72.05881118774415", "44.422379116722084,-72.0198440551758",
-                        "2018-05-24", "3:05pm", true)
+                        "2018-05-24T15:05:00", true)
         );
         rides = Ride.createRides(path);
         assertEquals(1, rides.size());
         ride = rides.get(0);
         assertEquals("7415", ride.getRoute().getId());
-        assertDateEquals(ride.getEndTime(), "2018-05-24", "3:00pm", graph.getTimeZone());
+        assertDateEquals(ride.getEndTime(), "2018-05-24T15:00:00");
         options.rctx.destroy();
     }
 
@@ -118,7 +117,7 @@ public class VermontFlexRoutingTest {
     @Test
     public void testDeviatedFixedRoute() {
         RoutingRequest options = buildRequest("44.950950106914135,-72.20008850097658", "44.94985671536269,-72.13708877563478",
-                "2018-05-23", "4:00pm");
+                "2018-05-23T16:00:00");
         GraphPath path = getPathToDestination(options);
         List<Ride> rides = Ride.createRides(path);
         assertEquals(1, rides.size());
@@ -134,7 +133,7 @@ public class VermontFlexRoutingTest {
     @Test
     public void testFlagStopToRegularStopEndingInDeviatedFixedRoute() {
         RoutingRequest options = buildRequest("44.8091683,-72.20580269999999", "44.94985671536269,-72.13708877563478",
-                "2018-06-13", "9:30am");
+                "2018-06-13T09:30:00");
         GraphPath path = getPathToDestination(options);
         List<Ride> rides = Ride.createRides(path);
         assertEquals(2, rides.size());
@@ -162,7 +161,7 @@ public class VermontFlexRoutingTest {
             boolean success = true;
             LOG.info("Thread 1 starting");
             RoutingRequest options = buildRequest("44.4214596,-72.019371", "44.4277732,-72.01203514",
-                    "2018-05-23", "1:37pm");
+                    "2018-05-23T13:37:00");
             GraphPath path = getPathToDestination(options);
             thread1SetupComplete.set(true);
             List<Ride> rides = Ride.createRides(path);
@@ -180,14 +179,14 @@ public class VermontFlexRoutingTest {
 
         FutureTask<Boolean> task2 = new FutureTask<>(() -> {
             boolean success = true;
-            while(!thread1SetupComplete.get());
+            while (!thread1SetupComplete.get()) ;
             LOG.info("Thread 2 starting");
             RoutingRequest options = buildRequest("44.4214596,-72.019371", "44.4277732,-72.01203514",
-                    "2018-05-23", "1:37pm");
+                    "2018-05-23T13:37:00");
             // Don't make temporary edges
             AStar astar = new AStar();
             astar.getShortestPathTree(options);
-            GraphPath path = astar.getPathsToTarget().size()>0?astar.getPathsToTarget().get(0):null;
+            GraphPath path = astar.getPathsToTarget().size() > 0 ? astar.getPathsToTarget().get(0) : null;
             List<Ride> rides = Ride.createRides(path);
             // possibly no rides if just walking.
             if (!rides.isEmpty()) {
@@ -209,20 +208,20 @@ public class VermontFlexRoutingTest {
         assertTrue(task2.get());
     }
 
-    private RoutingRequest buildRequest(String from, String to, String date, String time) {
-        return buildRequest(from, to, date, time, false);
+    private RoutingRequest buildRequest(String from, String to, String datetime) {
+        return buildRequest(from, to, datetime, false);
     }
 
-    private RoutingRequest buildRequest(String from, String to, String date, String time, boolean arriveBy) {
-        return buildRequest(from, to, date, time, arriveBy, MAX_WALK_DISTANCE,
+    private RoutingRequest buildRequest(String from, String to, String datetime, boolean arriveBy) {
+        return buildRequest(from, to, datetime, arriveBy, MAX_WALK_DISTANCE,
                 CALL_AND_RIDE_RELUCTANCE, WALK_RELUCTANCE, WAIT_AT_BEGINNING_FACTOR,
                 TRANSFER_PENALTY, IGNORE_DRT_ADVANCE_MIN_BOOKING);
     }
 
-    private RoutingRequest buildRequest(String from, String to, String date, String time, boolean arriveBy,
-                                               int maxWalkDistance, double callAndRideReluctance, double walkReluctance,
-                                               double waitAtBeginningFactor, int transferPenalty,
-                                               boolean ignoreDrtAdvanceMinBooking) {
+    private RoutingRequest buildRequest(String from, String to, String datetime, boolean arriveBy,
+                                        int maxWalkDistance, double callAndRideReluctance, double walkReluctance,
+                                        double waitAtBeginningFactor, int transferPenalty,
+                                        boolean ignoreDrtAdvanceMinBooking) {
         RoutingRequest options = new RoutingRequest();
         options.setArriveBy(arriveBy);
         // defaults in vermont router-config.json
@@ -236,7 +235,7 @@ public class VermontFlexRoutingTest {
         // for testing
         options.flex.setIgnoreDrtAdvanceBookMin(ignoreDrtAdvanceMinBooking);
 
-        options.setDateTime(date, time, graph.getTimeZone());
+        options.setDateTime(LocalDateTime.parse(datetime).atZone(graph.getTimeZone().toZoneId()).toInstant());
         options.setFromString(from);
         options.setToString(to);
         options.setRoutingContext(graph);
@@ -258,7 +257,7 @@ public class VermontFlexRoutingTest {
         assertEquals("920", cost.getDetails(Fare.FareType.regular).iterator().next().fareId.getId());
     }
 
-    private void assertDateEquals(long timeSeconds, String date, String time, TimeZone timeZone) {
-        assertEquals(DateUtils.toDate(date, time, timeZone), new Date(timeSeconds * 1000));
+    private void assertDateEquals(long timeSeconds, String datetime) {
+        assertEquals(LocalDateTime.parse(datetime).atZone(graph.getTimeZone().toZoneId()).toInstant(), Instant.ofEpochSecond(timeSeconds));
     }
 }

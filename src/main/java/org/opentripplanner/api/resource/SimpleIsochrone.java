@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -167,11 +168,11 @@ public class SimpleIsochrone extends RoutingResource {
         
         /* Make one request every M minutes over H hours */
         int nRequests = (requestTimespanHours * 60) / requestSpacingMinutes;
-        request.clampInitialWait = (requestSpacingMinutes * 60);
-        Date date = request.getDateTime();
+        request.clampInitialWait = (requestSpacingMinutes * 60L);
+        Instant date = request.getDateTime();
         MinMap<Vertex, Double> points = new MinMap<Vertex, Double>();
         for (int r = 0; r < nRequests; r++) {
-            request.dateTime = date.getTime() / 1000 + r * requestSpacingMinutes * 60;
+            request.dateTime = date.getEpochSecond() + (long) r * requestSpacingMinutes * 60;
             LOG.debug("date: {} {}", new Date(request.dateTime), request.dateTime);
             ShortestPathTree spt = sptService.getShortestPathTree(request, 10);
             /* This could even be a good use for a generic SPT merging function */

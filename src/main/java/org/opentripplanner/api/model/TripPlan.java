@@ -1,5 +1,7 @@
 package org.opentripplanner.api.model;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TripPlan {
 
-    /**  The time and date of travel */
-    public Date date = null;
+    /**  The time and date of travel as a timestamp with millis */
+    public Long date = null;
     
     /** The origin */
     public Place from = null;
@@ -26,7 +28,7 @@ public class TripPlan {
 
     public TripPlan() { }
 
-    public TripPlan(Place from, Place to, Date date) {
+    public TripPlan(Place from, Place to, long date) {
         this.from = from;
         this.to = to;
         this.date = date;

@@ -40,6 +40,7 @@ import org.opentripplanner.util.PolylineEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -80,7 +81,7 @@ public abstract class GraphPathToTripPlanConverter {
         from.orig = request.from.name;
         to.orig = request.to.name;
 
-        TripPlan plan = new TripPlan(from, to, request.getDateTime());
+        TripPlan plan = new TripPlan(from, to, request.getDateTimeMillis());
 
         // Convert GraphPaths to Itineraries, keeping track of the best non-transit (e.g. walk/bike-only) option time
         long bestNonTransitTime = Long.MAX_VALUE;

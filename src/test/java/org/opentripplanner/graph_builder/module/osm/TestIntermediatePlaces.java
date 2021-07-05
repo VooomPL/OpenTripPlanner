@@ -21,6 +21,7 @@ import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -131,7 +132,7 @@ public class TestIntermediatePlaces {
     private void handleRequest(GenericLocation from, GenericLocation to, GenericLocation[] via,
         String modes, boolean arriveBy) {
         RoutingRequest request = new RoutingRequest(modes);
-        request.setDateTime("2016-04-20", "13:00", timeZone);
+        request.setDateTime(ZonedDateTime.of(2016,4, 20, 13, 0, 0, 0 , timeZone.toZoneId()).toInstant());
         request.setArriveBy(arriveBy);
         request.from = from;
         request.to = to;
