@@ -6,8 +6,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.graph_builder.GraphBuilder;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.impl.GraphScanner;
@@ -19,9 +23,14 @@ import org.opentripplanner.visualizer.GraphVisualizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This is the main entry point to OpenTripPlanner. It allows both building graphs and starting up an OTP server
@@ -93,6 +102,34 @@ public class OTPMain {
         // FIXME eventually router IDs will be present even when just building a graph.
         if ((params.routerIds != null && params.routerIds.size() > 0) || params.autoScan) {
             registerRouters(params, graphService);
+        }
+
+        try {
+            /*
+
+                if (speed < 6.) return 20;
+                if (speed < 8.5) return 30;
+                if (speed < 11.5) return 40;
+                if (speed < 14.) return 50;
+                if (speed < 17.) return 60;
+                if (speed < 20.5) return 70;
+                if (speed < 22.5) return 80;
+                if (speed < 25.5) return 90;
+                if (speed < 28.) return 100;
+                if (speed < 33.5) return 120;
+             */
+            GeoJsonWriter writer = new GeoJsonWriter();
+            List<String> strings = graphService.getRouter().graph.getStreetEdges().stream()
+                    .filter(edge -> edge.canTraverse(new TraverseModeSet(TraverseMode.CAR)))
+                    .filter(edge -> edge.getMaxStreetTraverseSpeed() > 11.5)
+                    .map(StreetEdge::getGeometry)
+                    .map(writer::write)
+                    .collect(Collectors.toList());
+            BufferedWriter aaa = new BufferedWriter(new FileWriter("car_streets.json"));
+            aaa.write(strings.toString());
+            aaa.close();
+        } catch (IOException e) {
+            // pass
         }
 
         if (params.visualize) {
@@ -170,7 +207,7 @@ public class OTPMain {
                 grizzlyServer.run();
                 return;
             } catch (Throwable throwable) {
-                LOG.error("An uncaught {} occurred inside OTP. Restarting server.",
+                LOG.error("An uncaught {} occurred contains OTP. Restarting server.",
                         throwable.getClass().getSimpleName(), throwable);
             }
         }
