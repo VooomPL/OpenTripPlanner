@@ -21,11 +21,15 @@ public class ConnectionMatrixHeuristicData implements Serializable {
     @Getter(AccessLevel.PACKAGE)
     private final Boundaries boundaries;
 
+    @Getter(AccessLevel.PACKAGE)
+    private final float initialWeight;
+
     public ConnectionMatrixHeuristicData(SerializedConnectionMatrixHeuristicData data) {
         this.data = data.getDirectionData().stream().collect(toMap(
                 ConnectionMatrixHeuristicDirectionData::getDirection,
                 ConnectionMatrixHeuristicDirectionData::getDataAsArray));
         boundaries = Boundaries.from(data);
+        initialWeight = data.getInitialWeight();
         int width = boundaries.getWidth();
         int height = boundaries.getHeight();
         for (Float[][] array : this.data.values()) {

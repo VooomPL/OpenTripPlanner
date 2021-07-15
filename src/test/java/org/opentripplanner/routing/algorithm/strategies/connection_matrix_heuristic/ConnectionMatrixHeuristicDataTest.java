@@ -2,13 +2,7 @@ package org.opentripplanner.routing.algorithm.strategies.connection_matrix_heuri
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.ConnectionMatrixHeuristicDirectionData;
-import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.SerializedConnectionMatrixHeuristicData;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -18,27 +12,7 @@ public class ConnectionMatrixHeuristicDataTest {
 
     @Before
     public void setUp() {
-        SerializedConnectionMatrixHeuristicData serializedData = new SerializedConnectionMatrixHeuristicData();
-        serializedData.setLatMin(0.0);
-        serializedData.setLatMax(3.0);
-        serializedData.setLonMin(10.0);
-        serializedData.setLonMax(15.0);
-        serializedData.setHeight(3);
-        serializedData.setWidth(5);
-        List<List<Float>> matrix = List.of(
-                List.of(0.f, 1.f, 2.f, 3.f, 4.f),
-                List.of(5.f, 6.f, 7.f, 8.f, 9.f),
-                List.of(10.f, 11.f, 12.f, 13.f, 14.f)
-        );
-        serializedData.setDirectionData(Arrays.stream(Direction.values())
-                .map(direction -> {
-                    ConnectionMatrixHeuristicDirectionData data = new ConnectionMatrixHeuristicDirectionData();
-                    data.setDirection(direction);
-                    data.setData(matrix);
-                    return data;
-                })
-                .collect(toList()));
-        data = new ConnectionMatrixHeuristicData(serializedData);
+        data = ConnectionMatrixHeuristicDataHelper.createData();
     }
 
     @Test

@@ -13,8 +13,6 @@ import java.util.Queue;
 // TODO VMP-250 finish implementation, add tests
 public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
 
-    private static final float INITIAL_WEIGHT = 180.0f; // TODO read from data
-
     private final RemainingWeightHeuristic fallback = new SimpleEuclideanRWH();
 
     private ConnectionMatrixHeuristicData data;
@@ -42,7 +40,7 @@ public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
         if (!data.getBoundaries().contains(source) || !data.getBoundaries().contains(destination)) {
             return fallback.estimateRemainingWeight(s);
         }
-        queue.add(new PointWithWeight(data.mapToPoint(s.getVertex()), INITIAL_WEIGHT));
+        queue.add(new PointWithWeight(source, data.getInitialWeight()));
 
         while (!queue.isEmpty()) {
             Optional<Float> maybeWeight = iterate();
