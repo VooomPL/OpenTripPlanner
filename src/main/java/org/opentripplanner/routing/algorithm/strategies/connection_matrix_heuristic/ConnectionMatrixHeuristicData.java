@@ -2,7 +2,6 @@ package org.opentripplanner.routing.algorithm.strategies.connection_matrix_heuri
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.ConnectionMatrixHeuristicDirectionData;
 import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.SerializedConnectionMatrixHeuristicData;
 import org.opentripplanner.routing.graph.Vertex;
@@ -24,12 +23,15 @@ public class ConnectionMatrixHeuristicData implements Serializable {
     @Getter(AccessLevel.PACKAGE)
     private final float initialWeight;
 
+    private final float maxSpeed;
+
     public ConnectionMatrixHeuristicData(SerializedConnectionMatrixHeuristicData data) {
         this.data = data.getDirectionData().stream().collect(toMap(
                 ConnectionMatrixHeuristicDirectionData::getDirection,
                 ConnectionMatrixHeuristicDirectionData::getDataAsArray));
         boundaries = Boundaries.from(data);
         initialWeight = data.getInitialWeight();
+        maxSpeed = data.getMaxSpeed();
         int width = boundaries.getWidth();
         int height = boundaries.getHeight();
         for (Float[][] array : this.data.values()) {
@@ -50,11 +52,11 @@ public class ConnectionMatrixHeuristicData implements Serializable {
         return boundaries.createPointFrom(v.getLat(), v.getLon());
     }
 
-    Point mapToPoint(GenericLocation location) {
-        return boundaries.createPointFrom(location.lat, location.lng);
-    }
-
     float getCost(Point from, Direction direction) {
         return data.get(direction)[from.getI()][from.getJ()];
+    }
+
+    float getEuclideanEstimateCost(Point from, double toLat, double toLon) {
+        return boundaries.distance(from, toLat, toLon) / maxSpeed;
     }
 }

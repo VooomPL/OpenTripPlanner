@@ -5,6 +5,8 @@ import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.Seri
 
 import java.io.Serializable;
 
+import static org.opentripplanner.common.geometry.SphericalDistanceLibrary.fastDistance;
+
 class Boundaries implements Serializable {
 
     private final double latMin, latMax, lonMin, lonMax;
@@ -39,5 +41,11 @@ class Boundaries implements Serializable {
 
     boolean contains(Point point) {
         return point.getI() >= 0 && point.getI() < height && point.getJ() >= 0 && point.getJ() < width;
+    }
+
+    float distance(Point from, double toLat, double toLon) {
+        double fromLat = latMin + (height - from.getI() - 1) * cellHeight + cellHeight / 2;
+        double fromLon = lonMin + from.getJ() * cellWidth + cellWidth / 2;
+        return (float) fastDistance(fromLat, fromLon, toLat, toLon);
     }
 }

@@ -2,7 +2,6 @@ package org.opentripplanner.routing.algorithm.strategies.connection_matrix_heuri
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -26,8 +25,7 @@ public class ConnectionMatrixRWHTest {
         graph.streetIndex = new StreetVertexIndexServiceImpl(graph);
         graph.connectionMatrixHeuristicData = ConnectionMatrixHeuristicDataHelper.createData();
         RoutingRequest request = new RoutingRequest();
-        request.to = new GenericLocation(0.5, 10.5);
-        request.rctx = new RoutingContext(request, graph);
+        request.rctx = new RoutingContext(request, graph, null, new IntersectionVertex(graph, "label", 20.000105, 50.0005));
         heuristic = new ConnectionMatrixRWH();
         heuristic.initialize(request, Long.MAX_VALUE);
     }
@@ -36,9 +34,9 @@ public class ConnectionMatrixRWHTest {
     public void shouldEstimateRemainingWeight() {
         // given
         State state = mock(State.class);
-        when(state.getVertex()).thenReturn(new IntersectionVertex(graph, "label", 14.5, 2.5));
+        when(state.getVertex()).thenReturn(new IntersectionVertex(graph, "label", 20.000145, 50.0025));
 
         // then
-        assertEquals(15.0, heuristic.estimateRemainingWeight(state), 0.0);
+        assertEquals(115.0, heuristic.estimateRemainingWeight(state), 0.0); // 100 + 1 + 2 + 3 + 4 + 5
     }
 }

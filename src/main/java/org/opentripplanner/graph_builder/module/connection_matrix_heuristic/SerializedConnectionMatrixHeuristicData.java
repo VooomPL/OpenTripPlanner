@@ -14,4 +14,6 @@ public class SerializedConnectionMatrixHeuristicData {
     private int width, height;
 
     private float initialWeight;
+
+    private float maxSpeed;
 }

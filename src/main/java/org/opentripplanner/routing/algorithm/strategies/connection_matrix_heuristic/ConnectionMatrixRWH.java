@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-// TODO VMP-250 finish implementation, add tests
 public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
 
     private final RemainingWeightHeuristic fallback = new SimpleEuclideanRWH();
@@ -23,13 +22,17 @@ public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
 
     private Point destination;
 
+    private double destLat, destLon;
+
     @Override
     public void initialize(RoutingRequest options, long abortTime) {
         fallback.initialize(options, abortTime);
         this.data = options.rctx.graph.connectionMatrixHeuristicData;
         visited = new boolean[data.getBoundaries().getHeight()][data.getBoundaries().getWidth()];
         queue = new PriorityQueue<>(data.getBoundaries().getHeight() * data.getBoundaries().getWidth());
-        destination = data.mapToPoint(options.to);
+        destination = data.mapToPoint(options.rctx.target);
+        destLat = options.rctx.target.getLat();
+        destLon = options.rctx.target.getLon();
     }
 
     @Override
@@ -40,7 +43,7 @@ public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
         if (!data.getBoundaries().contains(source) || !data.getBoundaries().contains(destination)) {
             return fallback.estimateRemainingWeight(s);
         }
-        queue.add(new PointWithWeight(source, data.getInitialWeight()));
+        queue.add(new PointWithWeight(source, data.getInitialWeight(), 0.f));
 
         while (!queue.isEmpty()) {
             Optional<Float> maybeWeight = iterate();
@@ -73,8 +76,11 @@ public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
     private void addNeighbors(PointWithWeight current) {
         data.getNeighbors(current.getPoint())
                 .filter(neighbor -> !visited[neighbor.getPoint().getI()][neighbor.getPoint().getJ()])
-                .map(neighbor -> new PointWithWeight(neighbor.getPoint(),
-                        current.getWeight() + data.getCost(current.getPoint(), neighbor.getDirection())))
+                .map(neighbor -> {
+                    float weight = current.getWeight() + data.getCost(current.getPoint(), neighbor.getDirection());
+                    float estimation = data.getEuclideanEstimateCost(neighbor.getPoint(), destLat, destLon);
+                    return new PointWithWeight(neighbor.getPoint(), weight, weight + estimation);
+                })
                 .filter(neighbor -> !Float.isNaN(neighbor.getWeight()))
                 .forEach(queue::add);
     }

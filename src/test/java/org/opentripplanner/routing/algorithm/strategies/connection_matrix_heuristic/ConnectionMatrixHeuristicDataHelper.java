@@ -12,12 +12,14 @@ public class ConnectionMatrixHeuristicDataHelper {
 
     public static ConnectionMatrixHeuristicData createData() {
         SerializedConnectionMatrixHeuristicData serializedData = new SerializedConnectionMatrixHeuristicData();
-        serializedData.setLatMin(0.0);
-        serializedData.setLatMax(3.0);
-        serializedData.setLonMin(10.0);
-        serializedData.setLonMax(15.0);
+        serializedData.setLatMin(50.0);
+        serializedData.setLatMax(50.003);
+        serializedData.setLonMin(20.0001);
+        serializedData.setLonMax(20.00015);
         serializedData.setHeight(3);
         serializedData.setWidth(5);
+        serializedData.setInitialWeight(100.f);
+        serializedData.setMaxSpeed(10000000);
         List<List<Float>> matrix = List.of(
                 List.of(0.f, 1.f, 2.f, 3.f, 4.f),
                 List.of(5.f, 6.f, 7.f, 8.f, 9.f),
