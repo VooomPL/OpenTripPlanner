@@ -13,12 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
 
 public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
 
@@ -127,18 +131,27 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
             snapshotOffsetsNode.iterator().forEachRemaining(offset -> {
                 try {
                     int offsetAsInt = Integer.parseInt(offset.asText());
-                    timesOfDay.forEach(timeOfDay ->
-                            graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(
-                                            currentDate.minusDays(offsetAsInt)
-                                                    .withHour(timeOfDay.getHour())
-                                                    .withMinute(timeOfDay.getMinute())
-                                                    .withSecond(0).withNano(0)),
-                                    -1));
+                    LocalDateTime snapshotDate = computeSnapshotDate(currentDate, offsetAsInt);
+                    timesOfDay.forEach(timeOfDay -> {
+                        graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(
+                                snapshotDate.withHour(timeOfDay.getHour())
+                                        .withMinute(timeOfDay.getMinute())
+                                        .withSecond(0).withNano(0)), -1);
+                    });
                 } catch (NumberFormatException e) {
                     LOG.error("Could not parse snapshot offset: {}", offset.asText());
                 }
             });
         }
+    }
+
+    private LocalDateTime computeSnapshotDate(LocalDateTime currentDate, int offset) {
+        LocalDateTime snapshotDate = currentDate.minusDays(offset);
+        DayOfWeek snapshotDayOfWeek = snapshotDate.getDayOfWeek();
+        if (snapshotDayOfWeek == SATURDAY || snapshotDayOfWeek == SUNDAY) {
+            return snapshotDate.minusDays(2);
+        }
+        return snapshotDate;
     }
 
     private List<LocalTime> getTimesOfDayFromConfig(JsonNode config) {
