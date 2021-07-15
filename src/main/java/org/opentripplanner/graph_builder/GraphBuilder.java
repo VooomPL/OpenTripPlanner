@@ -9,13 +9,13 @@ import org.opentripplanner.graph_builder.module.GtfsModule;
 import org.opentripplanner.graph_builder.module.PruneFloatingIslands;
 import org.opentripplanner.graph_builder.module.StreetLinkerModule;
 import org.opentripplanner.graph_builder.module.TransitToTaggedStopsModule;
+import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.ConnectionMatrixHeuristicGraphBuilderModule;
 import org.opentripplanner.graph_builder.module.map.BusRouteStreetMatcher;
 import org.opentripplanner.graph_builder.module.ned.DegreeGridNEDTileSource;
 import org.opentripplanner.graph_builder.module.ned.ElevationModule;
 import org.opentripplanner.graph_builder.module.ned.GeotiffGridCoverageFactoryImpl;
 import org.opentripplanner.graph_builder.module.ned.NEDGridCoverageFactoryImpl;
 import org.opentripplanner.graph_builder.module.osm.OpenStreetMapModule;
-import org.opentripplanner.graph_builder.module.street_heuristic.StreetHeuristicGraphBuilderModule;
 import org.opentripplanner.graph_builder.module.time.TrafficPredictionBuilderModule;
 import org.opentripplanner.graph_builder.module.transit.tickets.AvailableTicketsBuilderModule;
 import org.opentripplanner.graph_builder.module.vehicle_sharing.VehicleSharingBuilderModule;
@@ -208,7 +208,7 @@ public class GraphBuilder implements Runnable {
         JsonNode routerConfig = null;
         File demFile = null;
         File jsonFile = null;
-        File serializedStreetsFile = null;
+        File serializedConnectionMatrix = null;
         File transitTicketsFile = null;
         LOG.info("Searching for graph builder input files in {}", dir);
         if (!dir.isDirectory() && dir.canRead()) {
@@ -249,9 +249,9 @@ public class GraphBuilder implements Runnable {
                     LOG.info("Found JSON file {}", file);
                     jsonFile = file;
                     break;
-                case SERIALIZED_STREETS:
+                case SERIALIZER_CONNECTION_MATRIX:
                     LOG.info("Found serialized streets file {}", file);
-                    serializedStreetsFile = file;
+                    serializedConnectionMatrix = file;
                     break;
                 case TRANSIT_TICKETS:
                     LOG.info("Found transit ticket definitions {}", file);
@@ -366,8 +366,8 @@ public class GraphBuilder implements Runnable {
             graphBuilder.addModule(new TrafficPredictionBuilderModule(jsonFile));
         }
 
-        if (serializedStreetsFile != null) {
-            graphBuilder.addModule(new StreetHeuristicGraphBuilderModule(serializedStreetsFile));
+        if (serializedConnectionMatrix != null) {
+            graphBuilder.addModule(new ConnectionMatrixHeuristicGraphBuilderModule(serializedConnectionMatrix));
         }
 
         if (transitTicketsFile != null) {
@@ -395,7 +395,7 @@ public class GraphBuilder implements Runnable {
      * types are present. This helps point out when config files have been misnamed (builder-config vs. build-config).
      */
     private static enum InputFileType {
-        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, TRANSIT_TICKETS, OTHER, SERIALIZED_STREETS;
+        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, TRANSIT_TICKETS, OTHER, SERIALIZER_CONNECTION_MATRIX;
 
         public static InputFileType forFile(File file) {
             String name = file.getName();
@@ -414,7 +414,7 @@ public class GraphBuilder implements Runnable {
                 return DEM; // Digital elevation model (elevation raster)
             if (name.equals("Graph.obj")) return GRAPH;
             if (name.endsWith("db.json")) return JSON;
-            if (name.endsWith("serialized_streets.json")) return SERIALIZED_STREETS;
+            if (name.endsWith("connection_matrix.json")) return SERIALIZER_CONNECTION_MATRIX;
             if (name.equals("availableTickets.json")) return TRANSIT_TICKETS;
             if (name.equals(GraphBuilder.BUILDER_CONFIG_FILENAME) || name.equals(Router.ROUTER_CONFIG_FILENAME)) {
                 return CONFIG;

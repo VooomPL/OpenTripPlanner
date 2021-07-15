@@ -53,7 +53,7 @@ import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.pricing.transit.ticket.TransitTicket;
 import org.opentripplanner.profile.StopClusterMode;
 import org.opentripplanner.routing.alertpatch.AlertPatch;
-import org.opentripplanner.routing.algorithm.strategies.street_heuristic.StreetHeuristicData;
+import org.opentripplanner.routing.algorithm.strategies.connection_matrix_heuristic.ConnectionMatrixHeuristicData;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.MortonVertexComparatorFactory;
 import org.opentripplanner.routing.core.TransferTable;
@@ -354,7 +354,7 @@ public class Graph implements Serializable {
      */
     public RouterHealth routerHealth = new RouterHealth();
 
-    public StreetHeuristicData streetHeuristicData;
+    public ConnectionMatrixHeuristicData connectionMatrixHeuristicData;
 
     public Graph(Graph basedOn) {
         this();

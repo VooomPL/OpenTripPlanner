@@ -1,4 +1,4 @@
-package org.opentripplanner.routing.algorithm.strategies.street_heuristic;
+package org.opentripplanner.routing.algorithm.strategies.connection_matrix_heuristic;
 
 public enum Direction {
 
@@ -48,6 +48,6 @@ public enum Direction {
     }
 
     Point neighbor(Point point) {
-        return new Point(point.getX() + getSNOffset(), point.getY() + getEWOffset());
+        return new Point(point.getI() + getSNOffset(), point.getJ() + getEWOffset());
     }
 }

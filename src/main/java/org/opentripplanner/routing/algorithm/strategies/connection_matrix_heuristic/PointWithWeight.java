@@ -1,4 +1,4 @@
-package org.opentripplanner.routing.algorithm.strategies.street_heuristic;
+package org.opentripplanner.routing.algorithm.strategies.connection_matrix_heuristic;
 
 import lombok.Value;
 
