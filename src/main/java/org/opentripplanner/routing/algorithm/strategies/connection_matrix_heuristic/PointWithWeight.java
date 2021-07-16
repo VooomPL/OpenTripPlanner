@@ -7,10 +7,10 @@ class PointWithWeight implements Comparable<PointWithWeight> {
 
     Point point;
 
-    float weight, estimation;
+    float weight;
 
     @Override
     public int compareTo(PointWithWeight o) {
-        return Float.compare(estimation, o.estimation);
+        return Float.compare(weight, o.weight);
     }
 }
