@@ -6,81 +6,67 @@ import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
+public class ConnectionMatrixShortestPathTreeRWH implements RemainingWeightHeuristic {
 
     private final RemainingWeightHeuristic fallback = new SimpleEuclideanRWH();
 
     private ConnectionMatrixHeuristicData data;
 
+    private float[][] estimation;
+
     private boolean[][] visited;
 
-    private Queue<PointWithWeightAndEstimation> queue;
+    private Queue<PointWithWeight> queue;
 
     private Point destination;
-
-    private double destLat, destLon;
 
     @Override
     public void initialize(RoutingRequest options, long abortTime) {
         fallback.initialize(options, abortTime);
         this.data = options.rctx.graph.connectionMatrixHeuristicData;
-        visited = new boolean[data.getBoundaries().getHeight()][data.getBoundaries().getWidth()];
-        queue = new PriorityQueue<>(data.getBoundaries().getHeight() * data.getBoundaries().getWidth());
+        estimation = new float[data.getBoundaries().getHeight()][data.getBoundaries().getWidth()];
         destination = data.mapToPoint(options.rctx.target);
-        destLat = options.rctx.target.getLat();
-        destLon = options.rctx.target.getLon();
+        spt();
     }
 
     @Override
     public double estimateRemainingWeight(State s) {
-        clear();
-
         Point source = data.mapToPoint(s.getVertex());
         if (!data.getBoundaries().contains(source) || !data.getBoundaries().contains(destination)) {
             return fallback.estimateRemainingWeight(s);
         }
-        queue.add(new PointWithWeightAndEstimation(source, data.getInitialWeight(), 0.f));
+        return 0.;
+//        return estimation[source.getI()][source.getJ()];
+    }
+
+    private void spt() {
+        visited = new boolean[data.getBoundaries().getHeight()][data.getBoundaries().getWidth()];
+        Arrays.stream(visited).forEach(array -> Arrays.fill(array, false));
+        queue = new PriorityQueue<>(data.getBoundaries().getHeight() * data.getBoundaries().getWidth());
+        queue.add(new PointWithWeight(destination, data.getInitialWeight()));
 
         while (!queue.isEmpty()) {
-            Optional<Float> maybeWeight = iterate();
-            if (maybeWeight.isPresent()) {
-                return maybeWeight.get();
-            }
+            iterate();
         }
-
-        return fallback.estimateRemainingWeight(s);
     }
 
-    private void clear() {
-        Arrays.stream(visited).forEach(array -> Arrays.fill(array, false));
-        queue.clear();
-    }
-
-    private Optional<Float> iterate() {
-        PointWithWeightAndEstimation current = queue.poll();
-        if (current.getPoint().equals(destination)) {
-            return Optional.of(current.getWeight());
-        }
+    private void iterate() {
+        PointWithWeight current = queue.poll();
         if (visited[current.getPoint().getI()][current.getPoint().getJ()]) {
-            return Optional.empty();
+            return;
         }
         visited[current.getPoint().getI()][current.getPoint().getJ()] = true;
+        estimation[current.getPoint().getI()][current.getPoint().getJ()] = current.getPoint().equals(destination) ? 0.f : current.getWeight();
         addNeighbors(current);
-        return Optional.empty();
     }
 
-    private void addNeighbors(PointWithWeightAndEstimation current) {
+    private void addNeighbors(PointWithWeight current) {
         data.getNeighbors(current.getPoint())
                 .filter(neighbor -> !visited[neighbor.getPoint().getI()][neighbor.getPoint().getJ()])
-                .map(neighbor -> {
-                    float weight = current.getWeight() + data.getCost(current.getPoint(), neighbor.getDirection());
-                    float estimation = data.getEuclideanEstimateCost(neighbor.getPoint(), destLat, destLon);
-                    return new PointWithWeightAndEstimation(neighbor.getPoint(), weight, weight + estimation);
-                })
+                .map(neighbor -> new PointWithWeight(neighbor.getPoint(), current.getWeight() + data.getCost(current.getPoint(), neighbor.getDirection())))
                 .filter(neighbor -> !Float.isNaN(neighbor.getWeight()))
                 .forEach(queue::add);
     }
