@@ -24,7 +24,6 @@ import org.opentripplanner.standalone.Router;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.List;
 
 import static org.junit.Assert.*;

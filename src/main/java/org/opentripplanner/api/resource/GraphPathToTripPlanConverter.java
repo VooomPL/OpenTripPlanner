@@ -83,7 +83,7 @@ public abstract class GraphPathToTripPlanConverter {
         from.orig = request.from.name;
         to.orig = request.to.name;
 
-        TripPlan plan = new TripPlan(from, to, request.getDateTimeMillis());
+        TripPlan plan = new TripPlan(from, to, Instant.ofEpochMilli(request.getDateTimeMillis()));
 
         // Convert GraphPaths to Itineraries, keeping track of the best non-transit (e.g. walk/bike-only) option time
         long bestNonTransitTime = Long.MAX_VALUE;

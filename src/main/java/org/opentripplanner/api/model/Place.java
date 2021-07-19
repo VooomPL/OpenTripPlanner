@@ -1,15 +1,12 @@
 package org.opentripplanner.api.model;
 
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Objects;
-
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.util.Constants;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.opentripplanner.util.model.EncodedPolylineBean;
+
+import java.time.Instant;
+import java.util.Objects;
 
 /** 
 * A Place is where a journey starts or ends, or a transit stop along the way.

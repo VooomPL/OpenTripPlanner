@@ -6,10 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Clock;
 import java.time.Instant;
 
-/**
- * @author Frank Purcell (p u r c e l l f @ t r i m e t . o r g)
- * @date October 20, 2009
- */
 public class DateUtils {
 
     static Clock CLOCK = Clock.systemUTC();

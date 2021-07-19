@@ -7,8 +7,6 @@ import org.opentripplanner.util.DateUtils;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Routing request options: date/time, modes, max walk distance...

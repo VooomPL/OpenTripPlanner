@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 public class RoutingContextTest {
 
     @Test
-    public void testSetServiceDays() throws Exception {
+    public void testSetServiceDays() {
 
         String feedId = "FEED";
         String agencyId = "AGENCY";
