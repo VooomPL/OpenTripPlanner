@@ -1,13 +1,12 @@
 package org.opentripplanner.updater.stoptime;
 
 import java.text.ParseException;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.opentripplanner.model.Agency;
@@ -95,7 +94,7 @@ public class TimetableSnapshotSource {
 
     protected String tripIdPrefix = "";
 
-    private final TimeZone timeZone;
+    private final ZoneId zoneId;
 
     private final GraphIndex graphIndex;
 
@@ -104,7 +103,7 @@ public class TimetableSnapshotSource {
     public GtfsRealtimeFuzzyTripMatcher fuzzyTripMatcher;
 
     public TimetableSnapshotSource(final Graph graph) {
-        timeZone = graph.getTimeZone();
+        zoneId = graph.getZoneId();
         graphIndex = graph.index;
 
         // Create dummy agency for added trips
@@ -328,7 +327,7 @@ public class TimetableSnapshotSource {
 
         // Apply update on the *scheduled* time table and set the updated trip times in the buffer
         final TripTimes updatedTripTimes = pattern.scheduledTimetable.createUpdatedTripTimes(tripUpdate,
-                timeZone, serviceDate);
+                zoneId, serviceDate);
 
         if (updatedTripTimes == null) {
             return false;
@@ -619,7 +618,7 @@ public class TimetableSnapshotSource {
                 "number of stop should match the number of stop time updates");
 
         // Calculate seconds since epoch on GTFS midnight (noon minus 12h) of service date
-        final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(timeZone);
+        final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(zoneId);
         final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
         // Create StopTimes

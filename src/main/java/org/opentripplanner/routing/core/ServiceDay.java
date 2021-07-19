@@ -2,6 +2,7 @@ package org.opentripplanner.routing.core;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -34,26 +35,26 @@ public class ServiceDay implements Serializable {
      * serviceIds running on that day.
      */
     public ServiceDay(Graph graph, long time, CalendarService cs, String agencyId) {
-        TimeZone timeZone = cs.getTimeZoneForAgencyId(agencyId);
-        serviceDate = new ServiceDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), timeZone.toZoneId()));
+        ZoneId zoneId = cs.getTimeZoneForAgencyId(agencyId);
+        serviceDate = new ServiceDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), zoneId));
 
-        init(graph, cs, timeZone);
+        init(graph, cs, zoneId);
     }
 
     public ServiceDay(Graph graph, ServiceDate serviceDate, CalendarService cs, String agencyId) {
-        TimeZone timeZone = cs.getTimeZoneForAgencyId(agencyId);
+        ZoneId zoneId = cs.getTimeZoneForAgencyId(agencyId);
         this.serviceDate = new ServiceDate(serviceDate);
 
-        init(graph, cs, timeZone);
+        init(graph, cs, zoneId);
     }
 
-    public ServiceDay(Graph graph, ServiceDate serviceDate, CalendarService cs, TimeZone timeZone) {
+    public ServiceDay(Graph graph, ServiceDate serviceDate, CalendarService cs, ZoneId zoneId) {
         this.serviceDate = new ServiceDate(serviceDate);
-        init(graph, cs, timeZone);
+        init(graph, cs, zoneId);
     }
 
-    private void init(Graph graph, CalendarService cs, TimeZone timeZone) {
-        Instant d = serviceDate.getAsInstant(timeZone);
+    private void init(Graph graph, CalendarService cs, ZoneId zoneId) {
+        Instant d = serviceDate.getAsInstant(zoneId);
         this.midnight = d.getEpochSecond();
         serviceIdsRunning = new BitSet(cs.getServiceIds().size());
         

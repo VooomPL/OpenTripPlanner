@@ -235,7 +235,7 @@ public class VermontFlexRoutingTest {
         // for testing
         options.flex.setIgnoreDrtAdvanceBookMin(ignoreDrtAdvanceMinBooking);
 
-        options.setDateTime(LocalDateTime.parse(datetime).atZone(graph.getTimeZone().toZoneId()).toInstant());
+        options.setDateTime(LocalDateTime.parse(datetime).atZone(graph.getZoneId()).toInstant());
         options.setFromString(from);
         options.setToString(to);
         options.setRoutingContext(graph);
@@ -258,6 +258,6 @@ public class VermontFlexRoutingTest {
     }
 
     private void assertDateEquals(long timeSeconds, String datetime) {
-        assertEquals(LocalDateTime.parse(datetime).atZone(graph.getTimeZone().toZoneId()).toInstant(), Instant.ofEpochSecond(timeSeconds));
+        assertEquals(LocalDateTime.parse(datetime).atZone(graph.getZoneId()).toInstant(), Instant.ofEpochSecond(timeSeconds));
     }
 }

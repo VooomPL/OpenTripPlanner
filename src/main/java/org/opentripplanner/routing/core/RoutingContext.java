@@ -31,16 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 /**
  * A RoutingContext holds information needed to carry out a search for a particular TraverseOptions, on a specific graph.
@@ -371,7 +369,7 @@ public class RoutingContext implements Cloneable {
      * TraverseOptions already has a CalendarService set.
      */
     private void setServiceDays() {
-        final ServiceDate serviceDate = new ServiceDate(Instant.ofEpochSecond(opt.getSecondsSinceEpoch()).atZone(graph.getTimeZone().toZoneId()));
+        final ServiceDate serviceDate = new ServiceDate(Instant.ofEpochSecond(opt.getSecondsSinceEpoch()).atZone(graph.getZoneId()));
         this.serviceDays = new ArrayList<ServiceDay>(3);
         if (calendarService == null && graph.getCalendarService() != null
                 && (opt.modes == null || opt.modes.contains(TraverseMode.TRANSIT))) {
@@ -385,20 +383,20 @@ public class RoutingContext implements Cloneable {
         // can begin is 1 service day (e.g. a trip which started yesterday is usable today.) This
         // does not address the case where a trip started multiple days ago (e.g. a multi-day ferry
         // trip will not be board-able after day 2).
-        for (TimeZone timeZone : graph.getAllTimeZones()) {
+        for (ZoneId zoneId : graph.getAllTimeZones()) {
             // Add today
-            addIfNotExists(this.serviceDays, new ServiceDay(graph, serviceDate, calendarService, timeZone));
+            addIfNotExists(this.serviceDays, new ServiceDay(graph, serviceDate, calendarService, zoneId));
             // Add one day previous (previous in the direction of the transit search, so yesterday if
             // arriveBy=false and tomorrow if arriveBy=true
             addIfNotExists(this.serviceDays, new ServiceDay(graph,
                     opt.arriveBy ? serviceDate.next() : serviceDate.previous(),
-                    calendarService, timeZone));
+                    calendarService, zoneId));
             // Add one or more days in the "forward" direction
             ServiceDate sd = serviceDate;
             int lookout = Math.max(1, opt.serviceDayLookout);
             for (int i = 0; i < lookout; i++) {
                 sd = opt.arriveBy ? sd.previous() : sd.next();
-                addIfNotExists(this.serviceDays, new ServiceDay(graph, sd, calendarService, timeZone));
+                addIfNotExists(this.serviceDays, new ServiceDay(graph, sd, calendarService, zoneId));
             }
         }
         serviceDays.sort(Comparator.comparing(ServiceDay::getServiceDate));

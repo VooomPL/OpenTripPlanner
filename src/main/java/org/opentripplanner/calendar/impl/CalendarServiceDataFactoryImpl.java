@@ -10,11 +10,13 @@ import org.opentripplanner.model.calendar.LocalizedServiceId;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.model.CalendarService;
+import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -79,9 +81,9 @@ public class CalendarServiceDataFactoryImpl {
 
             LOG.debug("serviceId=" + serviceId + " (" + index + "/" + serviceIds.size() + ")");
 
-            TimeZone serviceIdTimeZone = data.getTimeZoneForAgencyId(serviceId.getAgencyId());
+            ZoneId serviceIdTimeZone = data.getTimeZoneForAgencyId(serviceId.getAgencyId());
             if (serviceIdTimeZone == null) {
-                serviceIdTimeZone = TimeZone.getDefault();
+                serviceIdTimeZone = DateUtils.getClock().getZone();
             }
 
             Set<ServiceDate> activeDates = getServiceDatesForServiceId(serviceId,
@@ -101,25 +103,25 @@ public class CalendarServiceDataFactoryImpl {
     void addDatesForLocalizedServiceId(
             FeedScopedId serviceId, List<ServiceDate> serviceDates, CalendarServiceData data) {
         List<String> tripAgencyIds = transitService.getTripAgencyIdsReferencingServiceId(serviceId);
-        Set<TimeZone> timeZones = new HashSet<>();
+        Set<ZoneId> timeZones = new HashSet<>();
         for (String tripAgencyId : tripAgencyIds) {
-            TimeZone timeZone = data.getTimeZoneForAgencyId(tripAgencyId);
+            ZoneId timeZone = data.getTimeZoneForAgencyId(tripAgencyId);
             timeZones.add(timeZone);
         }
 
-        for (TimeZone timeZone : timeZones) {
+        for (ZoneId zoneId : timeZones) {
 
             List<Instant> dates = new ArrayList<>(serviceDates.size());
             for (ServiceDate serviceDate : serviceDates)
-                dates.add(serviceDate.getAsInstant(timeZone));
+                dates.add(serviceDate.getAsInstant(zoneId));
 
-            LocalizedServiceId id = new LocalizedServiceId(serviceId, timeZone);
+            LocalizedServiceId id = new LocalizedServiceId(serviceId, zoneId);
             data.putDatesForLocalizedServiceId(id, dates);
         }
     }
 
     private Set<ServiceDate> getServiceDatesForServiceId(FeedScopedId serviceId,
-                                                         TimeZone serviceIdTimeZone) {
+                                                         ZoneId serviceIdTimeZone) {
         Set<ServiceDate> activeDates = new HashSet<>();
         ServiceCalendar c = transitService.getCalendarForServiceId(serviceId);
 
@@ -134,24 +136,23 @@ public class CalendarServiceDataFactoryImpl {
 
     private void setTimeZonesForAgencies(CalendarServiceData data) {
         for (Agency agency : transitService.getAllAgencies()) {
-            TimeZone timeZone = TimeZone.getTimeZone(agency.getTimezone());
-            if (timeZone.getID().equals("GMT") && !agency.getTimezone().toUpperCase()
-                    .equals("GMT")) {
+            ZoneId timeZone = ZoneId.of(agency.getTimezone());
+            if (timeZone.getId().equals("GMT") && !agency.getTimezone().equalsIgnoreCase("GMT")) {
                 throw new UnknownAgencyTimezoneException(agency.getName(), agency.getTimezone());
             }
             data.putTimeZoneForAgencyId(agency.getId(), timeZone);
         }
     }
 
-    private void addDatesFromCalendar(ServiceCalendar calendar, TimeZone timeZone,
+    private void addDatesFromCalendar(ServiceCalendar calendar, ZoneId zoneId,
                                       Set<ServiceDate> activeDates) {
 
         // We calculate service dates relative to noon so as to avoid any weirdness
         // relative to DST.
-        Instant startDate = getServiceDateAsNoon(calendar.getStartDate(), timeZone);
-        Instant endDate = getServiceDateAsNoon(calendar.getEndDate(), timeZone);
+        Instant startDate = getServiceDateAsNoon(calendar.getStartDate(), zoneId);
+        Instant endDate = getServiceDateAsNoon(calendar.getEndDate(), zoneId);
 
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(startDate, timeZone.toZoneId());
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(startDate, zoneId);
 
         while (true) {
             Instant date = zonedDateTime.toInstant();
@@ -213,8 +214,8 @@ public class CalendarServiceDataFactoryImpl {
         activeDates.add(new ServiceDate(serviceDate));
     }
 
-    private static Instant getServiceDateAsNoon(ServiceDate serviceDate, TimeZone timeZone) {
-        ZonedDateTime c = serviceDate.getAsZonedDateTime(timeZone);
+    private static Instant getServiceDateAsNoon(ServiceDate serviceDate, ZoneId zoneId) {
+        ZonedDateTime c = serviceDate.getAsZonedDateTime(zoneId);
         return c.plusHours(12).toInstant();
     }
 }

@@ -1,5 +1,6 @@
 package org.opentripplanner.api.model;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -49,12 +50,12 @@ public class Place {
     /**
      * The time the rider will arrive at the place.
      */
-    public Calendar arrival = null;
+    public ZonedDateTime arrival = null;
 
     /**
      * The time the rider will depart the place.
      */
-    public Calendar departure = null;
+    public ZonedDateTime departure = null;
 
     @JsonSerialize
     public String orig;
@@ -117,7 +118,7 @@ public class Place {
 	    this.vertexType = VertexType.NORMAL;
     }
 
-    public Place(Double lon, Double lat, String name, Calendar arrival, Calendar departure) {
+    public Place(Double lon, Double lat, String name, ZonedDateTime arrival, ZonedDateTime departure) {
         this(lon, lat, name);
         this.arrival = arrival;
         this.departure = departure;

@@ -7,8 +7,8 @@ import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.PatternArriveVertex;
 
+import java.time.ZoneId;
 import java.util.Collections;
-import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -33,13 +33,13 @@ public class RoutingContextTest {
         // But I know of no other way to do this since the mock object has only action-free stub methods.
         routingRequest.modes = new TraverseModeSet("WALK,TRANSIT");
 
-        when(graph.getTimeZone()).thenReturn(TimeZone.getTimeZone("Europe/Budapest"));
+        when(graph.getZoneId()).thenReturn(ZoneId.of("Europe/Budapest"));
         when(graph.getAllTimeZones()).thenReturn(Collections.singletonList(
-                TimeZone.getTimeZone("Europe/Budapest")));
+                ZoneId.of("Europe/Budapest")));
         when(graph.getCalendarService()).thenReturn(calendarService);
         when(graph.getFeedIds()).thenReturn(Collections.singletonList("FEED"));
         when(graph.getAgencies(feedId)).thenReturn(Collections.singletonList(agency));
-        when(calendarService.getTimeZoneForAgencyId(agencyId)).thenReturn(TimeZone.getTimeZone("Europe/Budapest"));
+        when(calendarService.getTimeZoneForAgencyId(agencyId)).thenReturn(ZoneId.of("Europe/Budapest"));
 
         when(routingRequest.getSecondsSinceEpoch())
             .thenReturn(

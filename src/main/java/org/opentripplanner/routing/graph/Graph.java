@@ -74,10 +74,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -166,7 +163,7 @@ public class Graph implements Serializable {
 
     private VertexComparatorFactory vertexComparatorFactory = new MortonVertexComparatorFactory();
 
-    private transient TimeZone timeZone = null;
+    private transient ZoneId zoneId = null;
 
     //Envelope of all OSM and transit vertices. Calculated during build time
     private WorldEnvelope envelope = null;
@@ -616,7 +613,7 @@ public class Graph implements Serializable {
             agencies.add(sid.getAgencyId());
             for (ServiceDate sd : data.getServiceDatesForServiceId(sid)) {
                 // Adjust for timezone, assuming there is only one per graph.
-                long t = sd.getAsInstant(getTimeZone()).getEpochSecond();
+                long t = sd.getAsInstant(getZoneId()).getEpochSecond();
                 if (t > now) {
                     agenciesWithFutureDates.add(sid.getAgencyId());
                 }
@@ -1094,18 +1091,18 @@ public class Graph implements Serializable {
      * geographic location where the origin/destination vertex or board/alight event is located. This may become necessary when we start making graphs
      * with long distance train, boat, or air services.
      */
-    public TimeZone getTimeZone() {
-        if (timeZone == null) {
-            timeZone = calculateTimeZone();
+    public ZoneId getZoneId() {
+        if (zoneId == null) {
+            zoneId = calculateTimeZone();
         }
-        return timeZone;
+        return zoneId;
     }
 
-    private TimeZone calculateTimeZone() {
-        List<TimeZone> timeZones = getAllTimeZones();
+    private ZoneId calculateTimeZone() {
+        List<ZoneId> timeZones = getAllTimeZones();
         if (timeZones.size() == 0) {
             LOG.warn("Graph contains no agencies (yet); API request times will be interpreted as GMT.");
-            return TimeZone.getTimeZone("GMT");
+            return DateUtils.getClock().getZone();
         } else if (timeZones.size() > 1) {
             LOG.error("More than one time zone for graph: {}", timeZones);
         }
@@ -1117,7 +1114,7 @@ public class Graph implements Serializable {
      *
      * @return collection of referenced timezones
      */
-    public List<TimeZone> getAllTimeZones() {
+    public List<ZoneId> getAllTimeZones() {
         CalendarService cs = getCalendarService();
         if (cs == null) {
             return emptyList();
@@ -1136,7 +1133,7 @@ public class Graph implements Serializable {
      * potential to change the time zone, you should call this to ensure it is reset.
      */
     public void clearTimeZone() {
-        this.timeZone = null;
+        this.zoneId = null;
     }
 
     public void summarizeBuilderAnnotations() {

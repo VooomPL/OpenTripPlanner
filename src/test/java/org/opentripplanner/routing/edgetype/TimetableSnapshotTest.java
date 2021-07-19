@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
 import java.io.File;
+import java.time.ZoneId;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class TimetableSnapshotTest {
     private static Graph graph;
     private static GtfsContext context;
     private static Map<FeedScopedId, TripPattern> patternIndex;
-    private static TimeZone timeZone = TimeZone.getTimeZone("GMT");
+    private static ZoneId zoneId = ZoneId.of("GMT");
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -73,7 +74,7 @@ public class TimetableSnapshotTest {
     
     private boolean updateResolver(TimetableSnapshot resolver, TripPattern pattern, TripUpdate tripUpdate, String feedId, ServiceDate serviceDate) {
         TripTimes updatedTripTimes = pattern.scheduledTimetable.createUpdatedTripTimes(tripUpdate,
-                timeZone, serviceDate);
+                zoneId, serviceDate);
         return resolver.update(feedId, pattern, updatedTripTimes, serviceDate);
     }
 

@@ -6,6 +6,7 @@ import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.CalendarService;
 
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public TimeZone getTimeZoneForAgencyId(String agencyId) {
+    public ZoneId getTimeZoneForAgencyId(String agencyId) {
         return data.getTimeZoneForAgencyId(agencyId);
     }
 

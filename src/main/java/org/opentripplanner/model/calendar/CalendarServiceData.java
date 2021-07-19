@@ -5,6 +5,7 @@ import org.opentripplanner.model.FeedScopedId;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -19,7 +20,7 @@ public class CalendarServiceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final Map<String, TimeZone> timeZonesByAgencyId = new HashMap<>();
+    private final Map<String, ZoneId> timeZonesByAgencyId = new HashMap<>();
 
     private final Map<FeedScopedId, List<ServiceDate>> serviceDatesByServiceId = new HashMap<>();
 
@@ -32,12 +33,12 @@ public class CalendarServiceData implements Serializable {
      * @return the time zone for the specified agencyId, or null if the agency was
      *         not found
      */
-    public TimeZone getTimeZoneForAgencyId(String agencyId) {
+    public ZoneId getTimeZoneForAgencyId(String agencyId) {
         return timeZonesByAgencyId.get(agencyId);
     }
 
-    public void putTimeZoneForAgencyId(String agencyId, TimeZone timeZone) {
-        timeZonesByAgencyId.put(agencyId, timeZone);
+    public void putTimeZoneForAgencyId(String agencyId, ZoneId zoneId) {
+        timeZonesByAgencyId.put(agencyId, zoneId);
     }
 
     public Set<FeedScopedId> getServiceIds() {

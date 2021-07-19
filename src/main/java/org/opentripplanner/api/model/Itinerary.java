@@ -8,6 +8,8 @@ import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.TraverseMode;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -24,11 +26,11 @@ public class Itinerary {
     /**
      * Time that the trip departs.
      */
-    public Calendar startTime = null;
+    public ZonedDateTime startTime = null;
     /**
      * Time that the trip arrives.
      */
-    public Calendar endTime = null;
+    public ZonedDateTime endTime = null;
 
     /**
      * How much time is spent walking, in seconds.
@@ -124,8 +126,8 @@ public class Itinerary {
     }
 
     public void fixupDates(CalendarServiceData service) {
-        TimeZone startTimeZone = null;
-        TimeZone timeZone = null;
+        ZoneId startTimeZone = null;
+        ZoneId timeZone = null;
         Iterator<Leg> it = legs.iterator();
         while (it.hasNext()) {
             Leg leg = it.next();
@@ -141,9 +143,7 @@ public class Itinerary {
             }
         }
         if (timeZone != null) {
-            Calendar calendar = Calendar.getInstance(startTimeZone);
-            calendar.setTime(startTime.getTime());
-            startTime = calendar;
+            startTime = startTime.withZoneSameInstant(startTimeZone);
             // go back and set timezone for legs prior to first transit
             it = legs.iterator();
             while (it.hasNext()) {
@@ -154,9 +154,7 @@ public class Itinerary {
                     break;
                 }
             }
-            calendar = Calendar.getInstance(timeZone);
-            calendar.setTime(endTime.getTime());
-            endTime = calendar;
+            endTime = endTime.withZoneSameInstant(timeZone);
         }
     }
 }

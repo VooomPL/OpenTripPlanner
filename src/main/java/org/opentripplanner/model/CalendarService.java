@@ -2,6 +2,7 @@ package org.opentripplanner.model;
 
 import org.opentripplanner.model.calendar.ServiceDate;
 
+import java.time.ZoneId;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -36,5 +37,5 @@ public interface CalendarService {
      * @return the time zone for the specified agency, or null if the agency was
      * not found
      */
-    TimeZone getTimeZoneForAgencyId(String agencyId);
+    ZoneId getTimeZoneForAgencyId(String agencyId);
 }

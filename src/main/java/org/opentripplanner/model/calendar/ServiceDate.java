@@ -4,12 +4,14 @@ package org.opentripplanner.model.calendar;
 import org.opentripplanner.model.ServiceCalendar;
 import org.opentripplanner.model.ServiceCalendarDate;
 import org.opentripplanner.model.StopTime;
+import org.opentripplanner.util.DateUtils;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +38,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
 
     private static final NumberFormat MONTH_AND_DAY_FORMAT = new DecimalFormat("00");
 
-    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+    private static final ZoneId UTC_TIME_ZONE = ZoneId.of("UTC");
 
     private final int year;
 
@@ -117,11 +119,11 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
     }
 
     /**
-     * @return calls {@link #getAsInstant(TimeZone)} with the default timezone for
+     * @return calls {@link #getAsInstant(ZoneId)} with the default timezone for
      *         this VM
      */
     public Instant getAsInstant() {
-        return getAsInstant(TimeZone.getDefault());
+        return getAsInstant(DateUtils.getClock().getZone());
     }
 
     /**
@@ -135,24 +137,24 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      * ensures correct calculation of {@link StopTime} arrival and departure time
      * when the second offset is added to the localized service date.
      *
-     * @param timeZone the target timezone to localize the service date to
+     * @param zoneId the target timezone to localize the service date to
      * @return a localized date at "midnight" at the start of this service date in
      *         the specified timezone
      */
-    public ZonedDateTime getAsZonedDateTime(TimeZone timeZone) {
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, timeZone.toZoneId());
+    public ZonedDateTime getAsZonedDateTime(ZoneId zoneId) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, zoneId);
         return moveCalendarToServiceDate(zonedDateTime);
     }
 
     /**
-     * See {@link #getAsZonedDateTime(TimeZone)} for more details.
+     * See {@link #getAsZonedDateTime(ZoneId)} for more details.
      *
-     * @param timeZone the target timezone to localize the service date to
+     * @param zoneId the target timezone to localize the service date to
      * @return a localized date at "midnight" at the start of this service date in
      *         the specified timezone
      */
-    public Instant getAsInstant(TimeZone timeZone) {
-        ZonedDateTime c = getAsZonedDateTime(timeZone);
+    public Instant getAsInstant(ZoneId zoneId) {
+        ZonedDateTime c = getAsZonedDateTime(zoneId);
         return c.toInstant();
     }
 

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
+import java.util.TimeZone;
 
 /**
  * Perform one-to-many profile routing using repeated RAPTOR searches. In this context, profile routing means finding
@@ -231,7 +232,7 @@ public class RepeatedRaptorProfileRouter {
         //rr.walkSpeed = request.walkSpeed;
         rr.to = rr.from;
         rr.setRoutingContext(graph);
-        rr.dateTime = request.date.toDateMidnight(DateTimeZone.forTimeZone(graph.getTimeZone())).getMillis() / 1000 +
+        rr.dateTime = request.date.toDateMidnight(DateTimeZone.forTimeZone(TimeZone.getTimeZone(graph.getZoneId()))).getMillis() / 1000 +
                 request.fromTime;
         rr.walkSpeed = request.walkSpeed;
         rr.bikeSpeed = request.bikeSpeed;

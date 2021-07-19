@@ -231,7 +231,7 @@ public class TimetableSnapshotSourceTest {
             tripDescriptorBuilder.setScheduleRelationship(TripDescriptor.ScheduleRelationship.ADDED);
             tripDescriptorBuilder.setStartDate(serviceDate.getAsString());
 
-            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getTimeZone());
+            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getZoneId());
             final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
             final TripUpdate.Builder tripUpdateBuilder = TripUpdate.newBuilder();
@@ -339,7 +339,7 @@ public class TimetableSnapshotSourceTest {
             tripDescriptorBuilder.setScheduleRelationship(TripDescriptor.ScheduleRelationship.MODIFIED);
             tripDescriptorBuilder.setStartDate(serviceDate.getAsString());
 
-            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getTimeZone());
+            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getZoneId());
             final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
             final TripUpdate.Builder tripUpdateBuilder = TripUpdate.newBuilder();

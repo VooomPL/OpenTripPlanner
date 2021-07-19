@@ -10,6 +10,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,7 +75,7 @@ public class OnBoardDepartServiceImplTest {
         // But I know of no other way to do this since the mock object has only action-free stub methods.
         routingRequest.modes = new TraverseModeSet("WALK,TRANSIT");
 
-        when(graph.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT"));
+        when(graph.getZoneId()).thenReturn(ZoneId.of("GMT"));
 
         GeometryFactory geometryFactory = GeometryUtils.getGeometryFactory();
         CoordinateSequenceFactory coordinateSequenceFactory =
@@ -181,7 +182,7 @@ public class OnBoardDepartServiceImplTest {
         // But I know of no other way to do this since the mock object has only action-free stub methods.
         routingRequest.modes = new TraverseModeSet("WALK,TRANSIT");
 
-        when(graph.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT"));
+        when(graph.getZoneId()).thenReturn(ZoneId.of("GMT"));
         when(station0.getX()).thenReturn(coordinates[0].x);
         when(station0.getY()).thenReturn(coordinates[0].y);
         when(station1.getX()).thenReturn(coordinates[1].x);
@@ -257,7 +258,7 @@ public class OnBoardDepartServiceImplTest {
         // But I know of no other way to do this since the mock object has only action-free stub methods.
         routingRequest.modes = new TraverseModeSet("WALK,TRANSIT");
 
-        when(graph.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT"));
+        when(graph.getZoneId()).thenReturn(ZoneId.of("GMT"));
 
         ArrayList<Edge> hops = new ArrayList<Edge>(2);
         RoutingContext routingContext = new RoutingContext(routingRequest, graph, null, arrive);

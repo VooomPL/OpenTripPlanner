@@ -9,6 +9,8 @@ import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.c
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SimpleTimeZone;
@@ -183,8 +185,8 @@ public class TestTransfers extends TestCase {
             int timestamp, ServiceDate serviceDate) throws ParseException {
         TimetableSnapshot snapshot = graph.timetableSnapshotSource.getTimetableSnapshot();
         Timetable timetable = snapshot.resolve(pattern, serviceDate);
-        TimeZone timeZone = new SimpleTimeZone(-7, "PST");
-        long today = serviceDate.getAsInstant(timeZone).getEpochSecond();
+        ZoneId zoneId = ZoneId.ofOffset("UTC", ZoneOffset.ofHours(-7));
+        long today = serviceDate.getAsInstant(zoneId).getEpochSecond();
         TripDescriptor.Builder tripDescriptorBuilder = TripDescriptor.newBuilder();
 
         tripDescriptorBuilder.setTripId(tripId);
@@ -209,7 +211,7 @@ public class TestTransfers extends TestCase {
 
         TripUpdate tripUpdate = tripUpdateBuilder.build();
 
-        TripTimes updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, timeZone, serviceDate); 
+        TripTimes updatedTripTimes = timetable.createUpdatedTripTimes(tripUpdate, zoneId, serviceDate);
         assertNotNull(updatedTripTimes);
         int tripIndex = timetable.getTripIndex(tripId);
         assertTrue(tripIndex != -1);
