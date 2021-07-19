@@ -1,7 +1,10 @@
 package org.opentripplanner.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -56,6 +59,9 @@ public class JSONObjectMapperProvider implements ContextResolver<ObjectMapper> {
         // Constructors are available for both unnamed, unversioned throwaway modules
         // and named, versioned reusable modules.
         mapper = new ObjectMapper()
+                .findAndRegisterModules()
+                .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .disable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .setSerializationInclusion(Include.NON_NULL); // skip null fields
     }
 

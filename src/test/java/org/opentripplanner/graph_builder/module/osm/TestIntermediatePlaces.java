@@ -188,13 +188,13 @@ public class TestIntermediatePlaces {
 
     // Check that the start time and end time of each leg are consistent
     private void validateLegsTemporally(RoutingRequest request, Itinerary itinerary) {
-        ZonedDateTime departTime;
-        ZonedDateTime arriveTime;
+        Instant departTime;
+        Instant arriveTime;
         if (request.arriveBy) {
             departTime = itinerary.legs.get(0).from.departure;
-            arriveTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(request.dateTime), zoneId);
+            arriveTime = Instant.ofEpochSecond(request.dateTime);
         } else {
-            departTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(request.dateTime), zoneId);
+            departTime = Instant.ofEpochSecond(request.dateTime);
             arriveTime = itinerary.legs.get(itinerary.legs.size() - 1).to.arrival;
         }
         long sumOfDuration = 0;

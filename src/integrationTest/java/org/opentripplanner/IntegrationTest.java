@@ -72,8 +72,9 @@ public abstract class IntegrationTest extends JerseyTest {
 
     @Override
     protected void configureClient(ClientConfig config) {
+        JSONObjectMapperProvider jsonObjectMapperProvider = new JSONObjectMapperProvider();
         config
-                .register(new JacksonJsonProvider())
-                .register(new JSONObjectMapperProvider());
+                .register(jsonObjectMapperProvider)
+                .register(new JacksonJsonProvider(jsonObjectMapperProvider.getContext(Object.class)));
     }
 }

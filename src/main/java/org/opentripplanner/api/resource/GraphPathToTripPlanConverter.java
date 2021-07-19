@@ -187,8 +187,8 @@ public abstract class GraphPathToTripPlanConverter {
         fixupLegs(itinerary.legs, legsStates);
 
         itinerary.duration = lastState.getElapsedTimeSeconds();
-        itinerary.startTime = makeZonedDateTime(states.get(0));
-        itinerary.endTime = makeZonedDateTime(lastState);
+        itinerary.startTime = Instant.ofEpochMilli(states.get(0).getTimeInMillis());
+        itinerary.endTime = Instant.ofEpochMilli(lastState.getTimeInMillis());
 
         calculateTimes(itinerary, states);
 
@@ -395,8 +395,8 @@ public abstract class GraphPathToTripPlanConverter {
         List<Edge> edges = new ArrayList<>(legStateSplit.getStates().size() - 1);
         List<State> states = legStateSplit.getStates();
 
-        leg.startTime = makeZonedDateTime(states.get(0));
-        leg.endTime = makeZonedDateTime(states.get(states.size() - 1));
+        leg.startTime = Instant.ofEpochMilli(states.get(0).getTimeInMillis());
+        leg.endTime = Instant.ofEpochMilli(states.get(states.size() - 1).getTimeInMillis());
 
         // Calculate leg distance and fill array of edges
         leg.distance = 0.0;
@@ -405,7 +405,7 @@ public abstract class GraphPathToTripPlanConverter {
             leg.distance += edges.get(i - 1).getDistanceInMeters();
         }
 
-        leg.agencyTimeZoneOffset = leg.startTime.getOffset().getTotalSeconds();
+        leg.agencyTimeZoneOffset = graph.getZoneId().getRules().getOffset(leg.startTime).getTotalSeconds();
 
         addTripFields(leg, states, requestedLocale);
 
@@ -734,12 +734,12 @@ public abstract class GraphPathToTripPlanConverter {
                 int delta = maxTime - avgTime;
                 if (directTime != 0 && delta > 0) {
                     if (hop.isDeviatedRouteBoard()) {
-                        Instant maxStartTime = leg.startTime.plusSeconds(delta).toInstant();
-                        leg.flexCallAndRideMaxStartTime = makeZonedDateTime(leg.startTime.getZone(), maxStartTime);
+                        Instant maxStartTime = leg.startTime.plusSeconds(delta);
+                        leg.flexCallAndRideMaxStartTime = maxStartTime;
                     }
                     if (hop.isDeviatedRouteAlight()) {
-                        Instant minEndTime = leg.endTime.minusSeconds(delta).toInstant();
-                        leg.flexCallAndRideMinEndTime = makeZonedDateTime(leg.endTime.getZone(), minEndTime);
+                        Instant minEndTime = leg.endTime.minusSeconds(delta);
+                        leg.flexCallAndRideMinEndTime = minEndTime;
                     }
                 }
             }
@@ -788,7 +788,7 @@ public abstract class GraphPathToTripPlanConverter {
                 if (currentStop == firstStop) continue;
 
                 if (currentStop == previousStop) {                  // Avoid duplication of stops
-                    leg.stop.get(leg.stop.size() - 1).departure = makeZonedDateTime(states.get(i));
+                    leg.stop.get(leg.stop.size() - 1).departure = Instant.ofEpochMilli(states.get(i).getTimeInMillis());
                     continue;
                 }
 
@@ -862,7 +862,7 @@ public abstract class GraphPathToTripPlanConverter {
         String name = makeName(vertex, requestedLocale, streetIndex);
 
         Place place = new Place(vertex.getX(), vertex.getY(), name,
-                makeZonedDateTime(state), makeZonedDateTime(state));
+                Instant.ofEpochMilli(state.getTimeInMillis()), Instant.ofEpochMilli(state.getTimeInMillis()));
 
         if (endOfLeg) edge = state.getBackEdge();
 

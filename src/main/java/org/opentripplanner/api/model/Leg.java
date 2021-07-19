@@ -11,6 +11,7 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -26,12 +27,14 @@ public class Leg {
     /**
      * The date and time this leg begins.
      */
-    public ZonedDateTime startTime = null;
+    @JsonSerialize
+    public Instant startTime = null;
     
     /**
      * The date and time this leg ends.
      */
-    public ZonedDateTime endTime = null;
+    @JsonSerialize
+    public Instant endTime = null;
     
     /**
      * For transit leg, the offset from the scheduled departure-time of the boarding stop in this leg.
@@ -237,11 +240,11 @@ public class Leg {
 
     /* For call-n-ride leg, supply maximum start time based on calculation. */
     @JsonSerialize
-    public ZonedDateTime flexCallAndRideMaxStartTime = null;
+    public Instant flexCallAndRideMaxStartTime = null;
 
      /* For call-n-ride leg, supply minimum end time based on calculation. */
     @JsonSerialize
-    public ZonedDateTime flexCallAndRideMinEndTime = null;
+    public Instant flexCallAndRideMinEndTime = null;
 
     /** trip.drt_advance_book_min if this is a demand-response leg */
     @JsonSerialize
@@ -308,8 +311,6 @@ public class Leg {
     }
 
     public void setTimeZone(ZoneId zoneId) {
-        startTime = startTime.withZoneSameInstant(zoneId);
-        endTime = endTime.withZoneSameInstant(zoneId);
-        agencyTimeZoneOffset = startTime.getOffset().getTotalSeconds();
+        agencyTimeZoneOffset = zoneId.getRules().getOffset(startTime).getTotalSeconds();
     }
 }
