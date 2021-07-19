@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,27 +62,22 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
         this(o.year, o.month, o.day);
     }
 
-    public ServiceDate(Calendar calendar) {
-        this(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.DAY_OF_MONTH));
-    }
-
     public ServiceDate(ZonedDateTime zonedDateTime) {
         this(zonedDateTime.getYear(), zonedDateTime.getMonthValue(), zonedDateTime.getDayOfMonth());
     }
 
     /**
-     * Construct a ServiceDate from the specified {@link Date} object, using the
+     * Construct a ServiceDate from the specified {@link Instant} object, using the
      * default {@link TimeZone} object for the current VM to localize the date
      *
-     * @param date
+     * @param instant
      */
-    public ServiceDate(Date date) {
-        this(getCalendarForDate(date));
+    public ServiceDate(Instant instant) {
+        this(ZonedDateTime.ofInstant(instant, DateUtils.getClock().getZone()));
     }
 
     public ServiceDate() {
-        this(new Date());
+        this(DateUtils.getInstant());
     }
 
     /**
@@ -143,7 +137,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      */
     public ZonedDateTime getAsZonedDateTime(ZoneId zoneId) {
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, zoneId);
-        return moveCalendarToServiceDate(zonedDateTime);
+        return moveZonedDateTimeToServiceDate(zonedDateTime);
     }
 
     /**
@@ -262,7 +256,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
      *
      * @param c the target calendar, already to some time on the target date
      */
-    public static ZonedDateTime moveCalendarToServiceDate(ZonedDateTime c) {
+    public static ZonedDateTime moveZonedDateTimeToServiceDate(ZonedDateTime c) {
         // Initial set time to noon
         c = c.withHour(12);
         c = c.withMinute(0);
@@ -271,15 +265,4 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
         // Subtract 12 hours. Usually takes you to midnight, except on DST days
         return c.minusHours(12);
     }
-
-    /****
-     * Private Methods
-     ****/
-
-    private static final Calendar getCalendarForDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c;
-    }
-
 }

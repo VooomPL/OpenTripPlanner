@@ -1101,7 +1101,7 @@ public class GraphPathToTripPlanConverterTest {
         assertEquals("Train", legs[2].agencyId);
         assertEquals("John Train", legs[2].agencyName);
         assertEquals("http://www.train.org/", legs[2].agencyUrl);
-        assertEquals(2, legs[2].agencyTimeZoneOffset);
+        assertEquals(0, legs[2].agencyTimeZoneOffset);
         assertNull(legs[2].alerts);
         assertEquals("B", legs[2].route);
         assertEquals("B", legs[2].routeId.getId());
@@ -1134,7 +1134,7 @@ public class GraphPathToTripPlanConverterTest {
         assertNull(legs[3].agencyId);
         assertNull(legs[3].agencyName);
         assertNull(legs[3].agencyUrl);
-        assertEquals(2, legs[3].agencyTimeZoneOffset);
+        assertEquals(0, legs[3].agencyTimeZoneOffset);
         assertNull(legs[3].alerts);
         assertEquals("", legs[3].route);
         assertNull(legs[3].routeId);
@@ -1177,7 +1177,7 @@ public class GraphPathToTripPlanConverterTest {
         assertEquals("Ferry", legs[4].agencyId);
         assertEquals("Brian Ferry", legs[4].agencyName);
         assertEquals("http://www.ferry.org/", legs[4].agencyUrl);
-        assertEquals(2, legs[4].agencyTimeZoneOffset);
+        assertEquals(0, legs[4].agencyTimeZoneOffset);
         assertEquals(1, legs[4].alerts.size());
         assertEquals(Alert.createSimpleAlerts(alertsExample), legs[4].alerts.get(0).alert);
         assertEquals("C", legs[4].route);
@@ -1212,7 +1212,7 @@ public class GraphPathToTripPlanConverterTest {
         assertNull(legs[5].agencyId);
         assertNull(legs[5].agencyName);
         assertNull(legs[5].agencyUrl);
-        assertEquals(2, legs[5].agencyTimeZoneOffset);
+        assertEquals(0, legs[5].agencyTimeZoneOffset);
         assertNull(legs[5].alerts);
         assertEquals("", legs[5].route);
         assertNull(legs[5].routeId);
@@ -1251,7 +1251,7 @@ public class GraphPathToTripPlanConverterTest {
         assertNull(legs[6].agencyId);
         assertNull(legs[6].agencyName);
         assertNull(legs[6].agencyUrl);
-        assertEquals(2, legs[6].agencyTimeZoneOffset);
+        assertEquals(0, legs[6].agencyTimeZoneOffset);
         assertNull(legs[6].alerts);
         assertEquals("", legs[6].route);
         assertNull(legs[6].routeId);
@@ -1290,7 +1290,7 @@ public class GraphPathToTripPlanConverterTest {
         assertNull(legs[7].agencyId);
         assertNull(legs[7].agencyName);
         assertNull(legs[7].agencyUrl);
-        assertEquals(2, legs[7].agencyTimeZoneOffset);
+        assertEquals(0, legs[7].agencyTimeZoneOffset);
         assertEquals(1, legs[7].alerts.size());
         assertEquals(Alert.createSimpleAlerts(alertsExample), legs[7].alerts.get(0).alert);
         assertEquals("", legs[7].route);
@@ -1330,7 +1330,7 @@ public class GraphPathToTripPlanConverterTest {
         assertNull(legs[8].agencyId);
         assertNull(legs[8].agencyName);
         assertNull(legs[8].agencyUrl);
-        assertEquals(2, legs[8].agencyTimeZoneOffset);
+        assertEquals(0, legs[8].agencyTimeZoneOffset);
         assertNull(legs[8].alerts);
         assertEquals("", legs[8].route);
         assertNull(legs[8].routeId);

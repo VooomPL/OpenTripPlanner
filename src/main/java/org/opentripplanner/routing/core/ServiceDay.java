@@ -1,20 +1,16 @@
 package org.opentripplanner.routing.core;
 
+import org.opentripplanner.model.CalendarService;
+import org.opentripplanner.model.FeedScopedId;
+import org.opentripplanner.model.calendar.ServiceDate;
+import org.opentripplanner.routing.graph.Graph;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.util.DateUtils;
 
 /**
  * Represents a day of transit services. 

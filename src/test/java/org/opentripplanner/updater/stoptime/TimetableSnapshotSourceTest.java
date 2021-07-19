@@ -50,6 +50,7 @@ import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import org.opentripplanner.util.DateUtils;
 
 public class TimetableSnapshotSourceTest {
 
@@ -219,7 +220,7 @@ public class TimetableSnapshotSourceTest {
         // GIVEN
 
         // Get service date of today because old dates will be purged after applying updates
-        final ServiceDate serviceDate = new ServiceDate(Calendar.getInstance());
+        final ServiceDate serviceDate = new ServiceDate(DateUtils.getInstant());
 
         final String addedTripId = "added_trip";
 
@@ -328,7 +329,7 @@ public class TimetableSnapshotSourceTest {
         // GIVEN
 
         // Get service date of today because old dates will be purged after applying updates
-        ServiceDate serviceDate = new ServiceDate(Calendar.getInstance());
+        ServiceDate serviceDate = new ServiceDate(DateUtils.getInstant());
         String modifiedTripId = "10.1";
 
         TripUpdate tripUpdate;

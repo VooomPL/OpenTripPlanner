@@ -13,9 +13,10 @@ import org.opentripplanner.util.model.EncodedPolylineBean;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
  /**
  * One leg of a trip -- that is, a temporally continuous piece of the journey that takes place on a

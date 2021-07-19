@@ -2,6 +2,7 @@ package org.opentripplanner.routing.graph;
 
 import com.google.common.collect.ArrayListMultimap;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -59,6 +60,7 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.trippattern.FrequencyEntry;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.TransitStop;
+import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -428,8 +430,8 @@ public class GraphIndex {
         if (graph.timetableSnapshotSource != null) {
             snapshot = graph.timetableSnapshotSource.getTimetableSnapshot();
         }
-        Date date = new Date(startTime * 1000);
-        ServiceDate[] serviceDates = {new ServiceDate(date).previous(), new ServiceDate(date), new ServiceDate(date).next()};
+        Instant instant = Instant.ofEpochSecond(startTime);
+        ServiceDate[] serviceDates = {new ServiceDate(instant).previous(), new ServiceDate(instant), new ServiceDate(instant).next()};
 
         for (TripPattern pattern : patternsForStop.get(stop)) {
 
@@ -561,8 +563,7 @@ public class GraphIndex {
         // The timetableSnapshot will be null if there's no real-time data being applied.
         if (req.rctx.timetableSnapshot == null) return tripPattern.scheduledTimetable;
         // Get the updated times for right now, which is the only reasonable default since no date is supplied.
-        Calendar calendar = Calendar.getInstance();
-        ServiceDate serviceDate = new ServiceDate(calendar.getTime());
+        ServiceDate serviceDate = new ServiceDate(DateUtils.getInstant());
         return req.rctx.timetableSnapshot.resolve(tripPattern, serviceDate);
     }
 

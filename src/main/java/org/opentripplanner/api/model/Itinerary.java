@@ -1,17 +1,14 @@
 package org.opentripplanner.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.TraverseMode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An Itinerary is one complete way of getting from the start location to the end location.
