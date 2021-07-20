@@ -138,10 +138,10 @@ public class GraphPathFinder {
         while (paths.size() < options.getNumItineraries()) {
             // TODO pull all this timeout logic into a function near org.opentripplanner.util.DateUtils.absoluteTimeout()
             int timeoutIndex = paths.size();
-            if (timeoutIndex >= router.timeouts.length) {
-                timeoutIndex = router.timeouts.length - 1;
+            if (timeoutIndex >= options.timeouts.length) {
+                timeoutIndex = options.timeouts.length - 1;
             }
-            double timeout = searchBeginTime + (router.timeouts[timeoutIndex] * 1000);
+            double timeout = searchBeginTime + (options.timeouts[timeoutIndex] * 1000);
             timeout -= System.currentTimeMillis(); // Convert from absolute to relative time
             timeout /= 1000; // Convert milliseconds to seconds
             if (timeout <= 0) {

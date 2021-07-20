@@ -34,7 +34,7 @@ public class Router {
 
     public String id;
     public Graph graph;
-    public double[] timeouts = {5, 4, 2};
+    public double[] routerDefaultTimeouts = {5, 4, 2};
 
     /**
      * Separate logger for incoming requests. This should be handled with a Logback logger rather than something
@@ -110,7 +110,7 @@ public class Router {
         JsonNode timeout = config.get("timeout");
         if (timeout != null) {
             if (timeout.isNumber()) {
-                this.timeouts = new double[]{timeout.doubleValue()};
+                this.routerDefaultTimeouts = new double[]{timeout.doubleValue()};
             } else {
                 LOG.error("The 'timeout' configuration option should be a number of seconds.");
             }
@@ -132,16 +132,16 @@ public class Router {
         JsonNode timeouts = config.get("timeouts");
         if (timeouts != null) {
             if (timeouts.isArray() && timeouts.size() > 0) {
-                this.timeouts = new double[timeouts.size()];
+                this.routerDefaultTimeouts = new double[timeouts.size()];
                 int i = 0;
                 for (JsonNode node : timeouts) {
-                    this.timeouts[i++] = node.doubleValue();
+                    this.routerDefaultTimeouts[i++] = node.doubleValue();
                 }
             } else {
                 LOG.error("The 'timeouts' configuration option should be an array of values in seconds.");
             }
         }
-        LOG.info("Timeouts for router '{}': {}", this.id, this.timeouts);
+        LOG.info("Default timeouts for router '{}': {}", this.id, this.routerDefaultTimeouts);
 
         JsonNode requestLogFile = config.get("requestLogFile");
         if (requestLogFile != null) {
