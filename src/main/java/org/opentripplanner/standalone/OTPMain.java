@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import lombok.Value;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.opentripplanner.common.MavenVersion;
 import org.opentripplanner.graph_builder.GraphBuilder;
@@ -31,6 +32,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * This is the main entry point to OpenTripPlanner. It allows both building graphs and starting up an OTP server
@@ -105,31 +108,46 @@ public class OTPMain {
         }
 
         try {
-            /*
+            @Value
+            class Speeds {
 
-                if (speed < 6.) return 20;
-                if (speed < 8.5) return 30;
-                if (speed < 11.5) return 40;
-                if (speed < 14.) return 50;
-                if (speed < 17.) return 60;
-                if (speed < 20.5) return 70;
-                if (speed < 22.5) return 80;
-                if (speed < 25.5) return 90;
-                if (speed < 28.) return 100;
-                if (speed < 33.5) return 120;
-             */
+                int speed;
+                List<String> shapes;
+
+                @Override
+                public String toString() {
+                    return "{\"speed\": " + speed + ", \"shapes\": " + shapes.toString() + "}";
+                }
+            }
             GeoJsonWriter writer = new GeoJsonWriter();
-            List<String> strings = graphService.getRouter().graph.getStreetEdges().stream()
+            List<Speeds> speeds = graphService.getRouter().graph.getStreetEdges().stream()
                     .filter(edge -> edge.canTraverse(new TraverseModeSet(TraverseMode.CAR)))
-                    .filter(edge -> edge.getMaxStreetTraverseSpeed() > 11.5)
-                    .map(StreetEdge::getGeometry)
-                    .map(writer::write)
-                    .collect(Collectors.toList());
-            BufferedWriter aaa = new BufferedWriter(new FileWriter("car_streets.json"));
-            aaa.write(strings.toString());
+                    .collect(Collectors.groupingBy(edge -> {
+                        double speed = edge.getMaxStreetTraverseSpeed();
+                        if (speed < 6.) return 20;
+                        if (speed < 8.5) return 30;
+                        if (speed < 11.5) return 40;
+                        if (speed < 14.) return 50;
+                        if (speed < 17.) return 60;
+                        if (speed < 20.5) return 70;
+                        if (speed < 22.5) return 80;
+                        if (speed < 25.5) return 90;
+                        if (speed < 28.) return 100;
+                        if (speed < 33.5) return 120;
+                        return 1000;
+                    })).entrySet().stream()
+                    .map(entry -> new Speeds(
+                            entry.getKey(),
+                            entry.getValue().stream()
+                                    .map(StreetEdge::getGeometry)
+                                    .map(writer::write)
+                                    .collect(toList())))
+                    .collect(toList());
+            BufferedWriter aaa = new BufferedWriter(new FileWriter("car_streets_all_speeds.json"));
+            aaa.write(speeds.toString());
             aaa.close();
         } catch (IOException e) {
-            // pass
+            e.printStackTrace();
         }
 
         if (params.visualize) {
