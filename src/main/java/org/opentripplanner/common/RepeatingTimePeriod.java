@@ -1,8 +1,12 @@
 package org.opentripplanner.common;
 
+import org.opentripplanner.util.DateUtils;
+
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * Represents a repeating time period, used for opening hours &c.
@@ -17,7 +21,7 @@ public class RepeatingTimePeriod implements Serializable {
     private static final long serialVersionUID = -5977328371879835782L;
     
     private RepeatingTimePeriod () {
-        this.timeZone = null;
+        this.zoneId = null;
     }
     
     /** 
@@ -35,7 +39,7 @@ public class RepeatingTimePeriod implements Serializable {
     /**
      * The timezone this is represented in.
      */
-    private TimeZone timeZone;
+    private ZoneId zoneId;
    
     /**
      * Parse the time specification from an OSM turn restriction
@@ -72,25 +76,25 @@ public class RepeatingTimePeriod implements Serializable {
                 active = true;
             
             if (active) {
-                if (today == "monday")
+                if (today.equals("monday"))
                     ret.monday = onOff;
                 
-                else if (today == "tuesday")
+                else if (today.equals("tuesday"))
                     ret.tuesday = onOff;
         
-                else if (today == "wednesday")
+                else if (today.equals("wednesday"))
                     ret.wednesday = onOff;
                     
-                else if (today == "thursday")
+                else if (today.equals("thursday"))
                     ret.thursday = onOff;
                 
-                else if (today == "friday")
+                else if (today.equals("friday"))
                     ret.friday = onOff;
                 
-                else if (today == "saturday")
+                else if (today.equals("saturday"))
                     ret.saturday = onOff;
                 
-                else if (today == "sunday")
+                else if (today.equals("sunday"))
                     ret.sunday = onOff;
             }
                 
@@ -121,39 +125,38 @@ public class RepeatingTimePeriod implements Serializable {
 
     public boolean active(long time) {
         // TODO: Timezone/locale
-        Calendar cal;
+        ZonedDateTime zonedDateTime;
         // TODO offsets
-        if (this.timeZone != null)
-            cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        if (this.zoneId != null)
+            zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), zoneId);
         else
             // FIXME hardwired time zone
-            cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), DateUtils.getClock().getZone());
         
-        cal.setTimeInMillis(time * 1000);
-        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        DayOfWeek dayOfWeek = zonedDateTime.getDayOfWeek();
         
         int[][] times = null;
                 
         switch(dayOfWeek) {
-        case Calendar.MONDAY:
+        case MONDAY:
             times = monday;
             break;
-        case Calendar.TUESDAY:
+        case TUESDAY:
             times = tuesday;
             break;
-        case Calendar.WEDNESDAY:
+        case WEDNESDAY:
             times = wednesday;
             break;
-        case Calendar.THURSDAY:
+        case THURSDAY:
             times = thursday;
             break;
-        case Calendar.FRIDAY:
+        case FRIDAY:
             times = friday;
             break;
-        case Calendar.SATURDAY:
+        case SATURDAY:
             times = saturday;
             break;
-        case Calendar.SUNDAY:
+        case SUNDAY:
             times = sunday;
             break;
         }
@@ -162,9 +165,8 @@ public class RepeatingTimePeriod implements Serializable {
             //no restriction today
             return false;
         }
-        
-        int timeOfDay = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 +
-                cal.get(Calendar.SECOND) - 12 * 3600; 
+        int timeOfDay = zonedDateTime.getHour()* 3600 + zonedDateTime.getMinute() * 60 +
+                zonedDateTime.getSecond() - 12 * 3600;
         
         for (int[] range : times) {
             if (timeOfDay >= range[0] && timeOfDay <= range[1])

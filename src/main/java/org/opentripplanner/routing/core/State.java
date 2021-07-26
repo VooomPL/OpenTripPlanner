@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -192,13 +191,13 @@ public class State implements Cloneable {
     }
 
     public String toString() {
-        return "<State " + new Date(getTimeInMillis()) + " [" + weight + "] "
+        return "<State " + getTimeInMillis() + " [" + weight + "] "
                 + (isBikeRenting() ? "BIKE_RENT " : "") + (isCarParked() ? "CAR_PARKED " : "")
                 + vertex + ">";
     }
 
     public String toStringVerbose() {
-        return "<State " + new Date(getTimeInMillis()) +
+        return "<State " + getTimeInMillis() +
                 " w=" + this.getWeight() +
                 " t=" + this.getElapsedTimeSeconds() +
                 " d=" + this.getTraverseDistanceInMeters() +

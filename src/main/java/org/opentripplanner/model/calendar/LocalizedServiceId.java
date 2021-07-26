@@ -7,11 +7,10 @@ import org.opentripplanner.model.CalendarService;
 
 import java.io.Serializable;
 import java.time.ZoneId;
-import java.util.TimeZone;
 
 /**
  * Combines a serviceId (represented by {@link FeedScopedId}) and a
- * {@link TimeZone} object that can be used to ground {@link ServiceDate}
+ * {@link ZoneId} object that can be used to ground {@link ServiceDate}
  * objects. See {@link ServiceDate#getAsInstant(ZoneId)} for more info.
  *
  * @author bdferris

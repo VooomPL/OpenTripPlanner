@@ -13,8 +13,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +66,7 @@ public class ServiceDate implements Serializable, Comparable<ServiceDate> {
 
     /**
      * Construct a ServiceDate from the specified {@link Instant} object, using the
-     * default {@link TimeZone} object for the current VM to localize the date
+     * default {@link ZoneId} object for the current VM to localize the date
      *
      * @param instant
      */
