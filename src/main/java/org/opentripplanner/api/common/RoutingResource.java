@@ -558,6 +558,9 @@ public abstract class RoutingResource {
     @QueryParam("geoidElevation")
     private Boolean geoidElevation;
 
+    @QueryParam("timeouts")
+    private List<Double> timeouts;
+
     /**
      * Set the method of sorting itineraries in the response. Right now, the only supported value is "duration";
      * otherwise it uses default sorting. More sorting methods may be added in the future.
@@ -608,6 +611,7 @@ public abstract class RoutingResource {
     protected RoutingRequest buildRequest() throws ParameterException {
         Router router = otpServer.getRouter(routerId);
         RoutingRequest request = router.defaultRoutingRequest.clone();
+        request.timeouts = router.routerDefaultTimeouts;
 
         request.vehicleValidator = new VehicleValidator();
         request.routingReluctances = new RoutingReluctances();
@@ -622,7 +626,12 @@ public abstract class RoutingResource {
             request.setToString(toPlace);
 
         setDateTime(request);
-
+        if (timeouts != null && timeouts.size() > 0) {
+            request.timeouts = new double[timeouts.size()];
+            for (int i = 0; i < timeouts.size(); i++) {
+                request.timeouts[i] = timeouts.get(i);
+            }
+        }
         if (wheelchair != null)
             request.setWheelchairAccessible(wheelchair);
 
@@ -888,10 +897,11 @@ public abstract class RoutingResource {
             try {
                 LocalDateTime timestamp = LocalDateTime.parse(snapshotTimestamp);
                 SharedVehiclesSnapshotLabel requestedSnapshotLabel = new SharedVehiclesSnapshotLabel(timestamp);
-                if (router.graph.getSupportedSnapshotLabels().contains(requestedSnapshotLabel)) {
+                Integer numberOfVehiclesInSnapshot = router.graph.getSupportedSnapshotLabels().get(requestedSnapshotLabel);
+                if (Objects.nonNull(numberOfVehiclesInSnapshot) && numberOfVehiclesInSnapshot > 0) {
                     request.setAcceptedSharedVehiclesSnapshotLabel(requestedSnapshotLabel);
                 } else {
-                    throw new RuntimeException("Requested snapshot timestamp is currently not supported");
+                    throw new RuntimeException("Requested snapshot timestamp is currently not supported or available vehicles list is empty");
                 }
             } catch (DateTimeParseException e) {
                 throw new RuntimeException("Malformed parameter value for 'snapshotTimestamp'");

@@ -13,12 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
 
 public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
 
@@ -33,7 +37,6 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
     private int retryWaitTimeSeconds;
     private int maxRetries;
     private final Map<Integer, Provider> vehicleProviders = new HashMap<>();
-    private final List<SharedVehiclesSnapshotLabel> monitoredSnapshots = new ArrayList<>();
 
     @Override
     protected void runPolling() {
@@ -54,7 +57,7 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
                 }
             }
             if (!vehicleProviders.isEmpty()) {
-                for (SharedVehiclesSnapshotLabel snapshotLabel : monitoredSnapshots) {
+                for (SharedVehiclesSnapshotLabel snapshotLabel : graph.getSupportedSnapshotLabels().keySet()) {
                     LOG.info("Polling vehicles from API for snapshot " + snapshotLabel.getTimestamp());
                     retryCounter = 0;
                     vehiclePositionsGetter = new VehicleHistoricalPositionsGetter(snapshotLabel, vehicleProviders);
@@ -115,10 +118,10 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
         }
 
         if (Objects.nonNull(config))
-            configureMonitoredSnapshots(config);
+            configureMonitoredSnapshots(config, graph);
     }
 
-    private void configureMonitoredSnapshots(JsonNode config) {
+    private void configureMonitoredSnapshots(JsonNode config, Graph graph) {
         JsonNode snapshotOffsetsNode = config.get("snapshotOffsetsInDays");
 
         if (Objects.nonNull(snapshotOffsetsNode) && snapshotOffsetsNode.isArray()) {
@@ -128,17 +131,27 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
             snapshotOffsetsNode.iterator().forEachRemaining(offset -> {
                 try {
                     int offsetAsInt = Integer.parseInt(offset.asText());
-                    timesOfDay.forEach(timeOfDay -> monitoredSnapshots.add(
-                            new SharedVehiclesSnapshotLabel(
-                                    currentDate.minusDays(offsetAsInt)
-                                            .withHour(timeOfDay.getHour())
-                                            .withMinute(timeOfDay.getMinute())
-                                            .withSecond(0).withNano(0))));
+                    LocalDateTime snapshotDate = computeSnapshotDate(currentDate, offsetAsInt);
+                    timesOfDay.forEach(timeOfDay -> {
+                        graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(
+                                snapshotDate.withHour(timeOfDay.getHour())
+                                        .withMinute(timeOfDay.getMinute())
+                                        .withSecond(0).withNano(0)), -1);
+                    });
                 } catch (NumberFormatException e) {
                     LOG.error("Could not parse snapshot offset: {}", offset.asText());
                 }
             });
         }
+    }
+
+    private LocalDateTime computeSnapshotDate(LocalDateTime currentDate, int offset) {
+        LocalDateTime snapshotDate = currentDate.minusDays(offset);
+        DayOfWeek snapshotDayOfWeek = snapshotDate.getDayOfWeek();
+        if (snapshotDayOfWeek == SATURDAY || snapshotDayOfWeek == SUNDAY) {
+            return snapshotDate.minusDays(2);
+        }
+        return snapshotDate;
     }
 
     private List<LocalTime> getTimesOfDayFromConfig(JsonNode config) {
