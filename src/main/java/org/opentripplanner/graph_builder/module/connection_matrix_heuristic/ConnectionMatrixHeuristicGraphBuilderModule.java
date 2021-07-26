@@ -31,7 +31,7 @@ public class ConnectionMatrixHeuristicGraphBuilderModule implements GraphBuilder
             graph.connectionMatrixHeuristicData = new ConnectionMatrixHeuristicData(data);
             LOG.info("Added connection matrix heuristic data to graph");
         } catch (IOException e) {
-            LOG.error("Failed to build connection matrix heuristic from file {}", serializedStreetsFile);
+            LOG.error("Failed to build connection matrix heuristic from file {}", serializedStreetsFile, e);
         }
     }
 

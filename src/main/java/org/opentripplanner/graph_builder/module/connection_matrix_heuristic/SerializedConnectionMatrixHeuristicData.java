@@ -12,4 +12,8 @@ public class SerializedConnectionMatrixHeuristicData {
     private double latMin, latMax, lonMin, lonMax;
 
     private int width, height;
+
+    private float initialWeight;
+
+    private float maxSpeed;
 }
