@@ -48,6 +48,10 @@ public enum Direction {
     }
 
     Point neighbor(Point point) {
-        return new Point(point.getI() + getSNOffset(), point.getJ() + getEWOffset());
+        return new Point(point.getLatIndex() + getSNOffset(), point.getLonIndex() + getEWOffset());
+    }
+
+    Direction opposite() {
+        return Direction.values()[(this.ordinal() + 4) % 8];
     }
 }

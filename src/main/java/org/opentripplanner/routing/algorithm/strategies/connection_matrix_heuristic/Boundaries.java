@@ -34,18 +34,18 @@ class Boundaries implements Serializable {
     }
 
     Point createPointFrom(double lat, double lon) {
-        int i = (int) ((lat - latMin) / cellHeight);
-        int j = (int) ((lon - lonMin) / cellWidth);
-        return new Point(height - i - 1, j);
+        int latIndex = (int) ((lat - latMin) / cellHeight);
+        int lonIndex = (int) ((lon - lonMin) / cellWidth);
+        return new Point(height - latIndex - 1, lonIndex);
     }
 
     boolean contains(Point point) {
-        return point.getI() >= 0 && point.getI() < height && point.getJ() >= 0 && point.getJ() < width;
+        return point.getLatIndex() >= 0 && point.getLatIndex() < height && point.getLonIndex() >= 0 && point.getLonIndex() < width;
     }
 
     float distance(Point from, double toLat, double toLon) {
-        double fromLat = latMin + (height - from.getI() - 1) * cellHeight + cellHeight / 2;
-        double fromLon = lonMin + from.getJ() * cellWidth + cellWidth / 2;
+        double fromLat = latMin + (height - from.getLatIndex() - 1) * cellHeight + cellHeight / 2;
+        double fromLon = lonMin + from.getLonIndex() * cellWidth + cellWidth / 2;
         return (float) fastDistance(fromLat, fromLon, toLat, toLon);
     }
 }

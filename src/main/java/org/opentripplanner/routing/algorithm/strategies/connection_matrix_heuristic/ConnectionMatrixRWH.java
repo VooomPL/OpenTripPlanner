@@ -65,17 +65,17 @@ public class ConnectionMatrixRWH implements RemainingWeightHeuristic {
         if (current.getPoint().equals(destination)) {
             return Optional.of(current.getWeight());
         }
-        if (visited[current.getPoint().getI()][current.getPoint().getJ()]) {
+        if (visited[current.getPoint().getLatIndex()][current.getPoint().getLonIndex()]) {
             return Optional.empty();
         }
-        visited[current.getPoint().getI()][current.getPoint().getJ()] = true;
+        visited[current.getPoint().getLatIndex()][current.getPoint().getLonIndex()] = true;
         addNeighbors(current);
         return Optional.empty();
     }
 
     private void addNeighbors(PointWithWeightAndEstimation current) {
         data.getNeighbors(current.getPoint())
-                .filter(neighbor -> !visited[neighbor.getPoint().getI()][neighbor.getPoint().getJ()])
+                .filter(neighbor -> !visited[neighbor.getPoint().getLatIndex()][neighbor.getPoint().getLonIndex()])
                 .map(neighbor -> {
                     float weight = current.getWeight() + data.getCost(current.getPoint(), neighbor.getDirection());
                     float estimation = data.getEuclideanEstimateCost(neighbor.getPoint(), destLat, destLon);

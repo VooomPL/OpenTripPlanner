@@ -38,8 +38,7 @@ public class ConnectionMatrixShortestPathTreeRWH implements RemainingWeightHeuri
         if (!data.getBoundaries().contains(source) || !data.getBoundaries().contains(destination)) {
             return fallback.estimateRemainingWeight(s);
         }
-        return 0.;
-//        return estimation[source.getI()][source.getJ()];
+        return estimation[source.getLatIndex()][source.getLonIndex()];
     }
 
     private void spt() {
@@ -55,18 +54,19 @@ public class ConnectionMatrixShortestPathTreeRWH implements RemainingWeightHeuri
 
     private void iterate() {
         PointWithWeight current = queue.poll();
-        if (visited[current.getPoint().getI()][current.getPoint().getJ()]) {
+        if (visited[current.getPoint().getLatIndex()][current.getPoint().getLonIndex()]) {
             return;
         }
-        visited[current.getPoint().getI()][current.getPoint().getJ()] = true;
-        estimation[current.getPoint().getI()][current.getPoint().getJ()] = current.getPoint().equals(destination) ? 0.f : current.getWeight();
+        visited[current.getPoint().getLatIndex()][current.getPoint().getLonIndex()] = true;
+        estimation[current.getPoint().getLatIndex()][current.getPoint().getLonIndex()] = current.getPoint().equals(destination) ? 0.f : current.getWeight();
         addNeighbors(current);
     }
 
     private void addNeighbors(PointWithWeight current) {
         data.getNeighbors(current.getPoint())
-                .filter(neighbor -> !visited[neighbor.getPoint().getI()][neighbor.getPoint().getJ()])
-                .map(neighbor -> new PointWithWeight(neighbor.getPoint(), current.getWeight() + data.getCost(current.getPoint(), neighbor.getDirection())))
+                .filter(neighbor -> !visited[neighbor.getPoint().getLatIndex()][neighbor.getPoint().getLonIndex()])
+                .map(neighbor -> new PointWithWeight(neighbor.getPoint(),
+                        current.getWeight() + data.getCost(neighbor.getPoint(), neighbor.getDirection().opposite())))
                 .filter(neighbor -> !Float.isNaN(neighbor.getWeight()))
                 .forEach(queue::add);
     }

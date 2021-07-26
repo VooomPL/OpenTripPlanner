@@ -53,7 +53,7 @@ public class ConnectionMatrixHeuristicData implements Serializable {
     }
 
     float getCost(Point from, Direction direction) {
-        return data.get(direction)[from.getI()][from.getJ()];
+        return data.get(direction)[from.getLatIndex()][from.getLonIndex()];
     }
 
     float getEuclideanEstimateCost(Point from, double toLat, double toLon) {
