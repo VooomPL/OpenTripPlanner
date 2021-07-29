@@ -1,8 +1,11 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@Getter
 public class VehiclePricingPackage {
 
     private final BigDecimal packagePrice;
@@ -135,61 +138,4 @@ public class VehiclePricingPackage {
 
         return computeFinalPrice(startPrice.add(timePrice).add(distancePrice));
     }
-
-    public BigDecimal getPackagePrice() {
-        return packagePrice;
-    }
-
-    public int getPackageTimeLimitInSeconds() {
-        return packageTimeLimitInSeconds;
-    }
-
-    public BigDecimal getMinRentingPrice() {
-        return minRentingPrice;
-    }
-
-    public BigDecimal getDrivingPricePerTimeTickInPackage() {
-        return drivingPricePerTimeTickInPackage;
-    }
-
-    public BigDecimal getParkingPricePerTimeTickInPackage() {
-        return parkingPricePerTimeTickInPackage;
-    }
-
-    public BigDecimal getDrivingPricePerTimeTickInPackageExceeded() {
-        return drivingPricePerTimeTickInPackageExceeded;
-    }
-
-    public BigDecimal getParkingPricePerTimeTickInPackageExceeded() {
-        return parkingPricePerTimeTickInPackageExceeded;
-    }
-
-    public int getSecondsPerTimeTickInPackage() {
-        return secondsPerTimeTickInPackage;
-    }
-
-    public int getSecondsPerTimeTickInPackageExceeded() {
-        return secondsPerTimeTickInPackageExceeded;
-    }
-
-    public BigDecimal getMaxRentingPrice() {
-        return maxRentingPrice;
-    }
-
-    public boolean isKilometerPriceEnabledAboveMaxRentingPrice() {
-        return kilometerPriceEnabledAboveMaxRentingPrice;
-    }
-
-    public BigDecimal getStartPrice() {
-        return startPrice;
-    }
-
-    public int getFreeSeconds() {
-        return freeSeconds;
-    }
-
-    public BigDecimal getKilometerPrice() {
-        return kilometerPrice;
-    }
-
 }
