@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Envelope;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class VehiclePresence {
     private long timestamp;
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class Prediction {
         private double lon;
