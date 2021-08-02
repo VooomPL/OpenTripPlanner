@@ -14,10 +14,16 @@ import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Objects.isNull;
 
+@Getter
 @JsonDeserialize(builder = TransitTicket.TransitTicketBuilder.class)
 public class TransitTicket implements Serializable {
 
@@ -25,35 +31,26 @@ public class TransitTicket implements Serializable {
 
     private static final int NO_LIMIT = -1;
 
-    @Getter
     private final int id;
 
-    @Getter
     private final String name;
 
-    @Getter
     private final int maxMinutes;
 
-    @Getter
     private final BigDecimal standardPrice;
 
     private final Map<String, RoutePattern> routePatterns = new HashMap<>();
 
     private final Map<String, StopPattern> stopPatterns = new HashMap<>();
 
-    @Getter
     private final int maxFares;
 
-    @Getter
     private final List<FareSwitchPattern> fareSwitchPatterns = new ArrayList<>();
 
-    @Getter
     private final int maxDistance;
 
-    @Getter
     private final LocalDateTime availableFrom;
 
-    @Getter
     private final LocalDateTime availableTo;
 
     private TransitTicket(int id, String name, BigDecimal standardPrice, int validForMinutes, int validForFares, int validForDistance,
