@@ -1,8 +1,6 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Route;
 import org.opentripplanner.routing.core.RouteMatcher;
@@ -13,9 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class BannedTransit implements Cloneable {
 
 

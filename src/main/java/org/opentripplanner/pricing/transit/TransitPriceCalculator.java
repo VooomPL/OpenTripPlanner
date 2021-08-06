@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,7 +62,7 @@ public class TransitPriceCalculator {
                 }
             });
             if (!results.isEmpty()) {
-                TransitTripCost lowestPrice = results.stream().min(new TransitTripCostComparator()).get();
+                TransitTripCost lowestPrice = results.stream().min(TransitTripCost::compareTo).get();
                 memoizedCostsPerMinute.put(tripMinute - 1, lowestPrice);
                 return lowestPrice;
             } else {

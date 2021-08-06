@@ -1,17 +1,13 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 
 /**
  * This class contains bicycle parameters. ALl rental parameters refer to old way of renting bicycles,
  * which is NOT COMPATIBLE with {@link VehicleDescription}.
  */
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class BikeParameters implements Cloneable {
 
     /**
