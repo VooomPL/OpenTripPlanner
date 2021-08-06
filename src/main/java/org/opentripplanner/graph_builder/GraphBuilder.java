@@ -238,10 +238,6 @@ public class GraphBuilder implements Runnable {
                     LOG.info("Found JSON file {}", file);
                     jsonFile = file;
                     break;
-                case TRANSIT_TICKETS:
-                    LOG.info("Found transit ticket definitions {}", file);
-                    transitTicketsFile = file;
-                    break;
                 case OTHER:
                     LOG.warn("Skipping unrecognized file '{}'", file);
             }
@@ -350,9 +346,9 @@ public class GraphBuilder implements Runnable {
         if (jsonFile != null) {
             graphBuilder.addModule(new TrafficPredictionBuilderModule(jsonFile));
         }
-
-        if (transitTicketsFile != null) {
-            graphBuilder.addModule(new AvailableTicketsBuilderModule(transitTicketsFile));
+        JsonNode availableTickets = routerConfig.get("availableTickets");
+        if (availableTickets != null) {
+            graphBuilder.addModule(new AvailableTicketsBuilderModule(availableTickets));
         }
 
         return graphBuilder;
@@ -376,7 +372,7 @@ public class GraphBuilder implements Runnable {
      * types are present. This helps point out when config files have been misnamed (builder-config vs. build-config).
      */
     private static enum InputFileType {
-        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, TRANSIT_TICKETS, OTHER;
+        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, OTHER;
 
         public static InputFileType forFile(File file) {
             String name = file.getName();
@@ -395,7 +391,6 @@ public class GraphBuilder implements Runnable {
                 return DEM; // Digital elevation model (elevation raster)
             if (name.equals("Graph.obj")) return GRAPH;
             if (name.endsWith("db.json")) return JSON;
-            if (name.equals("availableTickets.json")) return TRANSIT_TICKETS;
             if (name.equals(GraphBuilder.BUILDER_CONFIG_FILENAME) || name.equals(Router.ROUTER_CONFIG_FILENAME)) {
                 return CONFIG;
             }

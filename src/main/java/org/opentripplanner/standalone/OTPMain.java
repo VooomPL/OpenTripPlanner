@@ -190,6 +190,7 @@ public class OTPMain {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
             mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+            mapper.findAndRegisterModules();
             JsonNode config = mapper.readTree(jsonStream);
             LOG.info("Found and loaded JSON configuration file '{}'", file);
             return config;
