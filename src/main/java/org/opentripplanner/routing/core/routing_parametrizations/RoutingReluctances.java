@@ -1,17 +1,13 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
 /**
  * Describes how bad time spend on specified actions is.
  */
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class RoutingReluctances implements Cloneable {
     /**
      * How much worse is waiting for a transit vehicle than being on a transit vehicle, as a multiplier. The default value treats wait and on-vehicle
