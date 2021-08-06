@@ -56,6 +56,7 @@ public class JSONObjectMapperProvider implements ContextResolver<ObjectMapper> {
         // Constructors are available for both unnamed, unversioned throwaway modules
         // and named, versioned reusable modules.
         mapper = new ObjectMapper()
+                .findAndRegisterModules()
                 .setSerializationInclusion(Include.NON_NULL); // skip null fields
     }
 

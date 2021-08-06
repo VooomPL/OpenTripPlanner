@@ -209,7 +209,6 @@ public class GraphBuilder implements Runnable {
         File demFile = null;
         File jsonFile = null;
         File serializedConnectionMatrix = null;
-        File transitTicketsFile = null;
         LOG.info("Searching for graph builder input files in {}", dir);
         if (!dir.isDirectory() && dir.canRead()) {
             LOG.error("'{}' is not a readable directory.", dir);
@@ -252,10 +251,6 @@ public class GraphBuilder implements Runnable {
                 case SERIALIZED_CONNECTION_MATRIX:
                     LOG.info("Found serialized streets file {}", file);
                     serializedConnectionMatrix = file;
-                    break;
-                case TRANSIT_TICKETS:
-                    LOG.info("Found transit ticket definitions {}", file);
-                    transitTicketsFile = file;
                     break;
                 case OTHER:
                     LOG.warn("Skipping unrecognized file '{}'", file);
@@ -365,13 +360,12 @@ public class GraphBuilder implements Runnable {
         if (jsonFile != null) {
             graphBuilder.addModule(new TrafficPredictionBuilderModule(jsonFile));
         }
-
         if (serializedConnectionMatrix != null) {
             graphBuilder.addModule(new ConnectionMatrixHeuristicGraphBuilderModule(serializedConnectionMatrix));
         }
-
-        if (transitTicketsFile != null) {
-            graphBuilder.addModule(new AvailableTicketsBuilderModule(transitTicketsFile));
+        JsonNode availableTickets = routerConfig.get("availableTickets");
+        if (availableTickets != null) {
+            graphBuilder.addModule(new AvailableTicketsBuilderModule(availableTickets));
         }
 
         return graphBuilder;
@@ -395,7 +389,7 @@ public class GraphBuilder implements Runnable {
      * types are present. This helps point out when config files have been misnamed (builder-config vs. build-config).
      */
     private static enum InputFileType {
-        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, TRANSIT_TICKETS, OTHER, SERIALIZED_CONNECTION_MATRIX;
+        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, OTHER, SERIALIZED_CONNECTION_MATRIX;
 
         public static InputFileType forFile(File file) {
             String name = file.getName();
@@ -415,7 +409,6 @@ public class GraphBuilder implements Runnable {
             if (name.equals("Graph.obj")) return GRAPH;
             if (name.endsWith("db.json")) return JSON;
             if (name.endsWith("connection_matrix.json")) return SERIALIZED_CONNECTION_MATRIX;
-            if (name.equals("availableTickets.json")) return TRANSIT_TICKETS;
             if (name.equals(GraphBuilder.BUILDER_CONFIG_FILENAME) || name.equals(Router.ROUTER_CONFIG_FILENAME)) {
                 return CONFIG;
             }
