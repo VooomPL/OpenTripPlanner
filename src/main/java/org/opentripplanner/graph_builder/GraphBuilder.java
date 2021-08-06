@@ -3,7 +3,13 @@ package org.opentripplanner.graph_builder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
-import org.opentripplanner.graph_builder.module.*;
+import org.opentripplanner.graph_builder.module.DirectTransferGenerator;
+import org.opentripplanner.graph_builder.module.EmbedConfig;
+import org.opentripplanner.graph_builder.module.GtfsModule;
+import org.opentripplanner.graph_builder.module.PruneFloatingIslands;
+import org.opentripplanner.graph_builder.module.StreetLinkerModule;
+import org.opentripplanner.graph_builder.module.TransitToTaggedStopsModule;
+import org.opentripplanner.graph_builder.module.connection_matrix_heuristic.ConnectionMatrixHeuristicGraphBuilderModule;
 import org.opentripplanner.graph_builder.module.map.BusRouteStreetMatcher;
 import org.opentripplanner.graph_builder.module.ned.DegreeGridNEDTileSource;
 import org.opentripplanner.graph_builder.module.ned.ElevationModule;
@@ -21,7 +27,11 @@ import org.opentripplanner.openstreetmap.services.OpenStreetMapProvider;
 import org.opentripplanner.reflect.ReflectionLibrary;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.standalone.*;
+import org.opentripplanner.standalone.CommandLineParameters;
+import org.opentripplanner.standalone.GraphBuilderParameters;
+import org.opentripplanner.standalone.OTPMain;
+import org.opentripplanner.standalone.Router;
+import org.opentripplanner.standalone.S3BucketConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,7 +208,7 @@ public class GraphBuilder implements Runnable {
         JsonNode routerConfig = null;
         File demFile = null;
         File jsonFile = null;
-        File transitTicketsFile = null;
+        File serializedConnectionMatrix = null;
         LOG.info("Searching for graph builder input files in {}", dir);
         if (!dir.isDirectory() && dir.canRead()) {
             LOG.error("'{}' is not a readable directory.", dir);
@@ -237,6 +247,10 @@ public class GraphBuilder implements Runnable {
                 case JSON:
                     LOG.info("Found JSON file {}", file);
                     jsonFile = file;
+                    break;
+                case SERIALIZED_CONNECTION_MATRIX:
+                    LOG.info("Found serialized streets file {}", file);
+                    serializedConnectionMatrix = file;
                     break;
                 case OTHER:
                     LOG.warn("Skipping unrecognized file '{}'", file);
@@ -346,6 +360,9 @@ public class GraphBuilder implements Runnable {
         if (jsonFile != null) {
             graphBuilder.addModule(new TrafficPredictionBuilderModule(jsonFile));
         }
+        if (serializedConnectionMatrix != null) {
+            graphBuilder.addModule(new ConnectionMatrixHeuristicGraphBuilderModule(serializedConnectionMatrix));
+        }
         JsonNode availableTickets = routerConfig.get("availableTickets");
         if (availableTickets != null) {
             graphBuilder.addModule(new AvailableTicketsBuilderModule(availableTickets));
@@ -372,7 +389,7 @@ public class GraphBuilder implements Runnable {
      * types are present. This helps point out when config files have been misnamed (builder-config vs. build-config).
      */
     private static enum InputFileType {
-        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, OTHER;
+        GTFS, OSM, DEM, CONFIG, GRAPH, JSON, OTHER, SERIALIZED_CONNECTION_MATRIX;
 
         public static InputFileType forFile(File file) {
             String name = file.getName();
@@ -391,6 +408,7 @@ public class GraphBuilder implements Runnable {
                 return DEM; // Digital elevation model (elevation raster)
             if (name.equals("Graph.obj")) return GRAPH;
             if (name.endsWith("db.json")) return JSON;
+            if (name.endsWith("connection_matrix.json")) return SERIALIZED_CONNECTION_MATRIX;
             if (name.equals(GraphBuilder.BUILDER_CONFIG_FILENAME) || name.equals(Router.ROUTER_CONFIG_FILENAME)) {
                 return CONFIG;
             }
