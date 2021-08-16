@@ -1,5 +1,6 @@
 package org.opentripplanner.graph_builder.module.transit.tickets;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.FeedScopedId;
@@ -12,6 +13,7 @@ import org.opentripplanner.pricing.transit.ticket.pattern.StopPattern;
 import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Month;
 import java.util.ArrayList;
@@ -22,10 +24,13 @@ import static org.junit.Assert.*;
 
 public class AvailableTransitTicketsReaderTest {
 
+    ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+
     @Test
-    public void shouldReturnSingleTicketWithFareSwitchRule() {
+    public void shouldReturnSingleTicketWithFareSwitchRule() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithFareSwitchRule.json"));
+        File file = new File("src/test/resources/tickets/ticketWithFareSwitchRule.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -70,9 +75,10 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnSingleTicketWithTimeLimit() {
+    public void shouldReturnSingleTicketWithTimeLimit() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithTimeLimit.json"));
+        File file = new File("src/test/resources/tickets/ticketWithTimeLimit.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -122,30 +128,25 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnEmptyTicketSetDueToMalformedFile() {
+    public void shouldReturnEmptyTicketSetDueToMalformedFile() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithInvalidDateFormat.json"));
+        File file = new File("src/test/resources/tickets/ticketWithInvalidDateFormat.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
         assertTrue(tickets.isEmpty());
     }
 
     @Test
-    public void shouldReturnEmptyTicketSetDueToNoDefinitionFile() {
+    public void shouldReturnEmptyTicketSetDueToInvalidTicketStructure() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/nonExistingFile.json"));
-        assertTrue(tickets.isEmpty());
-    }
-
-    @Test
-    public void shouldReturnEmptyTicketSetDueToInvalidTicketStructure() {
-        AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/ticketWithInvalidStructure.json"));
+        File file = new File("src/test/resources/tickets/ticketWithInvalidStructure.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
         assertTrue(tickets.isEmpty());
     }
 
     @Test
     public void shouldReturnEmptyTicketSetDueToNullFileNameProperty() {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(null);
+        Set<TransitTicket> tickets = transitTicketGetter.get(null);
         assertTrue(tickets.isEmpty());
     }
 
@@ -154,17 +155,19 @@ public class AvailableTransitTicketsReaderTest {
     //----------------------------------------------------------------------------------------------------
 
     @Test
-    public void shouldReturn7WarsawTickets() {
+    public void shouldReturn7WarsawTickets() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/availableTickets.json"));
+        File file = new File("src/test/resources/tickets/warsaw/availableTickets.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(7, tickets.size());
     }
 
     @Test
-    public void shouldReturnSingleWarsaw20MinutesTicket() {
+    public void shouldReturnSingleWarsaw20MinutesTicket() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/20minTicket.json"));
+        File file = new File("src/test/resources/tickets/warsaw/20minTicket.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -222,9 +225,10 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnSingleWarsaw75MinutesTicket() {
+    public void shouldReturnSingleWarsaw75MinutesTicket() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/75minTicket.json"));
+        File file = new File("src/test/resources/tickets/warsaw/75minTicket.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -289,9 +293,10 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnSingleWarsaw75MinutesTicketSingleFareVersion() {
+    public void shouldReturnSingleWarsaw75MinutesTicketSingleFareVersion() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/75minTicket_singleFare.json"));
+        File file = new File("src/test/resources/tickets/warsaw/75minTicket_singleFare.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -363,9 +368,10 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnSingleWarsaw90MinutesTicket() {
+    public void shouldReturnSingleWarsaw90MinutesTicket() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/90minTicket.json"));
+        File file = new File("src/test/resources/tickets/warsaw/90minTicket.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -425,9 +431,10 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnSingleWarsaw90MinutesTicketSingleFareVersion() {
+    public void shouldReturnSingleWarsaw90MinutesTicketSingleFareVersion() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/90minTicket_singleFare.json"));
+        File file = new File("src/test/resources/tickets/warsaw/90minTicket_singleFare.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();
@@ -499,9 +506,10 @@ public class AvailableTransitTicketsReaderTest {
     }
 
     @Test
-    public void shouldReturnSingleWarsawDailyTicket() {
+    public void shouldReturnSingleWarsawDailyTicket() throws IOException {
         AvailableTransitTicketsReader transitTicketGetter = new AvailableTransitTicketsReader();
-        Set<TransitTicket> tickets = transitTicketGetter.getFromFile(new File("src/test/resources/tickets/warsaw/24hTicketZone1.json"));
+        File file = new File("src/test/resources/tickets/warsaw/24hTicketZone1.json");
+        Set<TransitTicket> tickets = transitTicketGetter.get(objectMapper.readTree(file));
 
         assertEquals(1, tickets.size());
         TransitTicket generatedTicket = tickets.iterator().next();

@@ -1,16 +1,12 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 
 /**
  * Describes how long specified actions take.
  */
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class RoutingDelays implements Cloneable {
 
     private int kickScooterRentingTime = 30;

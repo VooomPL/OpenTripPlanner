@@ -1,16 +1,12 @@
 package org.opentripplanner.routing.core.routing_parametrizations;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.opentripplanner.routing.core.TraverseMode;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class RoutingPenalties implements Cloneable {
 
     /**
