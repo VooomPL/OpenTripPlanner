@@ -1,7 +1,7 @@
 package org.opentripplanner.estimator.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.opentripplanner.estimator.hasura_client.ProvidersGetter;
+import org.opentripplanner.hasura_client.ProvidersGetter;
 import org.opentripplanner.estimator.hasura_client.VehicleStateSnapshotGetter;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
