@@ -1,37 +1,19 @@
 package org.opentripplanner.updater.stoptime;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
-
-import java.io.File;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.FareAttribute;
-import org.opentripplanner.model.Pathway;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.ServiceCalendar;
-import org.opentripplanner.model.ServiceCalendarDate;
-import org.opentripplanner.model.ShapePoint;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsLibrary;
+import org.opentripplanner.model.*;
+import org.opentripplanner.model.calendar.CalendarServiceData;
+import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.edgetype.Timetable;
 import org.opentripplanner.routing.edgetype.TimetableSnapshot;
 import org.opentripplanner.routing.edgetype.TransitBoardAlight;
@@ -43,12 +25,16 @@ import org.opentripplanner.routing.impl.DefaultStreetVertexIndexFactory;
 import org.opentripplanner.routing.trippattern.RealTimeState;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
+import org.opentripplanner.util.DateUtils;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import java.io.File;
+import java.text.ParseException;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.opentripplanner.calendar.impl.CalendarServiceDataFactoryImpl.createCalendarServiceData;
 
 public class TimetableSnapshotSourceTest {
 
@@ -218,7 +204,7 @@ public class TimetableSnapshotSourceTest {
         // GIVEN
 
         // Get service date of today because old dates will be purged after applying updates
-        final ServiceDate serviceDate = new ServiceDate(Calendar.getInstance());
+        final ServiceDate serviceDate = new ServiceDate(DateUtils.getInstant());
 
         final String addedTripId = "added_trip";
 
@@ -230,8 +216,8 @@ public class TimetableSnapshotSourceTest {
             tripDescriptorBuilder.setScheduleRelationship(TripDescriptor.ScheduleRelationship.ADDED);
             tripDescriptorBuilder.setStartDate(serviceDate.getAsString());
 
-            final Calendar calendar = serviceDate.getAsCalendar(graph.getTimeZone());
-            final long midnightSecondsSinceEpoch = calendar.getTimeInMillis() / 1000;
+            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getZoneId());
+            final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
             final TripUpdate.Builder tripUpdateBuilder = TripUpdate.newBuilder();
 
@@ -327,7 +313,7 @@ public class TimetableSnapshotSourceTest {
         // GIVEN
 
         // Get service date of today because old dates will be purged after applying updates
-        ServiceDate serviceDate = new ServiceDate(Calendar.getInstance());
+        ServiceDate serviceDate = new ServiceDate(DateUtils.getInstant());
         String modifiedTripId = "10.1";
 
         TripUpdate tripUpdate;
@@ -338,8 +324,8 @@ public class TimetableSnapshotSourceTest {
             tripDescriptorBuilder.setScheduleRelationship(TripDescriptor.ScheduleRelationship.MODIFIED);
             tripDescriptorBuilder.setStartDate(serviceDate.getAsString());
 
-            final Calendar calendar = serviceDate.getAsCalendar(graph.getTimeZone());
-            final long midnightSecondsSinceEpoch = calendar.getTimeInMillis() / 1000;
+            final ZonedDateTime zonedDateTime = serviceDate.getAsZonedDateTime(graph.getZoneId());
+            final long midnightSecondsSinceEpoch = zonedDateTime.toEpochSecond();
 
             final TripUpdate.Builder tripUpdateBuilder = TripUpdate.newBuilder();
 

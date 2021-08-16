@@ -2,8 +2,8 @@ package org.opentripplanner.model;
 
 import org.opentripplanner.model.calendar.ServiceDate;
 
+import java.time.ZoneId;
 import java.util.Set;
-import java.util.TimeZone;
 
 public interface CalendarService {
 
@@ -30,11 +30,11 @@ public interface CalendarService {
     Set<FeedScopedId> getServiceIdsOnDate(ServiceDate date);
 
     /**
-     * Returns the instantiated {@link TimeZone} for the specified agency id
+     * Returns the instantiated {@link ZoneId} for the specified agency id
      *
      * @param agencyId {@link Agency#getId()}
      * @return the time zone for the specified agency, or null if the agency was
      * not found
      */
-    TimeZone getTimeZoneForAgencyId(String agencyId);
+    ZoneId getTimeZoneForAgencyId(String agencyId);
 }

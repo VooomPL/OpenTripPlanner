@@ -14,6 +14,7 @@ import org.opentripplanner.routing.request.BannedStopSet;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
+import org.opentripplanner.util.DateUtils;
 import org.opentripplanner.util.ResourceBundleSingleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -75,24 +72,6 @@ public abstract class RoutingResource {
      */
     @QueryParam("intermediatePlaces")
     protected List<String> intermediatePlaces;
-
-    /**
-     * The date that the trip should depart (or arrive, for requests where arriveBy is true).
-     *
-     * @deprecated use newer `timestampMillis` parameter, which is timezone independent
-     */
-    @Deprecated
-    @QueryParam("date")
-    protected String date;
-
-    /**
-     * The time that the trip should depart (or arrive, for requests where arriveBy is true).
-     *
-     * @deprecated use newer `timestampMillis` parameter, which is timezone independent
-     */
-    @Deprecated
-    @QueryParam("time")
-    protected String time;
 
     /**
      * The time that the trip should depart (or arrive, for requests where arriveBy is true) in milliseconds.
@@ -646,7 +625,7 @@ public abstract class RoutingResource {
         if (toPlace != null)
             request.setToString(toPlace);
 
-        setDateTime(router, request);
+        setDateTime(request);
         if (timeouts != null && timeouts.size() > 0) {
             request.timeouts = new double[timeouts.size()];
             for (int i = 0; i < timeouts.size(); i++) {
@@ -840,11 +819,11 @@ public abstract class RoutingResource {
         if (maxTransfers != null)
             request.maxTransfers = maxTransfers;
 
-        if (compareNumberOfTransfers != null)
-            request.compareNumberOfTransfers = compareNumberOfTransfers;
+//        if (compareNumberOfTransfers != null)
+//            request.compareNumberOfTransfers = compareNumberOfTransfers;
 
         final long NOW_THRESHOLD_MILLIS = 15 * 60 * 60 * 1000;
-        boolean tripPlannedForNow = Math.abs(request.getDateTime().getTime() - new Date().getTime()) < NOW_THRESHOLD_MILLIS;
+        boolean tripPlannedForNow = Math.abs(request.getDateTime().getEpochSecond() - DateUtils.getInstant().getEpochSecond()) < NOW_THRESHOLD_MILLIS;
         request.bike.setUseBikeRentalAvailabilityInformation(tripPlannedForNow); // TODO the same thing for GTFS-RT
 
         if (startTransitStopId != null && !startTransitStopId.isEmpty())
@@ -944,31 +923,9 @@ public abstract class RoutingResource {
         return request;
     }
 
-    private void setDateTime(Router router, RoutingRequest request) {
+    private void setDateTime(RoutingRequest request) {
         if (timestampMillis != null) {
             request.setDateTime(timestampMillis);
-        } else {
-            TimeZone tz;
-            tz = router.graph.getTimeZone();
-            if (date == null && time != null) { // Time was provided but not date
-                LOG.debug("parsing ISO datetime {}", time);
-                try {
-                    // If the time query param doesn't specify a timezone, use the graph's default. See issue #1373.
-                    DatatypeFactory df = javax.xml.datatype.DatatypeFactory.newInstance();
-                    XMLGregorianCalendar xmlGregCal = df.newXMLGregorianCalendar(time);
-                    GregorianCalendar gregCal = xmlGregCal.toGregorianCalendar();
-                    if (xmlGregCal.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
-                        gregCal.setTimeZone(tz);
-                    }
-                    Date d2 = gregCal.getTime();
-                    request.setDateTime(d2);
-                } catch (DatatypeConfigurationException e) {
-                    request.setDateTime(date, time, tz);
-                }
-            } else {
-                request.setDateTime(date, time, tz);
-            }
-            request.flex.resetClockTime();
         }
     }
 

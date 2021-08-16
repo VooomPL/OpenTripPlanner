@@ -3,9 +3,10 @@ package org.opentripplanner.scripting.api;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.common.model.GenericLocation;
 import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.util.DateUtils;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 
 /**
  * Routing request options: date/time, modes, max walk distance...
@@ -34,23 +35,15 @@ public class OtpsRoutingRequest {
     }
 
     public void setDateTime(int year, int month, int day, int hour, int min, int sec) {
-        Calendar cal = Calendar.getInstance(); // Use default timezone
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month - 1);
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, min);
-        cal.set(Calendar.SECOND, sec);
-        cal.set(Calendar.MILLISECOND, 0);
-        req.setDateTime(cal.getTime());
+        req.setDateTime(ZonedDateTime.of(year, month, day, hour, min, sec, 0, DateUtils.getClock().getZone()).toInstant());
     }
 
-    public void setDateTime(Date dateTime) {
+    public void setDateTime(Instant dateTime) {
         req.setDateTime(dateTime);
     }
 
     public void setDateTime(long epochSec) {
-        req.setDateTime(new Date(epochSec * 1000L));
+        req.setDateTime(Instant.ofEpochSecond(epochSec));
     }
 
     public void setModes(String modesStr) {

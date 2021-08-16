@@ -1,16 +1,16 @@
 package org.opentripplanner.routing.core;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
+import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.routing.graph.Graph;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * Represents a day of transit services. 
@@ -31,29 +31,27 @@ public class ServiceDay implements Serializable {
      * serviceIds running on that day.
      */
     public ServiceDay(Graph graph, long time, CalendarService cs, String agencyId) {
-        TimeZone timeZone = cs.getTimeZoneForAgencyId(agencyId);
-        GregorianCalendar calendar = new GregorianCalendar(timeZone);
-        calendar.setTime(new Date(time * 1000));
-        serviceDate = new ServiceDate(calendar);
+        ZoneId zoneId = cs.getTimeZoneForAgencyId(agencyId);
+        serviceDate = new ServiceDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), zoneId));
 
-        init(graph, cs, timeZone);
+        init(graph, cs, zoneId);
     }
 
     public ServiceDay(Graph graph, ServiceDate serviceDate, CalendarService cs, String agencyId) {
-        TimeZone timeZone = cs.getTimeZoneForAgencyId(agencyId);
+        ZoneId zoneId = cs.getTimeZoneForAgencyId(agencyId);
         this.serviceDate = new ServiceDate(serviceDate);
 
-        init(graph, cs, timeZone);
+        init(graph, cs, zoneId);
     }
 
-    public ServiceDay(Graph graph, ServiceDate serviceDate, CalendarService cs, TimeZone timeZone) {
+    public ServiceDay(Graph graph, ServiceDate serviceDate, CalendarService cs, ZoneId zoneId) {
         this.serviceDate = new ServiceDate(serviceDate);
-        init(graph, cs, timeZone);
+        init(graph, cs, zoneId);
     }
 
-    private void init(Graph graph, CalendarService cs, TimeZone timeZone) {
-        Date d = serviceDate.getAsDate(timeZone);
-        this.midnight = d.getTime() / 1000;
+    private void init(Graph graph, CalendarService cs, ZoneId zoneId) {
+        Instant d = serviceDate.getAsInstant(zoneId);
+        this.midnight = d.getEpochSecond();
         serviceIdsRunning = new BitSet(cs.getServiceIds().size());
         
         for (FeedScopedId serviceId : cs.getServiceIdsOnDate(serviceDate)) {

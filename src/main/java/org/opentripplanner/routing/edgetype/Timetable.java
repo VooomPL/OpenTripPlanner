@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.util.*;
 
 
@@ -458,13 +459,13 @@ public class Timetable implements Serializable {
      * case.
      *
      * @param tripUpdate GTFS-RT trip update
-     * @param timeZone time zone of trip update
+     * @param zoneId time zone of trip update
      * @param updateServiceDate service date of trip update
      * @return new copy of updated TripTimes after TripUpdate has been applied on TripTimes of trip
      *         with the id specified in the trip descriptor of the TripUpdate; null if something
      *         went wrong
      */
-    public TripTimes createUpdatedTripTimes(TripUpdate tripUpdate, TimeZone timeZone, ServiceDate updateServiceDate) {
+    public TripTimes createUpdatedTripTimes(TripUpdate tripUpdate, ZoneId zoneId, ServiceDate updateServiceDate) {
         if (tripUpdate == null) {
             LOG.error("A null TripUpdate pointer was passed to the Timetable class update method.");
             return null;
@@ -533,7 +534,7 @@ public class Timetable implements Serializable {
                         newTimes.updateDepartureDelay(i, 0);
                         delay = 0;
                     } else {
-                        long today = updateServiceDate.getAsDate(timeZone).getTime() / 1000;
+                        long today = updateServiceDate.getAsInstant(zoneId).getEpochSecond();
 
                         if (update.hasArrival()) {
                             StopTimeEvent arrival = update.getArrival();

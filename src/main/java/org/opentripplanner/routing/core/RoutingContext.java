@@ -2,12 +2,12 @@ package org.opentripplanner.routing.core;
 
 import com.google.common.collect.Iterables;
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.api.resource.DebugOutput;
+import org.opentripplanner.common.geometry.GeometryUtils;
+import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
-import org.opentripplanner.api.resource.DebugOutput;
-import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SimpleEuclideanRWH;
 import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
@@ -30,21 +30,14 @@ import org.opentripplanner.util.NonLocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * A RoutingContext holds information needed to carry out a search for a particular TraverseOptions, on a specific graph.
  * Includes things like (temporary) endpoint vertices, transfer tables, service day caches, etc.
- *
+ * <p>
  * In addition, while the RoutingRequest should only carry parameters _in_ to the routing operation, the routing context
  * should be used to carry information back out, such as debug figures or flags that certain thresholds have been exceeded.
  */
@@ -67,7 +60,7 @@ public class RoutingContext implements Cloneable {
 
     // target means "where this search will terminate" not "the end of the trip from the user's perspective"
     public final Vertex target;
-    
+
     // The back edge associated with the origin - i.e. continuing a previous search.
     // NOTE: not final so that it can be modified post-construction for testing.
     // TODO(flamholz): figure out a better way.
@@ -82,7 +75,9 @@ public class RoutingContext implements Cloneable {
 
     public final TransferTable transferTable;
 
-    /** The timetableSnapshot is a {@link TimetableSnapshot} for looking up real-time updates. */
+    /**
+     * The timetableSnapshot is a {@link TimetableSnapshot} for looking up real-time updates.
+     */
     public final TimetableSnapshot timetableSnapshot;
 
     /**
@@ -102,13 +97,19 @@ public class RoutingContext implements Cloneable {
 
     public Vertex startingStop;
 
-    /** An object that accumulates profiling and debugging info for inclusion in the response. */
+    /**
+     * An object that accumulates profiling and debugging info for inclusion in the response.
+     */
     public DebugOutput debugOutput = new DebugOutput();
 
-    /** Indicates that the search timed out or was otherwise aborted. */
+    /**
+     * Indicates that the search timed out or was otherwise aborted.
+     */
     public boolean aborted;
 
-    /** Indicates that a maximum slope constraint was specified but was removed during routing to produce a result. */
+    /**
+     * Indicates that a maximum slope constraint was specified but was removed during routing to produce a result.
+     */
     public boolean slopeRestrictionRemoved = false;
 
     /**
@@ -199,14 +200,14 @@ public class RoutingContext implements Cloneable {
 
     /**
      * Flexible constructor which may compute to/from vertices.
-     * 
+     * <p>
      * TODO(flamholz): delete this flexible constructor and move the logic to constructors above appropriately.
-     * 
-     * @param findPlaces if true, compute origin and target from RoutingRequest using spatial indices.
+     *
+     * @param findPlaces             if true, compute origin and target from RoutingRequest using spatial indices.
      * @param temporaryVerticesParam if not null, use this collection to keep track of temporary vertices.
      */
     private RoutingContext(RoutingRequest routingRequest, Graph graph, Vertex from, Vertex to,
-            boolean findPlaces, Collection<Vertex> temporaryVerticesParam) {
+                           boolean findPlaces, Collection<Vertex> temporaryVerticesParam) {
         if (graph == null) {
             throw new GraphNotFoundException();
         }
@@ -250,14 +251,11 @@ public class RoutingContext implements Cloneable {
                     // TODO what if there is no coordinate but instead a named place?
                     toVertex = graph.streetIndex.getSampleVertexAt(opt.to.getCoordinate(), true);
                     fromVertex = null;
-                }
-                else {
+                } else {
                     fromVertex = graph.streetIndex.getSampleVertexAt(opt.from.getCoordinate(), false);
                     toVertex = null;
                 }
-            }
-
-            else {
+            } else {
                 // normal mode, search for vertices based RoutingRequest and split streets
                 toVertex = graph.streetIndex.getVertexForLocation(opt.to, opt, true);
                 if (opt.to.hasEdgeId()) {
@@ -365,11 +363,7 @@ public class RoutingContext implements Cloneable {
      * TraverseOptions already has a CalendarService set.
      */
     private void setServiceDays() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(opt.getSecondsSinceEpoch() * 1000));
-        c.setTimeZone(graph.getTimeZone());
-
-        final ServiceDate serviceDate = new ServiceDate(c);
+        final ServiceDate serviceDate = new ServiceDate(Instant.ofEpochSecond(opt.getSecondsSinceEpoch()).atZone(graph.getZoneId()));
         this.serviceDays = new ArrayList<ServiceDay>(3);
         if (calendarService == null && graph.getCalendarService() != null
                 && (opt.modes == null || opt.modes.contains(TraverseMode.TRANSIT))) {
@@ -383,20 +377,20 @@ public class RoutingContext implements Cloneable {
         // can begin is 1 service day (e.g. a trip which started yesterday is usable today.) This
         // does not address the case where a trip started multiple days ago (e.g. a multi-day ferry
         // trip will not be board-able after day 2).
-        for (TimeZone timeZone : graph.getAllTimeZones()) {
+        for (ZoneId zoneId : graph.getAllTimeZones()) {
             // Add today
-            addIfNotExists(this.serviceDays, new ServiceDay(graph, serviceDate, calendarService, timeZone));
+            addIfNotExists(this.serviceDays, new ServiceDay(graph, serviceDate, calendarService, zoneId));
             // Add one day previous (previous in the direction of the transit search, so yesterday if
             // arriveBy=false and tomorrow if arriveBy=true
             addIfNotExists(this.serviceDays, new ServiceDay(graph,
                     opt.arriveBy ? serviceDate.next() : serviceDate.previous(),
-                    calendarService, timeZone));
+                    calendarService, zoneId));
             // Add one or more days in the "forward" direction
             ServiceDate sd = serviceDate;
             int lookout = Math.max(1, opt.serviceDayLookout);
             for (int i = 0; i < lookout; i++) {
                 sd = opt.arriveBy ? sd.previous() : sd.next();
-                addIfNotExists(this.serviceDays, new ServiceDay(graph, sd, calendarService, timeZone));
+                addIfNotExists(this.serviceDays, new ServiceDay(graph, sd, calendarService, zoneId));
             }
         }
         serviceDays.sort(Comparator.comparing(ServiceDay::getServiceDate));
@@ -408,7 +402,9 @@ public class RoutingContext implements Cloneable {
         }
     }
 
-    /** check if the start and end locations are accessible */
+    /**
+     * check if the start and end locations are accessible
+     */
     public boolean isAccessible() {
         if (opt.wheelchairAccessible) {
             return isWheelchairAccessible(fromVertex) && isWheelchairAccessible(toVertex);
@@ -434,7 +430,7 @@ public class RoutingContext implements Cloneable {
      * for garbage collection.
      */
     public void destroy() {
-       TemporaryVertex.disposeAll(temporaryVertices);
-       temporaryVertices.clear();
+        TemporaryVertex.disposeAll(temporaryVertices);
+        temporaryVertices.clear();
     }
 }

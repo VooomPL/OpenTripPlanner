@@ -28,8 +28,7 @@ public class TransitPricesTestIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("date", "2020-10-23")
-                .queryParam("time", "11:13:00")
+                .queryParam("timestampMillis", "1603444380000") // 2020-10-23 11:13:00
                 .request().get();
 
         Response body = response.readEntity(Response.class);
@@ -50,8 +49,7 @@ public class TransitPricesTestIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("date", "2020-10-23")
-                .queryParam("time", "11:13:00")
+                .queryParam("timestampMillis", "1603444380000") // 2020-10-23 11:13:00
                 .request().get();
 
         Response body = response.readEntity(Response.class);

@@ -1,37 +1,15 @@
 package org.opentripplanner.routing.graph;
 
-import com.google.common.collect.ArrayListMultimap;
-
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Calendar;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.execution.ExecutorServiceExecutionStrategy;
 import org.apache.lucene.util.PriorityQueue;
 import org.joda.time.LocalDate;
-import org.opentripplanner.model.Agency;
-import org.opentripplanner.model.FeedScopedId;
-import org.opentripplanner.model.FeedInfo;
-import org.opentripplanner.model.Route;
-import org.opentripplanner.model.Stop;
-import org.opentripplanner.model.Trip;
-import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.common.LuceneIndex;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
@@ -40,11 +18,9 @@ import org.opentripplanner.common.model.P2;
 import org.opentripplanner.index.IndexGraphQLSchema;
 import org.opentripplanner.index.model.StopTimesInPattern;
 import org.opentripplanner.index.model.TripTimeShort;
-import org.opentripplanner.profile.ProfileTransfer;
-import org.opentripplanner.profile.StopCluster;
-import org.opentripplanner.profile.StopClusterMode;
-import org.opentripplanner.profile.StopNameNormalizer;
-import org.opentripplanner.profile.StopTreeCache;
+import org.opentripplanner.model.*;
+import org.opentripplanner.model.calendar.ServiceDate;
+import org.opentripplanner.profile.*;
 import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.algorithm.TraverseVisitor;
 import org.opentripplanner.routing.core.RoutingRequest;
@@ -59,13 +35,13 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.trippattern.FrequencyEntry;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.routing.vertextype.TransitStop;
+import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.Executors;
 
 /**
@@ -428,8 +404,8 @@ public class GraphIndex {
         if (graph.timetableSnapshotSource != null) {
             snapshot = graph.timetableSnapshotSource.getTimetableSnapshot();
         }
-        Date date = new Date(startTime * 1000);
-        ServiceDate[] serviceDates = {new ServiceDate(date).previous(), new ServiceDate(date), new ServiceDate(date).next()};
+        Instant instant = Instant.ofEpochSecond(startTime);
+        ServiceDate[] serviceDates = {new ServiceDate(instant).previous(), new ServiceDate(instant), new ServiceDate(instant).next()};
 
         for (TripPattern pattern : patternsForStop.get(stop)) {
 
@@ -561,8 +537,7 @@ public class GraphIndex {
         // The timetableSnapshot will be null if there's no real-time data being applied.
         if (req.rctx.timetableSnapshot == null) return tripPattern.scheduledTimetable;
         // Get the updated times for right now, which is the only reasonable default since no date is supplied.
-        Calendar calendar = Calendar.getInstance();
-        ServiceDate serviceDate = new ServiceDate(calendar.getTime());
+        ServiceDate serviceDate = new ServiceDate(DateUtils.getInstant());
         return req.rctx.timetableSnapshot.resolve(tripPattern, serviceDate);
     }
 

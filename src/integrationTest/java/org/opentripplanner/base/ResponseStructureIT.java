@@ -27,8 +27,7 @@ public class ResponseStructureIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "KICKSCOOTER", "MOTORBIKE")
-                .queryParam("time", "15:00:00")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                 .request().get();
 
         Response body = response.readEntity(Response.class);
@@ -39,7 +38,7 @@ public class ResponseStructureIT extends IntegrationTest {
     }
 
     private void assertRequestParameters(Response response) {
-        assertThat(response.getRequestParameters().keySet(), Matchers.containsInAnyOrder("mode", "startingMode", "fromPlace", "toPlace", "locale", "rentingAllowed", "date", "time", "vehicleTypesAllowed"));
+        assertThat(response.getRequestParameters().keySet(), Matchers.containsInAnyOrder("mode", "startingMode", "fromPlace", "toPlace", "locale", "rentingAllowed", "timestampMillis", "vehicleTypesAllowed"));
         assertThat(response.getRequestParameters(), Matchers.hasEntry("mode", "WALK,TRANSIT,CAR,BICYCLE"));
     }
 

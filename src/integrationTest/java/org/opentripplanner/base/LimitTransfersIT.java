@@ -38,7 +38,7 @@ public class LimitTransfersIT extends IntegrationTest {
                     .queryParam("numItineraries", 1)
                     .queryParam("startingMode", "WALK")
                     .queryParam("softWalkLimit", "false")
-                    .queryParam("date", "2020-10-23")
+                    .queryParam("timestampMillis", "1600855200000") // 2020-09-23 12:00:00
                     .queryParam("maxTransfers", "3")
                     .queryParam("rentingAllowed", "true")
                     .request().get();
@@ -66,7 +66,7 @@ public class LimitTransfersIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("numItineraries", 3)
                 .queryParam("softWalkLimit", "false")
-                .queryParam("date", "2020-10-23")
+                .queryParam("timestampMillis", "1600855200000") // 2020-09-23 12:00:00
                 .queryParam("compareNumberOfTransfers", "true")
                 .queryParam("maxTransfers", "2") //Important difference!
                 .queryParam("rentingAllowed", "true")

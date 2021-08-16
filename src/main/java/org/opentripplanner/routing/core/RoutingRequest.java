@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -145,7 +146,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * The epoch date/time that the trip should depart (or arrive, for requests where arriveBy is true)
      */
-    public long dateTime = new Date().getTime() / 1000;
+    public long dateTime = DateUtils.getInstant().getEpochSecond();
 
     /**
      * Whether the trip should depart at dateTime (false, the default), or arrive at dateTime.
@@ -577,20 +578,20 @@ public class RoutingRequest implements Cloneable, Serializable {
         }
     }
 
-    public Date getDateTime() {
-        return new Date(dateTime * 1000);
+    public Instant getDateTime() {
+        return Instant.ofEpochSecond(dateTime);
+    }
+
+    public long getDateTimeMillis() {
+        return dateTime * 1000;
     }
 
     public void setDateTime(long timestampMillis) {
         dateTime = timestampMillis / 1000;
     }
 
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime.getTime() / 1000;
-    }
-
-    public void setDateTime(String date, String time, TimeZone tz) {
-        setDateTime(DateUtils.toDate(date, time, tz));
+    public void setDateTime(Instant dateTime) {
+        this.dateTime = dateTime.getEpochSecond();
     }
 
     public int getNumItineraries() {

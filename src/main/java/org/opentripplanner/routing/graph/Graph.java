@@ -80,6 +80,7 @@ import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 import org.opentripplanner.updater.vehicle_sharing.vehicle_presence.CarPresencePredictor;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
+import org.opentripplanner.util.DateUtils;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,9 +95,7 @@ import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -198,7 +197,7 @@ public class Graph implements Serializable {
 
     private VertexComparatorFactory vertexComparatorFactory = new MortonVertexComparatorFactory();
 
-    private transient TimeZone timeZone = null;
+    private transient ZoneId zoneId = null;
 
     //Envelope of all OSM and transit vertices. Calculated during build time
     private WorldEnvelope envelope = null;
@@ -249,7 +248,7 @@ public class Graph implements Serializable {
      */
     public transient GraphUpdaterManager updaterManager = null;
 
-    public final Date buildTime = new Date();
+    public final Instant buildTime = DateUtils.getInstant();
 
     /**
      * True if OSM data was loaded into this Graph.
@@ -647,7 +646,7 @@ public class Graph implements Serializable {
 
     // Infer the time period covered by the transit feed
     public void updateTransitFeedValidity(CalendarServiceData data) {
-        long now = new Date().getTime() / 1000;
+        long now = DateUtils.getInstant().getEpochSecond();
         final long SEC_IN_DAY = 24 * 60 * 60;
         HashSet<String> agenciesWithFutureDates = new HashSet<String>();
         HashSet<String> agencies = new HashSet<String>();
@@ -655,7 +654,7 @@ public class Graph implements Serializable {
             agencies.add(sid.getAgencyId());
             for (ServiceDate sd : data.getServiceDatesForServiceId(sid)) {
                 // Adjust for timezone, assuming there is only one per graph.
-                long t = sd.getAsDate(getTimeZone()).getTime() / 1000;
+                long t = sd.getAsInstant(getZoneId()).getEpochSecond();
                 if (t > now) {
                     agenciesWithFutureDates.add(sid.getAgencyId());
                 }
@@ -1133,18 +1132,18 @@ public class Graph implements Serializable {
      * geographic location where the origin/destination vertex or board/alight event is located. This may become necessary when we start making graphs
      * with long distance train, boat, or air services.
      */
-    public TimeZone getTimeZone() {
-        if (timeZone == null) {
-            timeZone = calculateTimeZone();
+    public ZoneId getZoneId() {
+        if (zoneId == null) {
+            zoneId = calculateTimeZone();
         }
-        return timeZone;
+        return zoneId;
     }
 
-    private TimeZone calculateTimeZone() {
-        List<TimeZone> timeZones = getAllTimeZones();
+    private ZoneId calculateTimeZone() {
+        List<ZoneId> timeZones = getAllTimeZones();
         if (timeZones.size() == 0) {
             LOG.warn("Graph contains no agencies (yet); API request times will be interpreted as GMT.");
-            return TimeZone.getTimeZone("GMT");
+            return DateUtils.getClock().getZone();
         } else if (timeZones.size() > 1) {
             LOG.error("More than one time zone for graph: {}", timeZones);
         }
@@ -1156,7 +1155,7 @@ public class Graph implements Serializable {
      *
      * @return collection of referenced timezones
      */
-    public List<TimeZone> getAllTimeZones() {
+    public List<ZoneId> getAllTimeZones() {
         CalendarService cs = getCalendarService();
         if (cs == null) {
             return emptyList();
@@ -1175,7 +1174,7 @@ public class Graph implements Serializable {
      * potential to change the time zone, you should call this to ensure it is reset.
      */
     public void clearTimeZone() {
-        this.timeZone = null;
+        this.zoneId = null;
     }
 
     public void summarizeBuilderAnnotations() {

@@ -1,14 +1,14 @@
 package org.opentripplanner.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.pricing.transit.trip.model.TransitTripStage;
 import org.opentripplanner.routing.core.Fare;
 import org.opentripplanner.routing.core.TraverseMode;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An Itinerary is one complete way of getting from the start location to the end location.
@@ -22,13 +22,13 @@ public class Itinerary {
     public Long duration = 0L;
 
     /**
-     * Time that the trip departs.
+     * Time that the trip departs in milliseconds since epoch.
      */
-    public Calendar startTime = null;
+    public Instant startTime = null;
     /**
-     * Time that the trip arrives.
+     * Time that the trip arrives in milliseconds since epoch.
      */
-    public Calendar endTime = null;
+    public Instant endTime = null;
 
     /**
      * How much time is spent walking, in seconds.
@@ -120,43 +120,6 @@ public class Itinerary {
     public void removeLeg(Leg leg) {
         if (leg != null) {
             legs.remove(leg);
-        }
-    }
-
-    public void fixupDates(CalendarServiceData service) {
-        TimeZone startTimeZone = null;
-        TimeZone timeZone = null;
-        Iterator<Leg> it = legs.iterator();
-        while (it.hasNext()) {
-            Leg leg = it.next();
-            if (leg.agencyId == null) {
-                if (timeZone != null) {
-                    leg.setTimeZone(timeZone);
-                }
-            } else {
-                timeZone = service.getTimeZoneForAgencyId(leg.agencyId);
-                if (startTimeZone == null) {
-                    startTimeZone = timeZone;
-                }
-            }
-        }
-        if (timeZone != null) {
-            Calendar calendar = Calendar.getInstance(startTimeZone);
-            calendar.setTime(startTime.getTime());
-            startTime = calendar;
-            // go back and set timezone for legs prior to first transit
-            it = legs.iterator();
-            while (it.hasNext()) {
-                Leg leg = it.next();
-                if (leg.agencyId == null) {
-                    leg.setTimeZone(startTimeZone);
-                } else {
-                    break;
-                }
-            }
-            calendar = Calendar.getInstance(timeZone);
-            calendar.setTime(endTime.getTime());
-            endTime = calendar;
         }
     }
 }

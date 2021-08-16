@@ -24,8 +24,7 @@ public class GtfsRealTimeIT extends IntegrationTest {
                 .queryParam("mode", "WALK,TRANSIT")
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("time", "4:30pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595428200000") // 2020-07-22 16:30:00
                 .queryParam("numItineraries", "1")
                 .queryParam("ignoreRealtimeUpdates", "true")
                 .request().get();
@@ -37,8 +36,7 @@ public class GtfsRealTimeIT extends IntegrationTest {
                 .queryParam("mode", "WALK,TRANSIT")
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("time", "4:30pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595428200000") // 2020-07-22 16:30:00
                 .queryParam("numItineraries", "1")
                 .queryParam("ignoreRealtimeUpdates", "false")
                 .request().get();
@@ -52,13 +50,13 @@ public class GtfsRealTimeIT extends IntegrationTest {
         assertThat(bodyOriginal.getPlan().itinerary.get(0).legs.size(), equalTo(1));
         assertThat(bodyOriginal.getPlan().itinerary.get(0).legs.get(0).route, equalTo("69"));
         assertThat(bodyOriginal.getPlan().itinerary.get(0).legs.get(0).mode, equalTo(TraverseMode.BUS));
-        assertThat(bodyOriginal.getPlan().itinerary.get(0).legs.get(0).endTime.toInstant(), equalTo(GregorianCalendar.from(ZonedDateTime.of(2020, 7, 22, 14, 53, 0, 0, ZoneOffset.UTC)).toInstant()));
+        assertThat(bodyOriginal.getPlan().itinerary.get(0).legs.get(0).endTime, equalTo(GregorianCalendar.from(ZonedDateTime.of(2020, 7, 22, 14, 53, 0, 0, ZoneOffset.UTC)).toInstant()));
 
         assertThat(bodyRealTime.getPlan().itinerary.size(), equalTo(1));
         assertThat(bodyRealTime.getPlan().itinerary.get(0).legs.size(), equalTo(1));
         assertThat(bodyRealTime.getPlan().itinerary.get(0).legs.get(0).route, not("69"));
         assertThat(bodyRealTime.getPlan().itinerary.get(0).legs.get(0).mode, equalTo(TraverseMode.BUS));
-        assertThat(bodyRealTime.getPlan().itinerary.get(0).legs.get(0).endTime.toInstant(), not(GregorianCalendar.from(ZonedDateTime.of(2020, 7, 22, 14, 53, 0, 0, ZoneOffset.UTC)).toInstant()));
+        assertThat(bodyRealTime.getPlan().itinerary.get(0).legs.get(0).endTime, not(GregorianCalendar.from(ZonedDateTime.of(2020, 7, 22, 14, 53, 0, 0, ZoneOffset.UTC)).toInstant()));
 
     }
 

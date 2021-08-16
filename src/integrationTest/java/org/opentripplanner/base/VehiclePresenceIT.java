@@ -21,8 +21,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "CAR")
-                .queryParam("time", "03:00pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                 .queryParam("numItineraries", "1")
                 .request().get();
 
@@ -34,8 +33,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "CAR")
-                .queryParam("time", "03:00pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                 .queryParam("vehiclePresenceThreshold", "0.6")
                 .queryParam("numItineraries", "1")
                 .request().get();
@@ -73,8 +71,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "CAR")
-                .queryParam("time", "03:00pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                 .queryParam("vehiclePresenceThreshold", "0.9")
                 .queryParam("numItineraries", "1")
                 .request().get();
@@ -87,8 +84,7 @@ public class VehiclePresenceIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "CAR")
-                .queryParam("time", "03:00pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595422800000") // 2020-07-22 15:00:00
                 .queryParam("vehiclePresenceThreshold", "0.6")
                 .queryParam("numItineraries", "1")
                 .request().get();

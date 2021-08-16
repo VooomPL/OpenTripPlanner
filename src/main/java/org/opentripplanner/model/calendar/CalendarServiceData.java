@@ -4,39 +4,33 @@ package org.opentripplanner.model.calendar;
 import org.opentripplanner.model.FeedScopedId;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
 
 public class CalendarServiceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<String, TimeZone> timeZonesByAgencyId = new HashMap<>();
+    private final Map<String, ZoneId> timeZonesByAgencyId = new HashMap<>();
 
-    private Map<FeedScopedId, List<ServiceDate>> serviceDatesByServiceId = new HashMap<>();
+    private final Map<FeedScopedId, List<ServiceDate>> serviceDatesByServiceId = new HashMap<>();
 
-    private Map<LocalizedServiceId, List<Date>> datesByLocalizedServiceId = new HashMap<>();
+    private final Map<LocalizedServiceId, List<Instant>> datesByLocalizedServiceId = new HashMap<>();
 
-    private Map<ServiceDate, Set<FeedScopedId>> serviceIdsByDate = new HashMap<>();
+    private final Map<ServiceDate, Set<FeedScopedId>> serviceIdsByDate = new HashMap<>();
 
     /**
      * @param agencyId
      * @return the time zone for the specified agencyId, or null if the agency was
      *         not found
      */
-    public TimeZone getTimeZoneForAgencyId(String agencyId) {
+    public ZoneId getTimeZoneForAgencyId(String agencyId) {
         return timeZonesByAgencyId.get(agencyId);
     }
 
-    public void putTimeZoneForAgencyId(String agencyId, TimeZone timeZone) {
-        timeZonesByAgencyId.put(agencyId, timeZone);
+    public void putTimeZoneForAgencyId(String agencyId, ZoneId zoneId) {
+        timeZonesByAgencyId.put(agencyId, zoneId);
     }
 
     public Set<FeedScopedId> getServiceIds() {
@@ -73,11 +67,11 @@ public class CalendarServiceData implements Serializable {
         }
     }
 
-    public List<Date> getDatesForLocalizedServiceId(LocalizedServiceId serviceId) {
+    public List<Instant> getDatesForLocalizedServiceId(LocalizedServiceId serviceId) {
         return datesByLocalizedServiceId.get(serviceId);
     }
 
-    public void putDatesForLocalizedServiceId(LocalizedServiceId serviceId, List<Date> dates) {
+    public void putDatesForLocalizedServiceId(LocalizedServiceId serviceId, List<Instant> dates) {
         dates = Collections.unmodifiableList(new ArrayList<>(dates));
         datesByLocalizedServiceId.put(serviceId, dates);
     }

@@ -155,8 +155,8 @@ public abstract class GtfsTest extends TestCase {
 
     public void validateLeg(Leg leg, long startTime, long endTime, String toStopId, String fromStopId,
                      String alert) {
-        assertEquals(startTime, leg.startTime.getTimeInMillis());
-        assertEquals(endTime, leg.endTime.getTimeInMillis());
+        assertEquals(startTime, leg.startTime.toEpochMilli());
+        assertEquals(endTime, leg.endTime.toEpochMilli());
         assertEquals(toStopId, leg.to.stopId.getId());
         assertEquals(feedId.getId(), leg.to.stopId.getAgencyId());
         if (fromStopId != null) {

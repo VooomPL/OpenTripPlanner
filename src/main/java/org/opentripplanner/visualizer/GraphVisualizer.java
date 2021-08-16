@@ -32,6 +32,11 @@ import java.awt.event.*;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -309,7 +314,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
 
     private JTextField searchDate;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+    private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
     private JTextField boardingPenaltyField;
 
@@ -1246,12 +1251,12 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         JButton resetSearchDateButton = new JButton("now ->");
         resetSearchDateButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                searchDate.setText(dateFormat.format(new Date()));
+                searchDate.setText(dateFormat.format(ZonedDateTime.now()));
             }
         });
         routingPanel.add(resetSearchDateButton);
         searchDate = new JTextField();
-        searchDate.setText(dateFormat.format(new Date()));
+        searchDate.setText(dateFormat.format(ZonedDateTime.now()));
         routingPanel.add(searchDate);
 
 
@@ -1379,12 +1384,12 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     }
 
     protected void route(String from, String to) {
-        Date when;
+        Instant when;
         // Year + 1900
         try {
-            when = dateFormat.parse(searchDate.getText());
-        } catch (ParseException e) {
-            searchDate.setText("Format: " + dateFormat.toPattern());
+            when = ZonedDateTime.parse(searchDate.getText(), dateFormat).toInstant();
+        } catch (DateTimeParseException e) {
+            searchDate.setText("Format: " + dateFormat.toString());
             return;
         }
         TraverseModeSet modeSet = new TraverseModeSet();

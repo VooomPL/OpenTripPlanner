@@ -10,7 +10,13 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
-import java.util.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
  /**
  * One leg of a trip -- that is, a temporally continuous piece of the journey that takes place on a
@@ -22,12 +28,14 @@ public class Leg {
     /**
      * The date and time this leg begins.
      */
-    public Calendar startTime = null;
+    @JsonSerialize
+    public Instant startTime = null;
     
     /**
      * The date and time this leg ends.
      */
-    public Calendar endTime = null;
+    @JsonSerialize
+    public Instant endTime = null;
     
     /**
      * For transit leg, the offset from the scheduled departure-time of the boarding stop in this leg.
@@ -233,11 +241,11 @@ public class Leg {
 
     /* For call-n-ride leg, supply maximum start time based on calculation. */
     @JsonSerialize
-    public Calendar flexCallAndRideMaxStartTime = null;
+    public Instant flexCallAndRideMaxStartTime = null;
 
      /* For call-n-ride leg, supply minimum end time based on calculation. */
     @JsonSerialize
-    public Calendar flexCallAndRideMinEndTime = null;
+    public Instant flexCallAndRideMinEndTime = null;
 
     /** trip.drt_advance_book_min if this is a demand-response leg */
     @JsonSerialize
@@ -288,7 +296,7 @@ public class Leg {
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public double getDuration() {
-        return endTime.getTimeInMillis()/1000.0 - startTime.getTimeInMillis()/1000.0;
+        return Duration.between(startTime, endTime).get(ChronoUnit.SECONDS);
     }
 
     public void addAlert(Alert alert, Locale locale) {
@@ -303,13 +311,7 @@ public class Leg {
         alerts.add(new LocalizedAlert(alert, locale));
     }
 
-    public void setTimeZone(TimeZone timeZone) {
-        Calendar calendar = Calendar.getInstance(timeZone);
-        calendar.setTime(startTime.getTime());
-        startTime = calendar;
-        calendar = Calendar.getInstance(timeZone);
-        calendar.setTime(endTime.getTime());
-        endTime = calendar;
-        agencyTimeZoneOffset = timeZone.getOffset(startTime.getTimeInMillis());
+    public void setTimeZone(ZoneId zoneId) {
+        agencyTimeZoneOffset = zoneId.getRules().getOffset(startTime).getTotalSeconds();
     }
 }

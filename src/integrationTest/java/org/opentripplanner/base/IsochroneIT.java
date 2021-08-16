@@ -64,8 +64,7 @@ public class IsochroneIT extends IntegrationTest {
                 .queryParam("disableRemainingWeightHeuristic", "true")
                 .queryParam("maxWalkDistance", "600")
                 .queryParam("softWalkLimit", "false")
-                .queryParam("time", "4:30pm")
-                .queryParam("date", "07-22-2020")
+                .queryParam("timestampMillis", "1595428200000") // 2020-07-22 16:30:00
                 .queryParam("cutoffSec", "300")
                 .queryParam("cutoffSec", "600")
                 .queryParam("cutoffSec", "900")

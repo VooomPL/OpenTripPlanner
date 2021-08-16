@@ -23,7 +23,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "false")
-                .queryParam("date", "2020-10-23")
+                .queryParam("timestampMillis", "1603447200000") // 2020-10-23 12:00:00
                 .request().get();
 
         Response body = response.readEntity(Response.class);
@@ -46,8 +46,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
                 .queryParam("maxWalkDistance", "999999")
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
-                .queryParam("date", "07-16-2020")
-                .queryParam("time", "15:00:00")
+                .queryParam("timestampMillis", "1594904400000") // 2020-07-16 15:00:00
                 .request().get();
         Response body = response.readEntity(Response.class);
 
@@ -67,8 +66,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
                 .queryParam("startingMode", "WALK")
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "true")
-                .queryParam("date", "07-16-2020")
-                .queryParam("time", "15:00:00")
+                .queryParam("timestampMillis", "1594904400000") // 2020-07-16 15:00:00
                 .request().get();
         Response body = response.readEntity(Response.class);
 
@@ -88,8 +86,7 @@ public class ResponseItineraryTypeBasicIT extends IntegrationTest {
                 .queryParam("softWalkLimit", "false")
                 .queryParam("rentingAllowed", "true")
                 .queryParam("vehicleTypesAllowed", "KICKSCOOTER")
-                .queryParam("date", "07-16-2020")
-                .queryParam("time", "15:00:00")
+                .queryParam("timestampMillis", "1594904400000") // 2020-07-16 15:00:00
                 .request().get();
         Response body = response.readEntity(Response.class);
 

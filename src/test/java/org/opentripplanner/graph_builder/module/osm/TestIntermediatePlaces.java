@@ -21,9 +21,10 @@ import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPServer;
 import org.opentripplanner.standalone.Router;
 
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
@@ -37,7 +38,7 @@ public class TestIntermediatePlaces {
      */
     public static final double DELTA = 0.005;
 
-    private static TimeZone timeZone;
+    private static ZoneId zoneId;
 
     private static Graph graph;
     private static GraphPathFinder graphPathFinder;
@@ -54,7 +55,7 @@ public class TestIntermediatePlaces {
 
             Router router = otpServer.getGraphService().getRouter("A");
             TestIntermediatePlaces.graphPathFinder = new GraphPathFinder(router);
-            timeZone = graph.getTimeZone();
+            zoneId = graph.getZoneId();
         } catch (Exception e) {
             e.printStackTrace();
             assert false : "Could not add transit data: " + e.toString();
@@ -131,7 +132,7 @@ public class TestIntermediatePlaces {
     private void handleRequest(GenericLocation from, GenericLocation to, GenericLocation[] via,
         String modes, boolean arriveBy) {
         RoutingRequest request = new RoutingRequest(modes);
-        request.setDateTime("2016-04-20", "13:00", timeZone);
+        request.setDateTime(ZonedDateTime.of(2016,4, 20, 13, 0, 0, 0 , zoneId).toInstant());
         request.setArriveBy(arriveBy);
         request.from = from;
         request.to = to;
@@ -186,28 +187,28 @@ public class TestIntermediatePlaces {
 
     // Check that the start time and end time of each leg are consistent
     private void validateLegsTemporally(RoutingRequest request, Itinerary itinerary) {
-        Calendar departTime = Calendar.getInstance(timeZone);
-        Calendar arriveTime = Calendar.getInstance(timeZone);
+        Instant departTime;
+        Instant arriveTime;
         if (request.arriveBy) {
             departTime = itinerary.legs.get(0).from.departure;
-            arriveTime.setTimeInMillis(request.dateTime * 1000);
+            arriveTime = Instant.ofEpochSecond(request.dateTime);
         } else {
-            departTime.setTimeInMillis(request.dateTime * 1000);
+            departTime = Instant.ofEpochSecond(request.dateTime);
             arriveTime = itinerary.legs.get(itinerary.legs.size() - 1).to.arrival;
         }
         long sumOfDuration = 0;
         for (Leg leg : itinerary.legs) {
-            assertFalse(departTime.after(leg.startTime));
+            assertFalse(departTime.isAfter(leg.startTime));
             assertEquals(leg.startTime, leg.from.departure);
             assertEquals(leg.endTime, leg.to.arrival);
-            assertFalse(leg.startTime.after(leg.endTime));
+            assertFalse(leg.startTime.isAfter(leg.endTime));
 
             departTime = leg.to.arrival;
             sumOfDuration += leg.getDuration();
         }
         sumOfDuration += itinerary.waitingTime;
 
-        assertFalse(departTime.after(arriveTime));
+        assertFalse(departTime.isAfter(arriveTime));
 
         // Check the total duration of the legs,
         int accuracy = itinerary.legs.size(); // allow 1 second per leg for rounding errors

@@ -1,15 +1,15 @@
 /* This file is based on code copied from project OneBusAway, see the LICENSE file for further information. */
 package org.opentripplanner.calendar.impl;
 
+import org.opentripplanner.model.CalendarService;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.CalendarService;
 
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 /**
  * An implementation of {@link CalendarService}. Requires a pre-computed
@@ -47,7 +47,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public TimeZone getTimeZoneForAgencyId(String agencyId) {
+    public ZoneId getTimeZoneForAgencyId(String agencyId) {
         return data.getTimeZoneForAgencyId(agencyId);
     }
 
