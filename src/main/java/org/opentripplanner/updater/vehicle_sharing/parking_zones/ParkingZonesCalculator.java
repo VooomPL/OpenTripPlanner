@@ -3,6 +3,7 @@ package org.opentripplanner.updater.vehicle_sharing.parking_zones;
 import com.google.common.annotations.VisibleForTesting;
 import org.locationtech.jts.geom.Point;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
+import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.ParkingZoneInfo;
 import org.opentripplanner.routing.edgetype.rentedgetype.SingleParkingZone;
 import org.opentripplanner.routing.graph.Vertex;
@@ -11,7 +12,9 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class ParkingZonesCalculator implements Serializable {
@@ -51,6 +54,25 @@ public class ParkingZonesCalculator implements Serializable {
         List<VehicleType> vehicleTypesForbiddenFromParkingHere = getCityGovParkingZonesForLocation(point,
                 vehicleTypeExcludedFromCityParkingZones);
         return new ParkingZoneInfo(parkingZones, parkingZonesEnabled, vehicleTypesForbiddenFromParkingHere);
+    }
+
+    public ParkingZoneInfo getParkingZonesForMobilityHub(Vertex vertex, MobilityHubDropoffStation station) {
+        Point point = vertex.toPoint();
+        List<SingleParkingZone> parkingZones = Stream
+                .concat(
+                        station.getParkingZones().stream(),
+                        geometryParkingZones.stream().map(gpz -> findMatchingParkingZone(point, gpz))
+                )
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(toList());
+        List<VehicleType> vehicleTypesForbiddenFromParkingHere = getCityGovParkingZonesForLocation(point,
+                null);
+        return new ParkingZoneInfo(parkingZones, parkingZonesEnabled, vehicleTypesForbiddenFromParkingHere);
+    }
+
+    public ParkingZoneInfo getParkingZonesForMobilityHub2(MobilityHubDropoffStation station) {
+        return new ParkingZoneInfo(station.getParkingZones(), parkingZonesEnabled, emptyList());
     }
 
     private List<VehicleType> getCityGovParkingZonesForLocation(Point point, @Nullable VehicleType excluded) {
