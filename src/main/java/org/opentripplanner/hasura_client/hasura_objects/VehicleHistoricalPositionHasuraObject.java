@@ -1,16 +1,14 @@
-package org.opentripplanner.estimator.hasura_client.hasura_objects;
+package org.opentripplanner.hasura_client.hasura_objects;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.opentripplanner.hasura_client.hasura_objects.HasuraObject;
-import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 import java.math.BigDecimal;
-//TODO: Paulina Adamska VMP-239 Move this from simulator simulator-associated to the main OTP hasura_client package and rename
+
 @Getter
 @Setter
-public class VehicleStateSnapshotHasuraObject extends HasuraObject {
+public class VehicleHistoricalPositionHasuraObject extends HasuraObject {
 
     private String providerVehicleId;
     private double longitude;
