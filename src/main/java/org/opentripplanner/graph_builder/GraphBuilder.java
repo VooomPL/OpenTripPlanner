@@ -363,7 +363,7 @@ public class GraphBuilder implements Runnable {
         if (serializedConnectionMatrix != null) {
             graphBuilder.addModule(new ConnectionMatrixHeuristicGraphBuilderModule(serializedConnectionMatrix));
         }
-        JsonNode availableTickets = routerConfig.get("availableTickets");
+        JsonNode availableTickets = builderConfig.get("availableTickets");
         if (availableTickets != null) {
             graphBuilder.addModule(new AvailableTicketsBuilderModule(availableTickets));
         }
