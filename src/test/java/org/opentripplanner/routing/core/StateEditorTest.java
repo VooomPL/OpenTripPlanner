@@ -169,7 +169,7 @@ public class StateEditorTest {
         // when
         stateEditor.beginVehicleRenting(car);
         stateEditor.incrementTimeInSeconds(60);
-        stateEditor.doneVehicleRenting();
+        stateEditor.doneVehicleRentingNormalCost();
 
         // then
         int expectedNewPricingPackageIndex = 0;
@@ -286,7 +286,7 @@ public class StateEditorTest {
         StateEditor stateEditor = rentingState.edit(dropoffVehicleEdge);
 
         // when
-        stateEditor.doneVehicleRenting();
+        stateEditor.doneVehicleRentingNormalCost();
         State next = stateEditor.makeState();
 
         // then
@@ -317,7 +317,7 @@ public class StateEditorTest {
         StateEditor stateEditor = state.edit(dropoffVehicleEdge);
 
         // when
-        stateEditor.reversedDoneVehicleRenting(CAR_1);
+        stateEditor.reversedDoneVehicleRentingNormalCost(CAR_1);
         State next = stateEditor.makeState();
 
         // then: we rent a car, but in dropoff time

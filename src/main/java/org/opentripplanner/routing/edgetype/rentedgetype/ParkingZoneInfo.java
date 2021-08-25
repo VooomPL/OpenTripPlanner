@@ -66,7 +66,7 @@ public class ParkingZoneInfo implements Serializable {
                 || areWeInsideParkingZoneForProviderAndVehicleType(vehicle);
     }
 
-    private boolean hasProviderAndVehicleTypeDisabledParkingZonesFeature(VehicleDescription vehicle) {
+    protected boolean hasProviderAndVehicleTypeDisabledParkingZonesFeature(VehicleDescription vehicle) {
         if (vehicle.requiresHubToDrop())
             return false;
         return parkingZonesEnabled.stream().noneMatch(pz -> pz.appliesToThisVehicle(vehicle));

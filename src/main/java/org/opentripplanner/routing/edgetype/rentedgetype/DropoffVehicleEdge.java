@@ -41,13 +41,13 @@ public class DropoffVehicleEdge extends EdgeWithParkingZones {
 
     public State reversedTraverseDoneRenting(State state, VehicleDescription vehicle) {
         StateEditor next = state.edit(this);
-        next.reversedDoneVehicleRenting(vehicle);
+        next.reversedDoneVehicleRentingNormalCost(vehicle);
         return next.makeState();
     }
 
-    private State doneVehicleRenting(State state) {
+    protected State doneVehicleRenting(State state) {
         StateEditor stateEditor = state.edit(this);
-        stateEditor.doneVehicleRenting();
+        stateEditor.doneVehicleRentingNormalCost();
         return stateEditor.makeState();
     }
 }

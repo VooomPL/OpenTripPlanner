@@ -76,7 +76,7 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
     public State reversedTraverseSwitchVehicles(State state, VehicleDescription vehicle) {
         StateEditor next = state.edit(this);
         next.reversedBeginVehicleRenting();
-        next.reversedDoneVehicleRenting(vehicle);
+        next.reversedDoneVehicleRentingNormalCost(vehicle);
         return next.makeState();
     }
 
@@ -91,7 +91,7 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
             return null;
         }
         StateEditor stateEditor = state.edit(this);
-        stateEditor.doneVehicleRenting();
+        stateEditor.doneVehicleRentingNormalCost();
         stateEditor.beginVehicleRenting(vehicle);
         return stateEditor.makeState();
     }

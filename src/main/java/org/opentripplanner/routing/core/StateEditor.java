@@ -25,6 +25,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances.CONSTANT_RELUCTANCE;
+
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
  * allowing it to be modified before being put to use.
@@ -282,10 +284,10 @@ public class StateEditor {
 
         VehiclePricingPackage vehiclePricingPackage = child.getCurrentVehicle().getVehiclePricingPackage(previousActivePackageIndex);
         child.setTimePriceForCurrentVehicle(vehiclePricingPackage.computeTimeAssociatedPrice(
-                child.getStartPriceForCurrentVehicle(previousActivePackageIndex),
-                child.getTimePriceForCurrentVehicle(previousActivePackageIndex),
-                child.getDistancePriceForCurrentVehicle(previousActivePackageIndex),
-                child.getTimeTraversedInCurrentVehicleInSeconds()),
+                        child.getStartPriceForCurrentVehicle(previousActivePackageIndex),
+                        child.getTimePriceForCurrentVehicle(previousActivePackageIndex),
+                        child.getDistancePriceForCurrentVehicle(previousActivePackageIndex),
+                        child.getTimeTraversedInCurrentVehicleInSeconds()),
                 previousActivePackageIndex);
 
         BigDecimal newLowestTotalPrice = child.getTotalPriceForCurrentVehicle(previousActivePackageIndex);
@@ -296,8 +298,8 @@ public class StateEditor {
             if (i != previousActivePackageIndex) {
                 vehiclePricingPackage = child.getCurrentVehicle().getVehiclePricingPackage(i);
                 child.setTimePriceForCurrentVehicle(vehiclePricingPackage.computeTimeAssociatedPrice(
-                        child.getStartPriceForCurrentVehicle(i), child.getTimePriceForCurrentVehicle(i),
-                        child.getDistancePriceForCurrentVehicle(i), child.getTimeTraversedInCurrentVehicleInSeconds()),
+                                child.getStartPriceForCurrentVehicle(i), child.getTimePriceForCurrentVehicle(i),
+                                child.getDistancePriceForCurrentVehicle(i), child.getTimeTraversedInCurrentVehicleInSeconds()),
                         i);
                 totalPriceForProposedPackage = child.getTotalPriceForCurrentVehicle(i);
                 if (totalPriceForProposedPackage.compareTo(newLowestTotalPrice) < 0) {
@@ -498,12 +500,23 @@ public class StateEditor {
         this.assignBestPackage(BigDecimal.ZERO, newLowestTotalPrice, proposedActivePackageIndex);
     }
 
-    public void doneVehicleRenting() {
+    public void doneVehicleRentingLowCost() {
+        cloneStateDataAsNeeded();
+        int droppingTime = child.getOptions().routingDelays.getLowDropoffTime(child.getCurrentVehicle());
+        incrementTimeInSeconds(droppingTime);
+        incrementWeight(droppingTime * CONSTANT_RELUCTANCE);
+        doneVehicleRenting();
+    }
+
+    public void doneVehicleRentingNormalCost() {
         cloneStateDataAsNeeded();
         int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime);
         incrementWeight(droppingTime * child.getOptions().routingReluctances.getRentingReluctance());
+        doneVehicleRenting();
+    }
 
+    private void doneVehicleRenting() {
         int previousActivePackageIndex = child.getActivePackageIndex();
         VehiclePricingPackage vehiclePricingPackage = child.getCurrentVehicle().getVehiclePricingPackage(previousActivePackageIndex);
         BigDecimal previousTotalPrice = child.getTotalPriceForCurrentVehicle(previousActivePackageIndex);
@@ -533,14 +546,22 @@ public class StateEditor {
         child.setDistanceTraversedInCurrentVehicle(0);
     }
 
-    public void reversedDoneVehicleRenting(VehicleDescription vehicleDescription) {
+    public void reversedDoneVehicleRentingLowCost(VehicleDescription vehicleDescription) {
+        reversedDoneVehicleRenting(vehicleDescription);
+        incrementTimeInSeconds(child.getOptions().routingDelays.getLowDropoffTime(child.getCurrentVehicle()));
+    }
+
+    public void reversedDoneVehicleRentingNormalCost(VehicleDescription vehicleDescription) {
+        reversedDoneVehicleRenting(vehicleDescription);
+        incrementTimeInSeconds(child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle()));
+    }
+
+    private void reversedDoneVehicleRenting(VehicleDescription vehicleDescription) {
         cloneStateDataAsNeeded();
         child.stateData.currentTraverseMode = vehicleDescription.getTraverseMode();
         child.stateData.currentVehicle = vehicleDescription;
         child.distanceTraversedInCurrentVehicle = 0;
         child.setTimeTraversedInCurrentVehicleInSeconds(0);
-        int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
-        incrementTimeInSeconds(droppingTime);
     }
 
     public void reversedBeginVehicleRenting() {
@@ -759,10 +780,10 @@ public class StateEditor {
 
             VehiclePricingPackage vehiclePricingPackage = child.getCurrentVehicle().getVehiclePricingPackage(previousActivePackageIndex);
             child.setDistancePriceForCurrentVehicle(vehiclePricingPackage.computeDistanceAssociatedPrice(
-                    child.getStartPriceForCurrentVehicle(previousActivePackageIndex),
-                    child.getTimePriceForCurrentVehicle(previousActivePackageIndex),
-                    child.getDistancePriceForCurrentVehicle(previousActivePackageIndex),
-                    child.distanceTraversedInCurrentVehicle),
+                            child.getStartPriceForCurrentVehicle(previousActivePackageIndex),
+                            child.getTimePriceForCurrentVehicle(previousActivePackageIndex),
+                            child.getDistancePriceForCurrentVehicle(previousActivePackageIndex),
+                            child.distanceTraversedInCurrentVehicle),
                     previousActivePackageIndex);
 
             BigDecimal newLowestTotalPrice = child.getTotalPriceForCurrentVehicle(previousActivePackageIndex);
@@ -773,8 +794,8 @@ public class StateEditor {
                 if (i != previousActivePackageIndex) {
                     vehiclePricingPackage = child.getCurrentVehicle().getVehiclePricingPackage(i);
                     child.setDistancePriceForCurrentVehicle(vehiclePricingPackage.computeDistanceAssociatedPrice(
-                            child.getStartPriceForCurrentVehicle(i), child.getTimePriceForCurrentVehicle(i),
-                            child.getDistancePriceForCurrentVehicle(i), child.distanceTraversedInCurrentVehicle),
+                                    child.getStartPriceForCurrentVehicle(i), child.getTimePriceForCurrentVehicle(i),
+                                    child.getDistancePriceForCurrentVehicle(i), child.distanceTraversedInCurrentVehicle),
                             i);
                     totalPriceForProposedPackage = child.getTotalPriceForCurrentVehicle(i);
                     if (totalPriceForProposedPackage.compareTo(newLowestTotalPrice) < 0) {

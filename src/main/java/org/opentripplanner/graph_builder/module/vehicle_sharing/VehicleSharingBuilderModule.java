@@ -10,7 +10,9 @@ import org.opentripplanner.hasura_client.ParkingZonesGetter;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.CityGovDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.LowCostDropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubDropoffStation;
+import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubParkingZoneInfo;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.CityGovVehicleDropoffStationVertex;
@@ -149,9 +151,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
                                                         MobilityHubDropoffStation station) {
         MobilityHubVehicleDropoffStationVertex vertex = new MobilityHubVehicleDropoffStationVertex(graph, station);
         if (splitter.link(vertex)) {
-//            new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForMobilityHub(vertex,
-//                    station));
-            new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForMobilityHub2(station));
+            new LowCostDropoffVehicleEdge(vertex, new MobilityHubParkingZoneInfo(station.getParkingZones()));
         } else {
             LOG.warn("Failed to create mobility hub vehicle dropoff station at {},{}", station.getLongitude(),
                     station.getLatitude());
