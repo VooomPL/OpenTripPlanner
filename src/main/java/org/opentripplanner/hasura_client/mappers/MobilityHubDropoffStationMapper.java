@@ -23,7 +23,7 @@ public class MobilityHubDropoffStationMapper extends HasuraToOTPMapper<MobilityH
     @Override
     public List<MobilityHubDropoffStation> map(List<MobilityHubDropoffStationHasura> stations) {
         return stations.stream()
-                .collect(Collectors.groupingBy(station -> new Coordinate(station.getLatitude(), station.getLongitude())))
+                .collect(Collectors.groupingBy(station -> new Coordinate(station.getLongitude(), station.getLatitude())))
                 .entrySet()
                 .stream()
                 .map(entry -> new MobilityHubDropoffStation(entry.getKey().x, entry.getKey().y, mapToParkingZones(entry.getValue())))
