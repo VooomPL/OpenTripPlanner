@@ -10,7 +10,14 @@ import org.opentripplanner.common.model.NamedPlace;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.profile.OptimizationProfile;
-import org.opentripplanner.routing.core.routing_parametrizations.*;
+import org.opentripplanner.routing.core.routing_parametrizations.BannedTransit;
+import org.opentripplanner.routing.core.routing_parametrizations.BikeParameters;
+import org.opentripplanner.routing.core.routing_parametrizations.GtfsFlexParameters;
+import org.opentripplanner.routing.core.routing_parametrizations.PreferredTransit;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingDelays;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingPenalties;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances;
+import org.opentripplanner.routing.core.routing_parametrizations.RoutingStateDiffOptions;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -23,14 +30,20 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
-import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * A trip planning request. Some parameters may not be honored by the trip planner for some or all itineraries.
@@ -146,7 +159,7 @@ public class RoutingRequest implements Cloneable, Serializable {
     /**
      * The epoch date/time that the trip should depart (or arrive, for requests where arriveBy is true)
      */
-    public long dateTime = DateUtils.getInstant().getEpochSecond();
+    public long dateTime;
 
     /**
      * Whether the trip should depart at dateTime (false, the default), or arrive at dateTime.
