@@ -30,6 +30,7 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
+import org.opentripplanner.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -407,6 +408,7 @@ public class RoutingRequest implements Cloneable, Serializable {
         carSpeed = 40; // 40 m/s, 144 km/h, above the maximum (finite) driving speed limit worldwide
         setModes(new TraverseModeSet(TraverseMode.WALK, TraverseMode.TRANSIT));
         bikeWalkingOptions = this;
+        dateTime = DateUtils.getInstant().getEpochSecond();
 
         // So that they are never null.
         from = new GenericLocation();
