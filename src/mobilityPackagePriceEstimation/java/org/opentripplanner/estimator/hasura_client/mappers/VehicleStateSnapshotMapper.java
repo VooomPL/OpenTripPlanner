@@ -1,13 +1,13 @@
 package org.opentripplanner.estimator.hasura_client.mappers;
 
-import org.opentripplanner.estimator.hasura_client.hasura_objects.VehicleStateSnapshotHasuraObject;
+import org.opentripplanner.hasura_client.hasura_objects.VehicleHistoricalPositionHasuraObject;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 import java.util.*;
 
-public class VehicleStateSnapshotMapper extends HasuraToOTPMapper<VehicleStateSnapshotHasuraObject, Vehicle> {
+public class VehicleStateSnapshotMapper extends HasuraToOTPMapper<VehicleHistoricalPositionHasuraObject, Vehicle> {
 
     private Map<Integer, Provider> vehicleProviders;
 
@@ -16,13 +16,13 @@ public class VehicleStateSnapshotMapper extends HasuraToOTPMapper<VehicleStateSn
     }
 
     @Override
-    protected Vehicle mapSingleHasuraObject(VehicleStateSnapshotHasuraObject vehicleStateSnapshotHasuraObject) {
-        Provider vehicleProvider = vehicleProviders.get(vehicleStateSnapshotHasuraObject.getProviderId());
+    protected Vehicle mapSingleHasuraObject(VehicleHistoricalPositionHasuraObject vehicleHistoricalPositionHasuraObject) {
+        Provider vehicleProvider = vehicleProviders.get(vehicleHistoricalPositionHasuraObject.getProviderId());
         if (Objects.nonNull(vehicleProvider)) {
             /*This is not actually mapping anything, which is a little bit ugly workaround to incorporate the original
             vehicle getting code here and still being able to serialize the data from the snapshot as a json file for
             Wiremock vehicles database*/
-            return vehicleStateSnapshotHasuraObject.toVehicle(vehicleProvider);
+            return vehicleHistoricalPositionHasuraObject.toVehicle(vehicleProvider);
         } else {
             return null;
         }

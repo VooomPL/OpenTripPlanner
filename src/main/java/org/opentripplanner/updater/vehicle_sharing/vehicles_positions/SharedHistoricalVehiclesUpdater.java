@@ -1,7 +1,7 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.estimator.hasura_client.ProvidersGetter;
+import org.opentripplanner.hasura_client.ProvidersGetter;
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.hasura_client.VehicleHistoricalPositionsGetter;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
@@ -12,7 +12,6 @@ import org.opentripplanner.updater.PollingGraphUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.ConnectException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

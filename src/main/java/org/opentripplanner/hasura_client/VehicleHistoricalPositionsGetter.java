@@ -1,7 +1,7 @@
 package org.opentripplanner.hasura_client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.opentripplanner.estimator.hasura_client.hasura_objects.VehicleStateSnapshotHasuraObject;
+import org.opentripplanner.hasura_client.hasura_objects.VehicleHistoricalPositionHasuraObject;
 import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
 import org.opentripplanner.hasura_client.mappers.VehicleHistoricalPositionsMapper;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-public class VehicleHistoricalPositionsGetter extends HasuraGetter<VehicleDescription, VehicleStateSnapshotHasuraObject> {
+public class VehicleHistoricalPositionsGetter extends HasuraGetter<VehicleDescription, VehicleHistoricalPositionHasuraObject> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VehicleHistoricalPositionsGetter.class);
 
@@ -78,12 +78,12 @@ public class VehicleHistoricalPositionsGetter extends HasuraGetter<VehicleDescri
     }
 
     @Override
-    protected HasuraToOTPMapper<VehicleStateSnapshotHasuraObject, VehicleDescription> mapper() {
+    protected HasuraToOTPMapper<VehicleHistoricalPositionHasuraObject, VehicleDescription> mapper() {
         return new VehicleHistoricalPositionsMapper(snapshotLabel, vehicleProviders);
     }
 
     @Override
-    protected TypeReference<ApiResponse<VehicleStateSnapshotHasuraObject>> hasuraType() {
+    protected TypeReference<ApiResponse<VehicleHistoricalPositionHasuraObject>> hasuraType() {
         return new TypeReference<>() {
         };
     }

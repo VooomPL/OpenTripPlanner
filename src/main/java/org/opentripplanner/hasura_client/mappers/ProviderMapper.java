@@ -1,7 +1,6 @@
-package org.opentripplanner.estimator.hasura_client.mappers;
+package org.opentripplanner.hasura_client.mappers;
 
-import org.opentripplanner.estimator.hasura_client.hasura_objects.ProviderHasuraObject;
-import org.opentripplanner.hasura_client.mappers.HasuraToOTPMapper;
+import org.opentripplanner.hasura_client.hasura_objects.ProviderHasuraObject;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 
 public class ProviderMapper extends HasuraToOTPMapper<ProviderHasuraObject, Provider> {
