@@ -7,6 +7,7 @@ import org.opentripplanner.hasura_client.CityGovForbiddenZonesGetter;
 import org.opentripplanner.hasura_client.MobilityHubDropoffStationsGetter;
 import org.opentripplanner.hasura_client.MobilityHubForbiddenZonesGetter;
 import org.opentripplanner.hasura_client.ParkingZonesGetter;
+import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.CityGovDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
@@ -150,7 +151,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     private void createMobilityHubVehicleDropoffStation(Graph graph, PermanentStreetSplitter splitter,
                                                         MobilityHubDropoffStation station) {
         MobilityHubVehicleDropoffStationVertex vertex = new MobilityHubVehicleDropoffStationVertex(graph, station);
-        if (splitter.link(vertex)) {
+        if (splitter.link(vertex, TraverseMode.CAR) && splitter.link(vertex, TraverseMode.WALK)) {
             new LowCostDropoffVehicleEdge(vertex, new MobilityHubParkingZoneInfo(station.getParkingZones()));
         } else {
             LOG.warn("Failed to create mobility hub vehicle dropoff station at {},{}", station.getLongitude(),
