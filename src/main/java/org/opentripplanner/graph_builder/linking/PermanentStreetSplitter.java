@@ -93,7 +93,14 @@ public class PermanentStreetSplitter {
      * Link this vertex into the graph to the closest walkable edge
      */
     public boolean link(Vertex vertex) {
-        return toStreetEdgeLinker.linkPermanently(vertex, TraverseMode.WALK);
+        return link(vertex, TraverseMode.WALK);
+    }
+
+    /**
+     * Link this vertex into the graph to the closest edge available for given traverse mode
+     */
+    public boolean link(Vertex vertex, TraverseMode traverseMode) {
+        return toStreetEdgeLinker.linkPermanently(vertex, traverseMode);
     }
 
     private boolean hasToBeLinked(Vertex v) {
