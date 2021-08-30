@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -64,7 +65,7 @@ public class GraphBuilder implements Runnable {
 
     private final File transitLineStopTimesFile;
 
-    private final  File timePredictionFile;
+    private final File timePredictionFile;
 
     private boolean disableGtfsDataExport;
 
@@ -88,7 +89,7 @@ public class GraphBuilder implements Runnable {
         transitLineFile = new File(path, "linie.csv");
         transitLineStopsFile = new File(path, "przystanki.csv");
         transitLineStopTimesFile = new File(path, "godziny.csv");
-        timePredictionFile = new File(path,"prediction.csv");
+        timePredictionFile = new File(path, "prediction.csv");
         graph.stopClusterMode = builderParams.stopClusterMode;
     }
 
@@ -373,9 +374,20 @@ public class GraphBuilder implements Runnable {
 
     private static void tryAddVehicleSharingBuilderModule(GraphBuilder graphBuilder) {
         Properties properties = System.getProperties();
-        if (properties.containsKey("sharedVehiclesApi")) {
+        Map<String, String> environment = System.getenv();
+        if (properties.containsKey("sharedVehiclesApi") &&
+                environment.containsKey("PLANNER_OWN_HASURA_API") &&
+                environment.containsKey("PLANNER_OWN_HASURA_API_PASS")) {
+            graphBuilder.addModule(new VehicleSharingBuilderModule(
+                    properties.getProperty("sharedVehiclesApi"),
+                    environment.get("PLANNER_OWN_HASURA_API"),
+                    environment.get("PLANNER_OWN_HASURA_API_PASS")
+            ));
+            LOG.info("Building graph with parking zones, city gov parking zones and mobility hubs");
+        } else if (properties.containsKey("sharedVehiclesApi")) {
             graphBuilder.addModule(VehicleSharingBuilderModule
                     .justParkingZones(properties.getProperty("sharedVehiclesApi")));
+            LOG.info("Building graph with parking zones");
         } else {
             graphBuilder.addModule(VehicleSharingBuilderModule.withoutParkingZones());
             LOG.warn("Building graph without rentable vehicles parking zones. If you want to add parking zones, " +

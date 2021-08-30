@@ -9,6 +9,9 @@ import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
  */
 @Data
 public class RoutingReluctances implements Cloneable {
+
+    public static final double CONSTANT_RELUCTANCE = 1.0;
+
     /**
      * How much worse is waiting for a transit vehicle than being on a transit vehicle, as a multiplier. The default value treats wait and on-vehicle
      * time as the same.

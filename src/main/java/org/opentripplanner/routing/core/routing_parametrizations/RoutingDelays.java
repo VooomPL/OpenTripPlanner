@@ -25,6 +25,8 @@ public class RoutingDelays implements Cloneable {
 
     private int carDropoffTime = 240;
 
+    private int lowDropoffTime = 30;
+
     public int getRentingTime(VehicleDescription vehicleDescription) {
         switch (vehicleDescription.getVehicleType()) {
             case CAR:
@@ -53,6 +55,10 @@ public class RoutingDelays implements Cloneable {
             default:
                 throw new IllegalArgumentException("Dropoff time is not specified for this vehicle type");
         }
+    }
+
+    public int getLowDropoffTime(VehicleDescription vehicleDescription) {
+        return lowDropoffTime;
     }
 
     public RoutingDelays clone() {

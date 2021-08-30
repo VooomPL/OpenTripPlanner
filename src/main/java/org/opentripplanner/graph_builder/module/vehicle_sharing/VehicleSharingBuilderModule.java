@@ -4,15 +4,22 @@ import org.opentripplanner.graph_builder.linking.PermanentStreetSplitter;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.hasura_client.CityGovDropoffStationsGetter;
 import org.opentripplanner.hasura_client.CityGovForbiddenZonesGetter;
+import org.opentripplanner.hasura_client.MobilityHubDropoffStationsGetter;
+import org.opentripplanner.hasura_client.MobilityHubForbiddenZonesGetter;
 import org.opentripplanner.hasura_client.ParkingZonesGetter;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.CityGovDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.LowCostDropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubDropoffStation;
+import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubParkingZoneInfo;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.CityGovVehicleDropoffStationVertex;
+import org.opentripplanner.routing.vertextype.MobilityHubVehicleDropoffStationVertex;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometriesDisallowedForVehicleType;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZone;
+import org.opentripplanner.updater.vehicle_sharing.parking_zones.GeometryParkingZonesMerger;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +39,12 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
     private final CityGovForbiddenZonesGetter cityGovForbiddenZonesGetter = new CityGovForbiddenZonesGetter();
 
     private final CityGovDropoffStationsGetter cityGovDropoffStationsGetter = new CityGovDropoffStationsGetter();
+
+    private final MobilityHubDropoffStationsGetter mobilityHubDropoffStationsGetter = new MobilityHubDropoffStationsGetter();
+
+    private final MobilityHubForbiddenZonesGetter mobilityHubForbiddenZonesGetter = new MobilityHubForbiddenZonesGetter();
+
+    private final GeometryParkingZonesMerger geometryParkingZonesMerger = new GeometryParkingZonesMerger();
 
     @Nullable
     private final String sharedVehiclesApiUrl;
@@ -71,7 +84,9 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
                 LOG.info("Creating vehicle dropoff edges with parking zones and city gov forbidden parking zones");
                 createParkingZonesCalculator(graph);
                 LOG.info("Creating city government vehicle dropoff stations");
-                createCityGovVehicleDropoffStations(graph);
+                PermanentStreetSplitter splitter = PermanentStreetSplitter.createNewDefaultInstance(graph, null, false);
+                createCityGovVehicleDropoffStations(graph, splitter);
+                createMobilityHubVehicleDropoffStations(graph, splitter);
             }
             LOG.info("Creating vehicle dropoff edges");
             createDropoffVehicleEdges(graph);
@@ -92,10 +107,11 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
 
     private void createParkingZonesCalculator(Graph graph) {
         List<GeometryParkingZone> geometryParkingZones = parkingZonesGetter.postFromHasura(graph, sharedVehiclesApiUrl);
+        List<GeometryParkingZone> mobilityHubForbiddenZones = mobilityHubForbiddenZonesGetter.postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword);
+        List<GeometryParkingZone> mergedGeometries = geometryParkingZonesMerger.merge(geometryParkingZones, mobilityHubForbiddenZones);
         List<GeometriesDisallowedForVehicleType> cityGovForbiddenGeometryParkingZones = cityGovForbiddenZonesGetter
                 .postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword);
-        graph.parkingZonesCalculator = new ParkingZonesCalculator(geometryParkingZones,
-                cityGovForbiddenGeometryParkingZones);
+        graph.parkingZonesCalculator = new ParkingZonesCalculator(mergedGeometries, cityGovForbiddenGeometryParkingZones);
     }
 
     private void createDropoffVehicleEdges(Graph graph) {
@@ -109,8 +125,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
         new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
     }
 
-    private void createCityGovVehicleDropoffStations(Graph graph) {
-        PermanentStreetSplitter splitter = PermanentStreetSplitter.createNewDefaultInstance(graph, null, false);
+    private void createCityGovVehicleDropoffStations(Graph graph, PermanentStreetSplitter splitter) {
         cityGovDropoffStationsGetter.postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword)
                 .forEach(station -> createCityGovVehicleDropoffStation(graph, splitter, station));
     }
@@ -123,6 +138,22 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
                     station.getVehicleType()));
         } else {
             LOG.warn("Failed to create city government vehicle dropoff station at {},{}", station.getLongitude(),
+                    station.getLatitude());
+        }
+    }
+
+    private void createMobilityHubVehicleDropoffStations(Graph graph, PermanentStreetSplitter splitter) {
+        mobilityHubDropoffStationsGetter.postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword)
+                .forEach(station -> createMobilityHubVehicleDropoffStation(graph, splitter, station));
+    }
+
+    private void createMobilityHubVehicleDropoffStation(Graph graph, PermanentStreetSplitter splitter,
+                                                        MobilityHubDropoffStation station) {
+        MobilityHubVehicleDropoffStationVertex vertex = new MobilityHubVehicleDropoffStationVertex(graph, station);
+        if (splitter.link(vertex)) {
+            new LowCostDropoffVehicleEdge(vertex, new MobilityHubParkingZoneInfo(station.getParkingZones()));
+        } else {
+            LOG.warn("Failed to create mobility hub vehicle dropoff station at {},{}", station.getLongitude(),
                     station.getLatitude());
         }
     }

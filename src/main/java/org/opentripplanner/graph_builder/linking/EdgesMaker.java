@@ -1,12 +1,24 @@
 package org.opentripplanner.graph_builder.linking;
 
 import com.google.common.collect.Iterables;
-import org.opentripplanner.routing.edgetype.*;
+import org.opentripplanner.routing.edgetype.CityGovVehicleDropoffStationLink;
+import org.opentripplanner.routing.edgetype.MobilityHubVehicleDropoffStationLink;
+import org.opentripplanner.routing.edgetype.StreetBikeParkLink;
+import org.opentripplanner.routing.edgetype.StreetBikeRentalLink;
+import org.opentripplanner.routing.edgetype.StreetTransitLink;
+import org.opentripplanner.routing.edgetype.TemporaryFreeEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleLinkEdge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.StreetLocation;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
-import org.opentripplanner.routing.vertextype.*;
+import org.opentripplanner.routing.vertextype.BikeParkVertex;
+import org.opentripplanner.routing.vertextype.BikeRentalStationVertex;
+import org.opentripplanner.routing.vertextype.CityGovVehicleDropoffStationVertex;
+import org.opentripplanner.routing.vertextype.MobilityHubVehicleDropoffStationVertex;
+import org.opentripplanner.routing.vertextype.StreetVertex;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
+import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
+import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +70,8 @@ public class EdgesMaker {
             makeBikeParkEdges((BikeParkVertex) v1, v2);
         } else if (v1 instanceof CityGovVehicleDropoffStationVertex) {
             makeCityGovDropoffStationEdges((CityGovVehicleDropoffStationVertex) v1, v2);
+        } else if (v1 instanceof MobilityHubVehicleDropoffStationVertex) {
+            makeMobilityHubDropoffStationEdges((MobilityHubVehicleDropoffStationVertex) v1, v2);
         } else {
             LOG.warn("Not supported type of vertex: {}", v1.getClass());
         }
@@ -112,5 +126,15 @@ public class EdgesMaker {
 
         new CityGovVehicleDropoffStationLink(from, to);
         new CityGovVehicleDropoffStationLink(to, from);
+    }
+
+    private void makeMobilityHubDropoffStationEdges(MobilityHubVehicleDropoffStationVertex from, StreetVertex to) {
+        for (CityGovVehicleDropoffStationLink sbpl : Iterables.filter(from.getOutgoing(), CityGovVehicleDropoffStationLink.class)) {
+            if (sbpl.getToVertex() == to)
+                return;
+        }
+
+        new MobilityHubVehicleDropoffStationLink(from, to);
+        new MobilityHubVehicleDropoffStationLink(to, from);
     }
 }
