@@ -24,7 +24,7 @@ public class MobilityHubDropoffStationsGetter extends HasuraGetter<MobilityHubDr
                 "    latitude\\n" +
                 "    longitude\\n" +
                 "    vehicleType:vehicle_type\\n" +
-                "    provider_id:provider_id\\n" +
+                "    providerId:provider_id\\n" +
                 "  }\\n" +
                 "}\",";
     }
