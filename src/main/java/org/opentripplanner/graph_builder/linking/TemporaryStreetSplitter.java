@@ -11,7 +11,10 @@ import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
-import org.opentripplanner.routing.edgetype.rentedgetype.*;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentBikeEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryDropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.TemporaryHighCostDropoffVehicleEdge;
 import org.opentripplanner.routing.error.TrivialPathException;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
@@ -173,6 +176,10 @@ public class TemporaryStreetSplitter {
         } else {
             new TemporaryDropoffVehicleEdge(destination,
                     graph.parkingZonesCalculator.getParkingZonesForLocation(destination));
+            if (graph.parkingZonesCalculator.inMobilityHubZone(destination)) {
+                new TemporaryHighCostDropoffVehicleEdge(destination,
+                        graph.parkingZonesCalculator.getParkingZonesForLocationNearMobilityHub(destination));
+            }
         }
     }
 

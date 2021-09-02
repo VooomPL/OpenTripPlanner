@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class ParkingZonesCalculator implements Serializable {
@@ -20,13 +21,25 @@ public class ParkingZonesCalculator implements Serializable {
 
     private final List<GeometriesDisallowedForVehicleType> geometriesDisallowedForVehicleTypes;
 
+    private final List<GeometryParkingZone> mobilityHubParkingZones;
+
     @VisibleForTesting
     final List<SingleParkingZone> parkingZonesEnabled;
+
+    public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones,
+                                  List<GeometriesDisallowedForVehicleType> geometriesDisallowedForVehicleTypes,
+                                  List<GeometryParkingZone> mobilityHubParkingZones) {
+        this.geometryParkingZones = geometryParkingZones;
+        this.geometriesDisallowedForVehicleTypes = geometriesDisallowedForVehicleTypes;
+        this.mobilityHubParkingZones = mobilityHubParkingZones;
+        this.parkingZonesEnabled = createParkingZonesEnabled();
+    }
 
     public ParkingZonesCalculator(List<GeometryParkingZone> geometryParkingZones,
                                   List<GeometriesDisallowedForVehicleType> geometriesDisallowedForVehicleTypes) {
         this.geometryParkingZones = geometryParkingZones;
         this.geometriesDisallowedForVehicleTypes = geometriesDisallowedForVehicleTypes;
+        this.mobilityHubParkingZones = emptyList();
         this.parkingZonesEnabled = createParkingZonesEnabled();
     }
 
@@ -74,5 +87,20 @@ public class ParkingZonesCalculator implements Serializable {
                 .filter(pz -> pz.sameProviderIdAndVehicleType(geometryParkingZone))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean inMobilityHubZone(Vertex vertex) {
+        return mobilityHubParkingZones.stream().anyMatch(gpz -> gpz.isPointInDisallowedParkingZone(vertex.toPoint()));
+    }
+
+    public ParkingZoneInfo getParkingZonesForLocationNearMobilityHub(Vertex vertex) {
+        Point point = vertex.toPoint();
+        List<SingleParkingZone> parkingZones = mobilityHubParkingZones.stream()
+                .filter(gpz -> gpz.isPointInDisallowedParkingZone(vertex.toPoint()))
+                .map(this::getMatchingParkingZoneFromList)
+                .collect(toList());
+        List<VehicleType> vehicleTypesForbiddenFromParkingHere = getCityGovParkingZonesForLocation(point,
+                null);
+        return new ParkingZoneInfo(parkingZones, parkingZonesEnabled, vehicleTypesForbiddenFromParkingHere);
     }
 }

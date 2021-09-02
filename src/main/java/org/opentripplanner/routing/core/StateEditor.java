@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances.CONSTANT_RELUCTANCE;
+import static org.opentripplanner.routing.core.routing_parametrizations.RoutingReluctances.HIGH_RENTING_VEHICLE_DROPOFF_RELUCTANCE;
 
 /**
  * This class is a wrapper around a new State that provides it with setter and increment methods,
@@ -505,6 +506,14 @@ public class StateEditor {
         int droppingTime = child.getOptions().routingDelays.getLowDropoffTime(child.getCurrentVehicle());
         incrementTimeInSeconds(droppingTime);
         incrementWeight(droppingTime * CONSTANT_RELUCTANCE);
+        doneVehicleRenting();
+    }
+
+    public void doneVehicleRentingHighCost() {
+        cloneStateDataAsNeeded();
+        int droppingTime = child.getOptions().routingDelays.getDropoffTime(child.getCurrentVehicle());
+        incrementTimeInSeconds(droppingTime);
+        incrementWeight(droppingTime * HIGH_RENTING_VEHICLE_DROPOFF_RELUCTANCE);
         doneVehicleRenting();
     }
 

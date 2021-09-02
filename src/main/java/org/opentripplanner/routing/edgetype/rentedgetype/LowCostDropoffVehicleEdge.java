@@ -16,6 +16,11 @@ public class LowCostDropoffVehicleEdge extends DropoffVehicleEdge {
     }
 
     @Override
+    public State traverse(State state) {
+        return state.getOptions().useMobilityHubs ? super.traverse(state) : null;
+    }
+
+    @Override
     public State reversedTraverseDoneRenting(State state, VehicleDescription vehicle) {
         StateEditor next = state.edit(this);
         next.reversedDoneVehicleRentingLowCost(vehicle);

@@ -11,6 +11,7 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.CityGovDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.HighCostDropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.LowCostDropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubDropoffStation;
 import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubParkingZoneInfo;
@@ -112,7 +113,7 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
         List<GeometryParkingZone> mergedGeometries = geometryParkingZonesMerger.merge(geometryParkingZones, mobilityHubForbiddenZones);
         List<GeometriesDisallowedForVehicleType> cityGovForbiddenGeometryParkingZones = cityGovForbiddenZonesGetter
                 .postFromHasuraWithPassword(graph, cityGovHasuraApiUrl, cityGovHasuraApiPassword);
-        graph.parkingZonesCalculator = new ParkingZonesCalculator(mergedGeometries, cityGovForbiddenGeometryParkingZones);
+        graph.parkingZonesCalculator = new ParkingZonesCalculator(mergedGeometries, cityGovForbiddenGeometryParkingZones, mobilityHubForbiddenZones);
     }
 
     private void createDropoffVehicleEdges(Graph graph) {
@@ -124,6 +125,9 @@ public class VehicleSharingBuilderModule implements GraphBuilderModule {
 
     private void createDropoffVehicleEdge(Graph graph, Vertex vertex) {
         new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+        if (graph.parkingZonesCalculator.inMobilityHubZone(vertex)) {
+            new HighCostDropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocationNearMobilityHub(vertex));
+        }
     }
 
     private void createCityGovVehicleDropoffStations(Graph graph, PermanentStreetSplitter splitter) {
