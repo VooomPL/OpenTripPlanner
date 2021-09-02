@@ -21,6 +21,10 @@ public class GeometryParkingZone implements Serializable {
                 && geometriesDisallowed.stream().noneMatch(g -> g.contains(point));
     }
 
+    public boolean isPointInDisallowedParkingZone(Point point) {
+        return geometriesDisallowed.stream().anyMatch(g -> g.contains(point));
+    }
+
     public boolean sameProviderIdAndVehicleType(GeometryParkingZone other) {
         return providerId == other.providerId && vehicleType == other.vehicleType;
     }

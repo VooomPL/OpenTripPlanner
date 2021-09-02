@@ -605,6 +605,9 @@ public abstract class RoutingResource {
     @QueryParam("snapshotTimestamp")
     private String snapshotTimestamp;
 
+    @QueryParam("useMobilityHubs")
+    private Boolean useMobilityHubs;
+
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -932,6 +935,9 @@ public abstract class RoutingResource {
 
         if (Objects.nonNull(walkPrice))
             request.setWalkPrice(BigDecimal.valueOf(walkPrice));
+
+        if (useMobilityHubs != null)
+            request.useMobilityHubs = useMobilityHubs;
 
         return request;
     }

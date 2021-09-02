@@ -384,6 +384,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     private StreetEdge splitEdge = null;
 
+    public boolean useMobilityHubs = false;
+
     @Setter
     @Getter
     private SharedVehiclesSnapshotLabel acceptedSharedVehiclesSnapshotLabel = new SharedVehiclesSnapshotLabel();
@@ -850,7 +852,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && disableAlertFiltering == other.disableAlertFiltering
                 && geoidElevation == other.geoidElevation
                 && flex.equals(other.flex)
-                && serviceDayLookout == other.serviceDayLookout;
+                && serviceDayLookout == other.serviceDayLookout
+                && useMobilityHubs == other.useMobilityHubs;
     }
 
     /**
@@ -881,7 +884,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + new Boolean(disableRemainingWeightHeuristic).hashCode() * 193939
                 + flex.hashCode()
                 + new Boolean(disableRemainingWeightHeuristic).hashCode() * 193939
-                + Integer.hashCode(serviceDayLookout) * 31558519;
+                + Integer.hashCode(serviceDayLookout) * 31558519
+                + Boolean.valueOf(useMobilityHubs).hashCode();
 
         if (batch) {
             hashCode *= -1;

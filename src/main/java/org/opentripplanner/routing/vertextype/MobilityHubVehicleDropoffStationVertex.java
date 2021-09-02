@@ -4,6 +4,7 @@ import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.MobilityHubDropoffStation;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.util.LocalizedString;
 
 /**
  * These vertices represent special parking stations, called Mobility Hubs. We want users to return rented vehicles
@@ -14,6 +15,6 @@ public class MobilityHubVehicleDropoffStationVertex extends Vertex {
 
     public MobilityHubVehicleDropoffStationVertex(Graph g, MobilityHubDropoffStation station) {
         super(g, "Mobility hub vehicle dropoff station", station.getLongitude(),
-                station.getLatitude());
+                station.getLatitude(), new LocalizedString("mobility_hub", new String[]{}));
     }
 }
