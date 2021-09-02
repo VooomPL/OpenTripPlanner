@@ -27,9 +27,17 @@ import org.opentripplanner.util.NonLocalizedString;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class TemporaryStreetSplitterTest {
 
@@ -186,6 +194,7 @@ public class TemporaryStreetSplitterTest {
 
         graph.parkingZonesCalculator = mock(ParkingZonesCalculator.class);
         when(graph.parkingZonesCalculator.getParkingZonesForLocation(any())).thenReturn(new ParkingZoneInfo(emptyList(), emptyList(), emptyList()));
+        when(graph.parkingZonesCalculator.inMobilityHubZone(any())).thenReturn(false);
 
         // when
         TemporaryStreetLocation closestVertex = temporaryStreetSplitter.linkLocationToGraph(genericLocation, routingRequest, true);
@@ -196,6 +205,7 @@ public class TemporaryStreetSplitterTest {
         assertTrue(closestVertex.getIncoming().contains(edge));
         assertTrue(edge instanceof TemporaryDropoffVehicleEdge);
         verify(graph.parkingZonesCalculator, times(1)).getParkingZonesForLocation(closestVertex);
+        verify(graph.parkingZonesCalculator, times(1)).inMobilityHubZone(closestVertex);
         verifyNoMoreInteractions(graph.parkingZonesCalculator);
         verifyZeroInteractions(toTransitStopLinker, edgesToLinkFinder);
     }
