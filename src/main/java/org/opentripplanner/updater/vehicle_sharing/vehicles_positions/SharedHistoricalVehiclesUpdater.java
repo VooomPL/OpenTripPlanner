@@ -1,8 +1,8 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.opentripplanner.hasura_client.ProvidersGetter;
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
+import org.opentripplanner.hasura_client.ProvidersGetter;
 import org.opentripplanner.hasura_client.VehicleHistoricalPositionsGetter;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
@@ -16,7 +16,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -121,27 +126,35 @@ public class SharedHistoricalVehiclesUpdater extends PollingGraphUpdater {
     }
 
     private void configureMonitoredSnapshots(JsonNode config, Graph graph) {
-        JsonNode snapshotOffsetsNode = config.get("snapshotOffsetsInDays");
-
-        if (Objects.nonNull(snapshotOffsetsNode) && snapshotOffsetsNode.isArray()) {
-            List<LocalTime> timesOfDay = getTimesOfDayFromConfig(config);
-            LocalDateTime currentDate = LocalDateTime.now();
-
-            snapshotOffsetsNode.iterator().forEachRemaining(offset -> {
-                try {
-                    int offsetAsInt = Integer.parseInt(offset.asText());
-                    LocalDateTime snapshotDate = computeSnapshotDate(currentDate, offsetAsInt);
-                    timesOfDay.forEach(timeOfDay -> {
-                        graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(
-                                snapshotDate.withHour(timeOfDay.getHour())
-                                        .withMinute(timeOfDay.getMinute())
-                                        .withSecond(0).withNano(0)), -1);
-                    });
-                } catch (NumberFormatException e) {
-                    LOG.error("Could not parse snapshot offset: {}", offset.asText());
-                }
+        JsonNode snapshotTimeDates = config.get("snapshotTimeDates");
+        if (Objects.nonNull(snapshotTimeDates) && snapshotTimeDates.isArray()) {
+            snapshotTimeDates.iterator().forEachRemaining(timeDate -> {
+                LocalDateTime localDateTime = LocalDateTime.parse(timeDate.asText());
+                graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(localDateTime), -1);
             });
         }
+
+//        JsonNode snapshotOffsetsNode = config.get("snapshotOffsetsInDays");
+//
+//        if (Objects.nonNull(snapshotOffsetsNode) && snapshotOffsetsNode.isArray()) {
+//            List<LocalTime> timesOfDay = getTimesOfDayFromConfig(config);
+//            LocalDateTime currentDate = LocalDateTime.now();
+//
+//            snapshotOffsetsNode.iterator().forEachRemaining(offset -> {
+//                try {
+//                    int offsetAsInt = Integer.parseInt(offset.asText());
+//                    LocalDateTime snapshotDate = computeSnapshotDate(currentDate, offsetAsInt);
+//                    timesOfDay.forEach(timeOfDay -> {
+//                        graph.getSupportedSnapshotLabels().put(new SharedVehiclesSnapshotLabel(
+//                                snapshotDate.withHour(timeOfDay.getHour())
+//                                        .withMinute(timeOfDay.getMinute())
+//                                        .withSecond(0).withNano(0)), -1);
+//                    });
+//                } catch (NumberFormatException e) {
+//                    LOG.error("Could not parse snapshot offset: {}", offset.asText());
+//                }
+//            });
+//        }
     }
 
     private LocalDateTime computeSnapshotDate(LocalDateTime currentDate, int offset) {

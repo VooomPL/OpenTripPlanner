@@ -251,7 +251,7 @@ public abstract class GraphPathToTripPlanConverter {
             itinerary.price = itinerary.price.add(transitCost.getPrice());
             itinerary.transitTickets = transitCost.getTicketNames();
         } else {
-            LOG.warn("Skipping transit price calculation for trip from to due to the lack of available tickets");
+//            LOG.warn("Skipping transit price calculation for trip from to due to the lack of available tickets");
         }
 
         itinerary.transfers = lastState.getNumBoardings();
@@ -261,14 +261,14 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.itineraryType = generateItineraryType(itinerary.legs);
         itinerary.usedNotRecommendedRoute = path.states.stream().anyMatch(s -> s.usedNotRecommendedRoute);
 
-        String googleMapsURL = "https://www.google.pl/maps/dir/";
-        List<Place> places = itinerary.legs.stream().map(leg -> leg.from).collect(Collectors.toList());
-        places.add(itinerary.legs.get(itinerary.legs.size() - 1).to);
+//        String googleMapsURL = "https://www.google.pl/maps/dir/";
+//        List<Place> places = itinerary.legs.stream().map(leg -> leg.from).collect(Collectors.toList());
+//        places.add(itinerary.legs.get(itinerary.legs.size() - 1).to);
 
-        googleMapsURL = places.stream().map(place -> "'" + place.lat + "," + place.lon + "'/").reduce(googleMapsURL, (s1, s2) -> s1 + s2);
+//        googleMapsURL = places.stream().map(place -> "'" + place.lat + "," + place.lon + "'/").reduce(googleMapsURL, (s1, s2) -> s1 + s2);
 
 //        TODO this probably should be removed
-        System.out.println(googleMapsURL + "     TODO please remove me");
+//        System.out.println(googleMapsURL + "     TODO please remove me");
 
         return itinerary;
     }
