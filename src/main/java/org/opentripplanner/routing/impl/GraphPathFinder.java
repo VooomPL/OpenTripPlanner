@@ -27,7 +27,15 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -381,12 +389,12 @@ public class GraphPathFinder {
                 // TODO check, is it possible that arriveBy and time are modifed in-place by the search?
                 if (request.arriveBy) {
                     if (graphPath.states.getLast().getTimeSeconds() > request.dateTime) {
-                        LOG.error("A graph path arrives after the requested time. This implies a bug.");
+                        LOG.error("A graph path arrives {} seconds after the requested time. This implies a bug.", graphPath.states.getLast().getTimeSeconds() - request.dateTime);
                         gpi.remove();
                     }
                 } else {
                     if (graphPath.states.getFirst().getTimeSeconds() < request.dateTime) {
-                        LOG.error("A graph path leaves before the requested time. This implies a bug.");
+                        LOG.error("A graph path leaves {} seconds before the requested time. This implies a bug.", request.dateTime - graphPath.states.getLast().getTimeSeconds());
                         gpi.remove();
                     }
                 }
