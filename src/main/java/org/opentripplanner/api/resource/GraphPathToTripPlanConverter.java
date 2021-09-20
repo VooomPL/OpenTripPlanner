@@ -941,6 +941,8 @@ public abstract class GraphPathToTripPlanConverter {
             place.vertexType = VertexType.BIKESHARE;
         } else if (vertex instanceof BikeParkVertex) {
             place.vertexType = VertexType.BIKEPARK;
+        } else if (vertex instanceof MobilityHubVehicleDropoffStationVertex) {
+            place.vertexType = VertexType.MOBILITY_HUB;
         } else {
             place.vertexType = VertexType.NORMAL;
         }
