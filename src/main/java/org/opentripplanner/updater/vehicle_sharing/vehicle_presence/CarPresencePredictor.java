@@ -12,11 +12,9 @@ import java.time.Instant;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class CarPresencePredictor {
 
-    private static final Duration SEVEN_AND_HALF = Duration.of(7, MINUTES).plus(Duration.of(30, SECONDS));
     private static final Duration FIFTEEN = Duration.of(15, MINUTES);
     private static final Duration THIRTY = Duration.of(30, MINUTES);
     private final STRtree index15;
@@ -48,9 +46,9 @@ public class CarPresencePredictor {
         this.width = vehiclePresenceHeatmaps.getCellWidth();
 
         Instant heatmapCreationTime = Instant.ofEpochSecond(vehiclePresenceHeatmaps.getTimestamp());
-        this.indexThreshold15 = heatmapCreationTime.plus(SEVEN_AND_HALF);
-        this.indexThreshold30 = heatmapCreationTime.plus(SEVEN_AND_HALF).plus(FIFTEEN);
-        this.indexThreshold45 = heatmapCreationTime.plus(SEVEN_AND_HALF).plus(THIRTY);
+        this.indexThreshold15 = heatmapCreationTime.plus(FIFTEEN);
+        this.indexThreshold30 = heatmapCreationTime.plus(THIRTY);
+        this.indexThreshold45 = heatmapCreationTime.plus(FIFTEEN).plus(THIRTY);
     }
 
     /**
@@ -88,11 +86,11 @@ public class CarPresencePredictor {
     @Nullable
     private STRtree chooseIndex(long time) {
         Instant pointInTime = Instant.ofEpochSecond(time);
-        if (indexThreshold15.isAfter(pointInTime)) {
+        if (pointInTime.isBefore(indexThreshold15)) {
             return null;
-        } else if (indexThreshold30.isAfter(pointInTime)) {
+        } else if (pointInTime.isBefore(indexThreshold30)) {
             return index15;
-        } else if (indexThreshold45.isAfter(pointInTime)) {
+        } else if (pointInTime.isBefore(indexThreshold45)) {
             return index30;
         } else {
             return index45;
