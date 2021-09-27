@@ -14,7 +14,11 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static org.opentripplanner.api.resource.GraphPathToTripPlanConverter.makeCoordinates;
 
@@ -89,10 +93,23 @@ public class GraphPath {
         this.edges = new LinkedList<Edge>();
         for (State cur = lastState; cur != null; cur = cur.getBackState()) {
             states.addFirst(cur);
-            
+
             // Record the edge if it exists and this is not the first state in the path.
             if (cur.getBackEdge() != null && cur.getBackState() != null) {
                 edges.addFirst(cur.getBackEdge());
+            }
+        }
+        if (!rctx.opt.arriveBy && states.getFirst().getTimeSeconds() < rctx.opt.dateTime) {
+            State firstState = s;
+            while (firstState.getBackState() != null) {
+                firstState = firstState.getBackState();
+            }
+            if (firstState.getTimeSeconds() < rctx.opt.dateTime) {
+                LOG.error("A graph path leaves {} seconds before the requested time. This implies a bug in first state creation.", rctx.opt.dateTime - firstState.getTimeSeconds());
+                LOG.error("Request from {}, to {}, modes {}", rctx.opt.from, rctx.opt.to, rctx.opt.modes);
+            } else {
+                LOG.error("A graph path leaves {} seconds before the requested time. This implies a bug in reverse optimizing.", rctx.opt.dateTime - states.getFirst().getTimeSeconds());
+                LOG.error("Request from {}, to {}, modes {}", rctx.opt.from, rctx.opt.to, rctx.opt.modes);
             }
         }
         // dump();
