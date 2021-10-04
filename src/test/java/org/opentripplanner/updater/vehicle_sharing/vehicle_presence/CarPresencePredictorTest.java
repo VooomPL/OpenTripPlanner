@@ -28,15 +28,14 @@ public class CarPresencePredictorTest {
     }
 
     private VehiclePresence.Prediction createPrediction(double lon, double lat, double val) {
-        VehiclePresence.Prediction prediction = new VehiclePresence.Prediction(lon, lat, val, new Envelope(lon, lon + 0.001, lat, lat + 0.001));
-        return prediction;
+        return new VehiclePresence.Prediction(lon, lat, val, new Envelope(lon, lon + 0.001, lat, lat + 0.001));
     }
 
     @Test
     public void testTimeIntervalChoosingLogic() {
         // given
         long[] times = {10, MINUTE * 8, MINUTE * 20, MINUTE * 25, MINUTE * 31, MINUTE * 40, MINUTE * 50, MINUTE * 500};
-        double[] expected = {1, 0.9, 0.9, 0.7, 0.7, 0.5, 0.5, 0.5};
+        double[] expected = {1, 1, 0.9, 0.9, 0.7, 0.7, 0.5, 0.5};
 
         VehiclePresence vehiclePresence = prepareHeatMap();
 
@@ -85,7 +84,7 @@ public class CarPresencePredictorTest {
 
         // when
         for (int i = 0; i < 4; i++) {
-            double result = carPresencePredictor.predict(carDescription[i], 10 * MINUTE);
+            double result = carPresencePredictor.predict(carDescription[i], 16 * MINUTE);
 
             // then
             assertEquals(expected[i], result, 0.0001);
