@@ -18,6 +18,7 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
 import org.opentripplanner.routing.core.vehicle_sharing.KickScooterDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.MotorbikeDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
@@ -73,7 +74,9 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
     // TODO(flamholz): do something smarter with the car speed here.
     public static final float DEFAULT_CAR_SPEED = 11.2f;
 
-    /** If you have more than 8 flags, increase flags to short or int */
+    /**
+     * If you have more than 8 flags, increase flags to short or int
+     */
     private static final int BACK_FLAG_INDEX = 0;
     private static final int ROUNDABOUT_FLAG_INDEX = 1;
     private static final int HASBOGUSNAME_FLAG_INDEX = 2;
@@ -130,6 +133,11 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
      * The angle at the start of the edge geometry. Internal representation like that of inAngle.
      */
     private byte outAngle;
+
+    /**
+     * Presence of busLane on this section of the road.
+     */
+    private boolean busLane;
 
     public ArrayList<TimeTable> getTimes() {
         return times;
@@ -196,13 +204,14 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
 
     /**
      * Checks permissions of the street edge if specified modes are allowed to travel.
-     *
+     * <p>
      * Barriers aren't taken into account. So it can happen that canTraverse returns True.
      * But doTraverse returns false. Since there are barriers on a street.
-     *
+     * <p>
      * This is because this function is used also on street when searching for start/stop.
      * Those streets are then split. On splitted streets can be possible to drive with a CAR because
      * it is only blocked from one way.
+     *
      * @param modes
      * @return
      */
@@ -273,6 +282,7 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
      * If start/end isn't bollard it just checks the street permissions.
      * <p>
      * It is used in {@link #canTraverse(RoutingRequest, TraverseMode)}
+     *
      * @param mode
      * @return
      */
@@ -324,8 +334,8 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
         boolean backWalkingBike = s0.isBackWalkingBike();
         TraverseMode backMode = s0.getBackMode();
         Edge backEdge = s0.getBackEdge();
-        if( this.getTemporarySpeedLimit()==0){
-            return  null;
+        if (this.getTemporarySpeedLimit() == 0) {
+            return null;
             // Road is closed or speed = 0
         }
         if (backEdge != null) {
@@ -577,11 +587,17 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
         return TemporarySpeedLimit;
     }
 
-    public void setTemporarySpeedLimit(int temporarySpeedLimit) {
+    public void setTemporarySpeedLimit(double temporarySpeedLimit) {
         TemporarySpeedLimit = temporarySpeedLimit;
     }
 
 
+    /**
+     * Get speed of vehicle based on statistic model of car traffic in the city provided for each moment in week.
+     *
+     * @param timeMillis timestamp in millis of moment when vehicle uses this road.
+     * @return predicted speed of vehicle
+     */
     public double getVooomSpeed(long timeMillis) {
 
         if (this.getTimes() != null) {
@@ -597,16 +613,36 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
 
     public double calculateSpeed(RoutingRequest options, TraverseMode traverseMode, VehicleDescription currentVehicle, long timeMillis) {
         double maxVehicleSpeed = options.getSpeed(traverseMode);
-        if(currentVehicle != null) {
+        if (currentVehicle != null) {
             maxVehicleSpeed = currentVehicle.getMaxSpeedInMetersPerSecond(this);
         }
-        if (this.getTimes() != null && traverseMode == TraverseMode.CAR) {
-            maxVehicleSpeed = min(maxVehicleSpeed, this.getVooomSpeed(timeMillis));
-        }
-        if (TemporarySpeedLimit > 0 && traverseMode == TraverseMode.CAR) {
-            maxVehicleSpeed = min(maxVehicleSpeed, TemporarySpeedLimit);
+
+
+        if (!shouldUseBusLane(traverseMode, currentVehicle)) {
+            if (this.getTimes() != null && traverseMode == TraverseMode.CAR) {
+                maxVehicleSpeed = min(maxVehicleSpeed, this.getVooomSpeed(timeMillis));
+            }
+
+            if (TemporarySpeedLimit > 0 && traverseMode == TraverseMode.CAR) {
+                maxVehicleSpeed = min(maxVehicleSpeed, TemporarySpeedLimit);
+            }
         }
         return min(maxVehicleSpeed, getMaxStreetTraverseSpeed());
+    }
+
+    /**
+     * Electric vehicles can use bus lanes to traverse faster.
+     *
+     * @param traverseMode current traverse mode
+     * @param currentVehicle current used vehicle
+     * @return true if bus lane exists and we use appropriate vehicle
+     */
+    private boolean shouldUseBusLane(TraverseMode traverseMode, VehicleDescription currentVehicle) {
+        return this.isBusLane() &&
+                traverseMode.equals(TraverseMode.CAR) &&
+                currentVehicle != null &&
+                currentVehicle.getFuelType() != null &&
+                currentVehicle.getFuelType().equals(FuelType.ELECTRIC);
     }
 
     @Override
@@ -685,13 +721,14 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
         return this.name.toString();
     }
 
-	/**
-	* Gets non-localized I18NString (Used when splitting edges)
-	* @return non-localized Name
-	*/
-	public I18NString getRawName() {
-		return this.name;
-	}
+    /**
+     * Gets non-localized I18NString (Used when splitting edges)
+     *
+     * @return non-localized Name
+     */
+    public I18NString getRawName() {
+        return this.name;
+    }
 
     public String getName(Locale locale) {
         return this.name.toString(locale);
@@ -950,5 +987,13 @@ public class StreetEdge extends Edge implements Cloneable, WheelchairAccessiblit
 
     public List<TurnRestriction> getTurnRestrictions() {
         return turnRestrictions;
+    }
+
+    public boolean isBusLane() {
+        return busLane;
+    }
+
+    public void setBusLane(boolean busLane) {
+        this.busLane = busLane;
     }
 }
