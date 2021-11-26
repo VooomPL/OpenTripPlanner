@@ -215,6 +215,33 @@ public class PlainStreetEdgeTest {
         assertNull(traverse);
     }
 
+    @Test
+    public void shouldUseBusLane() {
+        // given
+        StreetEdge street = edge(vertex, v1, 100.0, StreetTraversalPermission.ALL);
+        street.setBusLane(true);
+        street.setMaxStreetTraverseSpeed(50 / 3.6f);
+
+        // when
+        double speedLimit = street.calculateSpeed(proto, TraverseMode.CAR, CAR, 1000);
+        // then
+        assertEquals(50 / 3.6f, speedLimit, 0.001);
+    }
+
+    @Test
+    public void shouldNotUseBusLane() {
+        // given
+        StreetEdge street = edge(vertex, v1, 100.0, StreetTraversalPermission.ALL);
+        street.setBusLane(false);
+        street.setMaxStreetTraverseSpeed(50 / 3.6f);
+        street.setTemporarySpeedLimit(20 / 3.6f);
+
+        // when
+        double speedLimit = street.calculateSpeed(proto, TraverseMode.CAR, CAR, 1000);
+        // then
+        assertEquals(20/ 3.6f, speedLimit, 0.001);
+    }
+
     /**
      * Test the traversal of two edges with different traverse modes, with a focus on cycling.
      * This test will fail unless the following three conditions are met:

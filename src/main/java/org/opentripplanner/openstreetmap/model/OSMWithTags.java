@@ -2,11 +2,14 @@ package org.opentripplanner.openstreetmap.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.opentripplanner.graph_builder.module.osm.TemplateLibrary;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
 import org.opentripplanner.util.TranslatedString;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * A base class for OSM entities containing common methods.
@@ -124,6 +127,17 @@ public class OSMWithTags {
         tag = tag.toLowerCase();
         if (tags != null && tags.containsKey(tag) && value != null)
             return value.equals(tags.get(tag));
+
+        return false;
+    }
+
+    /**
+     * Checks is a tag fulfils specified predicate.
+     */
+    public Boolean isTag(String tag, @NotNull Predicate<String> predicate) {
+        tag = tag.toLowerCase();
+        if (tags != null && tags.containsKey(tag))
+            return predicate.test(tags.get(tag));
 
         return false;
     }
