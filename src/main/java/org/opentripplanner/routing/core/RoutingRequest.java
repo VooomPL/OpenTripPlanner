@@ -173,6 +173,11 @@ public class RoutingRequest implements Cloneable, Serializable {
     public boolean wheelchairAccessible = false;
 
     /**
+     * Whether the trip should be easily navigable. Works for public transport trips only.
+     */
+    public boolean easyTrip = false;
+
+    /**
      * The maximum number of itineraries to return.
      */
     private int numItineraries = 3;
@@ -828,6 +833,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && rentingAllowed == other.rentingAllowed
                 && vehicleValidator.equals(other.vehicleValidator)
                 && wheelchairAccessible == other.wheelchairAccessible
+                && easyTrip == other.easyTrip
                 && optimize.equals(other.optimize)
                 && maxWalkDistance == other.maxWalkDistance
                 && maxTransferWalkDistance == other.maxTransferWalkDistance
@@ -868,6 +874,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + startingMode.hashCode() + (rentingAllowed ? 3 : 0)
                 + vehicleValidator.hashCode()
                 + (arriveBy ? 8966786 : 0) + (wheelchairAccessible ? 731980 : 0)
+                + (easyTrip ? 1234 : 0)
                 + optimize.hashCode() + new Double(maxWalkDistance).hashCode()
                 + new Double(maxTransferWalkDistance).hashCode()
                 + new Double(maxSlope).hashCode()

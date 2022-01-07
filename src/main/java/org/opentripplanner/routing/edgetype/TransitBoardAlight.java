@@ -30,9 +30,9 @@ import java.util.Locale;
  * state is unchanged. A boarding penalty can also be applied to discourage transfers. In an on
  * the fly reverse-optimization search, the overloaded traverse method can be used to give an
  * initial wait time. Also, in reverse-opimization, board costs are correctly applied.
- * 
+ *
  * This is the result of combining the classes formerly known as PatternBoard and PatternAlight.
- * 
+ *
  * @author mattwigway
  */
 public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge {
@@ -41,13 +41,17 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
 
     private static final Logger LOG = LoggerFactory.getLogger(TransitBoardAlight.class);
 
+    private static final int MAX_LINES_FOR_EASY_TRIP = 5;
+
     private final int stopIndex;
 
     private int modeMask; // TODO: via TablePatternEdge it should be possible to grab this from the pattern
 
     private TraverseMode mode;
-   
-    /** True if this edge represents boarding a vehicle, false if it represents alighting. */
+
+    /**
+     * True if this edge represents boarding a vehicle, false if it represents alighting.
+     */
     public boolean boarding;
 
     /** Boarding constructor (TransitStopDepart --> PatternStopVertex) */
@@ -234,9 +238,9 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             
             /* Disallow ever re-boarding the same trip pattern. */
             if (s0.getLastPattern() == this.getPattern()) {
-                return null; 
+                return null;
             }
-            
+
             /* Check this pattern's mode against those allowed in the request. */
             if (!options.modes.get(modeMask)) {
                 return null;
@@ -244,7 +248,14 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
 
             /* Check if route and/or agency are banned or allowed for this pattern */
             if (options.bannedTransit.routeIsBanned(this.getPattern().route)) return null;
-            
+
+            if (options.easyTrip) {
+                long numOfLines = getStop().getLineNames().stream()
+                        .filter(name -> !name.startsWith("N"))
+                        .count();
+                if (numOfLines > MAX_LINES_FOR_EASY_TRIP)
+                    return null;
+            }
             /*
              * Find the next boarding/alighting time relative to the current State. Check lists of
              * transit serviceIds running yesterday, today, and tomorrow relative to the initial

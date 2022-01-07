@@ -105,6 +105,12 @@ public abstract class RoutingResource {
     protected Boolean wheelchair;
 
     /**
+     * Whether the trip should be easily navigable. Works for public transport trips only.
+     */
+    @QueryParam("easyTrip")
+    protected Boolean easyTrip;
+
+    /**
      * The maximum distance (in meters) the user is willing to walk. Defaults to unlimited.
      */
     @QueryParam("maxWalkDistance")
@@ -938,6 +944,13 @@ public abstract class RoutingResource {
 
         if (useMobilityHubs != null)
             request.useMobilityHubs = useMobilityHubs;
+
+        if (easyTrip != null && easyTrip) {
+            if (!request.modes.isTransit() || rentingAllowed || request.modes.getBicycle() || request.modes.getCar()) {
+                throw new RuntimeException("Easy trip is only applicable for transit only trips.");
+            }
+            request.easyTrip = easyTrip;
+        }
 
         return request;
     }
