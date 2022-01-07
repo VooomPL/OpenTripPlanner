@@ -43,6 +43,8 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
 
     private static final int MAX_LINES_FOR_EASY_TRIP = 5;
 
+    private static final int PENALTY_FOR_MAX_LINES_FOR_EASY_TRIP_EXCEEDED = 500;
+
     private final int stopIndex;
 
     private int modeMask; // TODO: via TablePatternEdge it should be possible to grab this from the pattern
@@ -249,13 +251,6 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             /* Check if route and/or agency are banned or allowed for this pattern */
             if (options.bannedTransit.routeIsBanned(this.getPattern().route)) return null;
 
-            if (options.easyTrip) {
-                long numOfLines = getStop().getLineNames().stream()
-                        .filter(name -> !name.startsWith("N"))
-                        .count();
-                if (numOfLines > MAX_LINES_FOR_EASY_TRIP)
-                    return null;
-            }
             /*
              * Find the next boarding/alighting time relative to the current State. Check lists of
              * transit serviceIds running yesterday, today, and tomorrow relative to the initial
@@ -350,15 +345,23 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             // determine if this needs to be reverse-optimized.
             // The last alight can be moved forward by bestWait (but no further) without
             // impacting the possibility of this trip
-            if (options.reverseOptimizeOnTheFly && 
-               !options.reverseOptimizing && 
-                s0.isEverBoarded() && 
-                s0.getLastNextArrivalDelta() <= bestWait &&
-                s0.getLastNextArrivalDelta() > -1) {
+            if (options.reverseOptimizeOnTheFly &&
+                    !options.reverseOptimizing &&
+                    s0.isEverBoarded() &&
+                    s0.getLastNextArrivalDelta() <= bestWait &&
+                    s0.getLastNextArrivalDelta() > -1) {
                 // it is re-reversed by optimize, so this still yields a forward tree
                 State optimized = s1.makeState().reverseAndOptimize(true);
                 if (optimized == null) LOG.error("Null optimized state. This shouldn't happen.");
                 return optimized;
+            }
+
+            if (options.easyTrip) {
+                long numOfLines = getStop().getLineNames().stream()
+                        .filter(name -> !name.startsWith("N"))
+                        .count();
+                if (numOfLines > MAX_LINES_FOR_EASY_TRIP)
+                    s1.incrementWeight(PENALTY_FOR_MAX_LINES_FOR_EASY_TRIP_EXCEEDED);
             }
 
             /* If we didn't return an optimized path, return an unoptimized one. */
