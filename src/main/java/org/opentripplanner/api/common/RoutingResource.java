@@ -946,7 +946,7 @@ public abstract class RoutingResource {
             request.useMobilityHubs = useMobilityHubs;
 
         if (easyTrip != null && easyTrip) {
-            if (!request.modes.isTransit() || rentingAllowed || request.modes.getBicycle() || request.modes.getCar()) {
+            if (!request.modes.isTransit() || request.rentingAllowed || request.modes.getBicycle() || request.modes.getCar()) {
                 throw new RuntimeException("Easy trip is only applicable for transit only trips.");
             }
             request.easyTrip = easyTrip;
