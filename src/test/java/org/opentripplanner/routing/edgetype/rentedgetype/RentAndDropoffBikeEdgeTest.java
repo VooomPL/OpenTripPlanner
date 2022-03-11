@@ -4,16 +4,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.jts.geom.CoordinateXY;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
-import org.opentripplanner.routing.core.*;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateEditor;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.core.vehicle_sharing.BikeDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleValidator;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 import org.opentripplanner.updater.vehicle_sharing.parking_zones.ParkingZonesCalculator;
 
-import java.util.Collections;
-
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +31,8 @@ public class RentAndDropoffBikeEdgeTest {
     private static final CarDescription CAR_1 = new CarDescription("1", 0, 0, FuelType.ELECTRIC, Gearbox.AUTOMATIC, new Provider(1, "PANEK"));
 
     private static final BikeRentalStation station11 = new BikeRentalStation("11", 0, 0, 1, 1, new Provider(1, "provider1"));
+
+    private static final BikeRentalStation station12 = new BikeRentalStation("11", 0, 0, 1, 1, new Provider(1, "provider1"));
 
     private static final BikeRentalStation station21 = new BikeRentalStation("21", 0, 0, 1, 1, new Provider(1, "provider2"));
     TemporaryRentVehicleVertex v1 = new TemporaryRentVehicleVertex("v1", new CoordinateXY(0, 0), "name");
@@ -31,6 +43,7 @@ public class RentAndDropoffBikeEdgeTest {
 
     private RentBikeEdge rentEdge11;
     private DropoffBikeEdge dropEdge11;
+    private DropoffBikeEdge dropEdge12;
     private DropoffBikeEdge dropEdge21;
     private Graph graph = new Graph();
 
@@ -53,6 +66,7 @@ public class RentAndDropoffBikeEdgeTest {
         rentEdge11 = new RentBikeEdge(v1, station11, parkingZones);
 
         dropEdge11 = new DropoffBikeEdge(v1, station11);
+        dropEdge12 = new DropoffBikeEdge(v1, station12);
         dropEdge21 = new DropoffBikeEdge(v1, station21);
 
 
@@ -68,7 +82,7 @@ public class RentAndDropoffBikeEdgeTest {
         //when
         station11.spacesAvailable = 1;
         //given
-        State traversed = dropEdge11.traverse(rentingState);
+        State traversed = dropEdge12.traverse(rentingState);
 
         //then
         assertNotNull(traversed);
@@ -86,7 +100,7 @@ public class RentAndDropoffBikeEdgeTest {
     }
 
     @Test
-    public void takeAvaiableBike() {
+    public void takeAvailableBike() {
         //when
         station11.bikesAvailable = 1;
         when(request.vehicleValidator.isValid(bike1)).thenReturn(true);
@@ -133,7 +147,7 @@ public class RentAndDropoffBikeEdgeTest {
 
         State carState = rentCarEdge.traverse(state);
 
-//        given
+        //given
         State bikeState = rentEdge11.traverse(carState);
 
         //then
@@ -141,6 +155,4 @@ public class RentAndDropoffBikeEdgeTest {
         assertNotNull(bikeState);
         assertEquals(bikeState.getCurrentVehicleType(), VehicleType.BIKE);
     }
-
-
 }
