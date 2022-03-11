@@ -58,7 +58,7 @@ public class BikeRentalStation implements Serializable, Cloneable {
     }
 
     public boolean isStationCompatible(VehicleDescription vehicle) {
-        return vehicle.getProvider() == provider && vehicle.getVehicleType() == VehicleType.BIKE;
+        return vehicle.getProvider().equals(provider) && vehicle.getVehicleType() == VehicleType.BIKE;
     }
 
     /**
