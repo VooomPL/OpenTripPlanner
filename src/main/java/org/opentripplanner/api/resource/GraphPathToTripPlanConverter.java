@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.api.model.AlternativeRoute;
 import org.opentripplanner.api.model.BoardAlightType;
 import org.opentripplanner.api.model.Itinerary;
 import org.opentripplanner.api.model.Leg;
@@ -48,6 +49,7 @@ import org.opentripplanner.routing.edgetype.RentABikeOffEdge;
 import org.opentripplanner.routing.edgetype.RentABikeOnEdge;
 import org.opentripplanner.routing.edgetype.SimpleTransfer;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.edgetype.TransitBoardAlight;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.edgetype.flex.PartialPatternHop;
 import org.opentripplanner.routing.edgetype.flex.TemporaryDirectPatternHop;
@@ -87,7 +89,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * A library class with only static methods used in converting internal GraphPaths to TripPlans, which are
@@ -262,7 +267,7 @@ public abstract class GraphPathToTripPlanConverter {
         itinerary.usedNotRecommendedRoute = path.states.stream().anyMatch(s -> s.usedNotRecommendedRoute);
 
         String googleMapsURL = "https://www.google.pl/maps/dir/";
-        List<Place> places = itinerary.legs.stream().map(leg -> leg.from).collect(Collectors.toList());
+        List<Place> places = itinerary.legs.stream().map(leg -> leg.from).collect(toList());
         places.add(itinerary.legs.get(itinerary.legs.size() - 1).to);
 
         googleMapsURL = places.stream().map(place -> "'" + place.lat + "," + place.lon + "'/").reduce(googleMapsURL, (s1, s2) -> s1 + s2);
@@ -287,7 +292,7 @@ public abstract class GraphPathToTripPlanConverter {
                 .map(Objects::toString)
                 .distinct()
                 .sorted()
-                .collect(Collectors.toList()));
+                .collect(toList()));
 
         if (legs.stream().anyMatch(leg -> leg.mode.isTransit())) {
             types.add(TraverseMode.TRANSIT.toString());
@@ -524,11 +529,11 @@ public abstract class GraphPathToTripPlanConverter {
         for (int i = 0; i < legsStates.size(); i++) {
             List<WalkStep> walkSteps = generateWalkSteps(graph, legsStates.get(i).getStates(), previousStep, requestedLocale);
 
-            List<PatternHop> stopEdges = legsStates.get(i).getStates().stream().map(State::getBackEdge).filter(e -> e instanceof PatternHop).map(e -> (PatternHop) e).collect(Collectors.toList());
+            List<PatternHop> stopEdges = legsStates.get(i).getStates().stream().map(State::getBackEdge).filter(e -> e instanceof PatternHop).map(e -> (PatternHop) e).collect(toList());
 
             //There are some transit stops
             if (!stopEdges.isEmpty()) {
-                List<Stop> intermediateStops = stopEdges.stream().map(PatternHop::getBeginStop).collect(Collectors.toList());
+                List<Stop> intermediateStops = stopEdges.stream().map(PatternHop::getBeginStop).collect(toList());
                 intermediateStops.add(stopEdges.get(stopEdges.size() - 1).getEndStop());
                 legs.get(i).intermediateTransitStops = intermediateStops;
             }
@@ -786,6 +791,21 @@ public abstract class GraphPathToTripPlanConverter {
                 }
             }
 
+            Edge backEdge = states.get(0).getBackEdge();
+            if (backEdge == null)
+                return;
+            leg.alternativeRoutes = backEdge.getFromVertex().getOutgoing().stream()
+                    .filter(TransitBoardAlight.class::isInstance)
+                    .map(TransitBoardAlight.class::cast)
+                    .map(e -> e.getAlternativeRoute(states))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(t -> !t.getRoute().equals(route))
+                    .collect(toMap(Trip::getRoute, Function.identity(), (first, second) -> first))
+                    .values()
+                    .stream()
+                    .map(AlternativeRoute::new)
+                    .collect(toList());
         }
     }
 
