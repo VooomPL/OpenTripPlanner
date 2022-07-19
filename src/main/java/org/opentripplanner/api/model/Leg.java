@@ -282,14 +282,18 @@ public class Leg {
      @JsonSerialize
      public Integer activePackageIndex;
 
-    /**
-     * Whether this leg is a transit leg or not.
-     * @return Boolean true if the leg is a transit leg
-     */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public boolean isTransitLeg() {
-        return mode.isTransit();
-    }
+     @JsonSerialize
+     public List<AlternativeRoute> alternativeRoutes;
+
+     /**
+      * Whether this leg is a transit leg or not.
+      *
+      * @return Boolean true if the leg is a transit leg
+      */
+     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+     public boolean isTransitLeg() {
+         return mode.isTransit();
+     }
     
     /** 
      * The leg's duration in seconds

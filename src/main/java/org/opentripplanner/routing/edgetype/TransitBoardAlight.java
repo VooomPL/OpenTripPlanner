@@ -12,25 +12,31 @@ import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TransferTable;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.trippattern.TripTimes;
+import org.opentripplanner.routing.vertextype.PatternArriveVertex;
+import org.opentripplanner.routing.vertextype.PatternDepartVertex;
 import org.opentripplanner.routing.vertextype.PatternStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopArrive;
 import org.opentripplanner.routing.vertextype.TransitStopDepart;
+import org.opentripplanner.routing.vertextype.TransitVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.BitSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
- * Models boarding or alighting a vehicle - that is to say, traveling from a state off 
- * vehicle to a state on vehicle. When traversed forward on a boarding or backwards on an 
+ * Models boarding or alighting a vehicle - that is to say, traveling from a state off
+ * vehicle to a state on vehicle. When traversed forward on a boarding or backwards on an
  * alighting, the the resultant state has the time of the next departure, in addition the pattern
  * that was boarded. When traversed backward on a boarding or forward on an alighting, the result
  * state is unchanged. A boarding penalty can also be applied to discourage transfers. In an on
  * the fly reverse-optimization search, the overloaded traverse method can be used to give an
  * initial wait time. Also, in reverse-opimization, board costs are correctly applied.
- *
+ * <p>
  * This is the result of combining the classes formerly known as PatternBoard and PatternAlight.
  *
  * @author mattwigway
@@ -56,40 +62,45 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
      */
     public boolean boarding;
 
-    /** Boarding constructor (TransitStopDepart --> PatternStopVertex) */
-    public TransitBoardAlight (TransitStopDepart fromStopVertex, PatternStopVertex toPatternVertex, 
-            int stopIndex, TraverseMode mode) {
+    /**
+     * Boarding constructor (TransitStopDepart --> PatternStopVertex)
+     */
+    public TransitBoardAlight(TransitStopDepart fromStopVertex, PatternStopVertex toPatternVertex,
+                              int stopIndex, TraverseMode mode) {
         super(fromStopVertex, toPatternVertex);
         this.stopIndex = stopIndex;
         this.modeMask = new TraverseModeSet(mode).getMask();
         this.mode = mode;
         this.boarding = true;
     }
-    
-    /** Alighting constructor (PatternStopVertex --> TransitStopArrive) */
-    public TransitBoardAlight (PatternStopVertex fromPatternStop, TransitStopArrive toStationVertex,
-            int stopIndex, TraverseMode mode) {
+
+    /**
+     * Alighting constructor (PatternStopVertex --> TransitStopArrive)
+     */
+    public TransitBoardAlight(PatternStopVertex fromPatternStop, TransitStopArrive toStationVertex,
+                              int stopIndex, TraverseMode mode) {
         super(fromPatternStop, toStationVertex);
         this.stopIndex = stopIndex;
         this.modeMask = new TraverseModeSet(mode).getMask();
         this.mode = mode;
         this.boarding = false;
     }
-    
-    /** 
+
+    /**
      * Find the TripPattern this edge is boarding or alighting from. Overrides the general
      * method which always looks at the from-vertex.
-     * @return the pattern of the to-vertex when boarding, and that of the from-vertex 
-     * when alighting. 
+     *
+     * @return the pattern of the to-vertex when boarding, and that of the from-vertex
+     * when alighting.
      */
-    @Override 
+    @Override
     public TripPattern getPattern() {
         if (boarding)
             return ((PatternStopVertex) tov).getTripPattern();
         else
             return ((PatternStopVertex) fromv).getTripPattern();
     }
-                           
+
     public String getDirection() {
         return null;
     }
@@ -107,10 +118,10 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
     }
 
     public String getName() {
-        return boarding ? "leave street network for transit network" : 
-            "leave transit network for street network";
+        return boarding ? "leave street network for transit network" :
+                "leave transit network for street network";
     }
-    
+
     @Override
     public String getName(Locale locale) {
         //TODO: localize
@@ -121,12 +132,12 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
     public State traverse(State state0) {
         return traverse(state0, 0);
     }
-    
-    
+
+
     /**
      * NOTE: We do not need to check the pickup/drop off type. TransitBoardAlight edges are simply
      * not created for pick/drop type 1 (no pick/drop).
-     * 
+     *
      * @param arrivalTimeAtStop TODO: clarify what this is.
      */
     public State traverse(State s0, long arrivalTimeAtStop) {
@@ -156,12 +167,12 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
          * not the same thing as boarding and alighting. When arriveBy == true, we are entering
          * transit when traversing an alight edge backward.
          */
-        boolean leavingTransit = 
-                ( boarding &&  options.arriveBy) || 
-                (!boarding && !options.arriveBy); 
+        boolean leavingTransit =
+                (boarding && options.arriveBy) ||
+                        (!boarding && !options.arriveBy);
 
         /* TODO pull on/off transit out into two functions. */
-        if (leavingTransit) { 
+        if (leavingTransit) {
             /* We are leaving transit, not as much to do. */
             // When a dwell edge has been eliminated, do not alight immediately after boarding.
             // Perhaps this should be handled by PathParser.
@@ -175,7 +186,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             // preferences, and permissions.
             // The vertices in the transfer table are stop arrives/departs, not pattern
             // arrives/departs, so previousStop is direction-dependent.
-            s1.setPreviousStop(getStop()); 
+            s1.setPreviousStop(getStop());
             s1.setLastPattern(this.getPattern());
             s1.setIsLastBoardAlightDeviated(isDeviated());
             if (boarding) {
@@ -198,7 +209,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             /* Determine the wait. */
             if (arrivalTimeAtStop > 0) { // FIXME what is this arrivalTimeAtStop?
                 int wait = (int) Math.abs(s0.getTimeSeconds() - arrivalTimeAtStop);
-                
+
                 s1.incrementTimeInSeconds(wait);
                 // this should only occur at the beginning
                 s1.incrementWeight(wait * options.routingReluctances.getWaitAtBeginningFactor());
@@ -207,7 +218,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
 
                 //LOG.debug("Initial wait time set to {} in PatternBoard", wait);
             }
-            
+
             // during reverse optimization, board costs should be applied to PatternBoards
             // so that comparable trip plans result (comparable to non-optimized plans)
             if (options.reverseOptimizing)
@@ -216,7 +227,7 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             if (options.reverseOptimizeOnTheFly) {
                 TripPattern pattern = getPattern();
                 int thisDeparture = s0.getTripTimes().getDepartureTime(stopIndex);
-                int numTrips = getPattern().getNumScheduledTrips(); 
+                int numTrips = getPattern().getNumScheduledTrips();
                 int nextDeparture;
 
                 s1.setLastNextArrivalDelta(Integer.MAX_VALUE);
@@ -224,20 +235,20 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
                 for (int tripIndex = 0; tripIndex < numTrips; tripIndex++) {
                     Timetable timetable = pattern.getUpdatedTimetable(options, s0.getServiceDay());
                     nextDeparture = timetable.getTripTimes(tripIndex).getDepartureTime(stopIndex);
-        
+
                     if (nextDeparture > thisDeparture) {
                         s1.setLastNextArrivalDelta(nextDeparture - thisDeparture);
                         break;
                     }
                 }
-            }            
+            }
 
             s1.setBackMode(getMode());
             s1.setCurrentTraverseMode(TraverseMode.WALK);
             return s1.makeState();
-        } else { 
-            /* We are going onto transit and must look for a suitable transit trip on this pattern. */   
-            
+        } else {
+            /* We are going onto transit and must look for a suitable transit trip on this pattern. */
+
             /* Disallow ever re-boarding the same trip pattern. */
             if (s0.getLastPattern() == this.getPattern()) {
                 return null;
@@ -367,6 +378,51 @@ public class TransitBoardAlight extends TablePatternEdge implements OnboardEdge 
             /* If we didn't return an optimized path, return an unoptimized one. */
             return s1.makeState();
         }
+    }
+
+    public Optional<Trip> getAlternativeRoute(List<State> states) {
+        State alternativeRouteState = traverse(states.get(0).getBackState());
+        State alternativeRouteStateBegin = alternativeRouteState;
+
+        if (alternativeRouteState == null) {
+            return Optional.empty();
+        }
+
+        if (Math.abs(alternativeRouteState.getTimeSeconds() - states.get(0).getTimeSeconds()) > 60 * 60) {
+            return Optional.empty();
+        }
+
+        for (State currentRouteState : states) {
+            Stop currentStop = ((TransitVertex) currentRouteState.getVertex()).getStop();
+            Stop alternativeStop = ((TransitVertex) alternativeRouteState.getVertex()).getStop();
+            if (!currentStop.equals(alternativeStop)) {
+                return Optional.empty();
+            }
+            Class<?> clazz;
+            if (currentRouteState.getVertex() instanceof PatternDepartVertex) {
+                clazz = PatternHop.class;
+            } else if (currentRouteState.getVertex() instanceof PatternArriveVertex) {
+                clazz = PatternDwell.class;
+            } else {
+                return Optional.empty();
+            }
+            Optional<Edge> edge = alternativeRouteState.getVertex().getOutgoing().stream()
+                    .filter(clazz::isInstance)
+                    .findFirst();
+            if (edge.isEmpty())
+                return Optional.empty();
+            alternativeRouteState = edge.get().traverse(alternativeRouteState);
+            if (alternativeRouteState == null)
+                return Optional.empty();
+        }
+
+        long originalRouteTime = states.get(states.size() - 1).getTimeSeconds() - states.get(0).getTimeSeconds();
+        long alternativeRouteTime = alternativeRouteState.getBackState().getTimeSeconds() - alternativeRouteStateBegin.getTimeSeconds();
+
+        if (Math.abs(originalRouteTime - alternativeRouteTime) > 60 * 5) {
+            return Optional.empty();
+        }
+        return Optional.of(alternativeRouteState.getBackTrip());
     }
 
     public long getExtraWeight(RoutingRequest options) {
