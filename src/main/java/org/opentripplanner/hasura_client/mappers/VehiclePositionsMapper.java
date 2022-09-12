@@ -2,7 +2,15 @@ package org.opentripplanner.hasura_client.mappers;
 
 import org.opentripplanner.hasura_client.HasuraGetter;
 import org.opentripplanner.hasura_client.hasura_objects.Vehicle;
-import org.opentripplanner.routing.core.vehicle_sharing.*;
+import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
+import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.KickScooterDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.MotorbikeDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.VehiclePricingPackage;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 import org.opentripplanner.updater.vehicle_sharing.vehicles_positions.SharedVehiclesSnapshotLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +49,15 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
         double latitude = vehicle.getLatitude();
         FuelType fuelType = FuelType.fromString(vehicle.getFuelType());
         Gearbox gearbox = Gearbox.fromString(vehicle.getGearbox());
-        Provider provider = new Provider(vehicle.getProvider().getProviderId(), vehicle.getProvider().getProviderName());
+        String brand = vehicle.getBrand();
+        String model = vehicle.getModel();
+        String plates = vehicle.getPlates();
+        Provider provider = new Provider(
+                vehicle.getProvider().getProviderId(),
+                vehicle.getProvider().getProviderName(),
+                vehicle.getProvider().getAppiOSLink(),
+                vehicle.getProvider().getAppAndroidLink()
+        );
         Double rangeInMeters = vehicle.getRangeInMeters();
         VehicleType vehicleType = VehicleType.fromDatabaseVehicleType(vehicle.getType());
 
@@ -79,13 +95,13 @@ public class VehiclePositionsMapper extends HasuraToOTPMapper<Vehicle, VehicleDe
         VehicleDescription mappedVehicle;
         switch (vehicleType) {
             case CAR:
-                mappedVehicle = new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                mappedVehicle = new CarDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, pricingPackage);
                 break;
             case MOTORBIKE:
-                mappedVehicle = new MotorbikeDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                mappedVehicle = new MotorbikeDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, pricingPackage);
                 break;
             case KICKSCOOTER:
-                mappedVehicle = new KickScooterDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                mappedVehicle = new KickScooterDescription(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, pricingPackage);
                 break;
             default:
                 // this should never happen

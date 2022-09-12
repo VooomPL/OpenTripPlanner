@@ -7,8 +7,6 @@ import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 
-import java.util.Objects;
-
 @EqualsAndHashCode(callSuper = true)
 public class CarDescription extends VehicleDescription {
 
@@ -21,22 +19,34 @@ public class CarDescription extends VehicleDescription {
     private static final double DEFAULT_RANGE_IN_METERS = 200 * 1000;
 
     public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                          Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                          Gearbox gearbox, String brand, String model, String plates, Provider provider,
+                          Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, pricingPackage);
+    }
+
+    public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+                          Gearbox gearbox, Provider provider,
+                          Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, null, null, null, provider, rangeInMeters, pricingPackage);
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public CarDescription(@JsonProperty("providerVehicleId") String providerVehicleId, @JsonProperty("longitude") double longitude,
                           @JsonProperty("latitude") double latitude, @JsonProperty("fuelType") FuelType fuelType,
-                          @JsonProperty("gearbox") Gearbox gearbox, @JsonProperty("providerId") int providerId,
+                          @JsonProperty("gearbox") Gearbox gearbox, @JsonProperty("brand") String brand, @JsonProperty("model") String model, @JsonProperty("plates") String plates, @JsonProperty("appiOSLink") String appiOSLink, @JsonProperty("appAndroidLink") String appAndroidLink, @JsonProperty("providerId") int providerId,
                           @JsonProperty("providerName") String providerName, @JsonProperty("rangeInMeters") Double rangeInMeters) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, new Provider(providerId, providerName), rangeInMeters, new VehiclePricingPackage());
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, new Provider(providerId, providerName, appiOSLink, appAndroidLink), rangeInMeters, new VehiclePricingPackage());
     }
 
     public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                           Gearbox gearbox, Provider provider) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider);
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, null, null, null, provider);
     }
+//
+//    public CarDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
+//                          Gearbox gearbox, Provider provider, Double rangeInMeters) {
+//        super(providerVehicleId, longitude, latitude, fuelType, gearbox, null, null, null, provider, rangeInMeters);
+//    }
 
     @Override
     public double getMaxSpeedInMetersPerSecond(StreetEdge streetEdge) {

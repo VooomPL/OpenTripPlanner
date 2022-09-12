@@ -6,6 +6,7 @@ import org.opentripplanner.prediction_client.VehiclePresence;
 import org.opentripplanner.routing.core.vehicle_sharing.CarDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.FuelType;
 import org.opentripplanner.routing.core.vehicle_sharing.Gearbox;
+import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
 
 import java.util.Collections;
@@ -16,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 public class CarPresencePredictorTest {
 
     private static long MINUTE = 60;
+
+    private static final Provider PROVIDER = new Provider(0, "innogy");
 
     private VehiclePresence prepareHeatMap() {
         VehiclePresence vehiclePresence = new VehiclePresence();
@@ -44,7 +47,7 @@ public class CarPresencePredictorTest {
         vehiclePresence.setPredictions_45(List.of(createPrediction(1, 1, 0.5)));
         CarPresencePredictor carPresencePredictor = new CarPresencePredictor(vehiclePresence);
 
-        CarDescription carDescription = new CarDescription("id", 1.0005, 1.0005, FuelType.HYBRID, Gearbox.AUTOMATIC, 0, "innogy", 100000.0);
+        CarDescription carDescription = new CarDescription("id", 1.0005, 1.0005, FuelType.HYBRID, Gearbox.AUTOMATIC, PROVIDER);
 
         //when
         for (int i = 0; i < 8; i++) {
@@ -75,10 +78,10 @@ public class CarPresencePredictorTest {
         CarPresencePredictor carPresencePredictor = new CarPresencePredictor(vehiclePresence);
 
         CarDescription[] carDescription = {
-                new CarDescription("id", 1.0001, 1.0005, FuelType.HYBRID, Gearbox.AUTOMATIC, 0, "innogy", 100000.0),
-                new CarDescription("id", 0.9995, 1.0005, FuelType.HYBRID, Gearbox.AUTOMATIC, 0, "innogy", 100000.0),
-                new CarDescription("id", 1.0011, 0.9999, FuelType.HYBRID, Gearbox.AUTOMATIC, 0, "innogy", 100000.0),
-                new CarDescription("id", 1.0011, 1.0011, FuelType.HYBRID, Gearbox.AUTOMATIC, 0, "innogy", 100000.0)
+                new CarDescription("id", 1.0001, 1.0005, FuelType.HYBRID, Gearbox.AUTOMATIC, PROVIDER),
+                new CarDescription("id", 0.9995, 1.0005, FuelType.HYBRID, Gearbox.AUTOMATIC, PROVIDER),
+                new CarDescription("id", 1.0011, 0.9999, FuelType.HYBRID, Gearbox.AUTOMATIC, PROVIDER),
+                new CarDescription("id", 1.0011, 1.0011, FuelType.HYBRID, Gearbox.AUTOMATIC, PROVIDER)
         };
         double[] expected = {0.1, 0.6, 0.9, 0.4};
 

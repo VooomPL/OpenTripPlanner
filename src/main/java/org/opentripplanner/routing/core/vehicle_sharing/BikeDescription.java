@@ -1,7 +1,7 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
-import lombok.EqualsAndHashCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
 import org.opentripplanner.routing.bike_rental.BikeRentalStation;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -22,7 +22,7 @@ public class BikeDescription extends BikePathVehicleDescription {
     }
 
     public BikeDescription(BikeRentalStation station) {
-        super(station.provider.getProviderName(), station.longitude, station.latitude, null, null, station == null ? null : station.provider);
+        super(station.provider.getProviderName(), station.longitude, station.latitude, null, null, station.provider);
         this.requiresHubToDrop = true;
     }
 

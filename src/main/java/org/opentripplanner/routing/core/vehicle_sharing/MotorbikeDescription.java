@@ -24,20 +24,20 @@ public class MotorbikeDescription extends VehicleDescription {
 
     public MotorbikeDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
                                 Gearbox gearbox, Provider provider, Double rangeInMeters) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, new VehiclePricingPackage());
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, null, null, null, provider, rangeInMeters, false, new VehiclePricingPackage());
     }
 
     public MotorbikeDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                                Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, pricingPackage);
+                                Gearbox gearbox, String brand, String model, String plates, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, pricingPackage);
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public MotorbikeDescription(@JsonProperty("providerVehicleId") String providerVehicleId, @JsonProperty("longitude") double longitude,
                                 @JsonProperty("latitude") double latitude, @JsonProperty("fuelType") FuelType fuelType,
-                                @JsonProperty("gearbox") Gearbox gearbox, @JsonProperty("providerId") int providerId,
+                                @JsonProperty("gearbox") Gearbox gearbox, @JsonProperty("brand") String brand, @JsonProperty("model") String model, @JsonProperty("plates") String plates, @JsonProperty("appiOSLink") String appiOSLink, @JsonProperty("appAndroidLink") String appAndroidLink, @JsonProperty("providerId") int providerId,
                                 @JsonProperty("providerName") String providerName, @JsonProperty("rangeInMeters") Double rangeInMeters) {
-        super(providerVehicleId, longitude, latitude, fuelType, gearbox, new Provider(providerId, providerName), rangeInMeters);
+        super(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, new Provider(providerId, providerName, appiOSLink, appAndroidLink), rangeInMeters);
     }
 
     public MotorbikeDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
