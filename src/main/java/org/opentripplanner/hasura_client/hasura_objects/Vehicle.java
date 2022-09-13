@@ -24,6 +24,9 @@ public class Vehicle extends HasuraObject {
     private BigDecimal startPrice;
     private BigDecimal stopPrice;
     private BigDecimal maxDailyPrice;
+    private String brand;
+    private String model;
+    private String plates;
 
     @JsonIgnore
     public Double getRangeInMeters() {

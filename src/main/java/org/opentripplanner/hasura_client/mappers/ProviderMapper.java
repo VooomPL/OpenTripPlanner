@@ -7,6 +7,6 @@ public class ProviderMapper extends HasuraToOTPMapper<ProviderHasuraObject, Prov
 
     @Override
     protected Provider mapSingleHasuraObject(ProviderHasuraObject providerHasuraObject) {
-        return new Provider(providerHasuraObject.getId(), providerHasuraObject.getName());
+        return new Provider(providerHasuraObject.getId(), providerHasuraObject.getName(), "", "");
     }
 }

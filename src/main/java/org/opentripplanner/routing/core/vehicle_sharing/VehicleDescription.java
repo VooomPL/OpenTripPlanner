@@ -1,7 +1,11 @@
 package org.opentripplanner.routing.core.vehicle_sharing;
 
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,33 +50,43 @@ public abstract class VehicleDescription {
     @JsonSerialize
     private final Gearbox gearbox;
 
+    @JsonSerialize
+    private final String brand;
+
+    @JsonSerialize
+    private final String model;
+
+    @JsonSerialize
+    private final String plates;
+
+
     @JsonUnwrapped
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final Provider provider;
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, boolean requiresHubToDrop) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, requiresHubToDrop, new VehiclePricingPackage());
+                              Gearbox gearbox, String brand, String model, String plates, Provider provider, boolean requiresHubToDrop) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, null, requiresHubToDrop, new VehiclePricingPackage());
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, null, false, new VehiclePricingPackage());
+                              Gearbox gearbox, String brand, String model, String plates, Provider provider) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, null, false, new VehiclePricingPackage());
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, pricingPackage);
+                              Gearbox gearbox, String brand, String model, String plates, Provider provider, Double rangeInMeters, VehiclePricingPackage pricingPackage) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, false, pricingPackage);
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters) {
-        this(providerVehicleId, longitude, latitude, fuelType, gearbox, provider, rangeInMeters, false, new VehiclePricingPackage());
+                              Gearbox gearbox, String brand, String model, String plates, Provider provider, Double rangeInMeters) {
+        this(providerVehicleId, longitude, latitude, fuelType, gearbox, brand, model, plates, provider, rangeInMeters, false, new VehiclePricingPackage());
 
     }
 
     public VehicleDescription(String providerVehicleId, double longitude, double latitude, FuelType fuelType,
-                              Gearbox gearbox, Provider provider, Double rangeInMeters, boolean requiresHubToDrop, VehiclePricingPackage vehiclePricingPackage) {
+                              Gearbox gearbox, String brand, String model, String plates, Provider provider, Double rangeInMeters, boolean requiresHubToDrop, VehiclePricingPackage vehiclePricingPackage) {
         if (rangeInMeters == null)
             rangeInMeters = this.getDefaultRangeInMeters();
 
@@ -83,6 +97,9 @@ public abstract class VehicleDescription {
         this.latitude = latitude;
         this.fuelType = fuelType;
         this.gearbox = gearbox;
+        this.brand = brand;
+        this.model = model;
+        this.plates = plates;
         this.provider = provider;
         this.rangeInMeters = rangeInMeters;
         this.vehiclePricingPackages = new ArrayList<>();
