@@ -305,6 +305,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      */
     public boolean disableRemainingWeightHeuristic = false;
 
+    public boolean useEuclideanRemainingWeightHeuristic = false;
+
     public GtfsFlexParameters flex;
 
     /**
@@ -854,6 +856,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && reverseOptimizeOnTheFly == other.reverseOptimizeOnTheFly
                 && ignoreRealtimeUpdates == other.ignoreRealtimeUpdates
                 && disableRemainingWeightHeuristic == other.disableRemainingWeightHeuristic
+                && useEuclideanRemainingWeightHeuristic == other.useEuclideanRemainingWeightHeuristic
                 && Objects.equal(startingTransitTripId, other.startingTransitTripId)
                 && disableAlertFiltering == other.disableAlertFiltering
                 && geoidElevation == other.geoidElevation
@@ -890,7 +893,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + new Boolean(ignoreRealtimeUpdates).hashCode() * 154329
                 + new Boolean(disableRemainingWeightHeuristic).hashCode() * 193939
                 + flex.hashCode()
-                + new Boolean(disableRemainingWeightHeuristic).hashCode() * 193939
+                + new Boolean(useEuclideanRemainingWeightHeuristic).hashCode() * 193939
                 + Integer.hashCode(serviceDayLookout) * 31558519
                 + Boolean.valueOf(useMobilityHubs).hashCode();
 

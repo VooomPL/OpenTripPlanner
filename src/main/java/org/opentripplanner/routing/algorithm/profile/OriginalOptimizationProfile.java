@@ -2,7 +2,10 @@ package org.opentripplanner.routing.algorithm.profile;
 
 import org.opentripplanner.routing.algorithm.costs.CostFunction;
 import org.opentripplanner.routing.algorithm.costs.OriginalCostFunction;
-import org.opentripplanner.routing.algorithm.strategies.*;
+import org.opentripplanner.routing.algorithm.strategies.InterleavedBidirectionalHeuristic;
+import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
+import org.opentripplanner.routing.algorithm.strategies.SimpleEuclideanRWH;
+import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHeuristic;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.spt.DominanceFunction;
 
@@ -19,7 +22,7 @@ public class OriginalOptimizationProfile implements OptimizationProfile {
         if (request.disableRemainingWeightHeuristic) {
             heuristic = new TrivialRemainingWeightHeuristic();
             reversedSearchHeuristic = new TrivialRemainingWeightHeuristic();
-        } else if (request.modes.isTransit() && !request.modes.getCar() && !request.modes.getBicycle() && !request.rentingAllowed) {
+        } else if (shouldUseInterleavedRWH(request)) {
             // Only use the BiDi heuristic for transit. It is not very useful for on-street modes.
             // heuristic = new InterleavedBidirectionalHeuristic(options.rctx.graph);
             // Use a simplistic heuristic until BiDi heuristic is improved, see #2153
@@ -29,6 +32,12 @@ public class OriginalOptimizationProfile implements OptimizationProfile {
             heuristic = new SimpleEuclideanRWH();
             reversedSearchHeuristic = new SimpleEuclideanRWH();
         }
+    }
+
+    private boolean shouldUseInterleavedRWH(RoutingRequest request) {
+        if (request.useEuclideanRemainingWeightHeuristic)
+            return false;
+        return request.modes.isTransit() && !request.modes.getCar() && !request.modes.getBicycle() && !request.rentingAllowed;
     }
 
     @Override
