@@ -527,6 +527,12 @@ public abstract class RoutingResource {
     @QueryParam("disableRemainingWeightHeuristic")
     protected Boolean disableRemainingWeightHeuristic;
 
+    /**
+     * If true, planner will use euclidean instead of interleaved remaining weight heuristic for transit only trips.
+     */
+    @QueryParam("useEuclideanRemainingWeightHeuristic")
+    protected Boolean useEuclideanRemainingWeightHeuristic;
+
     @QueryParam("remainingWeightMultiplier")
     protected Double remainingWeightMultiplier;
 
@@ -872,6 +878,9 @@ public abstract class RoutingResource {
 
         if (disableRemainingWeightHeuristic != null)
             request.disableRemainingWeightHeuristic = disableRemainingWeightHeuristic;
+
+        if (useEuclideanRemainingWeightHeuristic != null)
+            request.useEuclideanRemainingWeightHeuristic = useEuclideanRemainingWeightHeuristic;
 
         if (remainingWeightMultiplier != null)
             request.remainingWeighMultiplier = remainingWeightMultiplier;
