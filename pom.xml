@@ -389,7 +389,7 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <argLine>
-                        -Xmx4G
+                        -Xmx6G
                         -Dfile.encoding=UTF-8
                         --illegal-access=permit
                         --add-opens java.base/java.lang.module=ALL-UNNAMED
