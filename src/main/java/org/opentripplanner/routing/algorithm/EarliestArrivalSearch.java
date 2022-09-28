@@ -42,7 +42,6 @@ public class EarliestArrivalSearch {
         options = options.clone();
 
         // disable any resource limiting, which is algorithmically invalid here
-        System.out.println("Test failing CI");
         options.maxTransfers = Integer.MAX_VALUE;
         options.setMaxWalkDistance(Double.MAX_VALUE);
         if (options.clampInitialWait < 0)
