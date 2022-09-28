@@ -37,13 +37,12 @@ public class EarliestArrivalSearch {
 
     public ShortestPathTree getShortestPathTree(RoutingRequest options, double relTimeout,
             SearchTerminationStrategy terminationStrategy) {
-        
         // clone options before modifying, otherwise disabling resource limiting will cause 
         // SPT cache misses for subsequent requests.
         options = options.clone();
         
         // disable any resource limiting, which is algorithmically invalid here
-        options.maxTransfers = Integer.MAX_VALUE;
+        options.maxTransfers = Integer.MAX_VALUE - 1;
         options.setMaxWalkDistance(Double.MAX_VALUE);
         if (options.clampInitialWait < 0)
             options.clampInitialWait = (60 * 30);
