@@ -40,17 +40,18 @@ public class EarliestArrivalSearch {
         // clone options before modifying, otherwise disabling resource limiting will cause 
         // SPT cache misses for subsequent requests.
         options = options.clone();
-        
+
         // disable any resource limiting, which is algorithmically invalid here
-        options.maxTransfers = Integer.MAX_VALUE - 1;
+        System.out.println("Test failing CI");
+        options.maxTransfers = Integer.MAX_VALUE;
         options.setMaxWalkDistance(Double.MAX_VALUE);
         if (options.clampInitialWait < 0)
             options.clampInitialWait = (60 * 30);
-        
+
         // impose search cutoff
         final long maxt = maxDuration + options.clampInitialWait;
         options.worstTime = options.dateTime + (options.arriveBy ? -maxt : maxt);
-            
+
         // SPT cache does not look at routing request in SPT to perform lookup, 
         // so it's OK to construct with the local cloned one
         ShortestPathTree spt = new DominanceFunction.EarliestArrival().getNewShortestPathTree(options);
