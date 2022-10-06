@@ -69,12 +69,10 @@ public abstract class IntegrationTest extends JerseyTest {
 
     @AfterClass
     public static void afterClass() {
-//        params = null;
-//        graphService.evictAll();
-//        graphService = null;
-//        otpServer = null;
-        wireMockClassRule.stop();
-        wireMockClassRule = null;
+        params = null;
+        graphService.evictAll();
+        graphService = null;
+        otpServer = null;
     }
 
     @Override
