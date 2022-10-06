@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -42,7 +43,6 @@ public abstract class IntegrationTest extends JerseyTest {
     @Rule
     public WireMockClassRule wireMockInstance = wireMockClassRule;
 
-
     @Override
     public Application configure() {
         return new OTPApplication(otpServer, false);
@@ -65,6 +65,16 @@ public abstract class IntegrationTest extends JerseyTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @AfterClass
+    public static void afterClass() {
+//        params = null;
+//        graphService.evictAll();
+//        graphService = null;
+//        otpServer = null;
+        wireMockClassRule.stop();
+        wireMockClassRule = null;
     }
 
     @Override
