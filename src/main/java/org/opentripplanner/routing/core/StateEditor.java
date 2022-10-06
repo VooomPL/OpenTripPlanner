@@ -123,7 +123,7 @@ public class StateEditor {
             return null;
         }
         // If too many boardings occured, terminate the search.
-        if (child.getNumBoardings() - 1 > child.getOptions().maxTransfers)
+        if (child.getNumBoardings() > child.getOptions().maxTransfers + 1)
             return null;
 
         // Check TemporaryVertex on a different request

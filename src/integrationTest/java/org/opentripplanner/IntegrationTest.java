@@ -6,7 +6,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -16,14 +15,10 @@ import org.opentripplanner.standalone.CommandLineParameters;
 import org.opentripplanner.standalone.OTPApplication;
 import org.opentripplanner.standalone.OTPMain;
 import org.opentripplanner.standalone.OTPServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 
 public abstract class IntegrationTest extends JerseyTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Integer.class);
 
     private final static int port = 9111;
 
@@ -64,24 +59,12 @@ public abstract class IntegrationTest extends JerseyTest {
         otpServer = new OTPServer(params, graphService);
 
         OTPMain.registerRouters(params, graphService);
-        LOG.info("Waiting for initialization");
         try {
             Thread.sleep(5000); // wait for initialisation
             System.out.printf("Hopefully it finished initialising vehicles\n");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        LOG.info("Done waiting for initialization");
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        params = null;
-        graphService.evictAll();
-        graphService = null;
-        otpServer = null;
-        wireMockClassRule.stop();
-        wireMockClassRule = null;
     }
 
     @Override
