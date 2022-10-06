@@ -42,7 +42,7 @@ public class EarliestArrivalSearch {
         options = options.clone();
 
         // disable any resource limiting, which is algorithmically invalid here
-        options.maxTransfers = Integer.MAX_VALUE;
+        options.maxTransfers = Integer.MAX_VALUE - 1;
         options.setMaxWalkDistance(Double.MAX_VALUE);
         if (options.clampInitialWait < 0)
             options.clampInitialWait = (60 * 30);
