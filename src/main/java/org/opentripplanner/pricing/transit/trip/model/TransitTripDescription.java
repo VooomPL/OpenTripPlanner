@@ -62,7 +62,7 @@ public class TransitTripDescription {
             evaluatedRange = rangeIterator.next();
             if (evaluatedRange.upperEndpoint() < currentMinuteOfTravel) {
                 result = evaluatedRange.upperEndpoint();
-                break;
+//                break; TODO AdamWiktor make sure it is ok
             }
         }
         return result;

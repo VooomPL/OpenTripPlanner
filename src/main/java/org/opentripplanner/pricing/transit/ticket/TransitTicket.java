@@ -205,27 +205,27 @@ public class TransitTicket implements Serializable {
             if (evaluatedTripStage.getTime() <= ticketShouldBeValidUntil) {
                 if (isTicketValid(evaluatedTripStage)) {
                     if (isFirstApplicableTripStage) {
-                        if (Objects.nonNull(laterTripStage)) {
+//                        if (Objects.nonNull(laterTripStage)) {  TODO AdamWiktor make sure it is ok
                             /*
                              * This stop is not the last one on this trip
                              */
-                            if (isTicketValid(laterTripStage)) {
+//                            if (isTicketValid(laterTripStage)) {
                                 /*
                                  * At this point we have made sure, that we can depart from the stop at the beginning of
                                  * the evaluated trip stage and continue our trip to the next stop using this ticket
                                  * (eg. for cases like in TransitTicketTest::shouldReturn0MinutesValid(), where:
                                  * currentTripStage.getTime() < ticketShouldBeValidUntil < laterTripStage.getTime())
                                  */
-                                totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
-                            } else {
-                                /*
-                                 * We cannot use the evaluated ticket for this trip stage because the ticket is only
-                                 * guaranteed to be valid for the first stop of the evaluated trip stage (departing from this
-                                 * stop and travelling further to the next one is not possible)
-                                 */
-                                break;
-                            }
-                        }
+                        totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
+//                            } else {
+                        /*
+                         * We cannot use the evaluated ticket for this trip stage because the ticket is only
+                         * guaranteed to be valid for the first stop of the evaluated trip stage (departing from this
+                         * stop and travelling further to the next one is not possible)
+                         */
+//                                break;
+//                            }
+//                        }
                         isFirstApplicableTripStage = false;
                     } else {
                         totalMinutesWhenValid = ticketShouldBeValidUntil - evaluatedTripStage.getTime() + 1;
