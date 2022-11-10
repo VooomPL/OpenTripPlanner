@@ -28,6 +28,7 @@ public class TransitPriceCalculatorTest {
     private final TransitTicket timeLimitedTicketDaily = TransitTicket.builder(4, "daily", BigDecimal.valueOf(15)).setTimeLimit(1440).build();
     private final TransitTicket zoneAOnlyTicket = TransitTicket.builder(5, "zone A only", BigDecimal.valueOf(6)).build();
     private final TransitTicket zone1OnlyTicket = TransitTicket.builder(6, "zone 1 only", BigDecimal.valueOf(6)).build();
+    private final TransitTicket skmTicket = TransitTicket.builder(7, "SKM", BigDecimal.valueOf(10)).build();
 
     {
         timeLimitedTicket20.addAllowedAgency("ZTM");
@@ -39,6 +40,7 @@ public class TransitPriceCalculatorTest {
         zoneAOnlyTicket.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "A");
         zone1OnlyTicket.addAllowedAgency("ZTM");
         zone1OnlyTicket.getStopPattern("ZTM").addConstraint(StopPattern.StopAttribute.ZONE, Pattern.TextOperator.IN, "1");
+        skmTicket.addAllowedAgency("SKM");
     }
 
     @Test
@@ -242,6 +244,65 @@ public class TransitPriceCalculatorTest {
         TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
 
         assertEquals(BigDecimal.valueOf(6.8), transitCost.getPrice());
+    }
+
+
+    @Test
+    public void shouldReturnSingleFareAndSKMTicketPrice() {
+        priceCalculator.getAvailableTickets().add(timeLimitedTicket20);
+        priceCalculator.getAvailableTickets().add(singleFareTicket);
+        priceCalculator.getAvailableTickets().add(skmTicket);
+        priceCalculator.getAvailableTickets().add(timeLimitedTicketDaily);
+
+        Agency agency1 = new Agency();
+        agency1.setId("ZTM");
+        Agency agency2 = new Agency();
+        agency2.setId("SKM");
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        firstRoute.setAgency(agency1);
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("SKM", "9999"));
+        secondRoute.setShortName("9999");
+        secondRoute.setAgency(agency2);
+
+        Stop stop1 = new Stop();
+        stop1.setZoneId("1");
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setZoneId("1");
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setZoneId("1");
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setZoneId("1");
+        stop16.setId(new FeedScopedId());
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop11, 11, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+
+        TransitTripDescription tripDescription = new TransitTripDescription(tripStages);
+
+        TransitTripCost transitCost = priceCalculator.computePrice(tripDescription);
+
+        assertEquals(BigDecimal.valueOf(13.4), transitCost.getPrice());
     }
 
     @Test
