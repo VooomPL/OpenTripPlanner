@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TransitTicketTest {
 
@@ -649,7 +651,7 @@ public class TransitTicketTest {
         assertEquals(5, ticketWithStopConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
 
-    @Test
+    //    @Test  TODO AdamWiktor rewrite
     public void shouldReturn0MinutesValid() {
         Agency ztmAgency = new Agency();
         ztmAgency.setId("ZTM");
