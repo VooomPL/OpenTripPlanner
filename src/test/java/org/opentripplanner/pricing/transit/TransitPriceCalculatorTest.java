@@ -285,12 +285,12 @@ public class TransitPriceCalculatorTest {
 
         Routes used in the tested itinerary:
 
-        |  10 min   |5 min|             35 min                  |     Travel time
+        |  7 min    |3 min|             5 min                   |     Travel time
         |<--------->|<--->|<----------------------------------->|
-        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
-        |-------|---|-----|-------------------------|------|----|
+        0           7    10                                    15    Arrive at stop time (minutes)
+        |-----------|-----|-------------------------------------|
         |           |     |                                     |
-        |   105     |walk |               13                    |     Mean of transport
+        |   105     |walk |               SKM                   |     Mean of transport
 
          */
         tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
