@@ -651,7 +651,7 @@ public class TransitTicketTest {
         assertEquals(5, ticketWithStopConstraints.getTotalMinutesWhenValid(45, tripStages));
     }
 
-    //    @Test  TODO AdamWiktor rewrite
+    @Test
     public void shouldReturn0MinutesValid() {
         Agency ztmAgency = new Agency();
         ztmAgency.setId("ZTM");

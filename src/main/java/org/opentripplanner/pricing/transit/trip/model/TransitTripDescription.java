@@ -7,7 +7,6 @@ import lombok.Getter;
 import org.opentripplanner.model.Route;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,19 +54,11 @@ public class TransitTripDescription {
     }
 
     public int getLastMinuteOfPreviousFare(int currentMinuteOfTravel) {
-        Iterator<Range<Integer>> rangeIterator = tripStagesTimeBounds.asRanges().iterator();
-        Range<Integer> evaluatedRange;
-        int result = 0;
-        while (rangeIterator.hasNext()) {
-            evaluatedRange = rangeIterator.next();
-            if (evaluatedRange.upperEndpoint() < currentMinuteOfTravel) {
-                if (result == 0 || evaluatedRange.upperEndpoint() > result) {
-                    result = evaluatedRange.upperEndpoint();
-                }
-//                break; TODO AdamWiktor make sure it is ok
-            }
-        }
-        return result;
+        return tripStagesTimeBounds.asRanges().stream()
+                .mapToInt(Range::upperEndpoint)
+                .filter(range -> range < currentMinuteOfTravel)
+                .max()
+                .orElse(0);
     }
 
     public String toString() {
