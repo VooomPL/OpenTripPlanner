@@ -1311,4 +1311,168 @@ public class TransitTicketTest {
         assertFalse(ticket.isAvailable(LocalDateTime.of(2020, 3, 20, 4, 5)));
     }
 
+    @Test
+    public void shouldReturnProperTimesFor5StopsConstraintsTicket() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |                       50 min                          |     Travel time
+        |<----------------------------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |                                                       |
+        |                        105                            |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(firstRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(firstRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(firstRoute, stop51, 51, 5));
+
+        TransitTicket ticketWith5StopsConstraint = TransitTicket.builder(4, BigDecimal.valueOf(15)).setValidForStops(5).build();
+        ticketWith5StopsConstraint.addAllowedAgency("ZTM");
+
+        assertEquals(16, ticketWith5StopsConstraint.getTotalMinutesWhenValid(16, tripStages));
+        assertEquals(44, ticketWith5StopsConstraint.getTotalMinutesWhenValid(51, tripStages));
+    }
+
+    @Test
+    public void shouldReturnProperTimeFor3StopsConstraintsTicketWithFareSwitch() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
+
+        TransitTicket ticketWith3StopsConstraint = TransitTicket.builder(4, BigDecimal.valueOf(15)).setValidForStops(3).build();
+        ticketWith3StopsConstraint.addAllowedAgency("ZTM");
+
+        assertEquals(39, ticketWith3StopsConstraint.getTotalMinutesWhenValid(46, tripStages));
+    }
+
+    @Test
+    public void shouldReturn0MinutesFor3StopsConstraintsTicketWithFareSwitchWhenWrongAgency() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop16 = new Stop();
+        stop16.setId(new FeedScopedId());
+        Stop stop41 = new Stop();
+        stop41.setId(new FeedScopedId());
+        Stop stop47 = new Stop();
+        stop47.setId(new FeedScopedId());
+        Stop stop51 = new Stop();
+        stop51.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    15                        40     46   50    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop16, 16, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop41, 41, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop47, 47, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop51, 51, 5));
+
+        TransitTicket ticketWith3StopsConstraint = TransitTicket.builder(4, BigDecimal.valueOf(15)).setValidForStops(3).build();
+        ticketWith3StopsConstraint.addAllowedAgency("GZK");
+
+        assertEquals(0, ticketWith3StopsConstraint.getTotalMinutesWhenValid(46, tripStages));
+    }
 }

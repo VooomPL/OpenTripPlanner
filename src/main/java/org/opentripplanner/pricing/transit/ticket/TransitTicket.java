@@ -27,7 +27,7 @@ import static java.util.Objects.isNull;
 @JsonDeserialize(builder = TransitTicket.TransitTicketBuilder.class)
 public class TransitTicket implements Serializable {
 
-    private enum ConstraintCategory {TIME, ROUTE_STOP_PATTERN, MAX_FARES, MAX_DISTANCE}
+    private enum ConstraintCategory {TIME, ROUTE_STOP_PATTERN, MAX_FARES, MAX_DISTANCE, MAX_STOPS}
 
     private static final int NO_LIMIT = -1;
 
@@ -49,18 +49,21 @@ public class TransitTicket implements Serializable {
 
     private final int maxDistance;
 
+    private final int maxStops;
+
     private final LocalDateTime availableFrom;
 
     private final LocalDateTime availableTo;
 
     private TransitTicket(int id, String name, BigDecimal standardPrice, int validForMinutes, int validForFares, int validForDistance,
-                          LocalDateTime availableFrom, LocalDateTime availableTo) {
+                          int validForStops, LocalDateTime availableFrom, LocalDateTime availableTo) {
         this.id = id;
         this.name = name;
         this.standardPrice = standardPrice;
         this.maxMinutes = validForMinutes;
         this.maxFares = validForFares;
         this.maxDistance = validForDistance;
+        this.maxStops = validForStops;
         this.availableFrom = availableFrom;
         this.availableTo = availableTo;
     }
@@ -90,6 +93,9 @@ public class TransitTicket implements Serializable {
         @JsonProperty("max_distance")
         private int validForDistance = NO_LIMIT;
 
+        @JsonProperty("max_stops")
+        private int validForStops = NO_LIMIT;
+
         @JsonProperty("available_from")
         private LocalDateTime availableFrom = null;
 
@@ -112,7 +118,7 @@ public class TransitTicket implements Serializable {
 
         public TransitTicket build() {
             TransitTicket builtTicket = new TransitTicket(this.id, this.name, this.standardPrice, this.validForMinutes,
-                    this.validForFares, this.validForDistance, this.availableFrom, this.availableTo);
+                    this.validForFares, this.validForDistance, this.validForStops, this.availableFrom, this.availableTo);
 
             if (Objects.nonNull(allowedAgencies)) {
                 for (String agencyId : allowedAgencies.keySet()) {
@@ -141,6 +147,11 @@ public class TransitTicket implements Serializable {
 
         public TransitTicketBuilder setDistanceLimit(int validForDistance) {
             this.validForDistance = getCorrectedLimitValue(validForDistance);
+            return this;
+        }
+
+        public TransitTicketBuilder setValidForStops(int validForStops) {
+            this.validForStops = getCorrectedLimitValue(validForStops);
             return this;
         }
 
@@ -188,6 +199,8 @@ public class TransitTicket implements Serializable {
                 getMaxFaresConstraintCompliantTime(finishesAtMinute, tripStages) : finishesAtMinute);
         totalMinutesWhenValid.put(ConstraintCategory.MAX_DISTANCE, maxDistance != NO_LIMIT ?
                 getMaxDistanceConstraintCompliantTime(finishesAtMinute, tripStages) : finishesAtMinute);
+        totalMinutesWhenValid.put(ConstraintCategory.MAX_STOPS, maxStops != NO_LIMIT ?
+                getMaxStopConstraintCompliantTime(finishesAtMinute, tripStages) : finishesAtMinute);
 
         return Collections.min(totalMinutesWhenValid.values());
     }
@@ -356,4 +369,26 @@ public class TransitTicket implements Serializable {
         return evaluatedTripStage.getDistance() > 0;
     }
 
+    private int getMaxStopConstraintCompliantTime(int ticketShouldBeValidUntil, List<TransitTripStage> tripStages) {
+        int totalMinutesWhenValid = 0;
+        int stopsLeft = maxStops;
+        for (int stageIndex = tripStages.size() - 1; stageIndex > 0; stageIndex--) {
+            TransitTripStage evaluatedTripStage = tripStages.get(stageIndex);
+            TransitTripStage earlierTripStage = tripStages.get(stageIndex - 1);
+            if (earlierTripStage.getTime() >= ticketShouldBeValidUntil) {
+                continue;
+            }
+            // If we are switching routes, then it doesn't count towards stops limit
+            if (!earlierTripStage.getCurrentRoute().getId().equals(evaluatedTripStage.getCurrentRoute().getId())) {
+                continue;
+            }
+            stopsLeft--;
+            totalMinutesWhenValid = ticketShouldBeValidUntil - earlierTripStage.getTime() + 1;
+            if (stopsLeft <= 0) {
+                break;
+            }
+        }
+
+        return totalMinutesWhenValid;
+    }
 }
