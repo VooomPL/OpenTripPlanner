@@ -1475,4 +1475,63 @@ public class TransitTicketTest {
 
         assertEquals(0, ticketWith3StopsConstraint.getTotalMinutesWhenValid(46, tripStages));
     }
+
+    @Test
+    public void shouldIgnoreTransferTimeOverCertainLengthStopsConstraintsTicketWithFareSwitch() {
+        Agency ztmAgency = new Agency();
+        ztmAgency.setId("ZTM");
+        Route firstRoute = new Route();
+        firstRoute.setId(new FeedScopedId("ZTM", "105"));
+        firstRoute.setShortName("105");
+        firstRoute.setAgency(ztmAgency);
+        Route secondRoute = new Route();
+        secondRoute.setId(new FeedScopedId("ZTM", "13"));
+        secondRoute.setShortName("13");
+        secondRoute.setAgency(ztmAgency);
+
+        Stop stop1 = new Stop();
+        stop1.setId(new FeedScopedId());
+        Stop stop8 = new Stop();
+        stop8.setId(new FeedScopedId());
+        Stop stop11 = new Stop();
+        stop11.setId(new FeedScopedId());
+        Stop stop36 = new Stop();
+        stop36.setId(new FeedScopedId());
+        Stop stop61 = new Stop();
+        stop61.setId(new FeedScopedId());
+        Stop stop67 = new Stop();
+        stop67.setId(new FeedScopedId());
+        Stop stop71 = new Stop();
+        stop71.setId(new FeedScopedId());
+
+        List<TransitTripStage> tripStages = new ArrayList<>();
+
+        /*
+
+        Routes used in the tested itinerary:
+
+        |  10 min   |5 min|             35 min                  |     Travel time
+        |<--------->|<--->|<----------------------------------->|
+        0       7   10    35                        60     66   70    Arrive at stop time (minutes)
+        |-------|---|-----|-------------------------|------|----|
+        |           |     |                                     |
+        |   105     |walk |               13                    |     Mean of transport
+
+         */
+        tripStages.add(new TransitTripStage(firstRoute, stop1, 1, 0));
+        tripStages.add(new TransitTripStage(firstRoute, stop8, 8, 10));
+        tripStages.add(new TransitTripStage(firstRoute, stop11, 11, 5));
+        tripStages.add(new TransitTripStage(secondRoute, stop36, 36, 0));
+        tripStages.add(new TransitTripStage(secondRoute, stop61, 61, 40));
+        tripStages.add(new TransitTripStage(secondRoute, stop67, 67, 7));
+        tripStages.add(new TransitTripStage(secondRoute, stop71, 71, 5));
+
+        TransitTicket ticketWith5StopsConstraint = TransitTicket.builder(4, BigDecimal.valueOf(15))
+                .setValidForStops(5)
+                .setMaxTransferTimeForMaxStopsConstraint(20)
+                .build();
+        ticketWith5StopsConstraint.addAllowedAgency("ZTM");
+
+        assertEquals(36, ticketWith5StopsConstraint.getTotalMinutesWhenValid(71, tripStages));
+    }
 }
