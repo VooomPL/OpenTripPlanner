@@ -18,7 +18,11 @@ import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Find the shortest path between graph vertices using A*.
@@ -42,15 +46,24 @@ public class AStar {
         RUNNING, STOPPED
     }
 
+    public static class RunStateDebugMetadata {
+        public int visitedStates;
+        public int generatedStates;
+        public int enqueuedStates;
+    }
+
+    ;
+
     /* TODO instead of having a separate class for search state, we should just make one GenericAStar per request. */
     class RunState {
+
 
         public State u;
         public ShortestPathTree spt;
         BinHeap<State> pq;
         RemainingWeightHeuristic heuristic;
         public RoutingContext rctx;
-        public int nVisited;
+        public RunStateDebugMetadata debugMetadata;
         public List<State> targetAcceptedStates;
         public RunStatus status;
         private RoutingRequest options;
@@ -125,11 +138,15 @@ public class AStar {
         int initialSize = runState.rctx.graph.getVertices().size();
         initialSize = (int) Math.ceil(2 * (Math.sqrt((double) initialSize + 1)));
         runState.pq = new BinHeap<>(initialSize);
-        runState.nVisited = 0;
+        runState.debugMetadata = new RunStateDebugMetadata();
+        runState.debugMetadata.visitedStates = 0;
+        runState.debugMetadata.generatedStates = 1;
+        runState.debugMetadata.enqueuedStates = 1;
         runState.targetAcceptedStates = Lists.newArrayList();
 
         if (addToQueue) {
             State initialState = new State(options);
+            initialState.stateData.setDebugMetadata(runState.debugMetadata);
             runState.spt.add(initialState);
             runState.pq.insert(initialState, 0);
         }
@@ -165,7 +182,7 @@ public class AStar {
         if (verbose)
             System.out.println("   vertex " + runState.u_vertex);
 
-        runState.nVisited += 1;
+        runState.debugMetadata.visitedStates++;
 
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
@@ -173,6 +190,8 @@ public class AStar {
             // returning NULL), the iteration is over. TODO Use this to board multiple trips.
             for (State v = edge.traverse(runState.u); v != null; v = v.getNextResult()) {
                 // Could be: for (State v : traverseEdge...)
+
+                runState.debugMetadata.generatedStates++;
 
                 if (traverseVisitor != null) {
                     traverseVisitor.visitEdge(edge, v);
@@ -214,6 +233,7 @@ public class AStar {
                     if (traverseVisitor != null)
                         traverseVisitor.visitEnqueue(v);
                     //LOG.info("u.w={} v.w={} h={}", runState.u.weight, v.weight, remaining_w);
+                    runState.debugMetadata.enqueuedStates++;
                     runState.pq.insert(v, estimate);
                 }
             }

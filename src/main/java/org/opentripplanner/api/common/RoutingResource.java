@@ -620,6 +620,8 @@ public abstract class RoutingResource {
     @QueryParam("useMobilityHubs")
     private Boolean useMobilityHubs;
 
+    @QueryParam("addItineraryDebugMetadata")
+    private Boolean addItineraryDebugMetadata;
     /*
      * somewhat ugly bug fix: the graphService is only needed here for fetching per-graph time zones.
      * this should ideally be done when setting the routing context, but at present departure/
@@ -953,6 +955,9 @@ public abstract class RoutingResource {
 
         if (useMobilityHubs != null)
             request.useMobilityHubs = useMobilityHubs;
+
+        if (addItineraryDebugMetadata != null)
+            request.addItineraryDebugMetadata = addItineraryDebugMetadata;
 
         if (easyTrip != null && easyTrip) {
             if (!request.modes.isTransit() || request.rentingAllowed || request.modes.getBicycle() || request.modes.getCar()) {

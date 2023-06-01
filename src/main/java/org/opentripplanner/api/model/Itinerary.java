@@ -102,6 +102,8 @@ public class Itinerary {
      */
     public boolean tooSloped = false;
 
+    public ItineraryDebugMetadata debugMetadata;
+
     /**
      * adds leg to array list
      *
