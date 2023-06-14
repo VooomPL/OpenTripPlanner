@@ -399,6 +399,8 @@ public class RoutingRequest implements Cloneable, Serializable {
 
     public boolean addItineraryDebugMetadata = false;
 
+    public boolean vehiclesNotComparable = false;
+
     /* CONSTRUCTORS */
 
     /**
@@ -865,6 +867,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && flex.equals(other.flex)
                 && serviceDayLookout == other.serviceDayLookout
                 && addItineraryDebugMetadata == other.addItineraryDebugMetadata
+                && vehiclesNotComparable == other.vehiclesNotComparable
                 && useMobilityHubs == other.useMobilityHubs;
     }
 
@@ -899,6 +902,7 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + new Boolean(useEuclideanRemainingWeightHeuristic).hashCode() * 193939
                 + Integer.hashCode(serviceDayLookout) * 31558519
                 + Boolean.valueOf(addItineraryDebugMetadata).hashCode()
+                + Boolean.valueOf(vehiclesNotComparable).hashCode()
                 + Boolean.valueOf(useMobilityHubs).hashCode();
 
         if (batch) {

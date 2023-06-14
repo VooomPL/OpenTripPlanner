@@ -93,6 +93,9 @@ public abstract class DominanceFunction implements Serializable {
         }
 
         if (a.getCurrentVehicle() != null && b.getCurrentVehicle() != null) {
+            if (a.getOptions().vehiclesNotComparable)
+                return false;
+
             if (a.getCurrentVehicle().getVehicleType() != b.getCurrentVehicle().getVehicleType())
                 return false;
 
