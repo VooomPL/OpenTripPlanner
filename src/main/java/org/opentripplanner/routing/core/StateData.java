@@ -1,8 +1,11 @@
 package org.opentripplanner.routing.core;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Stop;
 import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.trippattern.TripTimes;
@@ -63,7 +66,9 @@ public class StateData implements Cloneable {
 
     protected VehicleDescription currentVehicle;
 
-
+    @Getter
+    @Setter
+    private AStar.RunStateDebugMetadata debugMetadata;
 
     /**
      * This is the wait time at the beginning of the trip (or at the end of the trip for

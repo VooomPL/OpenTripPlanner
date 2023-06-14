@@ -7,6 +7,7 @@ import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.api.model.AlternativeRoute;
 import org.opentripplanner.api.model.BoardAlightType;
 import org.opentripplanner.api.model.Itinerary;
+import org.opentripplanner.api.model.ItineraryDebugMetadata;
 import org.opentripplanner.api.model.Leg;
 import org.opentripplanner.api.model.LegStateSplit;
 import org.opentripplanner.api.model.Place;
@@ -140,6 +141,9 @@ public abstract class GraphPathToTripPlanConverter {
             itinerary = adjustItinerary(request, itinerary);
             if (itinerary.transitTime == 0 && itinerary.walkTime < bestNonTransitTime) {
                 bestNonTransitTime = itinerary.walkTime;
+            }
+            if (request.addItineraryDebugMetadata) {
+                itinerary.debugMetadata = new ItineraryDebugMetadata(path);
             }
             itineraries.add(itinerary);
         }

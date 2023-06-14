@@ -397,6 +397,10 @@ public class RoutingRequest implements Cloneable, Serializable {
     @Getter
     private SharedVehiclesSnapshotLabel acceptedSharedVehiclesSnapshotLabel = new SharedVehiclesSnapshotLabel();
 
+    public boolean addItineraryDebugMetadata = false;
+
+    public boolean vehiclesNotComparable = false;
+
     /* CONSTRUCTORS */
 
     /**
@@ -862,6 +866,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 && geoidElevation == other.geoidElevation
                 && flex.equals(other.flex)
                 && serviceDayLookout == other.serviceDayLookout
+                && addItineraryDebugMetadata == other.addItineraryDebugMetadata
+                && vehiclesNotComparable == other.vehiclesNotComparable
                 && useMobilityHubs == other.useMobilityHubs;
     }
 
@@ -895,6 +901,8 @@ public class RoutingRequest implements Cloneable, Serializable {
                 + flex.hashCode()
                 + new Boolean(useEuclideanRemainingWeightHeuristic).hashCode() * 193939
                 + Integer.hashCode(serviceDayLookout) * 31558519
+                + Boolean.valueOf(addItineraryDebugMetadata).hashCode()
+                + Boolean.valueOf(vehiclesNotComparable).hashCode()
                 + Boolean.valueOf(useMobilityHubs).hashCode();
 
         if (batch) {

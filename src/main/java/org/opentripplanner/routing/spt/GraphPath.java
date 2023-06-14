@@ -1,10 +1,12 @@
 package org.opentripplanner.routing.spt;
 
+import lombok.Getter;
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.api.resource.CoordinateArrayListSequence;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.Trip;
+import org.opentripplanner.routing.algorithm.AStar;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -38,6 +40,9 @@ public class GraphPath {
     private double walkDistance = 0;
 
     private Map<TraverseMode, Integer> timeTraversedInMode;
+
+    @Getter
+    private final AStar.RunStateDebugMetadata debugMetadata;
 
     // don't really need to save this (available through State) but why not
     private RoutingContext rctx;
@@ -81,6 +86,9 @@ public class GraphPath {
         } else {
             lastState = optimize ? s.reverseAndOptimize(false).reverseAndOptimize(false) : s;
         }
+
+        debugMetadata = s.stateData.getDebugMetadata();
+
         // DEBUG
         // lastState = s;
 
