@@ -525,7 +525,8 @@ public class StateEditor {
         doneVehicleRenting();
     }
 
-    private void doneVehicleRenting() {
+    public void doneVehicleRenting() {
+        cloneStateDataAsNeeded();
         int previousActivePackageIndex = child.getActivePackageIndex();
         VehiclePricingPackage vehiclePricingPackage = child.getCurrentVehicle().getVehiclePricingPackage(previousActivePackageIndex);
         BigDecimal previousTotalPrice = child.getTotalPriceForCurrentVehicle(previousActivePackageIndex);

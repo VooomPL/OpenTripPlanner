@@ -176,6 +176,8 @@ public class RoutingRequest implements Cloneable, Serializable {
      * Whether the trip should be easily navigable. Works for public transport trips only.
      */
     public boolean easyTrip = false;
+    public String providerVehicleId;
+
 
     /**
      * The maximum number of itineraries to return.

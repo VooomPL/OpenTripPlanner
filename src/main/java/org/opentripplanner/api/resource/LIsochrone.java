@@ -13,6 +13,7 @@ import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opentripplanner.Spt;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.IsoChroneRequest;
 import org.opentripplanner.api.common.RoutingResource;
@@ -86,6 +87,10 @@ public class LIsochrone extends RoutingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGeoJsonIsochrone() throws Exception {
+        if (providerVehicleId != null) {
+            Spt spt = computeIsochroneVehicles();
+            return Response.ok().entity(spt).build();
+        }
         SimpleFeatureCollection contourFeatures = makeContourFeatures(computeIsochrone());
         StringWriter writer = new StringWriter();
         FeatureJSON fj = new FeatureJSON();
@@ -181,6 +186,33 @@ public class LIsochrone extends RoutingResource {
 
         Router router = otpServer.getRouter(routerId);
         return router.isoChroneSPTRenderer.getIsochrones(isoChroneRequest, sptRequest);
+    }
+
+    public Spt computeIsochroneVehicles() throws Exception {
+
+        if (debug == null)
+            debug = false;
+        if (precisionMeters < 10)
+            throw new IllegalArgumentException("Too small precisionMeters: " + precisionMeters);
+        if (offRoadDistanceMeters < 10)
+            throw new IllegalArgumentException("Too small offRoadDistanceMeters: " + offRoadDistanceMeters);
+
+        IsoChroneRequest isoChroneRequest = new IsoChroneRequest(cutoffSecList);
+        isoChroneRequest.includeDebugGeometry = debug;
+        isoChroneRequest.precisionMeters = precisionMeters;
+        isoChroneRequest.offRoadDistanceMeters = offRoadDistanceMeters;
+        isoChroneRequest.maxDistanceMeters = maxDistanceMeters;
+        if (coordinateOrigin != null)
+            isoChroneRequest.coordinateOrigin = new GenericLocation(null, coordinateOrigin)
+                    .getCoordinate();
+        RoutingRequest sptRequest = buildRequest();
+
+        isoChroneRequest.maxTimeSec = Objects.requireNonNullElseGet(maxTimeSec, () -> isoChroneRequest.maxCutoffSec);
+
+        Router router = otpServer.getRouter(routerId);
+        Spt spt = router.isoChroneSPTRenderer.getIsochronesVehicles(isoChroneRequest, sptRequest);
+        spt.setProviderVehicleId(providerVehicleId);
+        return spt;
     }
 
     static SimpleFeatureType makeContourSchema() {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.google.common.io.ByteStreams;
+import org.opentripplanner.Spt;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.services.GraphSource;
 import org.opentripplanner.routing.services.StreetVertexIndexFactory;
@@ -12,7 +13,13 @@ import org.opentripplanner.standalone.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The primary implementation of the GraphSource interface. The graph is loaded from a serialized
@@ -22,6 +29,7 @@ import java.io.*;
 public class InputStreamGraphSource implements GraphSource {
 
     public static final String GRAPH_FILENAME = "Graph.obj";
+    public static final String VEHICLES_SPT_FILENAME = "vehicles_spt.json";
 
     private static final Logger LOG = LoggerFactory.getLogger(InputStreamGraphSource.class);
 
@@ -192,6 +200,26 @@ public class InputStreamGraphSource implements GraphSource {
             return null;
         }
 
+        try {
+            InputStream is = streams.getVehiclesSptInputStream();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode json = mapper.readTree(is);
+            Map<String, Map<String, Spt.SptElement>> data = new HashMap<>();
+            json.fields().forEachRemaining(e -> {
+                Map<String, Spt.SptElement> subdata = new HashMap<>();
+                e.getValue().fields().forEachRemaining(e2 -> {
+                    subdata.put(e2.getKey(), new Spt.SptElement(
+                            e2.getValue().get("distance").asDouble(),
+                            e2.getValue().get("duration").asLong(),
+                            e2.getValue().get("weight").asDouble()));
+                });
+                data.put(e.getKey(), subdata);
+            });
+            newGraph.vehiclesSpt = data;
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+
         // Decorate the graph TODO how are we "decorating" it? This appears to refer to loading its configuration.
         // Even if a config file is not present on disk one could be bundled inside.
         try (InputStream is = streams.getConfigInputStream()) {
@@ -226,6 +254,8 @@ public class InputStreamGraphSource implements GraphSource {
 
         public abstract InputStream getConfigInputStream() throws IOException;
 
+        public abstract InputStream getVehiclesSptInputStream() throws IOException;
+
         public abstract long getLastModified();
     }
 
@@ -253,6 +283,11 @@ public class InputStreamGraphSource implements GraphSource {
             } else {
                 return null;
             }
+        }
+
+        @Override
+        public InputStream getVehiclesSptInputStream() throws IOException {
+            return new FileInputStream(new File(path, VEHICLES_SPT_FILENAME));
         }
 
         @Override
@@ -284,6 +319,11 @@ public class InputStreamGraphSource implements GraphSource {
             LOG.debug("Trying to load config on classpath at '{}'", configFile.getPath());
             return Thread.currentThread().getContextClassLoader()
                     .getResourceAsStream(configFile.getPath());
+        }
+
+        @Override
+        public InputStream getVehiclesSptInputStream() throws IOException {
+            return null;
         }
 
         /**

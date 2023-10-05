@@ -10,9 +10,12 @@ public class ItineraryDebugMetadata {
 
     public int enqueuedStates;
 
+    public double weight;
+
     public ItineraryDebugMetadata(GraphPath path) {
         this.visitedStates = path.getDebugMetadata().visitedStates;
         this.generatedStates = path.getDebugMetadata().generatedStates;
         this.enqueuedStates = path.getDebugMetadata().enqueuedStates;
+        this.weight = path.getWeight();
     }
 }

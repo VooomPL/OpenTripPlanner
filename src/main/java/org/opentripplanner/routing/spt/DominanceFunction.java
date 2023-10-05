@@ -5,9 +5,13 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.edgetype.SimpleTransfer;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TimedTransferEdge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Objects;
+
+import static org.opentripplanner.common.geometry.SphericalDistanceLibrary.fastDistance;
 
 /**
  * A class that determines when one search branch prunes another at the same Vertex, and ultimately which solutions
@@ -25,6 +29,7 @@ import java.util.Objects;
  */
 public abstract class DominanceFunction implements Serializable {
     private static final long serialVersionUID = 1;
+    private static final Logger LOG = LoggerFactory.getLogger(DominanceFunction.class);
 
     /**
      * Return true if the first state "defeats" the second state or at least ties with it in terms of suitability.
@@ -92,30 +97,54 @@ public abstract class DominanceFunction implements Serializable {
             return false;
         }
 
-        if (a.getCurrentVehicle() != null && b.getCurrentVehicle() != null) {
-            if (a.getOptions().vehiclesNotComparable)
-                return false;
-
-            if (a.getCurrentVehicle().getVehicleType() != b.getCurrentVehicle().getVehicleType())
-                return false;
-
-            if (a.getOptions().routingStateDiffOptions.differRangeGroups) {
-                int rangeGroupA = a.getOptions().routingStateDiffOptions.getRangeGroup(a);
-                int rangeGroupB = b.getOptions().routingStateDiffOptions.getRangeGroup(b);
-
-//            A has worse range but better weight and time. Therefore, those states are incomparable.
-                if (rangeGroupA < rangeGroupB && betterOrEqual(a, b))
-                    return false;
-                if (rangeGroupB < rangeGroupA && betterOrEqual(b, a))
-                    return false;
-            }
-
-        }
-
         // Are the two states arriving at a vertex from two different directions where turn restrictions apply?
         if (a.backEdge != b.getBackEdge() && (a.backEdge instanceof StreetEdge)) {
             if (!((StreetEdge) a.backEdge).getTurnRestrictions().isEmpty())
                 return false;
+        }
+
+        if (a.getCurrentVehicle() != null && b.getCurrentVehicle() != null) {
+            if (a.getCurrentVehicle().getVehicleType() != b.getCurrentVehicle().getVehicleType())
+                return false;
+
+//            if (a.getOptions().vehiclesNotComparable && !a.getCurrentVehicle().equals(b.getCurrentVehicle()))
+//                return false;
+
+            if (a.getOptions().vehiclesNotComparable && a.getContext().toVertex != null) {
+                if (!a.getCurrentVehicle().getProvider().equals(b.getCurrentVehicle().getProvider()))
+                    return false;
+//
+                double rangeA = a.getCurrentVehicle().getRangeInMeters() - a.distanceTraversedInCurrentVehicle;
+                double rangeB = b.getCurrentVehicle().getRangeInMeters() - b.distanceTraversedInCurrentVehicle;
+                double distanceToDestination = 100.0 + 2.0 * fastDistance(a.getVertex().getLat(), a.getVertex().getLon(), a.getContext().toVertex.getLat(), a.getContext().toVertex.getLon());
+////                LOG.info(distanceToDestination + " A=" + a.getCurrentVehicle().getProviderVehicleId() + " B=" + b.getCurrentVehicle().getProviderVehicleId() + " vertex=" + a.getVertex().getIndex() + " w1=" + a.getWeight() + " w2=" + b.getWeight());
+////                if (a.getCurrentVehicle().equals(b.getCurrentVehicle()) && a.getWeight() == b.getWeight())
+////                    LOG.info("WTFFFF");
+                if (distanceToDestination < rangeA && distanceToDestination < rangeB) { // both are in range
+                    return betterOrEqual(a, b);
+                }
+//                } else {
+//                    if (rangeA >= rangeB)
+//                        return betterOrEqual(a, b);
+//                    else {
+//                        return false;
+//                    }
+////                    if (rangeA < rangeB && betterOrEqual(a, b))
+////                        return false;
+////                    if (rangeB < rangeA && betterOrEqual(b, a))
+////                        return false;
+//                }
+
+//                if (rangeA >= rangeB) {
+//                    return betterOrEqual(a, b);
+//                } else {
+//                    return false;
+//                }
+
+                if (!a.getCurrentVehicle().equals(b.getCurrentVehicle()))
+                    return false;
+            }
+
         }
 
         // These two states are comparable (they are on the same "plane" or "copy" of the graph).

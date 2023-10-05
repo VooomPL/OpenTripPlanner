@@ -1,8 +1,7 @@
 package org.opentripplanner.analyst.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.Spt;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.core.Sample;
 import org.opentripplanner.analyst.core.SampleSource;
@@ -19,7 +18,8 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.locationtech.jts.geom.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Compute isochrones out of a shortest path tree request (RecursiveGrid isoline algorithm).
@@ -121,5 +121,22 @@ public class IsoChroneSPTRendererRecursiveGrid implements IsoChroneSPTRenderer {
         LOG.debug("Created {} initial points from {} vertexes.", retval.size(),
                 spt.getVertexCount());
         return retval;
+    }
+
+    @Override
+    public Spt getIsochronesVehicles(IsoChroneRequest isoChroneRequest, RoutingRequest sptRequest) {
+
+        if (sptRequest.routerId != null && !sptRequest.routerId.isEmpty())
+            throw new IllegalArgumentException(
+                    "TODO: SampleSource is not multi-router compatible (yet).");
+
+        sptRequest.worstTime = (sptRequest.dateTime
+                + (sptRequest.arriveBy ? -isoChroneRequest.maxCutoffSec : isoChroneRequest.maxCutoffSec));
+        sptRequest.batch = true;
+        sptRequest.setRoutingContext(graph);
+        // TODO handle different path dominance conditions
+        final ShortestPathTree spt = new AStar().getShortestPathTree(sptRequest);
+        sptRequest.cleanup();
+        return spt.vehiclesSpt;
     }
 }

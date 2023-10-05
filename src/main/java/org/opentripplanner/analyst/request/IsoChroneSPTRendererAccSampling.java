@@ -1,5 +1,6 @@
 package org.opentripplanner.analyst.request;
 
+import org.opentripplanner.Spt;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.SampleGridRenderer.WTWD;
 import org.opentripplanner.common.geometry.DelaunayIsolineBuilder;
@@ -102,5 +103,17 @@ public class IsoChroneSPTRendererAccSampling implements IsoChroneSPTRenderer {
         LOG.info("Computed {} isochrones in {}msec", isochrones.size(), (int) (t1 - t0));
 
         return isochrones;
+    }
+
+    @Override
+    public Spt getIsochronesVehicles(IsoChroneRequest isoChroneRequest, RoutingRequest sptRequest) {
+        // 1. Create a sample grid from the SPT, using the TimeGridRenderer
+        SampleGridRequest tgRequest = new SampleGridRequest();
+        tgRequest.maxTimeSec = isoChroneRequest.maxTimeSec;
+        tgRequest.precisionMeters = isoChroneRequest.precisionMeters;
+        tgRequest.offRoadDistanceMeters = isoChroneRequest.offRoadDistanceMeters;
+        tgRequest.coordinateOrigin = isoChroneRequest.coordinateOrigin;
+        tgRequest.maxDistanceMeters = isoChroneRequest.maxDistanceMeters;
+        return sampleGridRenderer.getSampleGridVehicles(tgRequest, sptRequest);
     }
 }

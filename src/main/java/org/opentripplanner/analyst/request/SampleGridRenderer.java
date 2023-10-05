@@ -2,6 +2,7 @@ package org.opentripplanner.analyst.request;
 
 import org.apache.commons.math3.util.FastMath;
 import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.Spt;
 import org.opentripplanner.common.geometry.AccumulativeGridSampler;
 import org.opentripplanner.common.geometry.AccumulativeGridSampler.AccumulativeMetric;
 import org.opentripplanner.common.geometry.IsolineBuilder;
@@ -46,6 +47,22 @@ public class SampleGridRenderer {
 
     public SampleGridRenderer(Graph graph) {
         this.graph = graph;
+    }
+
+
+    public Spt getSampleGridVehicles(SampleGridRequest spgRequest, RoutingRequest sptRequest) {
+        final double offRoadDistanceMeters = spgRequest.offRoadDistanceMeters;
+        final double offRoadWalkSpeedMps = 1.00; // m/s, off-road walk speed
+
+        // 1. Compute the Shortest Path Tree.
+        long tOvershot = (long) (2 * offRoadDistanceMeters / offRoadWalkSpeedMps);
+        sptRequest.worstTime = (sptRequest.dateTime + (sptRequest.arriveBy ? -spgRequest.maxTimeSec
+                - tOvershot : spgRequest.maxTimeSec + tOvershot));
+        sptRequest.batch = (true);
+        sptRequest.setRoutingContext(graph);
+        // TODO swap in different state dominance logic (earliest arrival, pareto, etc.)
+        final ShortestPathTree spt = new AStar().getShortestPathTree(sptRequest);
+        return spt.vehiclesSpt;
     }
 
     /**

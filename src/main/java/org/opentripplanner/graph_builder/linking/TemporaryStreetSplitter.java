@@ -193,8 +193,10 @@ public class TemporaryStreetSplitter {
     private void addRentVehicleEdge(TemporaryRentVehicleVertex vertex, VehicleDescription vehicle) {
         if (graph.parkingZonesCalculator == null) {
             new RentVehicleEdge(vertex, vehicle);
+//            new DropoffVehicleEdge(vertex);
         } else {
             new RentVehicleEdge(vertex, vehicle, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
+//            new DropoffVehicleEdge(vertex, graph.parkingZonesCalculator.getParkingZonesForLocation(vertex));
         }
     }
 

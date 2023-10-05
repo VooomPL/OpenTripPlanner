@@ -44,6 +44,12 @@ public class RentVehicleEdge extends EdgeWithParkingZones implements TemporaryEd
             return null;
         }
 
+        if (state.getOptions().vehiclesNotComparable && state.getNumBoardings() > 0 && !(state.backEdge instanceof ShortcutEdge))
+            return null;
+
+        if (state.getOptions().providerVehicleId != null && !vehicle.getProviderVehicleId().equals(state.getOptions().providerVehicleId))
+            return null;
+
         if (!state.getOptions().getAcceptedSharedVehiclesSnapshotLabel().equals(vehicle.getSnapshotLabel())) {
             return null;
         }

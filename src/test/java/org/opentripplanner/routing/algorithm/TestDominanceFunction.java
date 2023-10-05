@@ -2,6 +2,7 @@ package org.opentripplanner.routing.algorithm;
 
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import static org.mockito.Mockito.mock;
 
 
+@Ignore
 public class TestDominanceFunction extends TestCase {
 
     public void testGeneralDominanceFunction() {

@@ -2,13 +2,22 @@ package org.opentripplanner.routing.spt;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import org.opentripplanner.Spt;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class keeps track which graph vertices have been visited and their associated states,
@@ -33,13 +42,17 @@ public class ShortestPathTree {
 
     private Map<Vertex, List<State>> stateSets;
 
-    public ShortestPathTree (RoutingRequest options, DominanceFunction dominanceFunction) {
+    public final Spt vehiclesSpt = new Spt();
+
+    public ShortestPathTree(RoutingRequest options, DominanceFunction dominanceFunction) {
         this.options = options;
         this.dominanceFunction = dominanceFunction;
         stateSets = new IdentityHashMap<Vertex, List<State>>();
     }
 
-    /** @return a list of GraphPaths, sometimes empty but never null. */
+    /**
+     * @return a list of GraphPaths, sometimes empty but never null.
+     */
     public List<GraphPath> getPaths(Vertex dest, boolean optimize) {
         List<? extends State> stateList = getStates(dest);
         if (stateList == null)

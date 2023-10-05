@@ -305,6 +305,9 @@ public abstract class RoutingResource {
     @QueryParam("vehicleTypesAllowed")
     protected Set<VehicleType> vehicleTypesAllowed;
 
+    @QueryParam("providerVehicleId")
+    protected String providerVehicleId;
+
     /**
      * The minimum time, in seconds, between successive trips on different vehicles.
      * This is designed to allow for imperfect schedule adherence.  This is a minimum;
@@ -971,6 +974,9 @@ public abstract class RoutingResource {
             }
             request.easyTrip = easyTrip;
         }
+
+        if (providerVehicleId != null)
+            request.providerVehicleId = providerVehicleId;
 
         return request;
     }

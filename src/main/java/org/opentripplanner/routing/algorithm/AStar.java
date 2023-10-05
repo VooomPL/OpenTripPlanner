@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.algorithm;
 
 import com.beust.jcommander.internal.Lists;
+import org.opentripplanner.Spt;
 import org.opentripplanner.common.pqueue.BinHeap;
 import org.opentripplanner.routing.algorithm.strategies.RemainingWeightHeuristic;
 import org.opentripplanner.routing.algorithm.strategies.SearchTerminationStrategy;
@@ -8,10 +9,14 @@ import org.opentripplanner.routing.algorithm.strategies.TrivialRemainingWeightHe
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
+import org.opentripplanner.routing.edgetype.rentedgetype.ShortcutEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
 import org.opentripplanner.util.DateUtils;
 import org.opentripplanner.util.monitoring.MonitoringStore;
 import org.opentripplanner.util.monitoring.MonitoringStoreFactory;
@@ -179,6 +184,18 @@ public class AStar {
 
         runState.u_vertex = runState.u.getVertex();
 
+        if (runState.u_vertex instanceof TemporaryRentVehicleVertex && !runState.u.isCurrentlyRentingVehicle() && runState.u.getNumBoardings() > 0) {
+            VehicleDescription description = runState.u_vertex.getOutgoing().stream()
+                    .filter(RentVehicleEdge.class::isInstance)
+                    .map(RentVehicleEdge.class::cast)
+                    .findFirst()
+                    .get()
+                    .getVehicle();
+            runState.spt.vehiclesSpt.addData(description.getProviderVehicleId(),
+                    new Spt.SptElement(runState.u.getTraverseDistanceInMeters(), runState.u.getTimeSeconds() - runState.rctx.opt.getSecondsSinceEpoch(), runState.u.weight));
+        }
+
+
         if (verbose)
             System.out.println("   vertex " + runState.u_vertex);
 
@@ -186,12 +203,16 @@ public class AStar {
 
         Collection<Edge> edges = runState.options.arriveBy ? runState.u_vertex.getIncoming() : runState.u_vertex.getOutgoing();
         for (Edge edge : edges) {
+            if (edge instanceof ShortcutEdge && !((ShortcutEdge) edge).vehicle.equals(runState.u.getCurrentVehicle()))
+                return true;
             // Iterate over traversal results. When an edge leads nowhere (as indicated by
             // returning NULL), the iteration is over. TODO Use this to board multiple trips.
             for (State v = edge.traverse(runState.u); v != null; v = v.getNextResult()) {
                 // Could be: for (State v : traverseEdge...)
 
                 runState.debugMetadata.generatedStates++;
+                if (runState.debugMetadata.generatedStates % 50000 == 0)
+                    LOG.info("generated " + runState.debugMetadata.generatedStates + " states");
 
                 if (traverseVisitor != null) {
                     traverseVisitor.visitEdge(edge, v);
@@ -295,6 +316,8 @@ public class AStar {
             }
 
         }
+        LOG.info("Finished search, visited = {}, generated = {}, enqueued = {}", runState.debugMetadata.visitedStates,
+                runState.debugMetadata.generatedStates, runState.debugMetadata.enqueuedStates);
     }
 
     /**

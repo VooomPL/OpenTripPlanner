@@ -1,8 +1,11 @@
 package org.opentripplanner.updater.vehicle_sharing.vehicles_positions;
 
+import org.opentripplanner.Spt;
 import org.opentripplanner.graph_builder.linking.TemporaryStreetSplitter;
 import org.opentripplanner.routing.core.vehicle_sharing.Provider;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
+import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
+import org.opentripplanner.routing.edgetype.rentedgetype.ShortcutEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TemporaryRentVehicleVertex;
@@ -12,9 +15,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.filtering;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
 
@@ -31,6 +44,8 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
     private final LocalTime updateTimestamp;
 
     private final SharedVehiclesSnapshotLabel snapshotLabel;
+
+    private int counter;
 
     VehicleSharingGraphWriterRunnable(TemporaryStreetSplitter temporaryStreetSplitter,
                                       List<VehicleDescription> vehiclesFetchedFromApi,
@@ -122,6 +137,28 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
             }
             graph.getSupportedSnapshotLabels().replace(this.snapshotLabel, properlyLinkedVehiclesAsInt);
         }
+
+        counter = 0;
+        Map<VehicleDescription, Optional<TemporaryRentVehicleVertex>> collect = graph.vehiclesTriedToLink.entrySet().stream()
+                .filter(e -> e.getKey().getVehicleType() == VehicleType.KICKSCOOTER)
+                .filter(e -> e.getKey().getProvider().getProviderId() == 0 || e.getKey().getProvider().getProviderId() == 1)
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        collect.forEach((vehicle1, vertex1) -> {
+            if (!graph.vehiclesSpt.containsKey(vehicle1.getProviderVehicleId())) {
+                LOG.info("skipping vehicle1 {}", vehicle1.getProviderVehicleId());
+                return;
+            }
+            Map<String, Spt.SptElement> data = graph.vehiclesSpt.get(vehicle1.getProviderVehicleId());
+            collect.forEach((vehicle2, vertex2) -> {
+                if (!vehicle1.equals(vehicle2)) {
+                    addShortcutEdge(vehicle1, vehicle2, vertex1.get(), vertex2.get(), data);
+                }
+            });
+        });
+
+        LOG.info("Added {} shortcut edges", counter);
+
         LOG.info("There are {} rentable vehicles from snapshot {} which we failed to link to graph",
                 Optional.ofNullable(vehiclesForSnapshot.get(false)).orElse(0L),
                 this.snapshotLabel);
@@ -131,5 +168,14 @@ class VehicleSharingGraphWriterRunnable implements GraphWriterRunnable {
         return vehiclesFetchedFromApi.stream()
                 .filter(v -> v.getSnapshotLabel().equals(this.snapshotLabel) && !graph.vehiclesTriedToLink.containsKey(v))
                 .collect(toList());
+    }
+
+    private void addShortcutEdge(VehicleDescription vehicle1, VehicleDescription vehicle2, TemporaryRentVehicleVertex vertex1, TemporaryRentVehicleVertex vertex2, Map<String, Spt.SptElement> data) {
+        if (!data.containsKey(vehicle2.getProviderVehicleId())) {
+            return;
+        }
+        Spt.SptElement elem = data.get(vehicle2.getProviderVehicleId());
+        counter++;
+        new ShortcutEdge(vertex1, vertex2, vehicle1, vehicle2, elem.getDistance(), (int) elem.getDuration(), elem.getWeight());
     }
 }

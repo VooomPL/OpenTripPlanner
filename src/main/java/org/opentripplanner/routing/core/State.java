@@ -7,7 +7,12 @@ import org.opentripplanner.model.Trip;
 import org.opentripplanner.routing.algorithm.NegativeWeightException;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleDescription;
 import org.opentripplanner.routing.core.vehicle_sharing.VehicleType;
-import org.opentripplanner.routing.edgetype.*;
+import org.opentripplanner.routing.edgetype.OnboardEdge;
+import org.opentripplanner.routing.edgetype.PatternInterlineDwell;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.edgetype.TablePatternEdge;
+import org.opentripplanner.routing.edgetype.TransitBoardAlight;
+import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.edgetype.rentedgetype.DropoffVehicleEdge;
 import org.opentripplanner.routing.edgetype.rentedgetype.RentVehicleEdge;
 import org.opentripplanner.routing.graph.Edge;
@@ -29,7 +34,7 @@ public class State implements Cloneable {
 
     protected TraversalStatistics traversalStatistics;
 
-    protected double distanceTraversedInCurrentVehicle;
+    public double distanceTraversedInCurrentVehicle;
 
     private int timeTraversedInCurrentVehicleInSeconds;
 
@@ -192,7 +197,7 @@ public class State implements Cloneable {
 
     public String toString() {
         return "<State " + getTimeInMillis() + " [" + weight + "] "
-                + (isBikeRenting() ? "BIKE_RENT " : "") + (isCarParked() ? "CAR_PARKED " : "")
+                + (isCurrentlyRentingVehicle() ? "rent " + getCurrentVehicle().getProviderVehicleId() : "")
                 + vertex + ">";
     }
 
