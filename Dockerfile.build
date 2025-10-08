@@ -1,0 +1,11 @@
+FROM adoptopenjdk/openjdk11:alpine
+
+RUN apk update
+
+RUN apk add maven
+
+COPY pom.xml /pom.xml
+
+COPY src /src
+
+CMD ["mvn", "verify"]

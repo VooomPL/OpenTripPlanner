@@ -1,0 +1,7 @@
+services:
+  compile:
+    build:
+      context: ./
+      dockerfile: Dockerfile.build
+    volumes:
+      - ./target:/target
